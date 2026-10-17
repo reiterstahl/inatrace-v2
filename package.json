@@ -9,7 +9,7 @@
     "dev:simulado": "vite --mode simulado",
     "build": "tsc -b && vite build",
     "preview": "vite preview",
-    "lint": "tsc -b --noEmit",
+    "lint": "tsc -b",
     "test": "vitest run",
     "e2e": "playwright test",
     "api:generar": "openapi-ts",

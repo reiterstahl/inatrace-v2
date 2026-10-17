@@ -1,0 +1,30 @@
+# Convivencia de la v2 con una instalación existente de INATrace.
+# Se suma a la red de Docker de esa instalación y le pone un proxy delante.
+#
+#   INATRACE_RED=dev_default docker compose -f deploy/convivencia/docker-compose.yml up -d
+#
+# Después, el dominio público tiene que apuntar al puerto del proxy en lugar de al del frontend actual.
+services:
+  v2:
+    image: ${V2_IMAGE:-ghcr.io/reiterstahl/inatrace-v2:latest}
+    restart: unless-stopped
+    networks: [inatrace]
+
+  proxy:
+    image: nginx:stable-alpine
+    restart: unless-stopped
+    depends_on: [v2]
+    environment:
+      V2_UPSTREAM: v2:8080
+      API_UPSTREAM: ${API_UPSTREAM:-inatrace-be:8080}
+      ANTERIOR_UPSTREAM: ${ANTERIOR_UPSTREAM:-inatrace-fe:80}
+    volumes:
+      - ./nginx.conf.template:/etc/nginx/templates/default.conf.template:ro
+    ports:
+      - "${PROXY_PUERTO:-127.0.0.1:8090}:8080"
+    networks: [inatrace]
+
+networks:
+  inatrace:
+    name: ${INATRACE_RED:?indicar la red de Docker de la instalación de INATrace}
+    external: true
