@@ -11,7 +11,12 @@
     "tema_claro": "Light theme",
     "tema_oscuro": "Dark theme"
   },
-  "idiomas": { "es": "Español", "en": "English", "de": "Deutsch", "rw": "Kinyarwanda" },
+  "idiomas": {
+    "es": "Español",
+    "en": "English",
+    "de": "Deutsch",
+    "rw": "Kinyarwanda"
+  },
   "acceso": {
     "titulo": "Sign in to INATrace",
     "subtitulo": "Transparent traceability, from the plot to the cup.",
@@ -57,8 +62,17 @@
     "rol": "Role",
     "estado": "Status",
     "idioma": "Platform language",
-    "roles": { "USER": "User", "SYSTEM_ADMIN": "System administrator", "REGIONAL_ADMIN": "Regional administrator" },
-    "estados": { "UNCONFIRMED": "Unconfirmed", "CONFIRMED_EMAIL": "Email confirmed", "ACTIVE": "Active", "DEACTIVATED": "Deactivated" }
+    "roles": {
+      "USER": "User",
+      "SYSTEM_ADMIN": "System administrator",
+      "REGIONAL_ADMIN": "Regional administrator"
+    },
+    "estados": {
+      "UNCONFIRMED": "Unconfirmed",
+      "CONFIRMED_EMAIL": "Email confirmed",
+      "ACTIVE": "Active",
+      "DEACTIVATED": "Deactivated"
+    }
   },
   "vitrina": {
     "pestanas": {
@@ -90,7 +104,11 @@
       "titulo_ingreso": "Higher income for farmers through {{producto}}",
       "pagado_como": "Price paid if sold as {{producto}}",
       "promedio_sin": "Average price paid if not sold as {{producto}}",
-      "unidad": { "PER_CONTAINER": "per container", "PER_KG": "per kg", "PERCENT_VALUE": "as % of value" }
+      "unidad": {
+        "PER_CONTAINER": "per container",
+        "PER_KG": "per kg",
+        "PERCENT_VALUE": "as % of value"
+      }
     },
     "productores": {
       "titulo": "Meet the farmers",
@@ -116,15 +134,28 @@
       "titulo": "Feedback",
       "intro": "The producers of {{producto}} would love to know what you think.",
       "tipo": "What would you like to share?",
-      "tipos": { "PRAISE": "Praise", "PROPOSAL": "A suggestion", "COMPLAINT": "A complaint" },
+      "tipos": {
+        "PRAISE": "Praise",
+        "PROPOSAL": "A suggestion",
+        "COMPLAINT": "A complaint"
+      },
       "comentario": "Your comment",
       "comentario_ayuda": "Up to 500 characters.",
       "comentario_largo": "The comment cannot exceed 500 characters.",
       "sabor": "How would you rate the taste of {{producto}} compared with other products you consume?",
-      "sabores": { "Better": "Better", "Same": "Same", "Worse": "Worse" },
+      "sabores": {
+        "Better": "Better",
+        "Same": "Same",
+        "Worse": "Worse"
+      },
       "edad": "Your age",
+      "edad_invalida": "Enter a valid age.",
       "genero": "Gender",
-      "generos": { "Female": "Female", "Male": "Male", "N/A": "Prefer not to say" },
+      "generos": {
+        "Female": "Female",
+        "Male": "Male",
+        "N/A": "Prefer not to say"
+      },
       "correo": "If you would like a reply, leave your email",
       "correo_invalido": "The email format is not valid.",
       "consentimiento": "I agree that my data may be processed to reply to my comment.",
@@ -136,7 +167,14 @@
       "otro": "Send another comment",
       "error": "It could not be sent. Please try again."
     },
-    "legal": { "terminos": "Terms of use", "privacidad": "Privacy policy", "volver": "Back to the product" },
-    "pie": { "trazabilidad": "Traceability with INATrace", "redes": "Social media" }
+    "legal": {
+      "terminos": "Terms of use",
+      "privacidad": "Privacy policy",
+      "volver": "Back to the product"
+    },
+    "pie": {
+      "trazabilidad": "Traceability with INATrace",
+      "redes": "Social media"
+    }
   }
 }

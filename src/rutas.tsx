@@ -35,7 +35,7 @@ const raiz = createRootRouteWithContext<{ queryClient: QueryClient }>()({
 const ingreso = createRoute({
   getParentRoute: () => raiz,
   path: 'ingreso',
-  validateSearch: (s: Record<string, unknown>) => ({
+  validateSearch: (s: Record<string, unknown>): { volver?: string; vencida?: boolean } => ({
     volver: typeof s.volver === 'string' && s.volver.startsWith('/') ? s.volver : undefined,
     vencida: s.vencida === true || s.vencida === 'true' ? true : undefined,
   }),
@@ -74,22 +74,22 @@ export const vitrina = createRoute({
   errorComponent: VitrinaError,
   component: Vitrina,
 });
-const hija = (path: string, component: () => React.ReactNode) =>
+// Una ruta por pestaña (declaradas una a una para que los enlaces queden tipados).
+const pestana = <P extends string>(path: P, component: () => React.ReactNode) =>
   createRoute({ getParentRoute: () => vitrina, path, component });
+const vPortada = pestana('/', Portada);
+const vRecorrido = pestana('journey', Recorrido);
+const vPrecios = pestana('fair-prices', Precios);
+const vProductores = pestana('producers', Productores);
+const vCalidad = pestana('quality', Calidad);
+const vOpinion = pestana('feedback', Opinion);
+const vTerminos = pestana('terms-of-use', () => <Legal tipo="terminos" />);
+const vPrivacidad = pestana('privacy-policy', () => <Legal tipo="privacidad" />);
 
 const arbol = raiz.addChildren([
   ingreso,
   portal.addChildren([inicio, perfil]),
-  vitrina.addChildren([
-    hija('/', Portada),
-    hija('journey', Recorrido),
-    hija('fair-prices', Precios),
-    hija('producers', Productores),
-    hija('quality', Calidad),
-    hija('feedback', Opinion),
-    hija('terms-of-use', () => <Legal tipo="terminos" />),
-    hija('privacy-policy', () => <Legal tipo="privacidad" />),
-  ]),
+  vitrina.addChildren([vPortada, vRecorrido, vPrecios, vProductores, vCalidad, vOpinion, vTerminos, vPrivacidad]),
 ]);
 
 export const router = createRouter({

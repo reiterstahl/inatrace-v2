@@ -11,7 +11,7 @@ export default defineConfig({
     {
       name: '@hey-api/client-fetch',
       // La configuración real (URL base, cookies, renovación de sesión) vive en src/api/cliente.ts.
-      runtimeConfigPath: '../cliente-config',
+      runtimeConfigPath: './src/api/cliente-config',
     },
   ],
 });

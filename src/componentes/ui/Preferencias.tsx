@@ -43,7 +43,7 @@ export function Logo({ className = '' }: { className?: string }) {
         <path d="M9 21c0-6 4-10 13-11-1 9-5 13-11 13" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" className="text-sobre-marca" />
         <path d="M9 23l6-6" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" className="text-sobre-marca" />
       </svg>
-      INATrace
+      <span className="max-[380px]:hidden">INATrace</span>
     </span>
   );
 }

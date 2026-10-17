@@ -11,7 +11,12 @@
     "tema_claro": "Tema claro",
     "tema_oscuro": "Tema oscuro"
   },
-  "idiomas": { "es": "Español", "en": "English", "de": "Deutsch", "rw": "Kinyarwanda" },
+  "idiomas": {
+    "es": "Español",
+    "en": "English",
+    "de": "Deutsch",
+    "rw": "Kinyarwanda"
+  },
   "acceso": {
     "titulo": "Ingresa a INATrace",
     "subtitulo": "Trazabilidad transparente, desde la parcela hasta la taza.",
@@ -57,8 +62,17 @@
     "rol": "Rol",
     "estado": "Estado",
     "idioma": "Idioma de la plataforma",
-    "roles": { "USER": "Usuario", "SYSTEM_ADMIN": "Administración del sistema", "REGIONAL_ADMIN": "Administración regional" },
-    "estados": { "UNCONFIRMED": "Sin confirmar", "CONFIRMED_EMAIL": "Correo confirmado", "ACTIVE": "Activo", "DEACTIVATED": "Desactivado" }
+    "roles": {
+      "USER": "Usuario",
+      "SYSTEM_ADMIN": "Administración del sistema",
+      "REGIONAL_ADMIN": "Administración regional"
+    },
+    "estados": {
+      "UNCONFIRMED": "Sin confirmar",
+      "CONFIRMED_EMAIL": "Correo confirmado",
+      "ACTIVE": "Activo",
+      "DEACTIVATED": "Desactivado"
+    }
   },
   "vitrina": {
     "pestanas": {
@@ -90,7 +104,11 @@
       "titulo_ingreso": "Más ingresos para los productores gracias a {{producto}}",
       "pagado_como": "Precio pagado si se vende como {{producto}}",
       "promedio_sin": "Precio promedio si no se vende como {{producto}}",
-      "unidad": { "PER_CONTAINER": "por contenedor", "PER_KG": "por kg", "PERCENT_VALUE": "en % del valor" }
+      "unidad": {
+        "PER_CONTAINER": "por contenedor",
+        "PER_KG": "por kg",
+        "PERCENT_VALUE": "en % del valor"
+      }
     },
     "productores": {
       "titulo": "Conoce a los productores",
@@ -116,15 +134,28 @@
       "titulo": "Tu opinión",
       "intro": "Los productores de {{producto}} quieren saber qué te pareció.",
       "tipo": "¿Qué quieres compartir?",
-      "tipos": { "PRAISE": "Una felicitación", "PROPOSAL": "Una propuesta", "COMPLAINT": "Una queja" },
+      "tipos": {
+        "PRAISE": "Una felicitación",
+        "PROPOSAL": "Una propuesta",
+        "COMPLAINT": "Una queja"
+      },
       "comentario": "Tu comentario",
       "comentario_ayuda": "Hasta 500 caracteres.",
       "comentario_largo": "El comentario no puede pasar de 500 caracteres.",
       "sabor": "¿Cómo calificarías el sabor de {{producto}} comparado con otros productos que consumes?",
-      "sabores": { "Better": "Mejor", "Same": "Igual", "Worse": "Peor" },
+      "sabores": {
+        "Better": "Mejor",
+        "Same": "Igual",
+        "Worse": "Peor"
+      },
       "edad": "Tu edad",
+      "edad_invalida": "Escribe una edad válida.",
       "genero": "Género",
-      "generos": { "Female": "Femenino", "Male": "Masculino", "N/A": "Prefiero no decirlo" },
+      "generos": {
+        "Female": "Femenino",
+        "Male": "Masculino",
+        "N/A": "Prefiero no decirlo"
+      },
       "correo": "Si quieres recibir una respuesta, déjanos tu correo",
       "correo_invalido": "El formato del correo no es válido.",
       "consentimiento": "Acepto que se traten mis datos para responder a mi comentario.",
@@ -136,7 +167,14 @@
       "otro": "Enviar otro comentario",
       "error": "No se pudo enviar. Intenta de nuevo."
     },
-    "legal": { "terminos": "Términos de uso", "privacidad": "Política de privacidad", "volver": "Volver al producto" },
-    "pie": { "trazabilidad": "Trazabilidad con INATrace", "redes": "Redes sociales" }
+    "legal": {
+      "terminos": "Términos de uso",
+      "privacidad": "Política de privacidad",
+      "volver": "Volver al producto"
+    },
+    "pie": {
+      "trazabilidad": "Trazabilidad con INATrace",
+      "redes": "Redes sociales"
+    }
   }
 }

@@ -21,14 +21,14 @@ export function Marco() {
 
   async function cerrar() {
     await salir.mutateAsync().catch(() => undefined);
-    await navegar({ to: '/ingreso', search: { volver: undefined, vencida: undefined } });
+    await navegar({ to: '/ingreso', search: {} });
   }
 
   return (
     <div className="min-h-dvh">
       <header className="sticky top-0 z-20 border-b border-linea bg-superficie/90 backdrop-blur">
-        <div className="mx-auto flex h-16 max-w-6xl items-center gap-6 px-4 sm:px-6">
-          <Link to="/">
+        <div className="mx-auto flex h-16 max-w-6xl items-center gap-2 px-3 sm:gap-6 sm:px-6">
+          <Link to="/" aria-label="INATrace">
             <Logo />
           </Link>
           <nav className="flex items-center gap-1" aria-label="Principal">
@@ -36,6 +36,7 @@ export function Marco() {
               <Link
                 key={n.to}
                 to={n.to}
+                aria-label={t(n.clave)}
                 className="inline-flex h-9 items-center gap-2 rounded-lg px-3 text-sm font-medium text-tinta-2 hover:bg-superficie-2 hover:text-tinta"
                 activeProps={{ className: 'bg-marca-suave !text-marca' }}
                 activeOptions={{ exact: true }}
@@ -44,15 +45,18 @@ export function Marco() {
                 <span className="hidden sm:inline">{t(n.clave)}</span>
               </Link>
             ))}
-            <a href={enAnterior('/home')} className="inline-flex h-9 items-center gap-2 rounded-lg px-3 text-sm font-medium text-tinta-3 hover:bg-superficie-2 hover:text-tinta">
+            <a href={enAnterior('/home')} aria-label={t('portal.version_actual')} className="inline-flex h-9 items-center gap-2 rounded-lg px-3 text-sm font-medium text-tinta-3 hover:bg-superficie-2 hover:text-tinta">
               <Icono nombre="externo" className="size-4" />
               <span className="hidden md:inline">{t('portal.version_actual')}</span>
             </a>
           </nav>
           <div className="ml-auto flex items-center gap-1">
-            <SelectorIdioma className="hidden sm:inline-flex" />
+            {/* Envuelto: el propio selector es inline-flex y le ganaría a un "hidden". */}
+            <div className="hidden sm:block">
+              <SelectorIdioma />
+            </div>
             <InterruptorTema />
-            <span className="ml-2 grid size-9 place-items-center rounded-full bg-acento-suave text-sm font-bold text-acento" title={nombre}>
+            <span className="ml-2 hidden size-9 place-items-center rounded-full sm:grid bg-acento-suave text-sm font-bold text-acento" title={nombre}>
               {iniciales || '·'}
             </span>
             <button type="button" onClick={cerrar} className="grid size-9 place-items-center rounded-lg text-tinta-2 hover:bg-superficie-2" title={t('portal.salir')} aria-label={t('portal.salir')}>
