@@ -1,0 +1,165 @@
+@import 'tailwindcss';
+
+/*
+ * Sistema de diseño de INATrace v2.
+ *
+ * Los componentes usan nombres semánticos (papel, tinta, marca…), nunca colores sueltos: así el
+ * tema oscuro y la marca de cada producto en la vitrina se cambian en un solo lugar.
+ * Reglas: el estado activo se marca con relleno, nunca con bordes laterales de color; cada
+ * estado (ok, aviso, mal, info) tiene siempre el mismo color en todo el sistema.
+ */
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* .tema-claro fuerza el tema claro en un sector (la vitrina usa los colores de cada producto). */
+:root,
+.tema-claro,
+.dark .tema-claro {
+  --papel: #f7f5f0;
+  --superficie: #ffffff;
+  --superficie-2: #f1eee7;
+  --tinta: #1b201d;
+  --tinta-2: #4a524d;
+  --tinta-3: #78807b;
+  --linea: #e4dfd5;
+  --linea-fuerte: #cfc8bb;
+
+  --marca: #1f5b45;
+  --marca-fuerte: #174535;
+  --marca-suave: #e5efe9;
+  --sobre-marca: #ffffff;
+  --acento: #a9662a;
+  --acento-suave: #f6eadc;
+
+  --ok: #15734a;
+  --ok-suave: #e3f3ea;
+  --aviso: #9a5b0b;
+  --aviso-suave: #fbf0dc;
+  --mal: #b3261e;
+  --mal-suave: #fbe7e5;
+  --info: #26618c;
+  --info-suave: #e3eef7;
+
+  --foco: #2f7d5d;
+  color-scheme: light;
+}
+
+.dark {
+  --papel: #121513;
+  --superficie: #1a1e1b;
+  --superficie-2: #222723;
+  --tinta: #ecefe9;
+  --tinta-2: #b9c0ba;
+  --tinta-3: #8a928c;
+  --linea: #2d332f;
+  --linea-fuerte: #3d4540;
+
+  --marca: #5fb08c;
+  --marca-fuerte: #7cc6a4;
+  --marca-suave: #1d3329;
+  --sobre-marca: #0e1a14;
+  --acento: #e0a465;
+  --acento-suave: #3a2a1a;
+
+  --ok: #5cc28f;
+  --ok-suave: #173326;
+  --aviso: #e5b25c;
+  --aviso-suave: #3a2c12;
+  --mal: #f08a80;
+  --mal-suave: #3d1c19;
+  --info: #7fb4dc;
+  --info-suave: #172b3a;
+
+  --foco: #7cc6a4;
+  color-scheme: dark;
+}
+
+@theme inline {
+  --color-papel: var(--papel);
+  --color-superficie: var(--superficie);
+  --color-superficie-2: var(--superficie-2);
+  --color-tinta: var(--tinta);
+  --color-tinta-2: var(--tinta-2);
+  --color-tinta-3: var(--tinta-3);
+  --color-linea: var(--linea);
+  --color-linea-fuerte: var(--linea-fuerte);
+  --color-marca: var(--marca);
+  --color-marca-fuerte: var(--marca-fuerte);
+  --color-marca-suave: var(--marca-suave);
+  --color-sobre-marca: var(--sobre-marca);
+  --color-acento: var(--acento);
+  --color-acento-suave: var(--acento-suave);
+  --color-ok: var(--ok);
+  --color-ok-suave: var(--ok-suave);
+  --color-aviso: var(--aviso);
+  --color-aviso-suave: var(--aviso-suave);
+  --color-mal: var(--mal);
+  --color-mal-suave: var(--mal-suave);
+  --color-info: var(--info);
+  --color-info-suave: var(--info-suave);
+}
+
+@theme {
+  --font-sans: 'Inter Variable', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-titulo: 'Fraunces Variable', ui-serif, Georgia, serif;
+  --radius-caja: 0.875rem;
+  --shadow-suave: 0 1px 2px rgb(20 30 25 / 0.05), 0 2px 8px rgb(20 30 25 / 0.05);
+  --shadow-alta: 0 12px 40px rgb(20 30 25 / 0.16);
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-rendering: optimizeLegibility;
+  }
+  body {
+    @apply bg-papel text-tinta font-sans antialiased;
+    font-feature-settings: 'cv11', 'ss01';
+  }
+  :focus-visible {
+    outline: 2px solid var(--foco);
+    outline-offset: 2px;
+  }
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
+  }
+  p {
+    text-wrap: pretty;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+/* Texto con formato que viene del backend (ya saneado): estilos legibles sin clases. */
+@layer components {
+  .prosa {
+    @apply text-tinta-2 leading-relaxed;
+  }
+  .prosa :where(p, ul, ol) {
+    @apply my-3;
+  }
+  .prosa :where(ul) {
+    @apply list-disc pl-5;
+  }
+  .prosa :where(ol) {
+    @apply list-decimal pl-5;
+  }
+  .prosa :where(a) {
+    @apply text-marca underline underline-offset-2;
+  }
+  .prosa :where(h1, h2, h3) {
+    @apply font-titulo text-tinta mt-6 mb-2 text-xl;
+  }
+  .prosa :where(strong, b) {
+    @apply text-tinta font-semibold;
+  }
+}

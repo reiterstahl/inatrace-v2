@@ -1,0 +1,75 @@
+{
+  "vitrina": {
+    "pestanas": {
+      "journey": "Urugendo",
+      "fair-prices": "Ibiciro bitabera",
+      "producers": "Abayitunganya",
+      "quality": "Ubuziranenge",
+      "feedback": "Ibitekerezo"
+    },
+    "ver_recorrido": "URUGENDO RW'IGICURUZWA",
+    "recorrido": {
+      "titulo": "Urugendo rw'igicuruzwa",
+      "tu_escaneo": "Ibyo wasikannye",
+      "cosecha": "Gusarura",
+      "productores_de": "Abahinzi baturuka {{nombre}}"
+    },
+    "precios": {
+      "titulo": "Ibiciro biboneye",
+      "pedido": "ikawa yawe ir mu mubare w'ibyo wishyuriye,hano hasi urahabona igiciro abatunganya umusaruro bishyuwe ugereranije n'igiciro cy'isoko",
+      "mercado_mundial": "Igiciro cy'ikawa ya Arabic ku isoko ry'isi",
+      "fairtrade": "Igiciro cya Fairtrade",
+      "pagado_como": "Gezahlter Preis wenn als {{producto}} verkauft",
+      "promedio_sin": "Durchschnittpreis wenn nicht als {{producto}} verkauft",
+      "unidad": {
+        "PER_CONTAINER": "kuri kontineri",
+        "PER_KG": "ku kilo",
+        "PERCENT_VALUE": "% AGACIRO"
+      }
+    },
+    "productores": {
+      "titulo": "Menya abahinzi"
+    },
+    "calidad": {
+      "titulo": "Ubwiza na Seritifika",
+      "puntos": "{{puntos}} amanota",
+      "referencia": "Amanota 80 = Specialty coffee",
+      "perfil_sabor": "Icyanga",
+      "perfil_tueste": "Umwirondoro wabakaranga",
+      "certificados": "Seritifika",
+      "descargar": "Kuraho"
+    },
+    "opinion": {
+      "titulo": "Igitekerezo",
+      "intro": "Abahinzi ba {{producto}} bifuza kumva ibitekerezo byawe (Ni iki wishimiye / utishimiye)",
+      "comentario_largo": "Igitekerezo ntago kigomba kurenga inyuguti 500.",
+      "sabores": {
+        "Better": "Byiza",
+        "Same": "Ni kimwe",
+        "Worse": "Bibi"
+      },
+      "edad": "Imyaka yawe",
+      "genero": "Igitsina",
+      "generos": {
+        "Female": "Gore",
+        "Male": "Gabo"
+      },
+      "correo": "Mu gihe waba wifuza kubona ubutumwa buduturutseho, waduha email yawe.",
+      "correo_invalido": "E-mail yanditse nabi",
+      "consentimiento_requerido": "Uruhushya rwa GDPR rurakewe",
+      "enviar": "Ohereza",
+      "gracias_titulo": "Cyoherejwe",
+      "gracias": "Byoherejwe neza.",
+      "error": "Ongera ugerageze",
+      "tipos": {
+        "PRAISE": "Wakoze neza",
+        "PROPOSAL": "Icyifuzo",
+        "COMPLAINT": "Icyitishimiwe"
+      }
+    },
+    "legal": {
+      "terminos": "Amategeko yo kuyikoresha",
+      "privacidad": "Imirongo ngenderwaho ku bijyanye n'ibanga"
+    }
+  }
+}

@@ -1,0 +1,142 @@
+{
+  "comun": {
+    "cargando": "Cargando…",
+    "reintentar": "Reintentar",
+    "guardar": "Guardar",
+    "guardado": "Cambios guardados",
+    "cancelar": "Cancelar",
+    "idioma": "Idioma",
+    "error_titulo": "Algo salió mal",
+    "error_texto": "No pudimos cargar esta información. Revisa tu conexión e intenta de nuevo.",
+    "tema_claro": "Tema claro",
+    "tema_oscuro": "Tema oscuro"
+  },
+  "idiomas": { "es": "Español", "en": "English", "de": "Deutsch", "rw": "Kinyarwanda" },
+  "acceso": {
+    "titulo": "Ingresa a INATrace",
+    "subtitulo": "Trazabilidad transparente, desde la parcela hasta la taza.",
+    "correo": "Correo electrónico",
+    "clave": "Contraseña",
+    "ingresar": "Ingresar",
+    "ingresando": "Ingresando…",
+    "error": "El correo o la contraseña no son correctos.",
+    "olvido": "¿Olvidaste tu contraseña?",
+    "version_actual": "Usar la versión actual",
+    "sesion_vencida": "Tu sesión terminó. Ingresa de nuevo."
+  },
+  "portal": {
+    "inicio": "Inicio",
+    "perfil": "Mi perfil",
+    "salir": "Salir",
+    "version_actual": "Versión actual",
+    "hola": "Hola, {{nombre}}",
+    "bienvenida": "Esta es la nueva interfaz de INATrace. Se va habilitando por módulos: lo que todavía no está acá se abre en la versión actual, con la misma sesión.",
+    "modulos": "Módulos",
+    "en_v2": "En la nueva versión",
+    "en_actual": "En la versión actual",
+    "abrir": "Abrir",
+    "modulo": {
+      "vitrina": "Vitrina pública del producto",
+      "vitrina_desc": "Lo que ve el consumidor al escanear el QR.",
+      "productores": "Productores y parcelas",
+      "productores_desc": "Fichas, parcelas y mapa.",
+      "stock": "Stock",
+      "stock_desc": "Entregas, procesamiento, pagos y trazabilidad.",
+      "empresa": "Empresa y administración",
+      "empresa_desc": "Instalaciones, usuarios, cadenas de valor y catálogos.",
+      "productos": "Productos y etiquetas",
+      "productos_desc": "Productos, etiquetas, lotes y estadísticas."
+    }
+  },
+  "perfil": {
+    "titulo": "Mi perfil",
+    "datos": "Datos personales",
+    "nombre": "Nombre",
+    "apellido": "Apellido",
+    "correo": "Correo",
+    "rol": "Rol",
+    "estado": "Estado",
+    "idioma": "Idioma de la plataforma",
+    "roles": { "USER": "Usuario", "SYSTEM_ADMIN": "Administración del sistema", "REGIONAL_ADMIN": "Administración regional" },
+    "estados": { "UNCONFIRMED": "Sin confirmar", "CONFIRMED_EMAIL": "Correo confirmado", "ACTIVE": "Activo", "DEACTIVATED": "Desactivado" }
+  },
+  "vitrina": {
+    "pestanas": {
+      "journey": "Recorrido",
+      "fair-prices": "Precios justos",
+      "producers": "Productores",
+      "quality": "Calidad",
+      "feedback": "Tu opinión"
+    },
+    "ver_recorrido": "Ver el recorrido del producto",
+    "no_encontrada": "No encontramos este producto",
+    "no_encontrada_texto": "El código que escaneaste no corresponde a un producto publicado. Puede que la etiqueta todavía no esté activa.",
+    "recorrido": {
+      "titulo": "Recorrido del producto",
+      "intro": "Cada paso que dio este producto, desde la cosecha hasta tus manos.",
+      "tu_escaneo": "Tu escaneo",
+      "hoy": "Hoy",
+      "cosecha": "Cosecha",
+      "productores_de": "Productores de {{nombre}}",
+      "paso": "paso {{paso}} de {{pasos}}",
+      "mapa": "Mapa del recorrido"
+    },
+    "precios": {
+      "titulo": "Precios justos",
+      "pedido": "Tu paquete es parte del pedido {{pedido}}. Abajo puedes ver cuánto se les pagó a los productores locales por este pedido ({{unidad}}), comparado con el precio del mercado mundial y el precio mínimo de Fairtrade.",
+      "sin_pedido": "Abajo puedes ver cuánto se les paga a los productores locales ({{unidad}}), comparado con el precio del mercado mundial y el precio mínimo de Fairtrade.",
+      "mercado_mundial": "Precio del mercado mundial del café arábica",
+      "fairtrade": "Precio Fairtrade",
+      "titulo_ingreso": "Más ingresos para los productores gracias a {{producto}}",
+      "pagado_como": "Precio pagado si se vende como {{producto}}",
+      "promedio_sin": "Precio promedio si no se vende como {{producto}}",
+      "unidad": { "PER_CONTAINER": "por contenedor", "PER_KG": "por kg", "PERCENT_VALUE": "en % del valor" }
+    },
+    "productores": {
+      "titulo": "Conoce a los productores",
+      "video": "Video de los productores",
+      "registros": "Registros de producción",
+      "sin_contenido": "Este producto todavía no tiene fotos ni videos de sus productores."
+    },
+    "calidad": {
+      "titulo": "Calidad y certificados",
+      "puntaje": "Puntaje de catación",
+      "puntos": "{{puntos}} puntos",
+      "referencia": "80 puntos = café de especialidad",
+      "explicacion": "El gráfico compara el puntaje de calidad de este paquete de {{producto}} con el mínimo de 80 puntos que la Specialty Coffee Association (SCA) exige para un café de especialidad.",
+      "sin_puntaje": "Este lote no tiene un puntaje de catación registrado.",
+      "perfil_sabor": "Perfil de sabor",
+      "perfil_tueste": "Perfil de tueste",
+      "certificados": "Certificados",
+      "sin_certificados": "No hay certificados registrados para este lote.",
+      "valido": "Válido hasta {{fecha}}",
+      "descargar": "Descargar"
+    },
+    "opinion": {
+      "titulo": "Tu opinión",
+      "intro": "Los productores de {{producto}} quieren saber qué te pareció.",
+      "tipo": "¿Qué quieres compartir?",
+      "tipos": { "PRAISE": "Una felicitación", "PROPOSAL": "Una propuesta", "COMPLAINT": "Una queja" },
+      "comentario": "Tu comentario",
+      "comentario_ayuda": "Hasta 500 caracteres.",
+      "comentario_largo": "El comentario no puede pasar de 500 caracteres.",
+      "sabor": "¿Cómo calificarías el sabor de {{producto}} comparado con otros productos que consumes?",
+      "sabores": { "Better": "Mejor", "Same": "Igual", "Worse": "Peor" },
+      "edad": "Tu edad",
+      "genero": "Género",
+      "generos": { "Female": "Femenino", "Male": "Masculino", "N/A": "Prefiero no decirlo" },
+      "correo": "Si quieres recibir una respuesta, déjanos tu correo",
+      "correo_invalido": "El formato del correo no es válido.",
+      "consentimiento": "Acepto que se traten mis datos para responder a mi comentario.",
+      "consentimiento_requerido": "Necesitamos tu consentimiento para enviar el comentario.",
+      "enviar": "Enviar",
+      "enviando": "Enviando…",
+      "gracias_titulo": "¡Gracias!",
+      "gracias": "Tu comentario llegó a los productores.",
+      "otro": "Enviar otro comentario",
+      "error": "No se pudo enviar. Intenta de nuevo."
+    },
+    "legal": { "terminos": "Términos de uso", "privacidad": "Política de privacidad", "volver": "Volver al producto" },
+    "pie": { "trazabilidad": "Trazabilidad con INATrace", "redes": "Redes sociales" }
+  }
+}

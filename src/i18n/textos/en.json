@@ -1,0 +1,142 @@
+{
+  "comun": {
+    "cargando": "Loading…",
+    "reintentar": "Try again",
+    "guardar": "Save",
+    "guardado": "Changes saved",
+    "cancelar": "Cancel",
+    "idioma": "Language",
+    "error_titulo": "Something went wrong",
+    "error_texto": "We couldn't load this information. Check your connection and try again.",
+    "tema_claro": "Light theme",
+    "tema_oscuro": "Dark theme"
+  },
+  "idiomas": { "es": "Español", "en": "English", "de": "Deutsch", "rw": "Kinyarwanda" },
+  "acceso": {
+    "titulo": "Sign in to INATrace",
+    "subtitulo": "Transparent traceability, from the plot to the cup.",
+    "correo": "Email",
+    "clave": "Password",
+    "ingresar": "Sign in",
+    "ingresando": "Signing in…",
+    "error": "The email or password is incorrect.",
+    "olvido": "Forgot your password?",
+    "version_actual": "Use the current version",
+    "sesion_vencida": "Your session ended. Please sign in again."
+  },
+  "portal": {
+    "inicio": "Home",
+    "perfil": "My profile",
+    "salir": "Sign out",
+    "version_actual": "Current version",
+    "hola": "Hello, {{nombre}}",
+    "bienvenida": "This is the new INATrace interface. It is being rolled out module by module: anything not here yet opens in the current version, with the same session.",
+    "modulos": "Modules",
+    "en_v2": "In the new version",
+    "en_actual": "In the current version",
+    "abrir": "Open",
+    "modulo": {
+      "vitrina": "Public product page",
+      "vitrina_desc": "What consumers see when they scan the QR code.",
+      "productores": "Farmers and plots",
+      "productores_desc": "Profiles, plots and map.",
+      "stock": "Stock",
+      "stock_desc": "Deliveries, processing, payments and traceability.",
+      "empresa": "Company and administration",
+      "empresa_desc": "Facilities, users, value chains and catalogs.",
+      "productos": "Products and labels",
+      "productos_desc": "Products, labels, batches and statistics."
+    }
+  },
+  "perfil": {
+    "titulo": "My profile",
+    "datos": "Personal details",
+    "nombre": "First name",
+    "apellido": "Last name",
+    "correo": "Email",
+    "rol": "Role",
+    "estado": "Status",
+    "idioma": "Platform language",
+    "roles": { "USER": "User", "SYSTEM_ADMIN": "System administrator", "REGIONAL_ADMIN": "Regional administrator" },
+    "estados": { "UNCONFIRMED": "Unconfirmed", "CONFIRMED_EMAIL": "Email confirmed", "ACTIVE": "Active", "DEACTIVATED": "Deactivated" }
+  },
+  "vitrina": {
+    "pestanas": {
+      "journey": "Journey",
+      "fair-prices": "Fair prices",
+      "producers": "Producers",
+      "quality": "Quality",
+      "feedback": "Feedback"
+    },
+    "ver_recorrido": "See the product journey",
+    "no_encontrada": "We couldn't find this product",
+    "no_encontrada_texto": "The code you scanned does not belong to a published product. The label may not be active yet.",
+    "recorrido": {
+      "titulo": "Product journey",
+      "intro": "Every step this product took, from harvest to your hands.",
+      "tu_escaneo": "Your scan",
+      "hoy": "Today",
+      "cosecha": "Harvesting",
+      "productores_de": "Farmers from {{nombre}}",
+      "paso": "step {{paso}} of {{pasos}}",
+      "mapa": "Journey map"
+    },
+    "precios": {
+      "titulo": "Fair prices",
+      "pedido": "Your package is part of order {{pedido}}. Below you can see how much local producers were paid for this order ({{unidad}}), compared with the world market price and the Fairtrade minimum price.",
+      "sin_pedido": "Below you can see how much local producers are paid ({{unidad}}), compared with the world market price and the Fairtrade minimum price.",
+      "mercado_mundial": "World market price for Arabica coffee",
+      "fairtrade": "Fairtrade price",
+      "titulo_ingreso": "Higher income for farmers through {{producto}}",
+      "pagado_como": "Price paid if sold as {{producto}}",
+      "promedio_sin": "Average price paid if not sold as {{producto}}",
+      "unidad": { "PER_CONTAINER": "per container", "PER_KG": "per kg", "PERCENT_VALUE": "as % of value" }
+    },
+    "productores": {
+      "titulo": "Meet the farmers",
+      "video": "Video about the farmers",
+      "registros": "Production records",
+      "sin_contenido": "This product has no photos or videos of its farmers yet."
+    },
+    "calidad": {
+      "titulo": "Quality and certificates",
+      "puntaje": "Cupping score",
+      "puntos": "{{puntos}} points",
+      "referencia": "80 points = specialty coffee",
+      "explicacion": "The chart compares the quality score of this package of {{producto}} with the minimum of 80 points that the Specialty Coffee Association (SCA) requires for specialty coffee.",
+      "sin_puntaje": "This batch has no recorded cupping score.",
+      "perfil_sabor": "Flavor profile",
+      "perfil_tueste": "Roasting profile",
+      "certificados": "Certificates",
+      "sin_certificados": "There are no certificates recorded for this batch.",
+      "valido": "Valid until {{fecha}}",
+      "descargar": "Download"
+    },
+    "opinion": {
+      "titulo": "Feedback",
+      "intro": "The producers of {{producto}} would love to know what you think.",
+      "tipo": "What would you like to share?",
+      "tipos": { "PRAISE": "Praise", "PROPOSAL": "A suggestion", "COMPLAINT": "A complaint" },
+      "comentario": "Your comment",
+      "comentario_ayuda": "Up to 500 characters.",
+      "comentario_largo": "The comment cannot exceed 500 characters.",
+      "sabor": "How would you rate the taste of {{producto}} compared with other products you consume?",
+      "sabores": { "Better": "Better", "Same": "Same", "Worse": "Worse" },
+      "edad": "Your age",
+      "genero": "Gender",
+      "generos": { "Female": "Female", "Male": "Male", "N/A": "Prefer not to say" },
+      "correo": "If you would like a reply, leave your email",
+      "correo_invalido": "The email format is not valid.",
+      "consentimiento": "I agree that my data may be processed to reply to my comment.",
+      "consentimiento_requerido": "We need your consent to send the comment.",
+      "enviar": "Send",
+      "enviando": "Sending…",
+      "gracias_titulo": "Thank you!",
+      "gracias": "Your comment has reached the producers.",
+      "otro": "Send another comment",
+      "error": "It could not be sent. Please try again."
+    },
+    "legal": { "terminos": "Terms of use", "privacidad": "Privacy policy", "volver": "Back to the product" },
+    "pie": { "trazabilidad": "Traceability with INATrace", "redes": "Social media" }
+  }
+}

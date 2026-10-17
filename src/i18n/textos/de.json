@@ -1,0 +1,74 @@
+{
+  "vitrina": {
+    "pestanas": {
+      "journey": "Reise",
+      "fair-prices": "Faire Preise",
+      "producers": "Produzent*innen",
+      "quality": "Qualität",
+      "feedback": "Feedback"
+    },
+    "ver_recorrido": "PRODUKTREISE",
+    "recorrido": {
+      "titulo": "Produktreise",
+      "tu_escaneo": "Ihr Scan",
+      "cosecha": "Ernte",
+      "productores_de": "Landwirtinnen aus {{nombre}}"
+    },
+    "precios": {
+      "titulo": "Faire Preise",
+      "pedido": "Ihre Kaffeepackung ist Teil der Bestellnummer {{pedido}}. In der folgenden Grafik können Sie sehen wie viel den lokalen Produzent*innen bezahlt wurde für diese Bestellung {{unidad}} im Vergleich zum Weltmarktpreis für Kaffee und zum Fairtrade-Minimupreis.",
+      "mercado_mundial": "Weltmarktpreis für Arabica-Kaffee",
+      "fairtrade": "Fairtrade-Preis",
+      "pagado_como": "Gezahlter Preis wenn als {{producto}} verkauft",
+      "promedio_sin": "Durchschnittpreis wenn nicht als {{producto}} verkauft",
+      "unidad": {
+        "PER_CONTAINER": "Per Container",
+        "PER_KG": "Per kg",
+        "PERCENT_VALUE": "%-Wert"
+      }
+    },
+    "productores": {
+      "titulo": "Lernen Sie die Bäuerinnen kennen"
+    },
+    "calidad": {
+      "titulo": "Qualität und Zertifikate",
+      "puntos": "{{puntos}} Punkte",
+      "referencia": "80+ Punkte= Spezialitätenkaffee",
+      "perfil_sabor": "Geschmacksprofil",
+      "perfil_tueste": "Röstprofil",
+      "certificados": "Zertifikate"
+    },
+    "opinion": {
+      "intro": "Die Produzentinnen von {{producto}} freuen sich über Ihr Feedback (Was mögen Sie an dem Kaffee? / Was mögen Sie nicht?).",
+      "comentario_largo": "Das Feedback sollte 500 Zeichen nicht übersteigen",
+      "sabor": "How would you rate the taste of {{producto}} in comparison to other products that you consume?",
+      "sabores": {
+        "Better": "Besser",
+        "Same": "Gleich gut",
+        "Worse": "Schlechter"
+      },
+      "edad": "Ihr Alter",
+      "genero": "Geschlecht",
+      "generos": {
+        "Female": "Weiblich",
+        "Male": "Männlich"
+      },
+      "correo": "Wenn Sie eine Antwort von uns erhalten möchten, benötigen wir Ihre Email-Adresse:",
+      "correo_invalido": "DIe Email-Adresse ist im falschen Format",
+      "consentimiento_requerido": "GDPR Konsens benötigt",
+      "enviar": "Übermitteln",
+      "gracias_titulo": "Übermittelt",
+      "gracias": "Erfolgreich übermittelt",
+      "error": "Bitte versuchen Sie es erneut",
+      "tipos": {
+        "PRAISE": "Lob",
+        "PROPOSAL": "Vorschlag",
+        "COMPLAINT": "Beschwerde"
+      }
+    },
+    "legal": {
+      "terminos": "Nutzungsbedingungen",
+      "privacidad": "Datenschutzrichtlinie"
+    }
+  }
+}
