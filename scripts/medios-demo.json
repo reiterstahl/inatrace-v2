@@ -1,0 +1,86 @@
+{
+  "video": {
+    "nombre": "Anacafé: impulsando el desarrollo de Guatemala",
+    "link": "https://www.youtube.com/watch?v=XspWhUaKELc",
+    "fuente": "Canal oficial de Anacafé en YouTube"
+  },
+  "medios": [
+    {
+      "archivo": "sombra",
+      "uso": "portada",
+      "nombre": null,
+      "descripcion": "Café bajo sombra en Guatemala",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/e/ef/Shade_grown_coffee_in_Guatemala.jpg",
+      "fuente": "https://commons.wikimedia.org/wiki/File:Shade_grown_coffee_in_Guatemala.jpg",
+      "autor": "John Blake",
+      "licencia": "Public domain",
+      "urlLicencia": ""
+    },
+    {
+      "archivo": "portada",
+      "uso": "encabezado",
+      "nombre": null,
+      "descripcion": "Café recién cosechado secándose al sol, Lanquín",
+      "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/ea/Fresh_harvested_coffee_is_being_dried_in_the_sun_in_Lanqu%C3%ADn%2C_Guatemala.jpg/1920px-Fresh_harvested_coffee_is_being_dried_in_the_sun_in_Lanqu%C3%ADn%2C_Guatemala.jpg",
+      "fuente": "https://commons.wikimedia.org/wiki/File:Fresh_harvested_coffee_is_being_dried_in_the_sun_in_Lanqu%C3%ADn,_Guatemala.jpg",
+      "autor": "Salix Oculus",
+      "licencia": "CC BY-SA 4.0",
+      "urlLicencia": "https://creativecommons.org/licenses/by-sa/4.0"
+    },
+    {
+      "archivo": "portada",
+      "uso": "MEET_THE_FARMER",
+      "nombre": "Secado al sol",
+      "descripcion": "Café recién cosechado secándose al sol en Lanquín, Alta Verapaz.",
+      "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/ea/Fresh_harvested_coffee_is_being_dried_in_the_sun_in_Lanqu%C3%ADn%2C_Guatemala.jpg/1920px-Fresh_harvested_coffee_is_being_dried_in_the_sun_in_Lanqu%C3%ADn%2C_Guatemala.jpg",
+      "fuente": "https://commons.wikimedia.org/wiki/File:Fresh_harvested_coffee_is_being_dried_in_the_sun_in_Lanqu%C3%ADn,_Guatemala.jpg",
+      "autor": "Salix Oculus",
+      "licencia": "CC BY-SA 4.0",
+      "urlLicencia": "https://creativecommons.org/licenses/by-sa/4.0"
+    },
+    {
+      "archivo": "cosecha",
+      "uso": "MEET_THE_FARMER",
+      "nombre": "La cosecha del día",
+      "descripcion": "Cereza madura recibida en San Martín Jilotepeque, Chimaltenango.",
+      "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/99/Guatemala_2011_228_-_San_Mart%C3%ADn_Jilotepeque_Coffee_Harvest.jpg/1920px-Guatemala_2011_228_-_San_Mart%C3%ADn_Jilotepeque_Coffee_Harvest.jpg",
+      "fuente": "https://commons.wikimedia.org/wiki/File:Guatemala_2011_228_-_San_Mart%C3%ADn_Jilotepeque_Coffee_Harvest.jpg",
+      "autor": "Caffe Vita",
+      "licencia": "CC BY 2.0",
+      "urlLicencia": "https://creativecommons.org/licenses/by/2.0"
+    },
+    {
+      "archivo": "bodega",
+      "uso": "MEET_THE_FARMER",
+      "nombre": "En la bodega",
+      "descripcion": "Sacos de café pergamino en un beneficio de Pastores, Sacatepéquez.",
+      "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/52/Visita_al_Beneficio_del_Caf%C3%A9_Pastores_Sacatepequez_Guatemala_-_Bodega_del_caf%C3%A9.jpg/1920px-Visita_al_Beneficio_del_Caf%C3%A9_Pastores_Sacatepequez_Guatemala_-_Bodega_del_caf%C3%A9.jpg",
+      "fuente": "https://commons.wikimedia.org/wiki/File:Visita_al_Beneficio_del_Caf%C3%A9_Pastores_Sacatepequez_Guatemala_-_Bodega_del_caf%C3%A9.jpg",
+      "autor": "Alfredo José Ortiz Garcia",
+      "licencia": "CC BY-SA 2.0",
+      "urlLicencia": "https://creativecommons.org/licenses/by-sa/2.0"
+    },
+    {
+      "archivo": "seleccion",
+      "uso": "PRODUCTION_RECORD",
+      "nombre": "Selección",
+      "descripcion": "Clasificación del grano en el beneficio de Pastores, Sacatepéquez.",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/1/12/Visita_al_Beneficio_del_Caf%C3%A9_Pastores_Sacatepequez_Guatemala_-_Selecci%C3%B3n_del_caf%C3%A9.jpg",
+      "fuente": "https://commons.wikimedia.org/wiki/File:Visita_al_Beneficio_del_Caf%C3%A9_Pastores_Sacatepequez_Guatemala_-_Selecci%C3%B3n_del_caf%C3%A9.jpg",
+      "autor": "Alfredo José Ortiz Garcia",
+      "licencia": "CC BY-SA 2.0",
+      "urlLicencia": "https://creativecommons.org/licenses/by-sa/2.0"
+    },
+    {
+      "archivo": "catacion",
+      "uso": "PRODUCTION_RECORD",
+      "nombre": "Catación",
+      "descripcion": "Evaluación de la calidad en taza.",
+      "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e0/Coffee_Cupping-1.jpg/1920px-Coffee_Cupping-1.jpg",
+      "fuente": "https://commons.wikimedia.org/wiki/File:Coffee_Cupping-1.jpg",
+      "autor": "Visitor7",
+      "licencia": "CC BY-SA 3.0",
+      "urlLicencia": "https://creativecommons.org/licenses/by-sa/3.0"
+    }
+  ]
+}

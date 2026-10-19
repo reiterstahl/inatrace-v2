@@ -1,6 +1,6 @@
 # INATrace v2
 
-Frontend nuevo para INATrace sobre el backend existente (Java/Spring, sin cambios). Iniciativa
+Interfaz nueva para INATrace sobre el backend existente (Java/Spring, sin cambios). Iniciativa
 propia de Rolando Quirós, separada de los contratos GIZ. Plan completo en
 [docs/PLAN.md](docs/PLAN.md); estado y pendientes en [docs/AVANCE.md](docs/AVANCE.md).
 
@@ -42,6 +42,8 @@ pnpm exec playwright test -c playwright.real.config.ts   # contra una instalaci�
   `/v2/p-cd/…`) está lista pero comentada: se activa cuando se decida.
 - **Datos de demostración:** `scripts/sembrar-demo.mjs` crea por la API una acción "generar QR",
   un lote con su QR y una etiqueta publicada. Solo para instancias de prueba.
+  `scripts/sembrar-medios.mjs` le agrega fotos con licencia libre y un video (manifiesto en
+  `scripts/medios-demo.json`, créditos en `docs/CREDITOS-DEMO.md`).
 
 ## Decisiones técnicas a saber
 
@@ -49,3 +51,13 @@ pnpm exec playwright test -c playwright.real.config.ts   # contra una instalaci�
 - MapLibre 6 necesita la URL de su worker explícita (`setWorkerUrl`); sin eso el mapa queda en blanco.
 - Las URLs de la vitrina son las mismas que en la versión actual, bajo `/v2`.
 - Cada petición manda la cabecera `language`, como la interfaz actual: el backend traduce con eso.
+
+## Licencia
+
+**Mozilla Public License 2.0** ([LICENSE](LICENSE)), la misma que INATrace. INATrace v2 es una
+reinterpretación de su interfaz: el código es nuevo, pero algunas partes derivan del frontend
+original (el cálculo de "Precios justos" y las traducciones al alemán y al kinyarwanda,
+importadas de sus archivos de idioma) y se distribuyen bajo los mismos términos. INATrace es un
+proyecto de la GIZ y sus colaboradores.
+
+Las fotos de la demostración tienen sus propias licencias: ver [docs/CREDITOS-DEMO.md](docs/CREDITOS-DEMO.md).

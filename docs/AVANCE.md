@@ -63,11 +63,28 @@ vitrina en `/v2/p-cd/ec8eed8f396d48e4b513b02d4a163782/a636d617-99c8-427d-a466-c9
 
 La instancia de referencia (`inatrace-*`) sigue detenida como estaba desde el 26.09.
 
+## Fase 1b (activar la vitrina en una instalación) — pendiente, acordada el 19.10.2026
+
+Pasos, en orden:
+
+1. Publicar la imagen (pasar a `main` o etiquetar una versión; el CI la sube a GHCR).
+2. En la instalación: definir `TOKEN_REGISTRO_PUBLICO` igual al `REQUEST_LOG_TOKEN` del backend.
+3. Levantar `deploy/convivencia/` delante del frontend actual y apuntar el dominio al proxy.
+4. Probar con la v2 en `/v2/` sin tocar los QR (la versión actual sigue igual).
+5. Descomentar la redirección de QR del proxy y escanear un QR impreso real: debe abrir la v2 y
+   sumar la visita en las estadísticas de la etiqueta.
+6. Vuelta atrás: volver a comentar la redirección (los QR vuelven a la versión actual al instante).
+
+## Medios de demostración
+
+`scripts/sembrar-medios.mjs` cargó en la copia aislada 6 fotos con licencia libre de Wikimedia
+Commons (créditos en `docs/CREDITOS-DEMO.md`, visibles en cada leyenda) y un video del canal de
+Anacafé. Se reemplazan por fotos propias cuando aparezcan. **Antes de mostrar la demo a terceros,
+confirmar el uso del video de Anacafé o cambiarlo.**
+
 ## Pendiente / próximos pasos
 
-1. Pasar `fase-0` a `main` para que el CI publique la primera imagen en GHCR.
-2. Decisiones abiertas del plan (§9): licencia, nombre, instancia de demostración pública.
-3. Para la demo al cliente: fotos y video reales de productores en la etiqueta sembrada.
+1. Fase 1b (arriba), cuando se decida. `fase-0` **no** se pasa a `main` por ahora.
+2. Revisión de alemán y kinyarwanda por alguien que los hable.
+3. Demo pública: más adelante.
 4. Fase 2: productores y parcelas.
-5. Para activar la vitrina v2 en una instalación: definir `TOKEN_REGISTRO_PUBLICO` (el mismo
-   `REQUEST_LOG_TOKEN` del backend) y descomentar la redirección de QR en el proxy.

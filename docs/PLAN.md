@@ -117,6 +117,7 @@ El tamaño es relativo (S / M / L / XL); el calendario se fija al cerrar la fase
 |---|---|---|---|
 | **0. Cimientos** | Repo, Vite, cliente generado, proxy de convivencia, sesión compartida, sistema de diseño base, i18n, CI a GHCR, Playwright contra un backend de prueba | M | Ingresar en la v2, ver tu perfil y volver a la versión actual sin perder la sesión |
 | **1. Vitrina pública** | Páginas del consumidor (QR, recorrido del producto, productores, calidad, comentarios) | M | Un QR real abre la página nueva, en celular, en los 4 idiomas |
+| **1b. Activar la vitrina** | Poner la vitrina v2 en una instalación real: imagen publicada, token de registro, proxy de convivencia delante, redirección de los QR impresos y plan de vuelta atrás | S | Un QR impreso de la instalación abre la v2 y su visita suma en las estadísticas |
 | **2. Productores y parcelas** | Lista, ficha, alta, importación, parcelas con mapa MapLibre y capas del catálogo | L | Paridad con la versión actual + mapa sin token |
 | **3. Stock** | Entregas, procesamiento, pagos, todo el stock, trazabilidad de una orden | XL | Un ciclo completo entrega → procesamiento → pago hecho solo en la v2 |
 | **4. Empresa y administración** | Empresas, instalaciones, usuarios, cadenas de valor, catálogos | L | Administrar una instancia sin abrir la versión actual |
@@ -149,16 +150,18 @@ interfaz actual más cuesta; la administración se usa poco y puede esperar en l
 | Trabajo sin contrato | Fase 0 + 1 como inversión propia y demostración; el resto, solo con acuerdo |
 | Confusión de propiedad intelectual con los contratos actuales | Repo propio, horas propias, separado de `inatrace-enhanced` |
 
-## 9. Decisiones abiertas
+## 9. Decisiones
 
-1. **Licencia de la v2.** Al ser código nuevo (no modifica archivos MPL), se puede elegir. Opciones:
-   MPL 2.0 como el resto (más fácil de adoptar por GIZ y el upstream; INATrace es un bien público
-   digital), o licencia propia con oferta comercial. Define el modelo de negocio.
-2. **Nombre** del producto (¿"INATrace v2", o un nombre propio?).
-3. **Dónde vive el repo** (cuenta personal o de DAP; privado hasta decidir).
-4. **Instancia de demostración:** ¿sobre la de referencia actual o una aparte con datos ficticios?
+Tomadas el 19.10.2026:
+
+1. **Licencia: MPL 2.0**, la misma de INATrace. Facilita que GIZ o el proyecto original la adopten.
+2. **Nombre: INATrace v2.** Claro: es una reinterpretación de INATrace, no otro producto.
+3. **Repo:** `reiterstahl/inatrace-v2`, privado hasta decidir otra cosa.
+
+Abiertas:
+
+4. **Instancia de demostración pública:** más adelante. Hoy hay una copia aislada solo local.
 5. **Upstream:** si y cuándo se conversa con GIZ y con quienes mantienen INATrace.
-6. **Dirección estética:** se propone en la fase 0 con 2–3 alternativas visuales antes de construir.
 
 ## 10. Próximo paso sugerido
 
