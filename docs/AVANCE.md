@@ -18,7 +18,10 @@ iniciada en la v2 vale en la interfaz actual y al revés.
 ## Fase 1 (vitrina pública) — ✅ cerrada el 17.10.2026
 
 Criterio de salida: *un QR real abre la página nueva, en celular, en los 4 idiomas*.
-Verificado con un QR generado por el backend en la copia aislada.
+Verificado con un QR generado por el backend en la copia aislada, en celular y escritorio.
+Idiomas: español e inglés probados; alemán y kinyarwanda usan los textos importados de la
+versión actual (48 y 49 de 50) y lo que allá no estaba traducido cae al inglés. Falta que
+alguien que hable alemán y kinyarwanda los revise.
 
 - Portada, recorrido (mapa MapLibre + línea de tiempo), precios justos (cálculo portado tal cual,
   con pruebas), productores (video sin cookies, galerías), calidad y certificados, opinión
