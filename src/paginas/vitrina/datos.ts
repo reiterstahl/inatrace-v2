@@ -1,4 +1,7 @@
 import { getRouteApi } from '@tanstack/react-router';
+import { useQuery } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
+import { consultas } from '@/api/consultas';
 import type { ApiBusinessToCustomerSettings, ApiProductLabelValuesExtended, ApiQrTagPublic } from '@/api/gen/types.gen';
 
 const ruta = getRouteApi('/p-cd/$etiqueta/$qr');
@@ -27,9 +30,12 @@ export function armarDatos(etiqueta: ApiProductLabelValuesExtended, qr: ApiQrTag
 }
 
 export function useVitrina(): DatosVitrina {
-  const { etiqueta, qr } = ruta.useLoaderData();
+  const { etiqueta, qr: qrInicial } = ruta.useLoaderData();
   const params = ruta.useParams();
-  return armarDatos(etiqueta, qr, params);
+  const { i18n } = useTranslation();
+  // Si cambia el idioma, el lote se vuelve a pedir traducido; mientras tanto se muestra el anterior.
+  const { data: qr } = useQuery({ ...consultas.qr(params.qr, i18n.language), placeholderData: (previo) => previo ?? qrInicial });
+  return armarDatos(etiqueta, qr ?? qrInicial, params);
 }
 
 /** Pestañas habilitadas, en el orden configurado para el producto. El recorrido va siempre primero. */

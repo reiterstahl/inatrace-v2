@@ -1,74 +1,70 @@
-# Avance — Fase 0 (cimientos) + Fase 1 (vitrina pública)
+# Avance
 
-> Pausado el 17.10.2026 a pedido de Rolo. **El proyecto todavía no compila**: `src/rutas.tsx`
-> importa páginas de la vitrina que faltan escribir (ver "Pendiente").
+## Fase 0 (cimientos) — ✅ cerrada el 17.10.2026
 
-## Hecho
+Criterio de salida del plan: *ingresar en la v2, ver el perfil y volver a la versión actual sin
+perder la sesión*. **Verificado contra el backend real** en convivencia (`e2e-real/`): la sesión
+iniciada en la v2 vale en la interfaz actual y al revés.
 
-**Proyecto y herramientas**
-- Vite 8 + React 19 + TypeScript, pnpm. Base `/v2/`. Alias `@/` → `src/`.
-- **TypeScript fijado en ~6.0.3**, no en 7: el generador de cliente (`@hey-api/openapi-ts`) usa la
-  API JavaScript del compilador, que TypeScript 7 (versión en Go) ya no expone.
-- Cliente de API generado: `api/openapi.json` (copia fijada del backend, 192 rutas) →
-  `src/api/gen/` (215 operaciones). En `openapi-ts.config.ts` el `input` va como `./api/...`: sin
-  el `./`, hey-api lo toma como un proyecto de su registro en la nube.
-- `pnpm api:actualizar` baja la especificación del backend en marcha (`INATRACE_API`).
+- Vite 8 + React 19 + TypeScript 6, pnpm, base `/v2/`.
+- Cliente de API generado desde la especificación del backend (215 operaciones tipadas).
+- Sesión compartida por cookies, con renovación automática ante un 401.
+- Cabecera `language` en cada petición, como la interfaz actual.
+- Sistema de diseño (tokens, tema claro/oscuro, Inter + Fraunces incluidas) y componentes base.
+- Portal: ingreso, inicio con el estado de migración de cada módulo, perfil editable.
+- Idiomas: es y en escritos; de y rw importados de la interfaz actual.
+- Imagen Docker (nginx sin privilegios, CSP estricta), proxy de convivencia y CI a GHCR.
 
-**Sesión compartida** (`src/api/sesion.ts`): el backend usa cookies HttpOnly de acceso y de
-renovación. Ante un 401 se renueva una sola vez (`POST /api/user/refresh_authentication`) y se
-repite la petición; si falla, se avisa y se va a `/ingreso`. Las respuestas se desenvuelven con
-`desenvolver()` (`src/api/respuesta.ts`), que lanza `ErrorApi` si `status !== 'OK'`.
+## Fase 1 (vitrina pública) — ✅ cerrada el 17.10.2026
 
-**Idiomas** (`src/i18n/`): es y en escritos a mano; de y rw **importados de la interfaz actual**
-con `pnpm i18n:importar` (48 y 49 de 50 textos; lo que falta cae al inglés). Textos con tuteo
-neutro (no voseo: es la cara pública del producto).
+Criterio de salida: *un QR real abre la página nueva, en celular, en los 4 idiomas*.
+Verificado con un QR generado por el backend en la copia aislada.
 
-**Sistema de diseño** (`src/estilos/app.css`): tokens semánticos con tema claro y oscuro;
-Inter + Fraunces incluidas (sin Google Fonts); `.tema-claro` fuerza claro en la vitrina.
-Componentes en `src/componentes/ui/`: Icono, Boton, Campo/Area/Selector, Cargando, Aviso,
-EstadoError, SelectorIdioma, InterruptorTema, Logo.
+- Portada, recorrido (mapa MapLibre + línea de tiempo), precios justos (cálculo portado tal cual,
+  con pruebas), productores (video sin cookies, galerías), calidad y certificados, opinión
+  (guardada en el backend), términos y privacidad (HTML saneado).
+- Colores y fuentes de cada producto, con control de contraste AA.
+- Enlaces de la empresa filtrados (solo http/https).
+- **Entrada desde QR impresos** (`/q-cd/…` y `/q/…`): registra la visita en el backend
+  (`VISIT_QR`, de ahí salen las estadísticas de escaneos de cada etiqueta) y abre la vitrina,
+  igual que la versión actual. El token de registro es configuración del contenedor
+  (`TOKEN_REGISTRO_PUBLICO`), no del build.
+- Redirección de los QR ya impresos lista en el proxy (`/{idioma}/q-cd/…` → `/v2/q-cd/…`),
+  **comentada** hasta que se decida activarla. Probada con un proxy temporal.
 
-**Portal**: rutas (`src/rutas.tsx`), entrada (`src/main.tsx`), Ingreso, Marco, Inicio (módulos con
-su estado de migración y enlaces a la versión actual), Perfil (ver y editar nombre, apellido e
-idioma).
+**Pruebas:** 16 unitarias, 24 de punta a punta en modo simulado (escritorio y celular, también
+en el CI de GitHub) y 6 contra el backend real (incluido el registro de la visita del QR, que
+quedó en la tabla `RequestLog`).
 
-**Vitrina (empezada)**: `datos.ts` (acceso a etiqueta, QR, campos y pestañas en el orden
-configurado) y `marca.ts` (colores del producto con control de contraste AA).
-Las URLs son **las mismas que la versión actual** (`/p-cd/:etiqueta/:qr/journey`, etc.) bajo
-`/v2`: así los QR ya impresos se redirigen con solo un prefijo en el proxy.
+**Problemas encontrados y resueltos en el camino:** el worker de MapLibre 6 no carga al
+empaquetar (mapa en blanco); enlaces y botones sin nombre accesible en el celular; encabezado
+del portal desbordado en pantallas chicas; pasos del recorrido sin traducir por falta de la
+cabecera `language`; los QR impresos apuntan a `/{idioma}/q-cd/…` (no a `/p-cd/…`) y además
+registran la visita, cosa que el plan no contemplaba; rutas públicas duplicadas (`/v2/v2/…`) en
+el `index.html`; redirecciones de nginx con el puerto interno del contenedor.
 
-## Pendiente (en este orden)
+## Entorno de demostración
 
-1. `paginas/vitrina/precios.ts`: portar el cálculo de `b2c-fair-prices.component.ts` tal cual
-   (POUND_TO_KG = 0.453592; modos PER_CONTAINER / PER_KG / PERCENT_VALUE; alturas normalizadas
-   a 220) + pruebas Vitest con casos conocidos.
-2. Páginas: `Vitrina.tsx` (marco + `VitrinaError`), `Portada`, `Recorrido` (+ mapa MapLibre
-   cargado aparte, teselas OpenFreeMap), `Precios`, `Productores`, `Calidad`, `Opinion`, `Legal`
-   y un componente `HtmlSeguro` (DOMPurify) para textos con formato del backend.
-   Al montar la vitrina: usar el idioma de la etiqueta si la persona no eligió otro.
-3. `src/mocks/` (MSW 3: `msw/vite` sirve el worker; `onUnhandledFrame` reemplazó a
-   `onUnhandledRequest`) con datos de ejemplo tipados.
-4. `src/pruebas/preparar.ts` (jest-dom), pruebas Vitest y Playwright (`e2e/`) sobre el modo simulado.
-5. `deploy/`: Dockerfile (nginx sirviendo `/v2/`), `nginx/convivencia.conf` (`/v2` → v2,
-   `/api` → backend, `/` → Angular; redirección opcional `/p-cd/*` → `/v2/p-cd/*`) y CSP.
-6. CI en GitHub Actions → imagen en GHCR (`ghcr.io/reiterstahl/inatrace-v2`).
-7. Datos de demostración reales (etiqueta publicada + QR) en una **copia aislada** de la base,
-   sembrados por API. El QR solo se genera procesando un lote con una acción de tipo
-   "generar QR" (`ProcessingOrderService`). Hoy la base de referencia tiene 1 empresa,
-   1 producto, 7 productores, 5 órdenes de stock, 0 etiquetas y 0 QR.
-8. Verificar la salida de la fase 0 y de la fase 1 contra el backend real; actualizar README.
+Copia aislada en `/home/work-claude/projects/inatrace-v2-demo/` (fuera del repo, con permisos
+restringidos: contiene contraseñas). Base copiada de la instancia de referencia el 17.10.2026,
+red propia, solo accesible desde esta máquina.
 
-## Estado del entorno al pausar
+```bash
+cd /home/work-claude/projects/inatrace-v2-demo && docker compose up -d
+# proxy de convivencia: http://127.0.0.1:8390  ·  backend directo: http://127.0.0.1:8381
+```
 
-- La instancia de referencia de INATrace estaba **detenida a propósito desde el 26.09**. Para
-  leer la especificación levanté base, backend, correo y AgStack (no el frontend público). Al
-  pausar los volví a detener: estado original. Para retomar:
-  `docker start inatrace-db inatrace-mail agstack-mock && sleep 8 && docker start inatrace-be`
-- Copia de la especificación usada: `api/openapi.json`.
+Datos sembrados con `scripts/sembrar-demo.mjs`:
+vitrina en `/v2/p-cd/ec8eed8f396d48e4b513b02d4a163782/a636d617-99c8-427d-a466-c9509a96a287`
+(la misma ruta sin `/v2` abre la versión actual, para comparar).
 
-## Fuentes para portar (repo `giz/inatrace-dap`)
+La instancia de referencia (`inatrace-*`) sigue detenida como estaba desde el 26.09.
 
-`frontend/src/app/b2c/` — `b2c-page` (carga y campos), `b2c-tabs` (orden de pestañas),
-`b2c-journey`, `b2c-fair-prices`, `b2c-producers`, `b2c-quality`, `b2c-feedback`.
-Endpoints: `getPublicProductLabelValues`, `getQrTagPublicData` (con `withHistory`),
-`addProductLabelFeedback`, documentos en `/api/public/document/{storageKey}`.
+## Pendiente / próximos pasos
+
+1. Pasar `fase-0` a `main` para que el CI publique la primera imagen en GHCR.
+2. Decisiones abiertas del plan (§9): licencia, nombre, instancia de demostración pública.
+3. Para la demo al cliente: fotos y video reales de productores en la etiqueta sembrada.
+4. Fase 2: productores y parcelas.
+5. Para activar la vitrina v2 en una instalación: definir `TOKEN_REGISTRO_PUBLICO` (el mismo
+   `REQUEST_LOG_TOKEN` del backend) y descomentar la redirección de QR en el proxy.

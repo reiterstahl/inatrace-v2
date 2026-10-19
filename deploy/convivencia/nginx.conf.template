@@ -12,6 +12,8 @@ server {
   server_name _;
   server_tokens off;
   client_max_body_size 12m;
+  # Redirecciones relativas: detrás de otro proxy, nginx no conoce el dominio ni el puerto públicos.
+  absolute_redirect off;
 
   proxy_http_version 1.1;
   proxy_set_header Host $host;
@@ -30,9 +32,13 @@ server {
     proxy_read_timeout 120s;
   }
 
-  # Vitrina pública: cuando se decida, los QR ya impresos (/p-cd/...) pasan a la v2.
+  # Vitrina pública: cuando se decida, los QR ya impresos pasan a la v2. Los QR apuntan a
+  # /{idioma}/q-cd/{etiqueta}/{qr}; la v2 registra la visita (estadísticas) y abre la vitrina.
   # Descomentar el bloque siguiente para activarlo.
-  # location /p-cd/ {
+  # location ~ ^/(?:es|en|de|rw)/(q-cd|q|p-cd)/ {
+  #   rewrite ^/(?:es|en|de|rw)/(.*)$ /v2/$1 redirect;
+  # }
+  # location ~ ^/(q-cd|q|p-cd)/ {
   #   return 302 /v2$request_uri;
   # }
 

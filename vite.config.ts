@@ -21,7 +21,8 @@ export default defineConfig(({ mode }) => {
       port: 5173,
       proxy: simulado ? undefined : { '/api': { target: env.INATRACE_API || 'http://localhost:8081' } },
     },
-    build: { sourcemap: true },
+    // El mapa (MapLibre, ~1 MB) va en su propio archivo y solo se baja al abrir el recorrido.
+    build: { sourcemap: true, chunkSizeWarningLimit: 1100 },
     test: {
       environment: 'jsdom',
       setupFiles: ['./src/pruebas/preparar.ts'],

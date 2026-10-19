@@ -8,6 +8,9 @@ services:
   v2:
     image: ${V2_IMAGE:-ghcr.io/reiterstahl/inatrace-v2:latest}
     restart: unless-stopped
+    environment:
+      # Igual que TOKEN_FOR_PUBLIC_LOG_ROUTE del frontend actual / INATrace.requestLog.token del backend.
+      TOKEN_REGISTRO_PUBLICO: ${TOKEN_REGISTRO_PUBLICO:?falta el token de registro público}
     networks: [inatrace]
 
   proxy:

@@ -1,6 +1,8 @@
 import { QueryClient } from '@tanstack/react-query';
 import { Outlet, createRootRouteWithContext, createRoute, createRouter, redirect } from '@tanstack/react-router';
-import { consultas } from '@/api/consultas';
+import { consultas, registrarVisitaQr, QR_VACIO } from '@/api/consultas';
+import { CONFIG } from '@/util/entorno';
+import i18n from '@/i18n';
 import { ErrorApi } from '@/api/respuesta';
 import { Cargando, EstadoError } from '@/componentes/ui/Estados';
 import { Ingreso } from '@/paginas/acceso/Ingreso';
@@ -66,7 +68,7 @@ export const vitrina = createRoute({
   loader: async ({ context, params }) => {
     const [etiqueta, qr] = await Promise.all([
       context.queryClient.ensureQueryData(consultas.etiqueta(params.etiqueta)),
-      context.queryClient.ensureQueryData(consultas.qr(params.qr)),
+      context.queryClient.ensureQueryData(consultas.qr(params.qr, i18n.language)),
     ]);
     return { etiqueta, qr };
   },
@@ -74,6 +76,26 @@ export const vitrina = createRoute({
   errorComponent: VitrinaError,
   component: Vitrina,
 });
+// ---------- Entrada desde un QR impreso ----------
+// Los QR apuntan a /q-cd/{etiqueta}/{qr} (o /q/{etiqueta} sin lote). Se registra la visita y se
+// pasa a la vitrina, como hace la interfaz actual.
+const entradaQr = createRoute({
+  getParentRoute: () => raiz,
+  path: 'q-cd/$etiqueta/$qr',
+  beforeLoad: async ({ params }) => {
+    await registrarVisitaQr(params.etiqueta, CONFIG.tokenRegistro);
+    throw redirect({ to: '/p-cd/$etiqueta/$qr', params, replace: true });
+  },
+});
+const entradaEtiqueta = createRoute({
+  getParentRoute: () => raiz,
+  path: 'q/$etiqueta',
+  beforeLoad: async ({ params }) => {
+    await registrarVisitaQr(params.etiqueta, CONFIG.tokenRegistro);
+    throw redirect({ to: '/p-cd/$etiqueta/$qr', params: { etiqueta: params.etiqueta, qr: QR_VACIO }, replace: true });
+  },
+});
+
 // Una ruta por pestaña (declaradas una a una para que los enlaces queden tipados).
 const pestana = <P extends string>(path: P, component: () => React.ReactNode) =>
   createRoute({ getParentRoute: () => vitrina, path, component });
@@ -88,6 +110,8 @@ const vPrivacidad = pestana('privacy-policy', () => <Legal tipo="privacidad" />)
 
 const arbol = raiz.addChildren([
   ingreso,
+  entradaQr,
+  entradaEtiqueta,
   portal.addChildren([inicio, perfil]),
   vitrina.addChildren([vPortada, vRecorrido, vPrecios, vProductores, vCalidad, vOpinion, vTerminos, vPrivacidad]),
 ]);

@@ -1,6 +1,7 @@
 import { queryOptions, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   addProductLabelFeedback,
+  logPublicRequest,
   getProfileForUser,
   getPublicProductLabelValues,
   getQrTagPublicData,
@@ -30,9 +31,10 @@ export const consultas = {
       staleTime: 10 * 60_000,
     }),
 
-  qr: (qrTag: string) =>
+  /** El recorrido del lote viene traducido por el backend: la consulta depende del idioma. */
+  qr: (qrTag: string, idioma: string) =>
     queryOptions({
-      queryKey: ['vitrina', 'qr', qrTag],
+      queryKey: ['vitrina', 'qr', qrTag, idioma],
       queryFn: () =>
         qrTag === QR_VACIO
           ? Promise.resolve(null)
@@ -69,4 +71,14 @@ export function useEnviarOpinion(uid: string) {
   return useMutation({
     mutationFn: (d: ApiProductLabelFeedback) => desenvolver(addProductLabelFeedback({ path: { labelUid: uid }, body: d })),
   });
+}
+
+/**
+ * Registra la visita de un QR, igual que la interfaz actual: de esto salen las estadísticas de
+ * escaneos de cada etiqueta. Nunca frena ni rompe la vitrina: si falla o tarda, se sigue.
+ */
+export async function registrarVisitaQr(etiqueta: string, token?: string) {
+  if (!token) return;
+  const envio = logPublicRequest({ body: { token, type: 'VISIT_QR', logKey: etiqueta.slice(0, 64) } }).catch(() => undefined);
+  await Promise.race([envio, new Promise((r) => setTimeout(r, 1500))]);
 }

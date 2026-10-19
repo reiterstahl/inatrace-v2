@@ -70,3 +70,20 @@ test.describe('vitrina pública', () => {
     await expect(page.getByRole('heading', { name: 'Product journey' })).toBeVisible();
   });
 });
+
+test.describe('entrada desde un QR impreso', () => {
+  test('registra la visita y abre la vitrina', async ({ page }) => {
+    await page.goto('q-cd/demo/QR-DEMO-2026');
+    await expect(page).toHaveURL(/\/v2\/p-cd\/demo\/QR-DEMO-2026$/);
+    // El simulador anota lo que recibe (la petición no pasa por la red, ver manejadores.ts).
+    const registros = await page.evaluate(() => JSON.parse(sessionStorage.getItem('simulado.registros') ?? '[]'));
+    expect(registros).toEqual([expect.objectContaining({ type: 'VISIT_QR', logKey: 'demo', token: 'token' })]);
+    await expect(page.getByRole('heading', { level: 1, name: 'Café Altos de la Sierra' })).toBeVisible();
+  });
+
+  test('una etiqueta sin lote (q/…) abre la vitrina sin datos de pedido', async ({ page }) => {
+    await page.goto('q/demo');
+    await expect(page).toHaveURL(/\/v2\/p-cd\/demo\/EMPTY$/);
+    await expect(page.getByRole('heading', { level: 1, name: 'Café Altos de la Sierra' })).toBeVisible();
+  });
+});

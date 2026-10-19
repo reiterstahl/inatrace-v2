@@ -39,6 +39,13 @@ export const manejadores = [
     await delay(400);
     return ok();
   }),
+  http.post('/api/public/logRequest', async ({ request }) => {
+    const b = (await request.json()) as { token?: string };
+    // MSW intercepta dentro de la página: la petición no sale a la red. Se anota para las pruebas.
+    const anotados = JSON.parse(sessionStorage.getItem('simulado.registros') ?? '[]') as unknown[];
+    sessionStorage.setItem('simulado.registros', JSON.stringify([...anotados, b]));
+    return b.token === 'token' ? ok() : error(400, 'INVALID_REQUEST', 'Invalid token');
+  }),
   http.get('/api/public/document/:clave', ({ params }) => imagen(String(params.clave))),
 
   // ---------- Sesión ----------

@@ -16,7 +16,7 @@ function iconoPaso(p: ApiHistoryTimelineItem): NombreIcono {
     case 'QRCODE': return 'qr';
     case 'OTHER': return 'punto';
     case 'LEAF': return 'hoja';
-    default: return p.type === 'TRANSFER' ? 'barco' : 'hoja';
+    default: return p.type === 'TRANSFER' ? 'barco' : p.type === 'GENERATE_QR_CODE' ? 'qr' : 'hoja';
   }
 }
 
