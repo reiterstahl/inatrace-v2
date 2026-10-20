@@ -38,8 +38,9 @@ pnpm exec playwright test -c playwright.real.config.ts   # contra una instalaci�
 - **Imagen:** `ghcr.io/reiterstahl/inatrace-v2` (CI la publica desde `main` si pasan las pruebas).
   nginx sin privilegios en el puerto 8080, con CSP estricta.
 - **Convivencia:** `deploy/convivencia/` (proxy nginx + compose). `/v2/` → v2, `/api/` →
-  backend, el resto → interfaz actual. La redirección de los QR ya impresos (`/p-cd/…` →
-  `/v2/p-cd/…`) está lista pero comentada: se activa cuando se decida.
+  backend, el resto → interfaz actual. La redirección de los QR ya impresos
+  (`/{idioma}/q-cd/…` → `/v2/q-cd/…`, que registra la visita y abre la vitrina) está lista pero
+  comentada: se activa en la fase 1b.
 - **Datos de demostración:** `scripts/sembrar-demo.mjs` crea por la API una acción "generar QR",
   un lote con su QR y una etiqueta publicada. Solo para instancias de prueba.
   `scripts/sembrar-medios.mjs` le agrega fotos con licencia libre y un video (manifiesto en
