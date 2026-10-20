@@ -19,7 +19,8 @@ test.describe('portal y sesión', () => {
     await page.getByLabel('Contraseña').fill('demo1234');
     await page.getByRole('button', { name: 'Ingresar' }).click();
     await expect(page.getByRole('heading', { name: 'Hola, Ana' })).toBeVisible();
-    await expect(page.getByText('En la nueva versión')).toBeVisible();
+    // Vitrina y productores ya están en la v2.
+    await expect(page.getByText('En la nueva versión')).toHaveCount(2);
 
     await page.getByRole('link', { name: 'Mi perfil' }).click();
     await page.getByLabel('Apellido').fill('Prueba');

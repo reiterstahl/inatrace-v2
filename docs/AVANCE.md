@@ -85,8 +85,8 @@ Criterio de salida del plan: *paridad con la versión actual + mapa sin token*.
 - Lo que solo existe en el backend mejorado (capas, catálogo de certificaciones) se usa si está
   y se omite si no.
 
-**Pruebas:** 31 unitarias (incluye ida y vuelta del formulario sin perder datos), 32 de punta a
-punta simuladas y 3 contra el backend real: editar y guardar, crear y borrar, y **dibujar una
+**Pruebas:** 31 unitarias (incluye ida y vuelta del formulario sin perder datos), 10 de punta a
+punta simuladas (34 en total con las anteriores) y 3 contra el backend real: editar y guardar, crear y borrar, y **dibujar una
 parcela con el mouse, guardarla, verificarla y quitarla**.
 
 **Encontrado en el camino:** un selector numérico convertía `null` en `0` y marcaba la ficha
