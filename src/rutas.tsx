@@ -1,5 +1,5 @@
 import { QueryClient } from '@tanstack/react-query';
-import { Outlet, createRootRouteWithContext, createRoute, createRouter, redirect } from '@tanstack/react-router';
+import { Outlet, createRootRouteWithContext, createRoute, createRouter, lazyRouteComponent, redirect } from '@tanstack/react-router';
 import { consultas, registrarVisitaQr, QR_VACIO } from '@/api/consultas';
 import { CONFIG } from '@/util/entorno';
 import i18n from '@/i18n';
@@ -9,6 +9,7 @@ import { Ingreso } from '@/paginas/acceso/Ingreso';
 import { Marco } from '@/paginas/portal/Marco';
 import { Inicio } from '@/paginas/portal/Inicio';
 import { Perfil } from '@/paginas/portal/Perfil';
+
 import { Vitrina, VitrinaError } from '@/paginas/vitrina/Vitrina';
 import { Portada } from '@/paginas/vitrina/Portada';
 import { Recorrido } from '@/paginas/vitrina/Recorrido';
@@ -61,6 +62,35 @@ const portal = createRoute({
 const inicio = createRoute({ getParentRoute: () => portal, path: '/', component: Inicio });
 const perfil = createRoute({ getParentRoute: () => portal, path: 'perfil', component: Perfil });
 
+// ---------- Productores (fase 2) ----------
+type BusquedaProductores = {
+  q?: string;
+  por?: 'BY_NAME' | 'BY_SURNAME';
+  orden?: 'BY_NAME' | 'BY_SURNAME' | 'BY_ID';
+  sentido?: 'ASC' | 'DESC';
+  pagina?: number;
+  vista?: 'lista' | 'mapa';
+};
+const uno = <T extends string>(v: unknown, permitidos: readonly T[]) => (permitidos.includes(v as T) ? (v as T) : undefined);
+const productoresRaiz = createRoute({ getParentRoute: () => portal, path: 'productores' });
+const productoresLista = createRoute({
+  getParentRoute: () => productoresRaiz,
+  path: '/',
+  validateSearch: (s: Record<string, unknown>): BusquedaProductores => ({
+    q: typeof s.q === 'string' && s.q ? s.q.slice(0, 100) : undefined,
+    por: uno(s.por, ['BY_NAME', 'BY_SURNAME'] as const),
+    orden: uno(s.orden, ['BY_NAME', 'BY_SURNAME', 'BY_ID'] as const),
+    sentido: uno(s.sentido, ['ASC', 'DESC'] as const),
+    pagina: Number(s.pagina) > 1 ? Math.floor(Number(s.pagina)) : undefined,
+    vista: uno(s.vista, ['lista', 'mapa'] as const),
+  }),
+  // Las pantallas del portal se bajan al entrar: la vitrina pública no carga formularios ni mapas de edición.
+  component: lazyRouteComponent(() => import('@/paginas/productores/Lista'), 'ListaProductores'),
+});
+const productorNuevo = createRoute({ getParentRoute: () => productoresRaiz, path: 'nuevo', component: lazyRouteComponent(() => import('@/paginas/productores/Ficha'), 'FichaNueva') });
+const productoresImportar = createRoute({ getParentRoute: () => productoresRaiz, path: 'importar', component: lazyRouteComponent(() => import('@/paginas/productores/Importar'), 'ImportarProductores') });
+const productorFicha = createRoute({ getParentRoute: () => productoresRaiz, path: '$id', component: lazyRouteComponent(() => import('@/paginas/productores/Ficha'), 'FichaExistente') });
+
 // ---------- Vitrina pública (misma URL que la versión actual, bajo /v2) ----------
 export const vitrina = createRoute({
   getParentRoute: () => raiz,
@@ -112,7 +142,7 @@ const arbol = raiz.addChildren([
   ingreso,
   entradaQr,
   entradaEtiqueta,
-  portal.addChildren([inicio, perfil]),
+  portal.addChildren([inicio, perfil, productoresRaiz.addChildren([productoresLista, productorNuevo, productoresImportar, productorFicha])]),
   vitrina.addChildren([vPortada, vRecorrido, vPrecios, vProductores, vCalidad, vOpinion, vTerminos, vPrivacidad]),
 ]);
 

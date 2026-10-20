@@ -163,3 +163,20 @@
     @apply text-tinta font-semibold;
   }
 }
+
+/* Impresión de la tarjeta del productor: solo se imprime ella. */
+@media print {
+  .modo-impresion body * {
+    visibility: hidden;
+  }
+  .modo-impresion .tarjeta-imprimible,
+  .modo-impresion .tarjeta-imprimible * {
+    visibility: visible;
+  }
+  .modo-impresion .tarjeta-imprimible {
+    position: absolute;
+    inset: 0 auto auto 0;
+    border: 1px solid #999;
+    padding: 12px;
+  }
+}

@@ -51,7 +51,9 @@
       "empresa_desc": "Facilities, users, value chains and catalogs.",
       "productos": "Products and labels",
       "productos_desc": "Products, labels, batches and statistics."
-    }
+    },
+    "productores": "Farmers",
+    "empresa": "Company"
   },
   "perfil": {
     "titulo": "My profile",
@@ -175,6 +177,219 @@
     "pie": {
       "trazabilidad": "Traceability with INATrace",
       "redes": "Social media"
+    }
+  },
+  "mapa": {
+    "capas": "Layers"
+  },
+  "productores": {
+    "titulo": "Farmers",
+    "subtitulo_one": "{{count}} farmer in {{empresa}}",
+    "subtitulo_other": "{{count}} farmers in {{empresa}}",
+    "nuevo": "New farmer",
+    "importar": "Import spreadsheet",
+    "exportar": "Export data",
+    "buscar": "Search farmers…",
+    "buscar_en": "Search in",
+    "buscar_por": {
+      "BY_NAME": "First name",
+      "BY_SURNAME": "Last name"
+    },
+    "vista": {
+      "etiqueta": "View",
+      "lista": "List",
+      "mapa": "Map"
+    },
+    "columnas": {
+      "id": "ID",
+      "nombre": "First name",
+      "apellido": "Last name",
+      "ubicacion": "Location",
+      "telefono": "Phone",
+      "acciones": "Actions"
+    },
+    "generos": {
+      "FEMALE": "Woman",
+      "MALE": "Man",
+      "DIVERSE": "Diverse",
+      "N_A": "Prefers not to say"
+    },
+    "vacio": "There are no farmers in this company yet.",
+    "sin_resultados": "No farmer matches the search.",
+    "sin_empresa": "Your user is not linked to any company. Ask the platform administrator for access.",
+    "pagina": "Page {{pagina}} of {{total}}",
+    "paginacion": "Pagination",
+    "anterior": "Previous",
+    "siguiente": "Next",
+    "borrar": "Delete",
+    "borrar_de": "Delete {{nombre}}",
+    "borrar_confirmar": "Delete {{nombre}}? Their plots are deleted too. This cannot be undone.",
+    "mapa_titulo": "Company plots",
+    "mapa_ayuda_one": "{{count}} plot with a polygon. Tap one to open its farmer's profile.",
+    "mapa_ayuda_other": "{{count}} plots with a polygon. Tap one to open its farmer's profile.",
+    "mapa_vacio": "No plot in this company has a polygon yet.",
+    "secciones": {
+      "personales": "Personal details",
+      "ubicacion": "Location",
+      "finca": "Farm and crops",
+      "organizaciones": "Organizations",
+      "banco": "Bank details",
+      "certificaciones": "Certifications",
+      "parcelas": "Plots"
+    },
+    "campos": {
+      "nombre": "First name",
+      "apellido": "Last name",
+      "genero": "Gender",
+      "id_interno": "Company ID",
+      "id_interno_ayuda": "The code the company uses to identify the farmer.",
+      "telefono": "Phone",
+      "correo": "Email",
+      "smartphone": "Has a smartphone"
+    },
+    "errores": {
+      "requerido": "This field is required.",
+      "numero": "Enter a number.",
+      "correo": "The email format is not valid.",
+      "rango": "Out of range.",
+      "invalido": "Invalid value."
+    },
+    "ubicacion": {
+      "pais": "Country",
+      "elegir_pais": "Choose a country",
+      "direccion": "Address",
+      "ciudad": "City or town",
+      "estado": "State or region",
+      "codigo_postal": "Postal code",
+      "otra": "Other directions",
+      "aldea": "Village",
+      "celda": "Cell",
+      "sector": "Sector",
+      "finca": "Farm",
+      "municipio": "Municipality",
+      "departamento": "Department",
+      "punto": "Point on the map",
+      "mapa": "Map to locate the farmer: tap to place the pin",
+      "latitud": "Latitude",
+      "longitud": "Longitude"
+    },
+    "finca": {
+      "unidad": "Area unit",
+      "unidad_ayuda": "For example ha (hectares) or acre.",
+      "area_total": "Total cultivated area",
+      "cultivos": "Crops",
+      "sin_cultivos": "No crops registered.",
+      "agregar_cultivo": "Add crop",
+      "quitar_cultivo": "Remove {{cultivo}}",
+      "area_cultivo": "Area ({{unidad}})",
+      "plantas": "Number of plants",
+      "organico": "Farms organically",
+      "area_organica": "Organic certified area",
+      "inicio_transicion": "Start of transition to organic",
+      "sin_catalogo": "The company has no crops configured in its value chains."
+    },
+    "organizaciones": {
+      "miembro": "Is a member of {{empresa}}",
+      "asociaciones": "Associations",
+      "sin_asociaciones": "This company has no associations registered."
+    },
+    "banco": {
+      "descripcion": "For payments to the farmer.",
+      "titular": "Account holder",
+      "banco": "Bank",
+      "cuenta": "Account number",
+      "info": "Additional information"
+    },
+    "certificaciones": {
+      "agregar": "Add certification",
+      "vacio": "No certifications registered.",
+      "tipo": "Type",
+      "elegir": "Choose a type",
+      "vigencia": "Valid until",
+      "descripcion": "Description",
+      "documento": "Certificate",
+      "sin_documento": "No document attached.",
+      "subir": "Attach document",
+      "reemplazar": "Replace document",
+      "quitar": "Remove"
+    },
+    "parcela": {
+      "descripcion": "Each plot can have its polygon: it is used for the GeoID and EUDR verification.",
+      "agregar": "Add plot",
+      "vacio": "This farmer has no plots registered.",
+      "sin_nombre": "Unnamed plot",
+      "con_poligono": "{{ha}} ha polygon",
+      "sin_poligono": "No polygon",
+      "editar": "Edit",
+      "listo": "Done",
+      "quitar": "Remove plot {{nombre}}",
+      "quitar_confirmar": "Remove the plot “{{nombre}}”? It is deleted when you save.",
+      "nombre": "Plot name",
+      "cultivo": "Crop",
+      "elegir_cultivo": "Choose a crop",
+      "superficie": "Declared area",
+      "usar_dibujada": "Use the drawn area ({{ha}} ha)",
+      "mapa_resumen": "Map of the farmer's plots",
+      "mapa_editor": "Plot polygon editor",
+      "ayuda_dibujar": "Tap the map to place each vertex; tap the first one to close.",
+      "ayuda_editar": "Drag the vertices or midpoints to adjust.",
+      "superficie_dibujada": "Drawn area: {{ha}} ha",
+      "redibujar": "Draw again",
+      "subir_geojson": "Upload GeoJSON",
+      "exportar_geojson": "Export GeoJSON",
+      "subir_con_cambios": "There are unsaved changes in the profile that will be lost when uploading the file. Continue?",
+      "geojson_subido": "Plots imported from the file.",
+      "difiere": "The declared area ({{declarada}} ha) differs considerably from the drawn one ({{dibujada}} ha). Check which is correct.",
+      "acercate": "Zoom in to the plot before drawing."
+    },
+    "ficha": {
+      "id": "ID {{id}}",
+      "indice": "Profile sections",
+      "con_errores": "Has errors",
+      "cambios": "There are unsaved changes.",
+      "nuevo_ayuda": "Fill in the details and save to create the farmer.",
+      "descartar": "Discard",
+      "guardando": "Saving…",
+      "guardado": "Changes saved.",
+      "revisar": "Check the highlighted fields before saving.",
+      "salir_sin_guardar": "There are unsaved changes. Leave anyway?"
+    },
+    "importacion": {
+      "titulo": "Import farmers",
+      "intro": "Load many farmers at once from an Excel spreadsheet.",
+      "paso_plantilla": "Download the template and fill it in, one row per farmer.",
+      "descargar_plantilla": "Download template",
+      "paso_subir": "Upload the completed spreadsheet.",
+      "elegir": "Choose file (.xls, .xlsx)",
+      "solo_excel": "Upload only XLS or XLSX files.",
+      "importar": "Import",
+      "importando": "Importing…",
+      "resultado_one": "{{count}} farmer imported.",
+      "resultado_other": "{{count}} farmers imported.",
+      "hay_duplicados_one": "There is {{count}} possible duplicate to review below.",
+      "hay_duplicados_other": "There are {{count}} possible duplicates to review below.",
+      "con_errores": "The spreadsheet has errors",
+      "con_errores_texto": "Nothing was imported. Fix these cells and upload it again.",
+      "fila": "Row",
+      "celda": "Cell",
+      "problema": "Problem",
+      "errores": {
+        "REQUIRED": "Missing required value",
+        "INCORRECT_TYPE": "Wrong data type",
+        "INVALID_VALUE": "Invalid value"
+      },
+      "duplicados": "Possible duplicates",
+      "duplicados_texto": "A farmer with the same first name, last name and village already exists. Accept the ones that are different people.",
+      "aceptar": "Import anyway",
+      "rechazar": "Discard",
+      "aceptado": "Imported",
+      "rechazado": "Discarded"
+    },
+    "tarjeta": {
+      "titulo": "Farmer card",
+      "qr": "Farmer QR code {{id}}",
+      "imprimir": "Print card",
+      "entregas": "Deliveries and payments (current version)"
     }
   }
 }

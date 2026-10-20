@@ -11,7 +11,8 @@ mismo dominio, así que la sesión es la misma en las dos. Los módulos se migra
 |---|---|
 | Cimientos (sesión compartida, cliente de API, diseño, idiomas, CI) | ✅ |
 | Vitrina pública del producto (QR) | ✅ |
-| Productores y parcelas · Stock · Empresa · Productos | En la versión actual |
+| Productores y parcelas | ✅ (rama `fase-2`) |
+| Stock · Empresa · Productos | En la versión actual |
 
 ## Desarrollo
 

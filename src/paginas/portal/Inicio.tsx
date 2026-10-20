@@ -2,12 +2,13 @@ import { useSuspenseQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { consultas } from '@/api/consultas';
 import { Icono, type NombreIcono } from '@/componentes/ui/Icono';
+import { Link } from '@tanstack/react-router';
 import { enAnterior } from '@/util/entorno';
 
 /** Estado de cada módulo en la migración. Se actualiza a medida que avanzan las fases. */
-const MODULOS: { clave: string; icono: NombreIcono; enV2: boolean; anterior?: string }[] = [
+const MODULOS: { clave: string; icono: NombreIcono; enV2: boolean; anterior?: string; v2?: '/productores' }[] = [
   { clave: 'vitrina', icono: 'qr', enV2: true },
-  { clave: 'productores', icono: 'personas', enV2: false, anterior: '/my-farmers' },
+  { clave: 'productores', icono: 'personas', enV2: true, v2: '/productores' },
   { clave: 'stock', icono: 'bodega', enV2: false, anterior: '/my-stock' },
   { clave: 'productos', icono: 'certificado', enV2: false, anterior: '/product-labels' },
   { clave: 'empresa', icono: 'web', enV2: false, anterior: '/home' },
@@ -40,6 +41,11 @@ export function Inicio() {
                 <h3 className="font-semibold">{t(`portal.modulo.${m.clave}`)}</h3>
                 <p className="mt-1 text-sm text-tinta-2">{t(`portal.modulo.${m.clave}_desc`)}</p>
               </div>
+              {m.v2 && (
+                <Link to={m.v2} className="mt-auto inline-flex items-center gap-1.5 text-sm font-semibold text-marca hover:underline">
+                  {t('portal.abrir')} <Icono nombre="flecha" className="size-3.5" />
+                </Link>
+              )}
               {m.anterior && (
                 <a href={enAnterior(m.anterior)} className="mt-auto inline-flex items-center gap-1.5 text-sm font-semibold text-marca hover:underline">
                   {t('portal.abrir')} <Icono nombre="externo" className="size-3.5" />

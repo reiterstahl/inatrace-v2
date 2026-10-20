@@ -63,6 +63,46 @@ vitrina en `/v2/p-cd/ec8eed8f396d48e4b513b02d4a163782/a636d617-99c8-427d-a466-c9
 
 La instancia de referencia (`inatrace-*`) sigue detenida como estaba desde el 26.09.
 
+## Fase 2 (productores y parcelas) — ✅ cerrada el 20.10.2026 (rama `fase-2`)
+
+Criterio de salida del plan: *paridad con la versión actual + mapa sin token*.
+
+- **Empresa activa:** selector en el portal (de las empresas del perfil; la administración del
+  sistema ve todas). Todo el módulo trabaja sobre la empresa elegida.
+- **Lista:** búsqueda por nombre o apellido, orden, paginación del servidor (todo en la URL),
+  tabla en escritorio y tarjetas en celular, exportación a ZIP, borrado, y **vista de mapa** de
+  todas las parcelas de la empresa (con puntos para verlas de lejos).
+- **Ficha** (alta y edición en el mismo formulario): datos personales, ubicación con el formato
+  de dirección de cada país (Ruanda, Honduras, resto) y pin en el mapa, finca y cultivos,
+  organizaciones, datos bancarios, certificaciones con documento adjunto y **parcelas con editor
+  de polígonos** (Terra Draw): dibujar, mover vértices, superficie calculada, aviso si la
+  superficie declarada difiere más de un 20 % de la dibujada, subir y exportar GeoJSON. Capas del
+  catálogo de la instalación en todos los mapas. Aviso al salir con cambios sin guardar.
+- **Tarjeta del productor** con su QR (el lector independiente devuelve el ID exacto) e
+  impresión. Entregas y pagos del productor enlazan a la versión actual hasta la fase 3.
+- **Importación desde Excel** con las plantillas de la versión actual, errores por celda y
+  revisión de posibles duplicados.
+- Lo que solo existe en el backend mejorado (capas, catálogo de certificaciones) se usa si está
+  y se omite si no.
+
+**Pruebas:** 31 unitarias (incluye ida y vuelta del formulario sin perder datos), 32 de punta a
+punta simuladas y 3 contra el backend real: editar y guardar, crear y borrar, y **dibujar una
+parcela con el mouse, guardarla, verificarla y quitarla**.
+
+**Encontrado en el camino:** un selector numérico convertía `null` en `0` y marcaba la ficha
+como modificada al abrirla; el código del país escrito por programa hacía lo mismo; el editor
+encuadraba todas las parcelas en vez de la editada; con zoom de país un dibujo medía 1,8 millones
+de ha (ahora pide acercarse); los cultivos salen de las cadenas de valor de la empresa y en la
+copia están vacíos (ahora se ofrecen también los que el productor ya tiene).
+
+**Hallazgo del backend (no de la v2):** `PUT /api/company/userCustomers/edit` responde
+NullPointerException si recibe el productor tal como lo devuelve el `GET`. La v2 y la versión
+actual arman el objeto antes de enviarlo y no lo sufren. Anotar en los hallazgos de
+`inatrace-enhanced` si se confirma allá.
+
+**Bundle:** las pantallas del portal se cargan bajo demanda; la vitrina pública sigue en ~99 KB
+comprimido de JS inicial.
+
 ## Fase 1b (activar la vitrina en una instalación) — pendiente, acordada el 19.10.2026
 
 Pasos, en orden:
@@ -87,4 +127,4 @@ confirmar el uso del video de Anacafé o cambiarlo.**
 1. Fase 1b (arriba), cuando se decida. `fase-0` **no** se pasa a `main` por ahora.
 2. Revisión de alemán y kinyarwanda por alguien que los hable.
 3. Demo pública: más adelante.
-4. Fase 2: productores y parcelas.
+4. Fase 3: stock (entregas, procesamiento, pagos, trazabilidad).

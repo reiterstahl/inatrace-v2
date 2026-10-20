@@ -1,22 +1,8 @@
 import { useEffect, useRef } from 'react';
-import { Map as MapaGL, NavigationControl, setWorkerUrl, type LngLatBoundsLike } from 'maplibre-gl';
-import urlTrabajador from 'maplibre-gl/dist/maplibre-gl-worker.mjs?url';
-import 'maplibre-gl/dist/maplibre-gl.css';
+import { Map as MapaGL, NavigationControl } from 'maplibre-gl';
+import { cerrarAtribucion, ESTILO_BASE, limites, type Punto } from '@/componentes/mapa/base';
 
-// MapLibre 6 busca su worker como archivo vecino del módulo; al empaquetar con Vite ese vecino
-// no existe y el mapa queda en blanco ("Worker failed to load"). Se le pasa la URL explícita.
-setWorkerUrl(urlTrabajador);
-
-/** [longitud, latitud] */
-export type Punto = [number, number];
-
-// Teselas abiertas, sin clave ni rastreo (la versión actual usa Google Maps).
-const ESTILO = 'https://tiles.openfreemap.org/styles/positron';
-
-function limites(puntos: Punto[]): LngLatBoundsLike {
-  const lons = puntos.map((p) => p[0]), lats = puntos.map((p) => p[1]);
-  return [[Math.min(...lons), Math.min(...lats)], [Math.max(...lons), Math.max(...lats)]];
-}
+export type { Punto };
 
 export default function MapaRecorrido({ ruta, lugares, etiqueta }: { ruta: Punto[]; lugares: Punto[]; etiqueta: string }) {
   const caja = useRef<HTMLDivElement>(null);
@@ -29,14 +15,13 @@ export default function MapaRecorrido({ ruta, lugares, etiqueta }: { ruta: Punto
 
     const mapa = new MapaGL({
       container: caja.current,
-      style: ESTILO,
+      style: ESTILO_BASE,
       ...(unico ? { center: todos[0], zoom: 7 } : { bounds: limites(todos), fitBoundsOptions: { padding: { top: 40, bottom: 48, left: 40, right: 64 }, maxZoom: 8 } }),
       attributionControl: { compact: true },
       cooperativeGestures: true, // en el celular, el mapa no se roba el desplazamiento de la página
     });
     mapa.addControl(new NavigationControl({ showCompass: false }), 'top-right');
-    // La atribución compacta arranca abierta y tapa medio mapa en el celular: se cierra al cargar.
-    mapa.once('load', () => caja.current?.querySelector('.maplibregl-compact-show')?.classList.remove('maplibregl-compact-show'));
+    cerrarAtribucion(mapa);
 
     mapa.on('load', () => {
       if (ruta.length > 1) {

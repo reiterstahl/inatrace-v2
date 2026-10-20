@@ -51,7 +51,9 @@
       "empresa_desc": "Instalaciones, usuarios, cadenas de valor y catálogos.",
       "productos": "Productos y etiquetas",
       "productos_desc": "Productos, etiquetas, lotes y estadísticas."
-    }
+    },
+    "productores": "Productores",
+    "empresa": "Empresa"
   },
   "perfil": {
     "titulo": "Mi perfil",
@@ -175,6 +177,219 @@
     "pie": {
       "trazabilidad": "Trazabilidad con INATrace",
       "redes": "Redes sociales"
+    }
+  },
+  "mapa": {
+    "capas": "Capas"
+  },
+  "productores": {
+    "titulo": "Productores",
+    "subtitulo_one": "{{count}} productor en {{empresa}}",
+    "subtitulo_other": "{{count}} productores en {{empresa}}",
+    "nuevo": "Nuevo productor",
+    "importar": "Importar planilla",
+    "exportar": "Exportar datos",
+    "buscar": "Buscar productores…",
+    "buscar_en": "Buscar en",
+    "buscar_por": {
+      "BY_NAME": "Nombre",
+      "BY_SURNAME": "Apellido"
+    },
+    "vista": {
+      "etiqueta": "Vista",
+      "lista": "Lista",
+      "mapa": "Mapa"
+    },
+    "columnas": {
+      "id": "ID",
+      "nombre": "Nombre",
+      "apellido": "Apellido",
+      "ubicacion": "Ubicación",
+      "telefono": "Teléfono",
+      "acciones": "Acciones"
+    },
+    "generos": {
+      "FEMALE": "Mujer",
+      "MALE": "Hombre",
+      "DIVERSE": "Diverso",
+      "N_A": "Prefiere no decirlo"
+    },
+    "vacio": "Todavía no hay productores en esta empresa.",
+    "sin_resultados": "Ningún productor coincide con la búsqueda.",
+    "sin_empresa": "Tu usuario no está asociado a ninguna empresa. Pide acceso a quien administra la plataforma.",
+    "pagina": "Página {{pagina}} de {{total}}",
+    "paginacion": "Paginación",
+    "anterior": "Anterior",
+    "siguiente": "Siguiente",
+    "borrar": "Eliminar",
+    "borrar_de": "Eliminar a {{nombre}}",
+    "borrar_confirmar": "¿Eliminar a {{nombre}}? Se borran también sus parcelas. Esta acción no se puede deshacer.",
+    "mapa_titulo": "Parcelas de la empresa",
+    "mapa_ayuda_one": "{{count}} parcela con polígono. Toca una para abrir la ficha de su productor.",
+    "mapa_ayuda_other": "{{count}} parcelas con polígono. Toca una para abrir la ficha de su productor.",
+    "mapa_vacio": "Ninguna parcela de esta empresa tiene polígono todavía.",
+    "secciones": {
+      "personales": "Datos personales",
+      "ubicacion": "Ubicación",
+      "finca": "Finca y cultivos",
+      "organizaciones": "Organizaciones",
+      "banco": "Datos bancarios",
+      "certificaciones": "Certificaciones",
+      "parcelas": "Parcelas"
+    },
+    "campos": {
+      "nombre": "Nombre",
+      "apellido": "Apellido",
+      "genero": "Género",
+      "id_interno": "ID en la empresa",
+      "id_interno_ayuda": "El código con el que la empresa identifica al productor.",
+      "telefono": "Teléfono",
+      "correo": "Correo electrónico",
+      "smartphone": "Tiene teléfono inteligente"
+    },
+    "errores": {
+      "requerido": "Este campo es obligatorio.",
+      "numero": "Escribe un número.",
+      "correo": "El formato del correo no es válido.",
+      "rango": "Fuera de rango.",
+      "invalido": "Valor no válido."
+    },
+    "ubicacion": {
+      "pais": "País",
+      "elegir_pais": "Elige un país",
+      "direccion": "Dirección",
+      "ciudad": "Ciudad o municipio",
+      "estado": "Departamento o estado",
+      "codigo_postal": "Código postal",
+      "otra": "Otras señas",
+      "aldea": "Aldea",
+      "celda": "Celda",
+      "sector": "Sector",
+      "finca": "Finca",
+      "municipio": "Municipio",
+      "departamento": "Departamento",
+      "punto": "Punto en el mapa",
+      "mapa": "Mapa para ubicar al productor: toca para poner el pin",
+      "latitud": "Latitud",
+      "longitud": "Longitud"
+    },
+    "finca": {
+      "unidad": "Unidad de superficie",
+      "unidad_ayuda": "Por ejemplo ha (hectáreas) o mz (manzanas).",
+      "area_total": "Superficie cultivada total",
+      "cultivos": "Cultivos",
+      "sin_cultivos": "Sin cultivos registrados.",
+      "agregar_cultivo": "Agregar cultivo",
+      "quitar_cultivo": "Quitar {{cultivo}}",
+      "area_cultivo": "Superficie ({{unidad}})",
+      "plantas": "Número de plantas",
+      "organico": "Produce de forma orgánica",
+      "area_organica": "Superficie con certificación orgánica",
+      "inicio_transicion": "Inicio de la transición a orgánico",
+      "sin_catalogo": "La empresa no tiene cultivos configurados en sus cadenas de valor."
+    },
+    "organizaciones": {
+      "miembro": "Es miembro de {{empresa}}",
+      "asociaciones": "Asociaciones",
+      "sin_asociaciones": "Esta empresa no tiene asociaciones registradas."
+    },
+    "banco": {
+      "descripcion": "Para los pagos al productor.",
+      "titular": "Titular de la cuenta",
+      "banco": "Banco",
+      "cuenta": "Número de cuenta",
+      "info": "Información adicional"
+    },
+    "certificaciones": {
+      "agregar": "Agregar certificación",
+      "vacio": "Sin certificaciones registradas.",
+      "tipo": "Tipo",
+      "elegir": "Elige un tipo",
+      "vigencia": "Válida hasta",
+      "descripcion": "Descripción",
+      "documento": "Certificado",
+      "sin_documento": "Sin documento adjunto.",
+      "subir": "Adjuntar documento",
+      "reemplazar": "Reemplazar documento",
+      "quitar": "Quitar"
+    },
+    "parcela": {
+      "descripcion": "Cada parcela puede tener su polígono: es lo que se usa para el GeoID y la verificación EUDR.",
+      "agregar": "Agregar parcela",
+      "vacio": "Este productor no tiene parcelas registradas.",
+      "sin_nombre": "Parcela sin nombre",
+      "con_poligono": "Polígono de {{ha}} ha",
+      "sin_poligono": "Sin polígono",
+      "editar": "Editar",
+      "listo": "Listo",
+      "quitar": "Quitar parcela {{nombre}}",
+      "quitar_confirmar": "¿Quitar la parcela «{{nombre}}»? Se borra al guardar.",
+      "nombre": "Nombre de la parcela",
+      "cultivo": "Cultivo",
+      "elegir_cultivo": "Elige un cultivo",
+      "superficie": "Superficie declarada",
+      "usar_dibujada": "Usar la superficie dibujada ({{ha}} ha)",
+      "mapa_resumen": "Mapa de las parcelas del productor",
+      "mapa_editor": "Editor del polígono de la parcela",
+      "ayuda_dibujar": "Toca el mapa para marcar cada vértice; toca el primero para cerrar.",
+      "ayuda_editar": "Arrastra los vértices o los puntos intermedios para ajustar.",
+      "superficie_dibujada": "Superficie dibujada: {{ha}} ha",
+      "redibujar": "Dibujar de nuevo",
+      "subir_geojson": "Subir GeoJSON",
+      "exportar_geojson": "Exportar GeoJSON",
+      "subir_con_cambios": "Hay cambios sin guardar en la ficha que se van a perder al subir el archivo. ¿Seguir?",
+      "geojson_subido": "Parcelas importadas desde el archivo.",
+      "difiere": "La superficie declarada ({{declarada}} ha) difiere bastante de la dibujada ({{dibujada}} ha). Revisa cuál es la correcta.",
+      "acercate": "Acércate a la parcela con el zoom antes de dibujar."
+    },
+    "ficha": {
+      "id": "ID {{id}}",
+      "indice": "Secciones de la ficha",
+      "con_errores": "Tiene errores",
+      "cambios": "Hay cambios sin guardar.",
+      "nuevo_ayuda": "Completa los datos y guarda para crear el productor.",
+      "descartar": "Descartar",
+      "guardando": "Guardando…",
+      "guardado": "Cambios guardados.",
+      "revisar": "Revisa los campos marcados antes de guardar.",
+      "salir_sin_guardar": "Hay cambios sin guardar. ¿Salir igual?"
+    },
+    "importacion": {
+      "titulo": "Importar productores",
+      "intro": "Carga muchos productores a la vez desde una planilla de Excel.",
+      "paso_plantilla": "Descarga la plantilla y complétala, una fila por productor.",
+      "descargar_plantilla": "Descargar plantilla",
+      "paso_subir": "Sube la planilla completa.",
+      "elegir": "Elegir archivo (.xls, .xlsx)",
+      "solo_excel": "Sube solo archivos XLS o XLSX.",
+      "importar": "Importar",
+      "importando": "Importando…",
+      "resultado_one": "{{count}} productor importado.",
+      "resultado_other": "{{count}} productores importados.",
+      "hay_duplicados_one": "Hay {{count}} posible duplicado para revisar abajo.",
+      "hay_duplicados_other": "Hay {{count}} posibles duplicados para revisar abajo.",
+      "con_errores": "La planilla tiene errores",
+      "con_errores_texto": "No se importó nada. Corrige estas celdas y vuelve a subirla.",
+      "fila": "Fila",
+      "celda": "Celda",
+      "problema": "Problema",
+      "errores": {
+        "REQUIRED": "Falta un dato obligatorio",
+        "INCORRECT_TYPE": "Tipo de dato incorrecto",
+        "INVALID_VALUE": "Valor no válido"
+      },
+      "duplicados": "Posibles duplicados",
+      "duplicados_texto": "Ya existe un productor con el mismo nombre, apellido y aldea. Acepta los que sí son personas distintas.",
+      "aceptar": "Importar igual",
+      "rechazar": "Descartar",
+      "aceptado": "Importado",
+      "rechazado": "Descartado"
+    },
+    "tarjeta": {
+      "titulo": "Tarjeta del productor",
+      "qr": "Código QR del productor {{id}}",
+      "imprimir": "Imprimir tarjeta",
+      "entregas": "Entregas y pagos (versión actual)"
     }
   }
 }

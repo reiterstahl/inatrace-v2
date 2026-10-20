@@ -5,10 +5,12 @@ import { consultas, useSalir } from '@/api/consultas';
 import { Icono, type NombreIcono } from '@/componentes/ui/Icono';
 import { InterruptorTema, Logo, SelectorIdioma } from '@/componentes/ui/Preferencias';
 import { enAnterior } from '@/util/entorno';
+import { SelectorEmpresa } from '@/componentes/SelectorEmpresa';
 
-const NAV: { to: '/' | '/perfil'; clave: string; icono: NombreIcono }[] = [
-  { to: '/', clave: 'portal.inicio', icono: 'inicio' },
-  { to: '/perfil', clave: 'portal.perfil', icono: 'usuario' },
+const NAV: { to: '/' | '/perfil' | '/productores'; clave: string; icono: NombreIcono; exacto?: boolean }[] = [
+  { to: '/', clave: 'portal.inicio', icono: 'inicio', exacto: true },
+  { to: '/productores', clave: 'portal.productores', icono: 'personas' },
+  { to: '/perfil', clave: 'portal.perfil', icono: 'usuario', exacto: true },
 ];
 
 export function Marco() {
@@ -39,7 +41,7 @@ export function Marco() {
                 aria-label={t(n.clave)}
                 className="inline-flex h-9 items-center gap-2 rounded-lg px-3 text-sm font-medium text-tinta-2 hover:bg-superficie-2 hover:text-tinta"
                 activeProps={{ className: 'bg-marca-suave !text-marca' }}
-                activeOptions={{ exact: true }}
+                activeOptions={{ exact: !!n.exacto }}
               >
                 <Icono nombre={n.icono} className="size-4" />
                 <span className="hidden sm:inline">{t(n.clave)}</span>
@@ -51,6 +53,7 @@ export function Marco() {
             </a>
           </nav>
           <div className="ml-auto flex items-center gap-1">
+            <SelectorEmpresa />
             {/* Envuelto: el propio selector es inline-flex y le ganaría a un "hidden". */}
             <div className="hidden sm:block">
               <SelectorIdioma />
