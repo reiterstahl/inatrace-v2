@@ -91,6 +91,44 @@ const productorNuevo = createRoute({ getParentRoute: () => productoresRaiz, path
 const productoresImportar = createRoute({ getParentRoute: () => productoresRaiz, path: 'importar', component: lazyRouteComponent(() => import('@/paginas/productores/Importar'), 'ImportarProductores') });
 const productorFicha = createRoute({ getParentRoute: () => productoresRaiz, path: '$id', component: lazyRouteComponent(() => import('@/paginas/productores/Ficha'), 'FichaExistente') });
 
+// ---------- Stock (fase 3) ----------
+type BusquedaEntregas = {
+  inst?: number;
+  /** Solo las de un productor (se llega desde su ficha). */
+  prod?: number;
+  q?: string;
+  mujeres?: 'si' | 'no';
+  semi?: number;
+  saldo?: boolean;
+  pagina?: number;
+  orden?: 'date' | 'lastChange';
+  sentido?: 'ASC' | 'DESC';
+};
+const idPositivo = (v: unknown) => (Number(v) > 0 && Number.isInteger(Number(v)) ? Number(v) : undefined);
+const stockRaiz = createRoute({ getParentRoute: () => portal, path: 'stock', component: lazyRouteComponent(() => import('@/paginas/stock/Marco'), 'MarcoStock') });
+const stockInicio = createRoute({ getParentRoute: () => stockRaiz, path: '/', beforeLoad: () => { throw redirect({ to: '/stock/entregas', replace: true }); } });
+const entregasRaiz = createRoute({ getParentRoute: () => stockRaiz, path: 'entregas' });
+const entregasLista = createRoute({
+  getParentRoute: () => entregasRaiz,
+  path: '/',
+  validateSearch: (s: Record<string, unknown>): BusquedaEntregas => ({
+    inst: idPositivo(s.inst),
+    prod: idPositivo(s.prod),
+    q: typeof s.q === 'string' && s.q ? s.q.slice(0, 100) : undefined,
+    mujeres: uno(s.mujeres, ['si', 'no'] as const),
+    semi: idPositivo(s.semi),
+    saldo: s.saldo === true || s.saldo === 'true' ? true : undefined,
+    pagina: Number(s.pagina) > 1 ? Math.floor(Number(s.pagina)) : undefined,
+    orden: uno(s.orden, ['date', 'lastChange'] as const),
+    sentido: uno(s.sentido, ['ASC', 'DESC'] as const),
+  }),
+  component: lazyRouteComponent(() => import('@/paginas/stock/entregas/Lista'), 'ListaEntregas'),
+});
+const conInstalacion = (s: Record<string, unknown>): { inst?: number } => ({ inst: idPositivo(s.inst) });
+const entregaNueva = createRoute({ getParentRoute: () => entregasRaiz, path: 'nueva', validateSearch: (s: Record<string, unknown>): { inst?: number; productor?: number } => ({ inst: idPositivo(s.inst), productor: idPositivo(s.productor) }), component: lazyRouteComponent(() => import('@/paginas/stock/entregas/Formulario'), 'EntregaNueva') });
+const entregaMasiva = createRoute({ getParentRoute: () => entregasRaiz, path: 'masiva', validateSearch: conInstalacion, component: lazyRouteComponent(() => import('@/paginas/stock/entregas/Masiva'), 'EntregaMasiva') });
+const entregaFicha = createRoute({ getParentRoute: () => entregasRaiz, path: '$id', component: lazyRouteComponent(() => import('@/paginas/stock/entregas/Formulario'), 'EntregaExistente') });
+
 // ---------- Vitrina pública (misma URL que la versión actual, bajo /v2) ----------
 export const vitrina = createRoute({
   getParentRoute: () => raiz,
@@ -142,7 +180,9 @@ const arbol = raiz.addChildren([
   ingreso,
   entradaQr,
   entradaEtiqueta,
-  portal.addChildren([inicio, perfil, productoresRaiz.addChildren([productoresLista, productorNuevo, productoresImportar, productorFicha])]),
+  portal.addChildren([inicio, perfil, productoresRaiz.addChildren([productoresLista, productorNuevo, productoresImportar, productorFicha]),
+    stockRaiz.addChildren([stockInicio, entregasRaiz.addChildren([entregasLista, entregaNueva, entregaMasiva, entregaFicha])]),
+  ]),
   vitrina.addChildren([vPortada, vRecorrido, vPrecios, vProductores, vCalidad, vOpinion, vTerminos, vPrivacidad]),
 ]);
 

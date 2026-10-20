@@ -2,6 +2,8 @@ import { http, HttpResponse, delay } from 'msw';
 import type { ApiUserGet } from '@/api/gen/types.gen';
 import { ETIQUETA_DEMO, QR_DEMO, etiqueta, qr } from './datos/vitrina';
 import type { ApiUserCustomer } from '@/api/gen/types.gen';
+import { acopiadores, entregasIniciales, instalaciones, recalcular, semiproductos, usuariosEmpresa } from './datos/stock';
+import type { ApiPurchaseOrder, ApiStockOrder } from '@/api/gen/types.gen';
 import { EMPRESA_DEMO, capasMapa, paises, parcelasDe, productoresIniciales, tiposCertificacion, tiposProducto } from './datos/productores';
 
 /**
@@ -21,6 +23,30 @@ const CLAVE_PRODUCTORES = 'simulado.productores';
 const leerProductores = (): ApiUserCustomer[] => JSON.parse(sessionStorage.getItem(CLAVE_PRODUCTORES) ?? 'null') ?? productoresIniciales;
 const guardarProductores = (l: ApiUserCustomer[]) => sessionStorage.setItem(CLAVE_PRODUCTORES, JSON.stringify(l));
 let siguienteId = 500;
+// Entregas: igual que los productores, en sessionStorage.
+const CLAVE_ENTREGAS = 'simulado.entregas';
+const leerEntregas = (): ApiStockOrder[] => JSON.parse(sessionStorage.getItem(CLAVE_ENTREGAS) ?? 'null') ?? entregasIniciales;
+const guardarEntregas = (l: ApiStockOrder[]) => sessionStorage.setItem(CLAVE_ENTREGAS, JSON.stringify(l));
+const nombreDe = (o: ApiStockOrder) => `${o.producerUserCustomer?.name ?? ''} ${o.producerUserCustomer?.surname ?? ''}`.toLowerCase();
+
+function listaEntregas(request: Request, filtro: (o: ApiStockOrder) => boolean) {
+  const u = new URL(request.url);
+  const q = (u.searchParams.get('query') ?? '').toLowerCase();
+  const mujeres = u.searchParams.get('isWomenShare');
+  const semi = Number(u.searchParams.get('semiProductId')) || null;
+  const saldo = u.searchParams.get('isOpenBalanceOnly') === 'true';
+  const signo = u.searchParams.get('sort') === 'ASC' ? 1 : -1;
+  const todos = leerEntregas()
+    .filter(filtro)
+    .filter((o) => !q || nombreDe(o).includes(q))
+    .filter((o) => mujeres === null || String(!!o.womenShare) === mujeres)
+    .filter((o) => !semi || o.semiProduct?.id === semi)
+    .filter((o) => !saldo || (o.balance ?? 0) > 0)
+    .sort((a, b) => String(a.productionDate).localeCompare(String(b.productionDate)) * signo || ((a.id ?? 0) - (b.id ?? 0)) * signo);
+  const desde = Number(u.searchParams.get('offset') ?? 0), cuantos = Number(u.searchParams.get('limit') ?? 20);
+  return ok({ items: todos.slice(desde, desde + cuantos), count: todos.length, offset: desde, limit: cuantos });
+}
+
 const paginado = <T,>(items: T[]) => ok({ items, count: items.length, offset: 0, limit: items.length });
 const sinSesion = () => error(401, 'UNAUTHORIZED', 'Unauthorized');
 
@@ -76,7 +102,8 @@ export const manejadores = [
   http.get('/api/user/profile', () => (conSesion() ? ok(usuario) : error(401, 'UNAUTHORIZED', 'Unauthorized'))),
   // ---------- Empresa y catálogos ----------
   http.get('/api/company/profile/:id/name', () => (conSesion() ? ok(EMPRESA_DEMO) : sinSesion())),
-  http.get('/api/company/profile/:id', () => (conSesion() ? ok({ ...EMPRESA_DEMO, headquarters: { country: paises[0] } }) : sinSesion())),
+  http.get('/api/company/profile/:id', () => (conSesion() ? ok({ ...EMPRESA_DEMO, headquarters: { country: paises[0] }, currency: { code: 'USD', label: 'US dollar' } }) : sinSesion())),
+  http.get('/api/company/profile/:id/users', () => (conSesion() ? ok(usuariosEmpresa) : sinSesion())),
   http.get('/api/company/:id/product-types', () => paginado(tiposProducto)),
   http.get('/api/company/associations/:id', () => paginado([{ id: 7, name: 'Asociación de Caficultores del Norte' }])),
   http.get('/api/common/countries', () => paginado(paises)),
@@ -85,9 +112,10 @@ export const manejadores = [
 
   // ---------- Productores ----------
   http.get('/api/company/userCustomers/:companyId/plots', () => (conSesion() ? ok(parcelasDe(leerProductores())) : sinSesion())),
-  http.get('/api/company/userCustomers/:companyId/:type', ({ request }) => {
+  http.get('/api/company/userCustomers/:companyId/:type', ({ request, params }) => {
     if (!conSesion()) return sinSesion();
     const u = new URL(request.url);
+    if (params.type === 'COLLECTOR') return paginado(acopiadores.filter((a) => `${a.name} ${a.surname}`.toLowerCase().includes((u.searchParams.get('query') ?? '').toLowerCase())));
     const q = (u.searchParams.get('query') ?? '').toLowerCase();
     const por = u.searchParams.get('searchBy') === 'BY_SURNAME' ? 'surname' : 'name';
     const campo = ({ BY_ID: 'id', BY_SURNAME: 'surname' } as Record<string, 'id' | 'surname'>)[u.searchParams.get('sortBy') ?? ''] ?? 'name';
@@ -120,6 +148,55 @@ export const manejadores = [
   http.delete('/api/company/userCustomers/:id', ({ params }) => {
     if (!conSesion()) return sinSesion();
     guardarProductores(leerProductores().filter((x) => x.id !== Number(params.id)));
+    return ok();
+  }),
+
+  // ---------- Stock: entregas ----------
+  http.get('/api/chain/facility/list/collecting/company/:id', () => (conSesion() ? paginado(instalaciones) : sinSesion())),
+  http.get('/api/chain/facility/:id', ({ params }) => {
+    const f = instalaciones.find((x) => x.id === Number(params.id));
+    return f ? ok(f) : error(404, 'NOT_FOUND', 'Not found');
+  }),
+  http.get('/api/chain/semi-product/:id', ({ params }) => {
+    const s = semiproductos.find((x) => x.id === Number(params.id));
+    return s ? ok(s) : error(404, 'NOT_FOUND', 'Not found');
+  }),
+  http.get('/api/chain/stock-order/list/facility/:facilityId', ({ request, params }) => (conSesion() ? listaEntregas(request, (o) => o.facility?.id === Number(params.facilityId)) : sinSesion())),
+  http.get('/api/chain/stock-order/list/company/:companyId', ({ request }) => {
+    if (!conSesion()) return sinSesion();
+    const productor = Number(new URL(request.url).searchParams.get('farmerId')) || null;
+    return listaEntregas(request, (o) => !productor || o.producerUserCustomer?.id === productor);
+  }),
+  http.get('/api/chain/stock-order/export/deliveries/company/:companyId', () =>
+    new HttpResponse(new Blob(['simulado'], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }), { headers: { 'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' } }),
+  ),
+  http.get('/api/chain/stock-order/:id', ({ params }) => {
+    if (!conSesion()) return sinSesion();
+    const o = leerEntregas().find((x) => x.id === Number(params.id));
+    return o ? ok(o) : error(404, 'NOT_FOUND', 'Not found');
+  }),
+  http.put('/api/chain/stock-order', async ({ request }) => {
+    if (!conSesion()) return sinSesion();
+    const o = (await request.json()) as ApiStockOrder;
+    if (!o.producerUserCustomer?.id) return error(400, 'INVALID_REQUEST', 'Producer user customer is required for purchase orders!');
+    const lista = leerEntregas();
+    const anterior = lista.find((x) => x.id === o.id);
+    const guardada = recalcular({ ...o, id: o.id ?? siguienteId++, paid: anterior?.paid, availableQuantity: undefined });
+    guardarEntregas(anterior ? lista.map((x) => (x.id === guardada.id ? guardada : x)) : [...lista, guardada]);
+    return ok({ id: guardada.id });
+  }),
+  http.post('/api/chain/stock-order/bulk-purchase', async ({ request }) => {
+    if (!conSesion()) return sinSesion();
+    const p = (await request.json()) as ApiPurchaseOrder;
+    const nuevas = (p.farmers ?? []).map((f) =>
+      recalcular({ ...f, id: siguienteId++, orderType: 'PURCHASE_ORDER', facility: p.facility, productionDate: p.productionDate, creatorId: p.creatorId, currency: p.currency, preferredWayOfPayment: p.preferredWayOfPayment, representativeOfProducerUserCustomer: p.representativeOfProducerUserCustomer, availableQuantity: undefined }),
+    );
+    guardarEntregas([...leerEntregas(), ...nuevas]);
+    return ok({ ...p, farmers: (p.farmers ?? []).map((f, i) => ({ ...f, id: nuevas[i]!.id })) });
+  }),
+  http.delete('/api/chain/stock-order/:id', ({ params }) => {
+    if (!conSesion()) return sinSesion();
+    guardarEntregas(leerEntregas().filter((x) => x.id !== Number(params.id)));
     return ok();
   }),
 

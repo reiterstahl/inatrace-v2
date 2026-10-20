@@ -9,7 +9,9 @@
     "error_titulo": "Algo salió mal",
     "error_texto": "No pudimos cargar esta información. Revisa tu conexión e intenta de nuevo.",
     "tema_claro": "Tema claro",
-    "tema_oscuro": "Tema oscuro"
+    "tema_oscuro": "Tema oscuro",
+    "si": "Sí",
+    "no": "No"
   },
   "idiomas": {
     "es": "Español",
@@ -53,7 +55,10 @@
       "productos_desc": "Productos, etiquetas, lotes y estadísticas."
     },
     "productores": "Productores",
-    "empresa": "Empresa"
+    "empresa": "Empresa",
+    "stock": "Stock",
+    "en_parte": "En parte en la nueva versión",
+    "resto_actual": "Lo demás, en la versión actual"
   },
   "perfil": {
     "titulo": "Mi perfil",
@@ -389,7 +394,129 @@
       "titulo": "Tarjeta del productor",
       "qr": "Código QR del productor {{id}}",
       "imprimir": "Imprimir tarjeta",
-      "entregas": "Entregas y pagos (versión actual)"
+      "entregas_v2": "Sus entregas",
+      "pagos": "Pagos (versión actual)"
+    }
+  },
+  "selector_persona": {
+    "buscar": "Buscar por nombre…",
+    "sin_resultados": "Nadie con ese nombre.",
+    "cambiar": "Quitar a {{nombre}} y elegir a otra persona"
+  },
+  "stock": {
+    "titulo": "Stock",
+    "instalacion": "Instalación",
+    "todas_instalaciones": "Todas las instalaciones",
+    "semiproducto": "Semiproducto",
+    "todos_semiproductos": "Todos",
+    "elegir": "Elegir…",
+    "pestanas": {
+      "entregas": "Entregas",
+      "stock": "Stock",
+      "procesamiento": "Procesamiento",
+      "pagos": "Pagos",
+      "ordenes": "Órdenes"
+    },
+    "forma_pago": {
+      "CASH": "Efectivo",
+      "CASH_VIA_COLLECTOR": "Efectivo a través del acopiador",
+      "UNKNOWN": "Desconocida",
+      "BANK_TRANSFER": "Transferencia bancaria",
+      "CHEQUE": "Cheque",
+      "OFFSETTING": "Compensación"
+    },
+    "errores": {
+      "requerido": "Este campo es obligatorio.",
+      "numero": "Escribe un número.",
+      "rango": "No puede ser negativo.",
+      "invalido": "Valor no válido.",
+      "tara_mayor_que_bruto": "La tara no puede ser mayor que el peso bruto.",
+      "descuento_peso_mayor_que_neto": "El descuento por daño no puede ser mayor que el peso neto.",
+      "descuento_precio_mayor_que_precio": "El descuento por daño no puede ser mayor que el precio.",
+      "positivo": "Tiene que ser mayor que cero."
+    },
+    "entregas": {
+      "titulo": "Entregas",
+      "descripcion": "Café que los productores entregan en las instalaciones de acopio.",
+      "subtitulo_one": "{{count}} entrega",
+      "subtitulo_other": "{{count}} entregas",
+      "exportar": "Exportar a Excel",
+      "masiva": "Entrega masiva",
+      "nueva": "Nueva entrega",
+      "buscar_productor": "Productor",
+      "buscar_ph": "Nombre o apellido",
+      "cafe_mujeres": "Café de mujeres",
+      "mujeres_todas": "Todas",
+      "mujeres_si": "De mujeres",
+      "mujeres_no": "Otras",
+      "solo_saldo": "Solo con saldo pendiente",
+      "vacio": "No hay entregas con estos filtros.",
+      "col_fecha": "Fecha",
+      "col_productor": "Productor",
+      "col_neto": "Peso neto",
+      "col_pago": "Pago",
+      "col_estado": "Estado",
+      "precio_despues": "Precio a definir",
+      "sin_precio": "Sin precio",
+      "pagada": "Pagada",
+      "debe": "Debe {{monto}}",
+      "borrar": "Borrar entrega",
+      "borrar_confirmar": "¿Borrar la entrega de {{productor}} del {{fecha}}? No se puede deshacer.",
+      "de_productor": "Productor: {{nombre}}",
+      "quitar_filtro_productor": "Quitar el filtro de productor",
+      "ver_ficha": "Ver su ficha"
+    },
+    "entrega": {
+      "titulo_editar": "Entrega de {{productor}}",
+      "origen": "Origen",
+      "fecha": "Fecha de entrega",
+      "productor": "Productor",
+      "acopiador": "Acopiador (opcional)",
+      "registrado_por": "Registrada por",
+      "parcelas": "Parcelas de origen",
+      "parcelas_ayuda": "De qué parcelas viene el café. Sirve para la trazabilidad y el reglamento europeo (EUDR).",
+      "sin_parcelas": "Este productor no tiene parcelas registradas.",
+      "cantidad": "Cantidad",
+      "primero_instalacion": "Primero elige la instalación",
+      "bruto": "Peso bruto",
+      "tara": "Tara",
+      "descuento_peso": "Descuento por daño (peso)",
+      "precio_pago": "Precio y pago",
+      "precio": "Precio por unidad",
+      "descuento_precio": "Descuento por daño (precio)",
+      "precio_despues": "El precio se define después",
+      "precio_despues_ayuda": "La entrega queda sin pago calculado hasta que se fije el precio.",
+      "moneda": "Moneda",
+      "moneda_ayuda": "La empresa no tiene una moneda definida: escribe el código (USD, GTQ…).",
+      "forma_pago": "Forma de pago preferida",
+      "caracteristicas": "Características",
+      "organico": "Orgánico",
+      "comentarios": "Comentarios",
+      "resumen": "Resumen",
+      "neto": "Peso neto",
+      "precio_final": "Precio final",
+      "pago_base": "Pago al productor",
+      "resumen_nota": "Vista previa. Al guardar, el sistema calcula los valores definitivos.",
+      "guardar_otra": "Guardar y registrar otra",
+      "guardada": "Entrega guardada.",
+      "guardada_otra": "Entrega de {{productor}} guardada. Puedes registrar la siguiente.",
+      "revisar": "Revisa los campos marcados.",
+      "sin_guardar": "Hay cambios sin guardar.",
+      "salir_sin_guardar": "Hay cambios sin guardar en la entrega. ¿Salir de todos modos?",
+      "con_pagos": "Esta entrega ya tiene pagos registrados. Si cambias cantidades o precio, el saldo se recalcula."
+    },
+    "masiva": {
+      "descripcion": "Varias entregas del mismo día y la misma instalación de una sola vez. Lo común se completa una vez; cada productor lleva su cantidad y precio.",
+      "comunes": "Datos comunes",
+      "productores_one": "{{count}} productor",
+      "productores_other": "{{count}} productores",
+      "fila": "Entrega {{n}}",
+      "quitar": "Quitar la entrega {{n}}",
+      "agregar": "Agregar productor",
+      "total_one": "{{count}} entrega",
+      "total_other": "{{count}} entregas",
+      "guardar_one": "Guardar {{count}} entrega",
+      "guardar_other": "Guardar {{count}} entregas"
     }
   }
 }

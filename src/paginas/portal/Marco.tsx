@@ -7,10 +7,10 @@ import { InterruptorTema, Logo, SelectorIdioma } from '@/componentes/ui/Preferen
 import { enAnterior } from '@/util/entorno';
 import { SelectorEmpresa } from '@/componentes/SelectorEmpresa';
 
-const NAV: { to: '/' | '/perfil' | '/productores'; clave: string; icono: NombreIcono; exacto?: boolean }[] = [
+const NAV: { to: '/' | '/productores' | '/stock'; clave: string; icono: NombreIcono; exacto?: boolean }[] = [
   { to: '/', clave: 'portal.inicio', icono: 'inicio', exacto: true },
   { to: '/productores', clave: 'portal.productores', icono: 'personas' },
-  { to: '/perfil', clave: 'portal.perfil', icono: 'usuario', exacto: true },
+  { to: '/stock', clave: 'portal.stock', icono: 'bodega' },
 ];
 
 export function Marco() {
@@ -31,7 +31,7 @@ export function Marco() {
       <header className="sticky top-0 z-20 border-b border-linea bg-superficie/90 backdrop-blur">
         <div className="mx-auto flex h-16 max-w-6xl items-center gap-2 px-3 sm:gap-6 sm:px-6">
           <Link to="/" aria-label="INATrace">
-            <Logo />
+            <Logo compacto />
           </Link>
           <nav className="flex items-center gap-1" aria-label="Principal">
             {NAV.map((n) => (
@@ -39,17 +39,17 @@ export function Marco() {
                 key={n.to}
                 to={n.to}
                 aria-label={t(n.clave)}
-                className="inline-flex h-9 items-center gap-2 rounded-lg px-3 text-sm font-medium text-tinta-2 hover:bg-superficie-2 hover:text-tinta"
+                className="inline-flex h-9 items-center gap-2 rounded-lg px-2.5 text-sm font-medium text-tinta-2 hover:bg-superficie-2 hover:text-tinta sm:px-3"
                 activeProps={{ className: 'bg-marca-suave !text-marca' }}
                 activeOptions={{ exact: !!n.exacto }}
               >
                 <Icono nombre={n.icono} className="size-4" />
-                <span className="hidden sm:inline">{t(n.clave)}</span>
+                <span className="hidden whitespace-nowrap md:inline">{t(n.clave)}</span>
               </Link>
             ))}
-            <a href={enAnterior('/home')} aria-label={t('portal.version_actual')} className="inline-flex h-9 items-center gap-2 rounded-lg px-3 text-sm font-medium text-tinta-3 hover:bg-superficie-2 hover:text-tinta">
+            <a href={enAnterior('/home')} aria-label={t('portal.version_actual')} className="inline-flex h-9 items-center gap-2 rounded-lg px-2.5 text-sm font-medium text-tinta-3 hover:bg-superficie-2 hover:text-tinta sm:px-3">
               <Icono nombre="externo" className="size-4" />
-              <span className="hidden md:inline">{t('portal.version_actual')}</span>
+              <span className="hidden whitespace-nowrap xl:inline">{t('portal.version_actual')}</span>
             </a>
           </nav>
           <div className="ml-auto flex items-center gap-1">
@@ -59,9 +59,16 @@ export function Marco() {
               <SelectorIdioma />
             </div>
             <InterruptorTema />
-            <span className="ml-2 hidden size-9 place-items-center rounded-full sm:grid bg-acento-suave text-sm font-bold text-acento" title={nombre}>
+            {/* El avatar lleva al perfil (en el celular no hay lugar para otra entrada en la barra). */}
+            <Link
+              to="/perfil"
+              className="grid size-9 shrink-0 place-items-center rounded-full bg-acento-suave text-sm font-bold text-acento ring-marca hover:ring-2 sm:ml-2"
+              activeProps={{ className: 'ring-2' }}
+              title={`${t('portal.perfil')} · ${nombre}`}
+              aria-label={t('portal.perfil')}
+            >
               {iniciales || '·'}
-            </span>
+            </Link>
             <button type="button" onClick={cerrar} className="grid size-9 place-items-center rounded-lg text-tinta-2 hover:bg-superficie-2" title={t('portal.salir')} aria-label={t('portal.salir')}>
               <Icono nombre="salir" className="size-[1.1rem]" />
             </button>

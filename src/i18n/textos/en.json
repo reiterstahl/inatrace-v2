@@ -9,7 +9,9 @@
     "error_titulo": "Something went wrong",
     "error_texto": "We couldn't load this information. Check your connection and try again.",
     "tema_claro": "Light theme",
-    "tema_oscuro": "Dark theme"
+    "tema_oscuro": "Dark theme",
+    "si": "Yes",
+    "no": "No"
   },
   "idiomas": {
     "es": "Español",
@@ -53,7 +55,10 @@
       "productos_desc": "Products, labels, batches and statistics."
     },
     "productores": "Farmers",
-    "empresa": "Company"
+    "empresa": "Company",
+    "stock": "Stock",
+    "en_parte": "Partly in the new version",
+    "resto_actual": "The rest, in the current version"
   },
   "perfil": {
     "titulo": "My profile",
@@ -389,7 +394,129 @@
       "titulo": "Farmer card",
       "qr": "Farmer QR code {{id}}",
       "imprimir": "Print card",
-      "entregas": "Deliveries and payments (current version)"
+      "entregas_v2": "Their deliveries",
+      "pagos": "Payments (current version)"
+    }
+  },
+  "selector_persona": {
+    "buscar": "Search by name…",
+    "sin_resultados": "No one with that name.",
+    "cambiar": "Remove {{nombre}} and choose someone else"
+  },
+  "stock": {
+    "titulo": "Stock",
+    "instalacion": "Facility",
+    "todas_instalaciones": "All facilities",
+    "semiproducto": "Semi-product",
+    "todos_semiproductos": "All",
+    "elegir": "Choose…",
+    "pestanas": {
+      "entregas": "Deliveries",
+      "stock": "Stock",
+      "procesamiento": "Processing",
+      "pagos": "Payments",
+      "ordenes": "Orders"
+    },
+    "forma_pago": {
+      "CASH": "Cash",
+      "CASH_VIA_COLLECTOR": "Cash via collector",
+      "UNKNOWN": "Unknown",
+      "BANK_TRANSFER": "Bank transfer",
+      "CHEQUE": "Cheque",
+      "OFFSETTING": "Offsetting"
+    },
+    "errores": {
+      "requerido": "This field is required.",
+      "numero": "Enter a number.",
+      "rango": "Cannot be negative.",
+      "invalido": "Invalid value.",
+      "tara_mayor_que_bruto": "Tare cannot be greater than the gross weight.",
+      "descuento_peso_mayor_que_neto": "The damage deduction cannot be greater than the net weight.",
+      "descuento_precio_mayor_que_precio": "The damage deduction cannot be greater than the price.",
+      "positivo": "Must be greater than zero."
+    },
+    "entregas": {
+      "titulo": "Deliveries",
+      "descripcion": "Coffee that farmers deliver at the collection facilities.",
+      "subtitulo_one": "{{count}} delivery",
+      "subtitulo_other": "{{count}} deliveries",
+      "exportar": "Export to Excel",
+      "masiva": "Bulk delivery",
+      "nueva": "New delivery",
+      "buscar_productor": "Farmer",
+      "buscar_ph": "Name or surname",
+      "cafe_mujeres": "Women's coffee",
+      "mujeres_todas": "All",
+      "mujeres_si": "Women's",
+      "mujeres_no": "Other",
+      "solo_saldo": "Only with open balance",
+      "vacio": "No deliveries match these filters.",
+      "col_fecha": "Date",
+      "col_productor": "Farmer",
+      "col_neto": "Net weight",
+      "col_pago": "Payment",
+      "col_estado": "Status",
+      "precio_despues": "Price to be set",
+      "sin_precio": "No price",
+      "pagada": "Paid",
+      "debe": "Owes {{monto}}",
+      "borrar": "Delete delivery",
+      "borrar_confirmar": "Delete the delivery from {{productor}} on {{fecha}}? This cannot be undone.",
+      "de_productor": "Farmer: {{nombre}}",
+      "quitar_filtro_productor": "Remove farmer filter",
+      "ver_ficha": "View profile"
+    },
+    "entrega": {
+      "titulo_editar": "Delivery from {{productor}}",
+      "origen": "Origin",
+      "fecha": "Delivery date",
+      "productor": "Farmer",
+      "acopiador": "Collector (optional)",
+      "registrado_por": "Recorded by",
+      "parcelas": "Plots of origin",
+      "parcelas_ayuda": "Which plots the coffee comes from. Used for traceability and the EU regulation (EUDR).",
+      "sin_parcelas": "This farmer has no registered plots.",
+      "cantidad": "Quantity",
+      "primero_instalacion": "Choose the facility first",
+      "bruto": "Gross weight",
+      "tara": "Tare",
+      "descuento_peso": "Damage deduction (weight)",
+      "precio_pago": "Price and payment",
+      "precio": "Price per unit",
+      "descuento_precio": "Damage deduction (price)",
+      "precio_despues": "Price will be set later",
+      "precio_despues_ayuda": "The delivery has no payment calculated until the price is set.",
+      "moneda": "Currency",
+      "moneda_ayuda": "The company has no currency set: type the code (USD, GTQ…).",
+      "forma_pago": "Preferred way of payment",
+      "caracteristicas": "Characteristics",
+      "organico": "Organic",
+      "comentarios": "Comments",
+      "resumen": "Summary",
+      "neto": "Net weight",
+      "precio_final": "Final price",
+      "pago_base": "Payment to the farmer",
+      "resumen_nota": "Preview. When saved, the system calculates the final values.",
+      "guardar_otra": "Save and record another",
+      "guardada": "Delivery saved.",
+      "guardada_otra": "Delivery from {{productor}} saved. You can record the next one.",
+      "revisar": "Check the highlighted fields.",
+      "sin_guardar": "Unsaved changes.",
+      "salir_sin_guardar": "The delivery has unsaved changes. Leave anyway?",
+      "con_pagos": "This delivery already has payments. If you change quantities or price, the balance is recalculated."
+    },
+    "masiva": {
+      "descripcion": "Several deliveries from the same day and facility at once. Shared data is entered once; each farmer has their own quantity and price.",
+      "comunes": "Shared data",
+      "productores_one": "{{count}} farmer",
+      "productores_other": "{{count}} farmers",
+      "fila": "Delivery {{n}}",
+      "quitar": "Remove delivery {{n}}",
+      "agregar": "Add farmer",
+      "total_one": "{{count}} delivery",
+      "total_other": "{{count}} deliveries",
+      "guardar_one": "Save {{count}} delivery",
+      "guardar_other": "Save {{count}} deliveries"
     }
   }
 }

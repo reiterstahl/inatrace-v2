@@ -35,7 +35,7 @@ export function InterruptorTema() {
   );
 }
 
-export function Logo({ className = '' }: { className?: string }) {
+export function Logo({ className = '', compacto }: { className?: string; compacto?: boolean }) {
   return (
     <span className={'inline-flex items-center gap-2 font-titulo text-lg font-semibold tracking-tight ' + className}>
       <svg viewBox="0 0 32 32" className="size-7" aria-hidden="true">
@@ -43,7 +43,7 @@ export function Logo({ className = '' }: { className?: string }) {
         <path d="M9 21c0-6 4-10 13-11-1 9-5 13-11 13" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" className="text-sobre-marca" />
         <path d="M9 23l6-6" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" className="text-sobre-marca" />
       </svg>
-      <span className="max-[380px]:hidden">
+      <span className={compacto ? 'max-sm:hidden' : 'max-[380px]:hidden'}>
         INATrace <span className="ml-0.5 rounded-md bg-marca-suave px-1.5 py-0.5 align-middle font-sans text-[0.7rem] font-bold text-marca">v2</span>
       </span>
     </span>

@@ -100,8 +100,42 @@ NullPointerException si recibe el productor tal como lo devuelve el `GET`. La v2
 actual arman el objeto antes de enviarlo y no lo sufren. Anotar en los hallazgos de
 `inatrace-enhanced` si se confirma allá.
 
-**Bundle:** las pantallas del portal se cargan bajo demanda; la vitrina pública sigue en ~99 KB
-comprimido de JS inicial.
+**Bundle:** las pantallas del portal se cargan bajo demanda. *(Corregido el 20.10: el "~99 KB" que
+figuraba acá era solo el archivo principal; todo el JS que baja la vitrina al abrir son ~163 KB
+comprimidos.)*
+
+## Fase 3a (entregas) — ✅ cerrada el 20.10.2026 (rama `fase-3`)
+
+Primera parte de la fase 3 (stock). Las demás pestañas del módulo (stock, procesamiento, pagos,
+órdenes) siguen abriendo la versión actual, con la misma sesión.
+
+- **Lista de entregas:** por instalación de acopio o de toda la empresa, búsqueda por productor,
+  café de mujeres, semiproducto, solo con saldo pendiente, orden por fecha, paginación (todo en la
+  URL), estado de pago (pagada / debe X / sin precio), exportación a Excel, borrado. Tabla en
+  escritorio y tarjetas en celular.
+- **Entrega (alta y edición):** buscador accesible de productores y acopiadores, **parcelas de
+  origen** del productor, campos que aparecen y se exigen según las opciones de la instalación (tara,
+  descuentos por daño, orgánico, café de mujeres, precio a definir, acopiador), coma decimal, unidad
+  y moneda junto a cada número, y **vista previa del pago** con la misma fórmula del backend.
+  "Guardar y registrar otra" conserva lo del día (instalación, fecha, semiproducto, moneda, forma de
+  pago). Aviso si la entrega ya tiene pagos.
+- **Entrega masiva:** datos comunes una vez y una fila por productor, con subtotal por fila y total;
+  al agregar una fila el foco va a su buscador y se repite el precio.
+- **Desde la ficha del productor:** "Sus entregas" (lista filtrada) y "Nueva entrega" con el
+  productor ya elegido. Los pagos siguen en la versión actual hasta la fase 3d.
+- Reglas tomadas de la interfaz actual y del `StockOrderService` del backend (no del plan): qué es
+  obligatorio según la instalación, formas de pago según haya acopiador, identificador
+  `PT-{apellido}-{fecha}`.
+
+**Pruebas:** 47 unitarias (11 nuevas: validación, armado para la API, ida y vuelta del formulario,
+masiva), 46 de punta a punta simuladas (12 nuevas, escritorio y celular) y 3 nuevas contra el
+backend real: crear → ver el pago que calcula el backend → editar el precio y ver el saldo
+recalculado → borrar; validaciones; y masiva con dos productores.
+
+**Encontrado en el camino:** el encabezado del portal se desbordaba 46 px en el celular (ya pasaba
+con "Mi perfil"; ahora el perfil se abre desde el avatar); entregas cargadas por otras vías traen
+solo `deliveryTime` y no `productionDate` (la lista usa la que haya); una instalación sin
+traducción al idioma activo llega sin nombre (se muestra el del punto en el mapa).
 
 ## Fase 1b (activar la vitrina en una instalación) — pendiente, acordada el 19.10.2026
 
@@ -127,4 +161,5 @@ confirmar el uso del video de Anacafé o cambiarlo.**
 1. Fase 1b (arriba), cuando se decida. `fase-0` **no** se pasa a `main` por ahora.
 2. Revisión de alemán y kinyarwanda por alguien que los hable.
 3. Demo pública: más adelante.
-4. Fase 3: stock (entregas, procesamiento, pagos, trazabilidad).
+4. Fase 3, lo que sigue: 3b stock y trazabilidad → 3c procesamiento → 3d pagos → 3e órdenes y Beyco.
+   Criterio de salida de la fase: ciclo entrega → procesamiento → pago completo en la v2.

@@ -280,8 +280,15 @@ function Tarjeta({ productor, empresa }: { productor: ApiUserCustomer; empresa: 
       </div>
       <div className="ml-auto flex flex-wrap gap-2">
         <Boton variante="secundario" chico onClick={imprimir}>{t('productores.tarjeta.imprimir')}</Boton>
-        <a href={enAnterior(`/my-farmers/edit/${productor.id}`)} className="inline-flex h-9 items-center gap-1.5 rounded-lg px-3 text-sm font-semibold text-marca hover:bg-marca-suave">
-          {t('productores.tarjeta.entregas')} <Icono nombre="externo" className="size-3.5" />
+        <Link to="/stock/entregas" search={{ prod: productor.id }} className="inline-flex h-9 items-center gap-1.5 rounded-lg px-3 text-sm font-semibold text-marca hover:bg-marca-suave">
+          <Icono nombre="bodega" className="size-4" /> {t('productores.tarjeta.entregas_v2')}
+        </Link>
+        <Link to="/stock/entregas/nueva" search={{ productor: productor.id }} className="inline-flex h-9 items-center gap-1.5 rounded-lg px-3 text-sm font-semibold text-marca hover:bg-marca-suave">
+          <Icono nombre="mas" className="size-4" /> {t('stock.entregas.nueva')}
+        </Link>
+        {/* Los pagos llegan a la v2 en la fase 3d; mientras, en la versión actual. */}
+        <a href={enAnterior(`/my-farmers/edit/${productor.id}`)} className="inline-flex h-9 items-center gap-1.5 rounded-lg px-3 text-sm font-semibold text-tinta-2 hover:bg-superficie-2">
+          {t('productores.tarjeta.pagos')} <Icono nombre="externo" className="size-3.5" />
         </a>
       </div>
     </section>
