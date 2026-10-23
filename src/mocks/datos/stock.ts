@@ -54,3 +54,56 @@ export const entregasIniciales: ApiStockOrder[] = [
   { id: 303, identifier: 'PT-Cux-2026-10-16', orderType: 'PURCHASE_ORDER', facility: { id: 12 }, producerUserCustomer: { id: rosa!.id }, semiProduct: { id: 3 }, productionDate: '2026-10-16', creatorId: 7, totalGrossQuantity: 300, pricePerUnit: 1.15, currency: 'USD', womenShare: true, preferredWayOfPayment: 'CASH' },
   { id: 304, identifier: 'PT-López-2026-10-18', orderType: 'PURCHASE_ORDER', facility: { id: 11 }, producerUserCustomer: { id: maria!.id }, semiProduct: { id: 4 }, productionDate: '2026-10-18', creatorId: 7, totalGrossQuantity: 120, tare: 2, priceDeterminedLater: true, currency: 'USD', womenShare: true, organic: true, preferredWayOfPayment: 'CHEQUE' },
 ].map((o) => recalcular(o as ApiStockOrder));
+
+/** Un lote ya procesado, para la vista de stock y la trazabilidad del modo simulado. */
+export const loteProcesado: ApiStockOrder = recalcular({
+  id: 310, internalLotNumber: 'LOTE-FS-001', orderType: 'PROCESSING_ORDER', facility: { id: 11 },
+  semiProduct: { id: 4 }, productionDate: '2026-10-17', totalGrossQuantity: 450,
+} as ApiStockOrder);
+
+/** Historia agregada simulada: para un lote procesado, el paso de despulpado y las entregas que lo alimentaron. */
+export function historiaDe(id: number): import('@/api/gen/types.gen').ApiStockOrderHistory | null {
+  const todas = [...entregasIniciales, loteProcesado];
+  const orden = todas.find((o) => o.id === id);
+  if (!orden) return null;
+  if (orden.orderType === 'PROCESSING_ORDER') {
+    const origen = entregasIniciales.filter((e) => e.facility?.id === orden.facility?.id && e.semiProduct?.id === 3);
+    return {
+      stockOrder: orden,
+      outputTransactions: [],
+      timelineItems: [
+        {
+          depth: 0,
+          processingOrder: {
+            id: 900,
+            processingDate: '2026-10-17',
+            processingAction: { id: 1, name: 'Despulpado y secado', publicTimelineLabel: 'Despulpado y secado', publicTimelineIconType: 'LEAF', type: 'PROCESSING' },
+            targetStockOrders: [orden],
+          },
+        },
+        { depth: 1, purchaseOrders: origen },
+      ],
+    };
+  }
+  return { stockOrder: orden, outputTransactions: [], timelineItems: [{ purchaseOrders: [orden] }] };
+}
+
+/** Agrupa órdenes por lote/compra, como el listado agrupado del backend. */
+export function agrupar(ordenes: ApiStockOrder[]): import('@/api/gen/types.gen').ApiGroupStockOrder[] {
+  const grupos = new Map<string, import('@/api/gen/types.gen').ApiGroupStockOrder>();
+  for (const o of ordenes) {
+    const clave = `${o.internalLotNumber ?? ''}|${o.orderType}|${o.semiProduct?.id ?? ''}`;
+    const g = grupos.get(clave);
+    if (g) {
+      g.groupedIds!.push(o.id!);
+      g.totalQuantity = (g.totalQuantity ?? 0) + (o.totalQuantity ?? 0);
+      g.availableQuantity = (g.availableQuantity ?? 0) + (o.availableQuantity ?? 0);
+    } else {
+      grupos.set(clave, {
+        groupedIds: [o.id!], internalLotNumber: o.internalLotNumber, orderType: o.orderType, productionDate: o.productionDate,
+        semiProductName: o.semiProduct?.name, unitLabel: o.measureUnitType?.label, totalQuantity: o.totalQuantity ?? 0, availableQuantity: o.availableQuantity ?? 0,
+      });
+    }
+  }
+  return [...grupos.values()];
+}

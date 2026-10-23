@@ -4,16 +4,20 @@ import {
   createPurchaseOrderBulk,
   deleteStockOrder,
   exportDeliveriesByCompany,
+  exportGeoData,
   getCompanyUsers,
   getFacility,
+  getGroupedStockOrderList,
   getSemiProduct,
   getStockOrder,
+  getStockOrderAggregatedHistory,
   getStockOrderListByCompanyId,
   getStockOrderListByFacilityId,
   listCollectingFacilitiesByCompany,
+  listFacilitiesByCompany,
 } from './gen/sdk.gen';
 import type { ApiPurchaseOrder, ApiStockOrder } from './gen/types.gen';
-import { desenvolver, ErrorApi } from './respuesta';
+import { desenvolver, descargarBlob } from './respuesta';
 
 export const POR_PAGINA_STOCK = 20;
 
@@ -30,11 +34,29 @@ export type FiltroEntregas = {
   productor?: number;
 };
 
+export type FiltroStock = {
+  instalacion?: number;
+  semiproducto?: number;
+  soloCompras?: boolean;
+  soloDisponible?: boolean;
+  agrupado: boolean;
+  pagina: number;
+  orden: { campo: 'date' | 'deliveryTime' | 'updateTimestamp'; sentido: 'ASC' | 'DESC' };
+};
+
 export const stock = {
   instalacionesAcopio: (empresa: number) =>
     queryOptions({
       queryKey: ['instalaciones', empresa, 'acopio'],
       queryFn: async () => (await desenvolver(listCollectingFacilitiesByCompany({ path: { id: empresa }, query: { limit: 500 } }))).items ?? [],
+      staleTime: 10 * 60_000,
+    }),
+
+  /** Todas las instalaciones de la empresa (no solo las de acopio): para la vista de stock. */
+  instalaciones: (empresa: number) =>
+    queryOptions({
+      queryKey: ['instalaciones', empresa, 'todas'],
+      queryFn: async () => (await desenvolver(listFacilitiesByCompany({ path: { id: empresa }, query: { limit: 500 } }))).items ?? [],
       staleTime: 10 * 60_000,
     }),
 
@@ -86,6 +108,60 @@ export const stock = {
       queryKey: ['entrega', id],
       queryFn: () => desenvolver(getStockOrder({ path: { id } })),
     }),
+
+  /** Todo el stock de una instalación (órdenes sueltas). Como la versión actual, exige instalación. */
+  ordenes: (f: FiltroStock) =>
+    queryOptions({
+      queryKey: ['stock', 'ordenes', f],
+      queryFn: () =>
+        desenvolver(
+          getStockOrderListByFacilityId({
+            path: { facilityId: f.instalacion! },
+            query: {
+              semiProductId: f.semiproducto,
+              isPurchaseOrderOnly: f.soloCompras || undefined,
+              availableOnly: f.soloDisponible || undefined,
+              sortBy: f.orden.campo,
+              sort: f.orden.sentido,
+              limit: POR_PAGINA_STOCK,
+              offset: (f.pagina - 1) * POR_PAGINA_STOCK,
+            },
+          }),
+        ),
+      enabled: !!f.instalacion,
+      placeholderData: keepPreviousData,
+    }),
+
+  /** Lo mismo agrupado por lote (como la "vista agrupada" de la versión actual). */
+  ordenesAgrupadas: (f: FiltroStock) =>
+    queryOptions({
+      queryKey: ['stock', 'agrupadas', f],
+      queryFn: () =>
+        desenvolver(
+          getGroupedStockOrderList({
+            path: { facilityId: f.instalacion! },
+            query: {
+              semiProductId: f.semiproducto,
+              isPurchaseOrderOnly: f.soloCompras || undefined,
+              availableOnly: f.soloDisponible || undefined,
+              // El orden se manda entre valores fijos conocidos (el backend lo concatena a la consulta).
+              sortBy: f.orden.campo === 'deliveryTime' ? 'deliveryTime' : f.orden.campo === 'updateTimestamp' ? 'updateTimestamp' : 'date',
+              sort: f.orden.sentido,
+              limit: POR_PAGINA_STOCK,
+              offset: (f.pagina - 1) * POR_PAGINA_STOCK,
+            },
+          }),
+        ),
+      enabled: !!f.instalacion,
+      placeholderData: keepPreviousData,
+    }),
+
+  /** Trazabilidad de una orden: línea de tiempo de procesamientos hacia atrás. */
+  historia: (id: number) =>
+    queryOptions({
+      queryKey: ['stock', 'historia', id],
+      queryFn: () => desenvolver(getStockOrderAggregatedHistory({ path: { id } })),
+    }),
 };
 
 /** Quita null y cadenas vacías antes de enviar, como hace la interfaz actual. */
@@ -124,17 +200,18 @@ export function useBorrarEntrega(empresa: number) {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (id: number) => desenvolver(deleteStockOrder({ path: { id } })),
-    onSuccess: () => void qc.invalidateQueries({ queryKey: ['entregas', empresa] }),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: ['entregas', empresa] });
+      void qc.invalidateQueries({ queryKey: ['stock'] });
+    },
   });
 }
 
-export async function exportarEntregas(empresa: number) {
-  const r = await exportDeliveriesByCompany({ path: { companyId: empresa }, parseAs: 'blob' });
-  if (!r.response?.ok || !(r.data instanceof Blob)) throw new ErrorApi('No se pudo descargar el archivo.', 'ERROR', r.response?.status ?? 0);
-  const url = URL.createObjectURL(r.data);
-  const a = Object.assign(document.createElement('a'), { href: url, download: 'entregas.xlsx' });
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
+export function exportarEntregas(empresa: number) {
+  return descargarBlob(exportDeliveriesByCompany({ path: { companyId: empresa }, parseAs: 'blob' }), 'entregas.xlsx');
+}
+
+/** Datos geográficos (GeoJSON) de una orden. Devuelve false si la orden no tiene nada que exportar. */
+export function exportarGeoDatos(id: number) {
+  return descargarBlob(exportGeoData({ path: { id }, parseAs: 'blob' }), `orden-${id}.geojson`);
 }

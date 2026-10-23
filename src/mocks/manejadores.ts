@@ -2,7 +2,7 @@ import { http, HttpResponse, delay } from 'msw';
 import type { ApiUserGet } from '@/api/gen/types.gen';
 import { ETIQUETA_DEMO, QR_DEMO, etiqueta, qr } from './datos/vitrina';
 import type { ApiUserCustomer } from '@/api/gen/types.gen';
-import { acopiadores, entregasIniciales, instalaciones, recalcular, semiproductos, usuariosEmpresa } from './datos/stock';
+import { acopiadores, agrupar, entregasIniciales, historiaDe, instalaciones, loteProcesado, recalcular, semiproductos, usuariosEmpresa } from './datos/stock';
 import type { ApiPurchaseOrder, ApiStockOrder } from '@/api/gen/types.gen';
 import { EMPRESA_DEMO, capasMapa, paises, parcelasDe, productoresIniciales, tiposCertificacion, tiposProducto } from './datos/productores';
 
@@ -29,20 +29,25 @@ const leerEntregas = (): ApiStockOrder[] => JSON.parse(sessionStorage.getItem(CL
 const guardarEntregas = (l: ApiStockOrder[]) => sessionStorage.setItem(CLAVE_ENTREGAS, JSON.stringify(l));
 const nombreDe = (o: ApiStockOrder) => `${o.producerUserCustomer?.name ?? ''} ${o.producerUserCustomer?.surname ?? ''}`.toLowerCase();
 
-function listaEntregas(request: Request, filtro: (o: ApiStockOrder) => boolean) {
+function listaEntregas(request: Request, filtro: (o: ApiStockOrder) => boolean, pozo = leerEntregas()) {
   const u = new URL(request.url);
   const q = (u.searchParams.get('query') ?? '').toLowerCase();
   const mujeres = u.searchParams.get('isWomenShare');
   const semi = Number(u.searchParams.get('semiProductId')) || null;
   const saldo = u.searchParams.get('isOpenBalanceOnly') === 'true';
+  const soloCompras = u.searchParams.get('isPurchaseOrderOnly') === 'true';
+  const soloDisponible = u.searchParams.get('availableOnly') === 'true';
   const signo = u.searchParams.get('sort') === 'ASC' ? 1 : -1;
-  const todos = leerEntregas()
+  const campo = u.searchParams.get('sortBy') === 'updateTimestamp' ? 'updateTimestamp' : u.searchParams.get('sortBy') === 'deliveryTime' ? 'deliveryTime' : 'productionDate';
+  const todos = pozo
     .filter(filtro)
     .filter((o) => !q || nombreDe(o).includes(q))
     .filter((o) => mujeres === null || String(!!o.womenShare) === mujeres)
     .filter((o) => !semi || o.semiProduct?.id === semi)
     .filter((o) => !saldo || (o.balance ?? 0) > 0)
-    .sort((a, b) => String(a.productionDate).localeCompare(String(b.productionDate)) * signo || ((a.id ?? 0) - (b.id ?? 0)) * signo);
+    .filter((o) => !soloCompras || o.orderType === 'PURCHASE_ORDER')
+    .filter((o) => !soloDisponible || (o.availableQuantity ?? 0) > 0)
+    .sort((a, b) => String((a as Record<string, unknown>)[campo] ?? '').localeCompare(String((b as Record<string, unknown>)[campo] ?? '')) * signo || ((a.id ?? 0) - (b.id ?? 0)) * signo);
   const desde = Number(u.searchParams.get('offset') ?? 0), cuantos = Number(u.searchParams.get('limit') ?? 20);
   return ok({ items: todos.slice(desde, desde + cuantos), count: todos.length, offset: desde, limit: cuantos });
 }
@@ -153,6 +158,7 @@ export const manejadores = [
 
   // ---------- Stock: entregas ----------
   http.get('/api/chain/facility/list/collecting/company/:id', () => (conSesion() ? paginado(instalaciones) : sinSesion())),
+  http.get('/api/chain/facility/list/company/:id', () => (conSesion() ? paginado(instalaciones) : sinSesion())),
   http.get('/api/chain/facility/:id', ({ params }) => {
     const f = instalaciones.find((x) => x.id === Number(params.id));
     return f ? ok(f) : error(404, 'NOT_FOUND', 'Not found');
@@ -161,7 +167,40 @@ export const manejadores = [
     const s = semiproductos.find((x) => x.id === Number(params.id));
     return s ? ok(s) : error(404, 'NOT_FOUND', 'Not found');
   }),
-  http.get('/api/chain/stock-order/list/facility/:facilityId', ({ request, params }) => (conSesion() ? listaEntregas(request, (o) => o.facility?.id === Number(params.facilityId)) : sinSesion())),
+  // Todo el stock de una instalación: entregas (en sessionStorage) más los lotes ya procesados.
+  http.get('/api/chain/stock-order/list/facility/:facilityId', ({ request, params }) => {
+    if (!conSesion()) return sinSesion();
+    const pozo = [...leerEntregas(), loteProcesado];
+    return listaEntregas(request, (o) => o.facility?.id === Number(params.facilityId), pozo);
+  }),
+  http.get('/api/chain/group-stock-order/list/facility/:facilityId', ({ request, params }) => {
+    if (!conSesion()) return sinSesion();
+    const u = new URL(request.url);
+    const semi = Number(u.searchParams.get('semiProductId')) || null;
+    const soloCompras = u.searchParams.get('isPurchaseOrderOnly') === 'true';
+    const soloDisponible = u.searchParams.get('availableOnly') === 'true';
+    const items = agrupar(
+      [...leerEntregas(), loteProcesado]
+        .filter((o) => o.facility?.id === Number(params.facilityId))
+        .filter((o) => !semi || o.semiProduct?.id === semi)
+        .filter((o) => !soloCompras || o.orderType === 'PURCHASE_ORDER')
+        .filter((o) => !soloDisponible || (o.availableQuantity ?? 0) > 0),
+    );
+    const desde = Number(u.searchParams.get('offset') ?? 0), cuantos = Number(u.searchParams.get('limit') ?? 20);
+    return ok({ items: items.slice(desde, desde + cuantos), count: items.length, offset: desde, limit: cuantos });
+  }),
+  http.get('/api/chain/stock-order/:id/aggregated-history', ({ params }) => {
+    if (!conSesion()) return sinSesion();
+    const pedido = leerEntregas().find((o) => o.id === Number(params.id));
+    const h = pedido ? { stockOrder: pedido, outputTransactions: [], timelineItems: [{ purchaseOrders: [pedido] }] } : historiaDe(Number(params.id));
+    return h ? ok(h) : error(404, 'NOT_FOUND', 'Not found');
+  }),
+  http.get('/api/chain/stock-order/:id/exportGeoData', ({ params }) => {
+    const pedido = [...leerEntregas(), loteProcesado].find((o) => o.id === Number(params.id));
+    const tiene = (pedido?.plots ?? []).some((p) => p.geoId);
+    const cuerpo = tiene ? JSON.stringify({ type: 'FeatureCollection', features: [] }) : '';
+    return new HttpResponse(cuerpo, { headers: { 'Content-Type': 'application/geo+json' } });
+  }),
   http.get('/api/chain/stock-order/list/company/:companyId', ({ request }) => {
     if (!conSesion()) return sinSesion();
     const productor = Number(new URL(request.url).searchParams.get('farmerId')) || null;

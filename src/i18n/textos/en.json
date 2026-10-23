@@ -517,6 +517,52 @@
       "total_other": "{{count}} deliveries",
       "guardar_one": "Save {{count}} delivery",
       "guardar_other": "Save {{count}} deliveries"
+    },
+    "todo": {
+      "titulo": "All stock",
+      "descripcion": "What is in each facility: deliveries, processed lots and final products.",
+      "elegir_instalacion": "Choose a facility to see its stock.",
+      "vista": "View",
+      "vista_suelta": "By order",
+      "vista_agrupada": "By lot",
+      "solo_compras": "Deliveries only",
+      "solo_disponible": "Available only",
+      "vacio": "No stock matches these filters.",
+      "mostrando": "{{count}} in this facility",
+      "col_fecha": "Date",
+      "col_lote": "Lot / identifier",
+      "col_tipo": "Type",
+      "col_cantidad": "Quantity",
+      "col_disponible": "Available",
+      "col_ordenes": "Orders",
+      "disponible": "Available",
+      "agotado": "Out of stock",
+      "trazabilidad": "View traceability",
+      "geojson": "Geographic data",
+      "sin_geo": "This order has no geographic data.",
+      "borrar_confirmar": "Delete lot {{lote}}? This cannot be undone.",
+      "tipo": {
+        "PURCHASE_ORDER": "Purchase",
+        "PROCESSING_ORDER": "Processing",
+        "TRANSFER_ORDER": "Transfer",
+        "GENERAL_ORDER": "General",
+        "SALES_ORDER": "Sale",
+        "OTRO": "Other"
+      }
+    },
+    "traza": {
+      "titulo": "Traceability",
+      "cantidad": "Quantity",
+      "salidas": "Where it went",
+      "origen": "Origin and processing",
+      "sin_historia": "This order has no previous processing.",
+      "entregas_one": "{{count}} farmer delivery",
+      "entregas_other": "{{count}} farmer deliveries",
+      "documento": "Document",
+      "tx": {
+        "PENDING": "Pending",
+        "CANCELED": "Canceled"
+      }
     }
   }
 }

@@ -137,6 +137,36 @@ con "Mi perfil"; ahora el perfil se abre desde el avatar); entregas cargadas por
 solo `deliveryTime` y no `productionDate` (la lista usa la que haya); una instalación sin
 traducción al idioma activo llega sin nombre (se muestra el del punto en el mapa).
 
+## Fase 3b (todo el stock y trazabilidad) — ✅ cerrada el 23.10.2026 (rama `fase-3`)
+
+Segunda parte de la fase 3. Agrega dos pestañas internas al módulo de stock: **Stock** (todo lo que
+hay en una instalación) y la **trazabilidad** de una orden. Procesamiento, pagos y órdenes siguen
+abriendo la versión actual.
+
+- **Todo el stock:** selector de instalación (todas las de la empresa; como la versión actual, hay
+  que elegir una), vista **por orden** o **por lote** (agrupada), filtros por semiproducto, solo
+  entregas y solo disponible, todo en la URL. Columnas: fecha, lote/identificador, tipo, semiproducto,
+  cantidad y disponible (con chip disponible/agotado). Acciones por fila: ver trazabilidad, exportar
+  datos geográficos (GeoJSON), editar (si es entrega) y borrar.
+- **Trazabilidad:** ficha de la orden y una línea de tiempo hacia atrás —procesamientos y las
+  entregas de productores que la originaron—, con documentos de evidencia y valores de los campos
+  requeridos, y enlaces a las órdenes de salida. Botón para exportar los datos geográficos.
+- Reutiliza el buscador, los formatos de cantidad/fecha y la capa de API de la 3a.
+
+**Pruebas:** 6 de punta a punta simuladas nuevas (escritorio y celular; 52 en total) y 1 nueva
+contra el backend real (crear una entrega → verla en el stock suelto y agrupado → abrir su
+trazabilidad → borrarla desde el stock). Las 47 unitarias siguen pasando.
+
+**Encontrado en el camino:**
+- 🟠 **Hallazgo de seguridad del backend (no de la v2):** `GroupStockOrderService.getGroupedStockOrderList`
+  concatena el parámetro `sortBy` directo al JPQL del `ORDER BY` (el listado de órdenes sueltas, en
+  cambio, usa un `switch` con columnas fijas). Es una inyección JPQL en un endpoint autenticado. La v2
+  solo manda valores de una lista fija, así que no la dispara, pero conviene corregir el backend.
+  Anotado en los hallazgos de `inatrace-enhanced`.
+- En la copia de demostración, las entregas y el lote procesado sembrados viven en una instalación
+  (id 5) que el backend no devuelve en el listado de instalaciones; por eso la vista de stock se probó
+  creando una entrega en la instalación listada. La trazabilidad por URL del lote sembrado sí funciona.
+
 ## Fase 1b (activar la vitrina en una instalación) — pendiente, acordada el 19.10.2026
 
 Pasos, en orden:
@@ -161,5 +191,5 @@ confirmar el uso del video de Anacafé o cambiarlo.**
 1. Fase 1b (arriba), cuando se decida. `fase-0` **no** se pasa a `main` por ahora.
 2. Revisión de alemán y kinyarwanda por alguien que los hable.
 3. Demo pública: más adelante.
-4. Fase 3, lo que sigue: 3b stock y trazabilidad → 3c procesamiento → 3d pagos → 3e órdenes y Beyco.
+4. Fase 3, lo que sigue: 3c procesamiento → 3d pagos → 3e órdenes y Beyco.
    Criterio de salida de la fase: ciclo entrega → procesamiento → pago completo en la v2.

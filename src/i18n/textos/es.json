@@ -517,6 +517,52 @@
       "total_other": "{{count}} entregas",
       "guardar_one": "Guardar {{count}} entrega",
       "guardar_other": "Guardar {{count}} entregas"
+    },
+    "todo": {
+      "titulo": "Todo el stock",
+      "descripcion": "Lo que hay en cada instalación: entregas, lotes procesados y productos finales.",
+      "elegir_instalacion": "Elegí una instalación para ver su stock.",
+      "vista": "Vista",
+      "vista_suelta": "Por orden",
+      "vista_agrupada": "Por lote",
+      "solo_compras": "Solo entregas",
+      "solo_disponible": "Solo disponible",
+      "vacio": "No hay stock con estos filtros.",
+      "mostrando": "{{count}} en esta instalación",
+      "col_fecha": "Fecha",
+      "col_lote": "Lote / identificador",
+      "col_tipo": "Tipo",
+      "col_cantidad": "Cantidad",
+      "col_disponible": "Disponible",
+      "col_ordenes": "Órdenes",
+      "disponible": "Disponible",
+      "agotado": "Agotado",
+      "trazabilidad": "Ver trazabilidad",
+      "geojson": "Datos geográficos",
+      "sin_geo": "Esta orden no tiene datos geográficos.",
+      "borrar_confirmar": "¿Borrar el lote {{lote}}? No se puede deshacer.",
+      "tipo": {
+        "PURCHASE_ORDER": "Compra",
+        "PROCESSING_ORDER": "Procesamiento",
+        "TRANSFER_ORDER": "Transferencia",
+        "GENERAL_ORDER": "General",
+        "SALES_ORDER": "Venta",
+        "OTRO": "Otro"
+      }
+    },
+    "traza": {
+      "titulo": "Trazabilidad",
+      "cantidad": "Cantidad",
+      "salidas": "Hacia dónde fue",
+      "origen": "Origen y procesamiento",
+      "sin_historia": "Esta orden no tiene procesamientos anteriores.",
+      "entregas_one": "{{count}} entrega de productor",
+      "entregas_other": "{{count}} entregas de productores",
+      "documento": "Documento",
+      "tx": {
+        "PENDING": "Pendiente",
+        "CANCELED": "Cancelada"
+      }
     }
   }
 }

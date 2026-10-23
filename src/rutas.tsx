@@ -129,6 +129,38 @@ const entregaNueva = createRoute({ getParentRoute: () => entregasRaiz, path: 'nu
 const entregaMasiva = createRoute({ getParentRoute: () => entregasRaiz, path: 'masiva', validateSearch: conInstalacion, component: lazyRouteComponent(() => import('@/paginas/stock/entregas/Masiva'), 'EntregaMasiva') });
 const entregaFicha = createRoute({ getParentRoute: () => entregasRaiz, path: '$id', component: lazyRouteComponent(() => import('@/paginas/stock/entregas/Formulario'), 'EntregaExistente') });
 
+// ---------- Stock: todo el stock y trazabilidad (fase 3b) ----------
+type BusquedaStock = {
+  inst?: number;
+  semi?: number;
+  compras?: boolean;
+  disponible?: boolean;
+  vista?: 'suelta' | 'agrupada';
+  pagina?: number;
+  orden?: 'date' | 'deliveryTime' | 'updateTimestamp';
+  sentido?: 'ASC' | 'DESC';
+};
+const stockTodo = createRoute({
+  getParentRoute: () => stockRaiz,
+  path: 'todo',
+  validateSearch: (s: Record<string, unknown>): BusquedaStock => ({
+    inst: idPositivo(s.inst),
+    semi: idPositivo(s.semi),
+    compras: s.compras === true || s.compras === 'true' ? true : undefined,
+    disponible: s.disponible === true || s.disponible === 'true' ? true : undefined,
+    vista: uno(s.vista, ['suelta', 'agrupada'] as const),
+    pagina: Number(s.pagina) > 1 ? Math.floor(Number(s.pagina)) : undefined,
+    orden: uno(s.orden, ['date', 'deliveryTime', 'updateTimestamp'] as const),
+    sentido: uno(s.sentido, ['ASC', 'DESC'] as const),
+  }),
+  component: lazyRouteComponent(() => import('@/paginas/stock/todo/Lista'), 'ListaStock'),
+});
+const stockTrazabilidad = createRoute({
+  getParentRoute: () => stockRaiz,
+  path: 'trazabilidad/$id',
+  component: lazyRouteComponent(() => import('@/paginas/stock/todo/Trazabilidad'), 'Trazabilidad'),
+});
+
 // ---------- Vitrina pública (misma URL que la versión actual, bajo /v2) ----------
 export const vitrina = createRoute({
   getParentRoute: () => raiz,
@@ -181,7 +213,7 @@ const arbol = raiz.addChildren([
   entradaQr,
   entradaEtiqueta,
   portal.addChildren([inicio, perfil, productoresRaiz.addChildren([productoresLista, productorNuevo, productoresImportar, productorFicha]),
-    stockRaiz.addChildren([stockInicio, entregasRaiz.addChildren([entregasLista, entregaNueva, entregaMasiva, entregaFicha])]),
+    stockRaiz.addChildren([stockInicio, entregasRaiz.addChildren([entregasLista, entregaNueva, entregaMasiva, entregaFicha]), stockTodo, stockTrazabilidad]),
   ]),
   vitrina.addChildren([vPortada, vRecorrido, vPrecios, vProductores, vCalidad, vOpinion, vTerminos, vPrivacidad]),
 ]);

@@ -37,3 +37,20 @@ export async function desenvolver<T>(peticion: Promise<Resultado<T>>): Promise<T
 export function urlDocumento(storageKey?: string | null): string | undefined {
   return storageKey ? `/api/public/document/${encodeURIComponent(storageKey)}` : undefined;
 }
+
+type RespuestaBlob = { data?: unknown; response?: Response };
+
+/** Descarga un archivo que devuelve el backend (xlsx, geojson…) y lo guarda con el nombre dado. */
+export async function descargarBlob(peticion: Promise<RespuestaBlob>, nombre: string): Promise<boolean> {
+  const r = await peticion;
+  if (!r.response?.ok || !(r.data instanceof Blob)) throw new ErrorApi('No se pudo descargar el archivo.', 'ERROR', r.response?.status ?? 0);
+  // Un archivo vacío significa que no había nada para exportar (p. ej. una orden sin datos geográficos).
+  if (r.data.size === 0) return false;
+  const url = URL.createObjectURL(r.data);
+  const a = Object.assign(document.createElement('a'), { href: url, download: nombre });
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  return true;
+}
