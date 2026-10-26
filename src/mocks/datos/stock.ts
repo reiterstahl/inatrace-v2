@@ -139,3 +139,11 @@ export const tiposEvidencia = [
   { id: 41, code: 'RECEIPT', label: 'Recibo' },
   { id: 42, code: 'PHOTO', label: 'Fotografía del lote' },
 ];
+
+// ---------- Pagos ----------
+
+/** Los pagos que explican lo ya pagado de las entregas de ejemplo (301 pagada entera, 302 en parte). */
+export const pagosIniciales: import('@/api/gen/types.gen').ApiPayment[] = [
+  { id: 401, stockOrder: { id: 301, identifier: 'PT-López-2026-10-14' }, recipientType: 'USER_CUSTOMER', recipientUserCustomer: { id: maria!.id, name: maria!.name, surname: maria!.surname }, formalCreationTime: '2026-10-15', paymentPurposeType: 'FIRST_INSTALLMENT', paymentType: 'CASH', amount: 550, currency: 'USD', receiptNumber: 'R-0101', paymentStatus: 'CONFIRMED', preferredWayOfPayment: 'CASH' },
+  { id: 402, stockOrder: { id: 302, identifier: 'PT-Ajcá-2026-10-15' }, recipientType: 'USER_CUSTOMER', recipientUserCustomer: { id: pedro!.id, name: pedro!.name, surname: pedro!.surname }, formalCreationTime: '2026-10-16', paymentPurposeType: 'ADVANCE_PAYMENT', paymentType: 'BANK_TRANSFER', amount: 200, currency: 'USD', paymentStatus: 'UNCONFIRMED', preferredWayOfPayment: 'BANK_TRANSFER' },
+];

@@ -15,3 +15,7 @@ Requieren la convivencia levantada (proxy en un solo origen) y datos sembrados c
 contra el servidor de desarrollo (`INATRACE_URL=http://localhost:5181` con `pnpm dev --port 5181` e
 `INATRACE_API` apuntando al backend). Crean datos de prueba y los borran al terminar; las entregas
 necesitan al menos dos productores en la empresa y una instalación de acopio.
+
+`pagos.spec.ts` carga temporalmente una cuenta bancaria de prueba a la productora 1 (por la API) para
+el pago masivo y la deja como estaba al terminar. El backend no permite borrar pagos masivos: cada
+corrida deja un registro "E2E-MASIVO" sin pagos.

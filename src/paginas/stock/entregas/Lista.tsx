@@ -12,6 +12,7 @@ import { fechaCorta, fechaLarga } from '@/util/fecha';
 import { cantidad, dinero, fechaEntrega, nombreInstalacion } from '@/util/formato';
 import { nombreCompleto } from '@/util/productor';
 import { productores } from '@/api/productores';
+import { puedePagarse } from '@/util/pago';
 
 const ruta = getRouteApi('/portal/stock/entregas/');
 
@@ -56,6 +57,10 @@ function Contenido({ empresa }: { empresa: number }) {
   const total = consulta.data?.count ?? 0;
   const paginas = Math.max(1, Math.ceil(total / POR_PAGINA_STOCK));
   const borrar = useBorrarEntrega(empresa);
+  // Entregas elegidas para un pago masivo (solo las que tienen precio y saldo pendiente).
+  const [elegidas, setElegidas] = useState<number[]>([]);
+  useEffect(() => setElegidas([]), [consulta.data]);
+  const pagables = (consulta.data?.items ?? []).filter((e) => puedePagarse(e) && (e.balance ?? 0) > 0);
 
   async function exportar() {
     setExportando(true);
@@ -163,10 +168,29 @@ function Contenido({ empresa }: { empresa: number }) {
         <div className="rounded-caja border border-dashed border-linea-fuerte p-10 text-center text-tinta-2">{t('stock.entregas.vacio')}</div>
       ) : (
         <>
-          <div className="hidden overflow-x-auto rounded-caja border border-linea bg-superficie shadow-suave md:block">
+          {elegidas.length > 0 && (
+            <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg bg-marca-suave px-4 py-2 text-sm">
+              <span className="font-semibold text-marca">{t('stock.pagos.elegidas', { count: elegidas.length })}</span>
+              <Link to="/stock/pagos/masivo/nuevo" search={{ entregas: elegidas.join(',') }} className={clasesBoton('primario', true)}>
+                <Icono nombre="banco" className="size-4" /> {t('stock.pagos.masivo_boton', { count: elegidas.length })}
+              </Link>
+            </div>
+          )}
+          <div className="hidden relative overflow-x-auto rounded-caja border border-linea bg-superficie shadow-suave md:block">
             <table className="w-full min-w-[52rem] text-left text-sm">
               <thead className="border-b border-linea bg-superficie-2 text-tinta-2">
                 <tr>
+                  <th scope="col" className="w-10 py-3 pl-4">
+                    {pagables.length > 0 && (
+                      <input
+                        type="checkbox"
+                        className="size-4 accent-[var(--marca)]"
+                        aria-label={t('stock.pagos.elegir_todas')}
+                        checked={pagables.every((e) => elegidas.includes(e.id!))}
+                        onChange={(ev) => setElegidas(ev.target.checked ? pagables.map((e) => e.id!) : [])}
+                      />
+                    )}
+                  </th>
                   <th scope="col" className="px-4 py-3 font-semibold">
                     <button type="button" onClick={() => fijar({ orden: 'date', sentido: filtro.orden !== 'lastChange' && filtro.sentido === 'ASC' ? 'DESC' : 'ASC' })} className="inline-flex items-center gap-1 hover:text-tinta">
                       {t('stock.entregas.col_fecha')} <span aria-hidden="true" className="text-marca">{filtro.sentido === 'ASC' ? '↑' : '↓'}</span>
@@ -184,6 +208,17 @@ function Contenido({ empresa }: { empresa: number }) {
               <tbody className="divide-y divide-linea">
                 {consulta.data!.items!.map((e) => (
                   <tr key={e.id} className="hover:bg-superficie-2/60">
+                    <td className="py-3 pl-4">
+                      {pagables.includes(e) && (
+                        <input
+                          type="checkbox"
+                          className="size-4 accent-[var(--marca)]"
+                          aria-label={t('stock.pagos.elegir_entrega', { productor: nombreCompleto(e.producerUserCustomer ?? {}), fecha: fechaCorta(fechaEntrega(e), i18n.language) })}
+                          checked={elegidas.includes(e.id!)}
+                          onChange={(ev) => setElegidas(ev.target.checked ? [...elegidas, e.id!] : elegidas.filter((x) => x !== e.id))}
+                        />
+                      )}
+                    </td>
                     <td className="px-4 py-3 whitespace-nowrap">
                       <Link to="/stock/entregas/$id" params={{ id: String(e.id) }} className="font-semibold hover:text-marca hover:underline">
                         {fechaCorta(fechaEntrega(e), i18n.language) || `#${e.id}`}
@@ -195,7 +230,12 @@ function Contenido({ empresa }: { empresa: number }) {
                     <td className="px-4 py-3 text-right tabular-nums">{cantidad(e.totalQuantity, e.measureUnitType?.label, i18n.language)}</td>
                     <td className="px-4 py-3 text-right tabular-nums">{e.priceDeterminedLater ? t('stock.entregas.precio_despues') : dinero(e.cost, e.currency, i18n.language)}</td>
                     <td className="px-4 py-3"><EstadoPago e={e} /></td>
-                    <td className="px-4 py-3 text-right">
+                    <td className="px-4 py-3 text-right whitespace-nowrap">
+                      {pagables.includes(e) && (
+                        <Link to="/stock/pagos/nuevo" search={{ entrega: e.id! }} className="inline-flex rounded-md p-1.5 text-tinta-3 hover:bg-ok-suave hover:text-ok" aria-label={t('stock.pagos.pagar_entrega', { productor: nombreCompleto(e.producerUserCustomer ?? {}) })} title={t('stock.pagos.pagar')}>
+                          <Icono nombre="precio" className="size-4" />
+                        </Link>
+                      )}
                       <button type="button" onClick={() => void confirmarBorrado(e)} className="rounded-md p-1.5 text-tinta-3 hover:bg-mal-suave hover:text-mal" aria-label={t('stock.entregas.borrar')}>
                         <Icono nombre="borrar" className="size-4" />
                       </button>
@@ -207,8 +247,8 @@ function Contenido({ empresa }: { empresa: number }) {
           </div>
           <ul className="grid gap-3 md:hidden">
             {consulta.data!.items!.map((e) => (
-              <li key={e.id}>
-                <Link to="/stock/entregas/$id" params={{ id: String(e.id) }} className="grid gap-2 rounded-caja border border-linea bg-superficie p-4 shadow-suave">
+              <li key={e.id} className="overflow-hidden rounded-caja border border-linea bg-superficie shadow-suave">
+                <Link to="/stock/entregas/$id" params={{ id: String(e.id) }} className="grid gap-2 p-4">
                   <span className="flex items-start justify-between gap-3">
                     <span className="min-w-0">
                       <span className="block truncate font-semibold">{nombreCompleto(e.producerUserCustomer ?? {}) || '—'}</span>
@@ -221,6 +261,24 @@ function Contenido({ empresa }: { empresa: number }) {
                     <span className="font-semibold">{e.priceDeterminedLater ? t('stock.entregas.precio_despues') : dinero(e.cost, e.currency, i18n.language)}</span>
                   </span>
                 </Link>
+                {/* Acciones de pago fuera del enlace de la tarjeta (no se anidan elementos interactivos). */}
+                {pagables.includes(e) && (
+                  <div className="flex items-center justify-between gap-3 border-t border-linea bg-superficie-2/60 px-4 py-2">
+                    <label className="inline-flex items-center gap-2 text-sm text-tinta-2">
+                      <input
+                        type="checkbox"
+                        className="size-4 accent-[var(--marca)]"
+                        aria-label={t('stock.pagos.elegir_entrega', { productor: nombreCompleto(e.producerUserCustomer ?? {}), fecha: fechaCorta(fechaEntrega(e), i18n.language) })}
+                        checked={elegidas.includes(e.id!)}
+                        onChange={(ev) => setElegidas(ev.target.checked ? [...elegidas, e.id!] : elegidas.filter((x) => x !== e.id))}
+                      />
+                      {t('stock.pagos.para_masivo')}
+                    </label>
+                    <Link to="/stock/pagos/nuevo" search={{ entrega: e.id! }} className="inline-flex items-center gap-1.5 text-sm font-semibold text-marca hover:underline" aria-label={t('stock.pagos.pagar_entrega', { productor: nombreCompleto(e.producerUserCustomer ?? {}) })}>
+                      <Icono nombre="precio" className="size-4" /> {t('stock.pagos.pagar')}
+                    </Link>
+                  </div>
+                )}
               </li>
             ))}
           </ul>

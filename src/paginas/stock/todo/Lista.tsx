@@ -175,7 +175,7 @@ function Disponible({ o }: { o: { availableQuantity?: number } }) {
 function TablaSuelta({ items, i18n, onGeo, onBorrar }: { items: ApiStockOrder[]; i18n: string; onGeo: (id: number) => void; onBorrar: (o: ApiStockOrder) => void }) {
   const { t } = useTranslation();
   return (
-    <div className="overflow-x-auto rounded-caja border border-linea bg-superficie shadow-suave">
+    <div className="relative overflow-x-auto rounded-caja border border-linea bg-superficie shadow-suave">
       <table className="w-full min-w-[56rem] text-left text-sm">
         <thead className="border-b border-linea bg-superficie-2 text-tinta-2">
           <tr>
@@ -242,7 +242,7 @@ function TablaSuelta({ items, i18n, onGeo, onBorrar }: { items: ApiStockOrder[];
 function TablaAgrupada({ items, i18n }: { items: ApiGroupStockOrder[]; i18n: string }) {
   const { t } = useTranslation();
   return (
-    <div className="overflow-x-auto rounded-caja border border-linea bg-superficie shadow-suave">
+    <div className="relative overflow-x-auto rounded-caja border border-linea bg-superficie shadow-suave">
       <table className="w-full min-w-[48rem] text-left text-sm">
         <thead className="border-b border-linea bg-superficie-2 text-tinta-2">
           <tr>

@@ -12,7 +12,6 @@ import { Icono } from '@/componentes/ui/Icono';
 import { useEmpresaActual, type Empresa } from '@/util/empresa';
 import { nombreCompleto, ubicacionCorta } from '@/util/productor';
 import { CodigoQr } from '@/componentes/ui/CodigoQr';
-import { enAnterior } from '@/util/entorno';
 import { aApi, aFormulario, esquemaProductor, type Catalogos, type FormProductor } from './esquema';
 import { Banco } from './secciones/Banco';
 import { Certificaciones } from './secciones/Certificaciones';
@@ -286,10 +285,9 @@ function Tarjeta({ productor, empresa }: { productor: ApiUserCustomer; empresa: 
         <Link to="/stock/entregas/nueva" search={{ productor: productor.id }} className="inline-flex h-9 items-center gap-1.5 rounded-lg px-3 text-sm font-semibold text-marca hover:bg-marca-suave">
           <Icono nombre="mas" className="size-4" /> {t('stock.entregas.nueva')}
         </Link>
-        {/* Los pagos llegan a la v2 en la fase 3d; mientras, en la versión actual. */}
-        <a href={enAnterior(`/my-farmers/edit/${productor.id}`)} className="inline-flex h-9 items-center gap-1.5 rounded-lg px-3 text-sm font-semibold text-tinta-2 hover:bg-superficie-2">
-          {t('productores.tarjeta.pagos')} <Icono nombre="externo" className="size-3.5" />
-        </a>
+        <Link to="/stock/pagos" search={{ prod: productor.id }} className="inline-flex h-9 items-center gap-1.5 rounded-lg px-3 text-sm font-semibold text-marca hover:bg-marca-suave">
+          <Icono nombre="precio" className="size-4" /> {t('productores.tarjeta.pagos')}
+        </Link>
       </div>
     </section>
   );

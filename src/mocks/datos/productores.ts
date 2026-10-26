@@ -30,7 +30,7 @@ export const productoresIniciales: ApiUserCustomer[] = [
     plots: [{ id: 1001, plotName: 'La Loma', crop: tiposProducto[0], size: 1.5, unit: 'ha', geoId: 'demo-geoid-1001', coordinates: cuadrado(-91.47, 15.32, 0.012) }],
   },
   {
-    id: 102, companyId: 1, type: 'FARMER', farmerCompanyInternalId: 'FS-002', name: 'Pedro', surname: 'Ajcá', gender: 'MALE', phone: '+502 5555 0102',
+    id: 102, companyId: 1, type: 'FARMER', farmerCompanyInternalId: 'FS-002', name: 'Pedro', surname: 'Ajcá', gender: 'MALE', phone: '+502 5555 0102', bank: { bankName: 'Banrural', accountNumber: '3-099-12345-6', accountHolderName: 'Pedro Ajcá' },
     location: { address: { city: 'Chiantla', state: 'Huehuetenango', country: gt } },
     farm: { areaUnit: 'mz', totalCultivatedArea: 4 },
     productTypes: [tiposProducto[0]!],

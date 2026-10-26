@@ -126,6 +126,8 @@ test.describe('entregas (modo simulado)', () => {
     await expect(segunda.getByRole('combobox', { name: /^Productor/ })).toBeFocused();
     await expect(segunda.getByRole('textbox', { name: /^Precio por unidad/ })).toHaveValue('2'); // repite el precio
     await page.keyboard.type('ros');
+    // Enter solo elige cuando la lista corresponde a lo escrito (no un resultado anterior).
+    await expect(page.getByRole('listbox').getByRole('option', { name: /Rosa Cux/ })).toBeVisible();
     await page.keyboard.press('Enter');
     await segunda.getByRole('textbox', { name: /^Peso bruto/ }).fill('50');
 

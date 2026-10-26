@@ -49,7 +49,7 @@ test.describe('entregas contra el backend real', () => {
     await expect(fila).toContainText('Debe');
 
     // Editar: cambia el precio y el backend recalcula.
-    await fila.getByRole('link').click();
+    await fila.getByRole('link').first().click(); // el de la fecha (el otro es "Pagar")
     await expect(page.getByRole('heading', { name: `Entrega de ${nombre}` })).toBeVisible();
     if (conParcela) await expect(page.getByRole('group', { name: 'Parcelas de origen' }).getByRole('checkbox', { checked: true })).toHaveCount(1);
     await expect(page.getByRole('combobox', { name: /^Moneda/ })).toHaveValue('USD');

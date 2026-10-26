@@ -51,7 +51,7 @@ export function Productores() {
 /** Carrusel con desplazamiento nativo: funciona con el dedo, la rueda y el teclado, sin librerías. */
 function Galeria({ docs }: { docs: ApiCompanyDocument[] }) {
   return (
-    <ul className="-mx-5 flex snap-x snap-mandatory scroll-px-5 gap-4 overflow-x-auto px-5 pb-2 [scrollbar-width:thin]" tabIndex={0}>
+    <ul className="-mx-5 flex snap-x snap-mandatory scroll-px-5 gap-4 relative overflow-x-auto px-5 pb-2 [scrollbar-width:thin]" tabIndex={0}>
       {docs.map((doc) => (
         <li key={doc.id ?? doc.name} className="w-[78%] shrink-0 snap-start sm:w-[60%]">
           <figure className="overflow-hidden rounded-caja border border-linea bg-superficie shadow-suave">

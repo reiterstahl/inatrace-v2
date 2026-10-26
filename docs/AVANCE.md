@@ -239,6 +239,51 @@ lote.
 **Pruebas:** 64 unitarias, 60 de punta a punta simuladas (2 nuevas de QR, escritorio y celular) y 9
 contra el backend real (1 nueva: entrega → generar QR → panel con la URL de la versión actual → vitrina).
 
+## Fase 3d (pagos) — ✅ cerrada el 26.10.2026 (rama `fase-3`)
+
+La pestaña **Pagos** pasa a la v2. Solo queda en la versión actual "Órdenes" (3e).
+
+- **Lista de pagos:** filtros por productor, forma de pago, estado y fechas de entrega (en la URL),
+  estado sin confirmar / confirmado, **confirmar varios a la vez**, ver, borrar y exportar a Excel.
+  Vista de **pagos masivos** con su exportación.
+- **Pagar una entrega** (desde la lista de entregas, su ficha o la lista de pagos): fecha, propósito,
+  tipo de pago, monto (por defecto, el saldo), moneda, recibo, tipo de comprobante y documento de
+  respaldo, con las reglas de la versión actual y del backend: el pago base exige el documento;
+  "efectivo vía acopiador" solo si hay acopiador; pagar más que el saldo se avisa pero se permite;
+  las entregas con precio a definir no se pagan.
+- **Ver un pago:** un pago registrado no se edita (el backend no lo permite): se confirma (sin
+  vuelta atrás) o se borra, y el saldo de la entrega se recalcula.
+- **Pago masivo** (transferencia por lotes): se eligen entregas en la lista (escritorio y celular),
+  cada una con su saldo editable, al productor o al acopiador si se paga vía acopiador. Muestra la
+  cuenta bancaria de cada destinatario y **no deja registrar si falta alguna** (con enlace a la
+  ficha para cargarla), igual que la versión actual. Descripción y recibo obligatorios, costo
+  adicional con su descripción, documentos adicionales con tipo y fecha, total a transferir.
+- **Ficha de la entrega:** sus pagos y "Registrar pago". **Ficha del productor:** "Sus pagos" ya
+  abre la v2.
+- Reglas tomadas del backend que la versión actual no explicita: el backend ignora el "monto pagado
+  al acopiador" (lo guarda en 0), así que la v2 pide un solo monto; el pago masivo necesita la lista
+  de documentos aunque esté vacía (si no, falla); un pago masivo lleva una sola moneda.
+
+**Arreglado en el camino (de fases anteriores):**
+- **Buscador de personas (3a):** Enter elegía un resultado de la búsqueda anterior si se apretaba
+  antes de que llegara la nueva (fácil de provocar cargando rápido); y solo buscaba por nombre, no
+  por apellido. Ahora Enter solo elige de la lista que corresponde a lo escrito, y se busca por
+  nombre y apellido a la vez.
+- **Pantallas con tablas anchas en el celular (desde la 3b):** el navegador alejaba la página
+  entera. Los textos ocultos para lectores de pantalla (posición absoluta) se salían del contenedor
+  con scroll horizontal. Todo contenedor con scroll horizontal es ahora `relative`, y una prueba
+  nueva recorre las pantallas y falla si alguna es más ancha que la ventana (comprobado: con el código
+  anterior falla en "Todo el stock"). Las mediciones de las fases anteriores no lo vieron porque
+  usaban una ventana angosta de escritorio, no la emulación de un celular.
+
+**Pruebas:** 73 unitarias (9 nuevas de pagos), 68 de punta a punta simuladas (escritorio y celular;
+4 de pagos y la del ancho de pantalla, nuevas) y 11 contra el backend real (2 nuevas: pagar una
+entrega con documento → saldo → confirmar → borrar; y pago masivo, que primero comprueba el bloqueo
+por falta de cuenta y luego carga una cuenta de prueba por la API y la restaura al terminar).
+
+**Nota sobre la copia aislada:** el backend no tiene forma de borrar un pago masivo; cada corrida de
+la prueba de pago masivo deja un registro "E2E-MASIVO" sin pagos.
+
 ## Fase 1b (activar la vitrina en una instalación) — pendiente, acordada el 19.10.2026
 
 Pasos, en orden:
@@ -263,5 +308,5 @@ confirmar el uso del video de Anacafé o cambiarlo.**
 1. Fase 1b (arriba), cuando se decida. `fase-0` **no** se pasa a `main` por ahora.
 2. Revisión de alemán y kinyarwanda por alguien que los hable.
 3. Demo pública: más adelante.
-4. Fase 3, lo que sigue: 3d pagos → 3e órdenes y Beyco.
+4. Fase 3, lo que sigue: 3e órdenes y Beyco (con eso se cumple el criterio de salida de la fase).
    Criterio de salida de la fase: ciclo entrega → procesamiento → pago completo en la v2.

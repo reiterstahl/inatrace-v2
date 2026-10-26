@@ -166,6 +166,55 @@ const procesamientoNuevo = createRoute({
 });
 const procesamientoEditar = createRoute({ getParentRoute: () => procesamientoRaiz, path: '$lote', component: lazyRouteComponent(() => import('@/paginas/stock/procesamiento/Orden'), 'ProcesamientoExistente') });
 
+// ---------- Stock: pagos (fase 3d) ----------
+type BusquedaPagos = {
+  vista?: 'masivos';
+  q?: string;
+  forma?: 'CASH' | 'CASH_VIA_COLLECTOR' | 'BANK_TRANSFER' | 'CHEQUE' | 'OFFSETTING' | 'UNKNOWN';
+  estado?: 'UNCONFIRMED' | 'CONFIRMED';
+  desde?: string;
+  hasta?: string;
+  prod?: number;
+  pagina?: number;
+  orden?: 'productionDate' | 'id';
+  sentido?: 'ASC' | 'DESC';
+};
+const fechaIso = (v: unknown) => (typeof v === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(v) ? v : undefined);
+const pagosRaiz = createRoute({ getParentRoute: () => stockRaiz, path: 'pagos' });
+const pagosLista = createRoute({
+  getParentRoute: () => pagosRaiz,
+  path: '/',
+  validateSearch: (s: Record<string, unknown>): BusquedaPagos => ({
+    vista: uno(s.vista, ['masivos'] as const),
+    q: typeof s.q === 'string' && s.q ? s.q.slice(0, 100) : undefined,
+    forma: uno(s.forma, ['CASH', 'CASH_VIA_COLLECTOR', 'BANK_TRANSFER', 'CHEQUE', 'OFFSETTING', 'UNKNOWN'] as const),
+    estado: uno(s.estado, ['UNCONFIRMED', 'CONFIRMED'] as const),
+    desde: fechaIso(s.desde),
+    hasta: fechaIso(s.hasta),
+    prod: idPositivo(s.prod),
+    pagina: Number(s.pagina) > 1 ? Math.floor(Number(s.pagina)) : undefined,
+    orden: uno(s.orden, ['productionDate', 'id'] as const),
+    sentido: uno(s.sentido, ['ASC', 'DESC'] as const),
+  }),
+  component: lazyRouteComponent(() => import('@/paginas/stock/pagos/Lista'), 'ListaPagos'),
+});
+const pagoNuevo = createRoute({
+  getParentRoute: () => pagosRaiz,
+  path: 'nuevo',
+  validateSearch: (s: Record<string, unknown>): { entrega?: number } => ({ entrega: idPositivo(s.entrega) }),
+  component: lazyRouteComponent(() => import('@/paginas/stock/pagos/Pago'), 'PagoNuevo'),
+});
+const pagoMasivoNuevo = createRoute({
+  getParentRoute: () => pagosRaiz,
+  path: 'masivo/nuevo',
+  validateSearch: (s: Record<string, unknown>): { entregas?: string } => ({
+    entregas: typeof s.entregas === 'string' && /^\d+(,\d+)*$/.test(s.entregas) ? s.entregas : typeof s.entregas === 'number' ? String(s.entregas) : undefined,
+  }),
+  component: lazyRouteComponent(() => import('@/paginas/stock/pagos/Masivo'), 'PagoMasivoNuevo'),
+});
+const pagoMasivoVer = createRoute({ getParentRoute: () => pagosRaiz, path: 'masivo/$id', component: lazyRouteComponent(() => import('@/paginas/stock/pagos/Masivo'), 'PagoMasivoVer') });
+const pagoVer = createRoute({ getParentRoute: () => pagosRaiz, path: '$id', component: lazyRouteComponent(() => import('@/paginas/stock/pagos/Pago'), 'PagoVer') });
+
 const stockTrazabilidad = createRoute({
   getParentRoute: () => stockRaiz,
   path: 'trazabilidad/$id',
@@ -224,7 +273,7 @@ const arbol = raiz.addChildren([
   entradaQr,
   entradaEtiqueta,
   portal.addChildren([inicio, perfil, productoresRaiz.addChildren([productoresLista, productorNuevo, productoresImportar, productorFicha]),
-    stockRaiz.addChildren([stockInicio, entregasRaiz.addChildren([entregasLista, entregaNueva, entregaMasiva, entregaFicha]), stockTodo, procesamientoRaiz.addChildren([procesamientoInicio, procesamientoNuevo, procesamientoEditar]), stockTrazabilidad]),
+    stockRaiz.addChildren([stockInicio, entregasRaiz.addChildren([entregasLista, entregaNueva, entregaMasiva, entregaFicha]), stockTodo, procesamientoRaiz.addChildren([procesamientoInicio, procesamientoNuevo, procesamientoEditar]), pagosRaiz.addChildren([pagosLista, pagoNuevo, pagoMasivoNuevo, pagoMasivoVer, pagoVer]), stockTrazabilidad]),
   ]),
   vitrina.addChildren([vPortada, vRecorrido, vPrecios, vProductores, vCalidad, vOpinion, vTerminos, vPrivacidad]),
 ]);

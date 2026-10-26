@@ -2,8 +2,8 @@ import { http, HttpResponse, delay } from 'msw';
 import type { ApiUserGet } from '@/api/gen/types.gen';
 import { ETIQUETA_DEMO, QR_DEMO, etiqueta, qr } from './datos/vitrina';
 import type { ApiUserCustomer } from '@/api/gen/types.gen';
-import { accionesProcesamiento, productoFinalQr, acopiadores, agrupar, entregasIniciales, historiaDe, instalaciones, loteProcesado, recalcular, semiproductos, tiposEvidencia, usuariosEmpresa } from './datos/stock';
-import type { ApiProcessingOrder, ApiPurchaseOrder, ApiStockOrder } from '@/api/gen/types.gen';
+import { accionesProcesamiento, pagosIniciales, productoFinalQr, acopiadores, agrupar, entregasIniciales, historiaDe, instalaciones, loteProcesado, recalcular, semiproductos, tiposEvidencia, usuariosEmpresa } from './datos/stock';
+import type { ApiBulkPayment, ApiPayment, ApiProcessingOrder, ApiPurchaseOrder, ApiStockOrder } from '@/api/gen/types.gen';
 import { EMPRESA_DEMO, capasMapa, paises, parcelasDe, productoresIniciales, tiposCertificacion, tiposProducto } from './datos/productores';
 
 /**
@@ -27,6 +27,39 @@ let siguienteId = 500;
 const CLAVE_ENTREGAS = 'simulado.entregas';
 const leerEntregas = (): ApiStockOrder[] => JSON.parse(sessionStorage.getItem(CLAVE_ENTREGAS) ?? 'null') ?? entregasIniciales;
 const guardarEntregas = (l: ApiStockOrder[]) => sessionStorage.setItem(CLAVE_ENTREGAS, JSON.stringify(l));
+// Pagos: en sessionStorage; al pagar o borrar se recalcula el saldo de la entrega, como el backend.
+const CLAVE_PAGOS = 'simulado.pagos';
+const CLAVE_MASIVOS = 'simulado.masivos';
+const leerPagos = (): ApiPayment[] => JSON.parse(sessionStorage.getItem(CLAVE_PAGOS) ?? 'null') ?? pagosIniciales;
+const guardarPagos = (l: ApiPayment[]) => sessionStorage.setItem(CLAVE_PAGOS, JSON.stringify(l));
+const leerMasivos = (): ApiBulkPayment[] => JSON.parse(sessionStorage.getItem(CLAVE_MASIVOS) ?? '[]');
+const guardarMasivos = (l: ApiBulkPayment[]) => sessionStorage.setItem(CLAVE_MASIVOS, JSON.stringify(l));
+
+/** Lo pagado de una entrega = suma de sus pagos; el saldo = costo − pagado. */
+function recalcularSaldo(idEntrega: number) {
+  const pagado = leerPagos().filter((p) => p.stockOrder?.id === idEntrega).reduce((s, p) => s + (p.amount ?? 0), 0);
+  guardarEntregas(leerEntregas().map((o) => (o.id === idEntrega && typeof o.cost === 'number' ? { ...o, paid: pagado, balance: o.cost - pagado } : o)));
+}
+
+function crearPago(p: ApiPayment, enMasivo = false): ApiPayment | string {
+  const entrega = leerEntregas().find((o) => o.id === p.stockOrder?.id);
+  if (!entrega) return 'Not a Purchase or Quote order';
+  if (!enMasivo && p.paymentPurposeType === 'FIRST_INSTALLMENT' && !p.receiptDocument) return 'Receipt document has to be provided';
+  if ((p.amount ?? 0) < 0) return 'Total amount paid cannot be negative';
+  const nuevo: ApiPayment = {
+    ...p,
+    id: siguienteId++,
+    stockOrder: { id: entrega.id, identifier: entrega.identifier },
+    recipientUserCustomer: entrega.producerUserCustomer,
+    representativeOfRecipientUserCustomer: entrega.representativeOfProducerUserCustomer,
+    preferredWayOfPayment: entrega.preferredWayOfPayment,
+    productionDate: entrega.productionDate,
+  };
+  guardarPagos([...leerPagos(), nuevo]);
+  recalcularSaldo(entrega.id!);
+  return nuevo;
+}
+
 // Procesamientos hechos en el modo simulado: las órdenes y los lotes que producen.
 const CLAVE_PROCESOS = 'simulado.procesos';
 const leerProcesos = (): ApiProcessingOrder[] => JSON.parse(sessionStorage.getItem(CLAVE_PROCESOS) ?? '[]');
@@ -324,6 +357,70 @@ export const manejadores = [
     return ok();
   }),
   http.post('/api/common/document', () => ok({ id: siguienteId++, storageKey: 'doc-' + siguienteId, name: 'documento.pdf', contentType: 'application/pdf', size: 1024 })),
+
+  // ---------- Stock: pagos ----------
+  http.get('/api/chain/payment/list/company/:id', ({ request }) => {
+    if (!conSesion()) return sinSesion();
+    const u = new URL(request.url);
+    const q = (u.searchParams.get('query') ?? '').toLowerCase();
+    const forma = u.searchParams.get('preferredWayOfPayment');
+    const estado = u.searchParams.get('paymentStatus');
+    const productor = Number(u.searchParams.get('farmerId')) || null;
+    const signo = u.searchParams.get('sort') === 'ASC' ? 1 : -1;
+    const items = leerPagos()
+      .filter((p) => !q || `${p.recipientUserCustomer?.name ?? ''} ${p.recipientUserCustomer?.surname ?? ''}`.toLowerCase().includes(q))
+      .filter((p) => !forma || p.preferredWayOfPayment === forma)
+      .filter((p) => !estado || p.paymentStatus === estado)
+      .filter((p) => !productor || p.recipientUserCustomer?.id === productor)
+      .sort((a, b) => ((a.id ?? 0) - (b.id ?? 0)) * signo);
+    const desde = Number(u.searchParams.get('offset') ?? 0), cuantos = Number(u.searchParams.get('limit') ?? 20);
+    return ok({ items: items.slice(desde, desde + cuantos), count: items.length, offset: desde, limit: cuantos });
+  }),
+  http.get('/api/chain/payment/list/purchase/:id', ({ params }) => (conSesion() ? paginado(leerPagos().filter((p) => p.stockOrder?.id === Number(params.id))) : sinSesion())),
+  http.get('/api/chain/payment/list/bulk-payment/company/:id', () => (conSesion() ? paginado([...leerMasivos()].reverse()) : sinSesion())),
+  http.get('/api/chain/payment/bulk-payment/:id', ({ params }) => {
+    const m = leerMasivos().find((x) => x.id === Number(params.id));
+    return m ? ok({ ...m, payments: leerPagos().filter((p) => (m.payments ?? []).some((x) => x.id === p.id)) }) : error(404, 'NOT_FOUND', 'Not found');
+  }),
+  http.get('/api/chain/payment/export/company/:id', () => new HttpResponse(new Blob(['simulado']), { headers: { 'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' } })),
+  http.get('/api/chain/payment/export/bulk-payment/company/:id', () => new HttpResponse(new Blob(['simulado']), { headers: { 'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' } })),
+  http.get('/api/chain/payment/:id', ({ params }) => {
+    if (!conSesion()) return sinSesion();
+    const p = leerPagos().find((x) => x.id === Number(params.id));
+    return p ? ok(p) : error(404, 'NOT_FOUND', 'Not found');
+  }),
+  http.put('/api/chain/payment', async ({ request }) => {
+    if (!conSesion()) return sinSesion();
+    const p = (await request.json()) as ApiPayment;
+    if (p.id) {
+      // Un pago existente solo pasa a confirmado (como el backend).
+      guardarPagos(leerPagos().map((x) => (x.id === p.id && p.paymentStatus === 'CONFIRMED' ? { ...x, paymentStatus: 'CONFIRMED', paymentConfirmedAtTime: new Date().toISOString(), paymentConfirmedByUser: { name: usuario.name, surname: usuario.surname } } : x)));
+      return ok({ id: p.id });
+    }
+    const r = crearPago(p);
+    return typeof r === 'string' ? error(400, 'VALIDATION_ERROR', r) : ok({ id: r.id });
+  }),
+  http.delete('/api/chain/payment/:id', ({ params }) => {
+    if (!conSesion()) return sinSesion();
+    const p = leerPagos().find((x) => x.id === Number(params.id));
+    if (!p) return error(404, 'NOT_FOUND', 'Not found');
+    guardarPagos(leerPagos().filter((x) => x.id !== p.id));
+    recalcularSaldo(p.stockOrder!.id!);
+    return ok();
+  }),
+  http.post('/api/chain/payment/bulk-payment', async ({ request }) => {
+    if (!conSesion()) return sinSesion();
+    const m = (await request.json()) as ApiBulkPayment;
+    if (!m.paymentDescription) return error(400, 'INVALID_REQUEST', 'Payment description needs to be provided.');
+    if (!m.receiptNumber) return error(400, 'INVALID_REQUEST', 'Recipient number is required.');
+    if (!m.additionalProofs) return error(500, 'ERROR', 'NullPointerException');
+    const creados = (m.payments ?? []).map((p) => crearPago(p, true));
+    const mal = creados.find((x) => typeof x === 'string');
+    if (mal) return error(400, 'VALIDATION_ERROR', mal as string);
+    const guardado = { ...m, id: siguienteId++, createdBy: { name: usuario.name, surname: usuario.surname }, payments: creados as ApiPayment[] };
+    guardarMasivos([...leerMasivos(), guardado]);
+    return ok({ id: guardado.id });
+  }),
 
   http.put('/api/user/profile', async ({ request }) => {
     if (!conSesion()) return error(401, 'UNAUTHORIZED', 'Unauthorized');

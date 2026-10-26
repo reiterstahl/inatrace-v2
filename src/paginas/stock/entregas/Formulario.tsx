@@ -19,6 +19,10 @@ import { nombreCompleto } from '@/util/productor';
 import { MONEDAS, aApi, aFormulario, formasPagoPosibles, resolverEntrega, type FormEntrega } from './esquema';
 import { Bloque, CONTROL, CampoE, SelectorE, SiNoE } from './campos';
 import { EstadoPago } from './Lista';
+import { pagos } from '@/api/pagos';
+import { EstadoPagoChip } from '../pagos/Lista';
+import { puedePagarse } from '@/util/pago';
+import { fechaCorta } from '@/util/fecha';
 
 const rutaNueva = getRouteApi('/portal/stock/entregas/nueva');
 const rutaFicha = getRouteApi('/portal/stock/entregas/$id');
@@ -207,6 +211,7 @@ function Formulario({
 
         {aviso && <Aviso tono={aviso.tono}>{aviso.texto}</Aviso>}
         {original && (original.paid ?? 0) > 0 && <Aviso tono="info">{t('stock.entrega.con_pagos')}</Aviso>}
+        {original && <PagosDeEntrega entrega={original} />}
 
         <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_20rem]">
           <div className="grid gap-6">
@@ -388,5 +393,41 @@ function Fila({ etiqueta, valor, grande }: { etiqueta: string; valor: string; gr
       <dt className="text-tinta-2">{etiqueta}</dt>
       <dd className={'text-right tabular-nums ' + (grande ? 'text-xl font-semibold' : 'font-semibold')}>{valor}</dd>
     </div>
+  );
+}
+
+/** Pagos de la entrega y acceso para registrar uno nuevo. */
+function PagosDeEntrega({ entrega }: { entrega: ApiStockOrder }) {
+  const { t, i18n } = useTranslation();
+  const lista = useQuery(pagos.deEntrega(entrega.id!));
+  const pagable = puedePagarse(entrega) && (entrega.balance ?? 0) > 0;
+  if (!puedePagarse(entrega)) return null;
+  return (
+    <section aria-labelledby="t-pagos" className="rounded-caja border border-linea bg-superficie p-5 shadow-suave">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h2 id="t-pagos" className="font-titulo text-lg font-semibold">{t('stock.pagos.de_entrega')}</h2>
+        {pagable && (
+          <Link to="/stock/pagos/nuevo" search={{ entrega: entrega.id! }} className="inline-flex h-9 items-center gap-2 rounded-lg bg-marca px-3 text-sm font-semibold text-sobre-marca hover:bg-marca-fuerte">
+            <Icono nombre="precio" className="size-4" /> {t('stock.pagos.registrar')}
+          </Link>
+        )}
+      </div>
+      {lista.isPending ? (
+        <p className="mt-3 text-sm text-tinta-3">{t('comun.cargando')}</p>
+      ) : (lista.data ?? []).length === 0 ? (
+        <p className="mt-3 text-sm text-tinta-2">{t('stock.pagos.ninguno_entrega')}</p>
+      ) : (
+        <ul className="mt-3 grid gap-2">
+          {lista.data!.map((p) => (
+            <li key={p.id} className="flex flex-wrap items-center gap-x-4 gap-y-1 rounded-lg bg-superficie-2 px-3 py-2 text-sm">
+              <Link to="/stock/pagos/$id" params={{ id: String(p.id) }} className="font-semibold hover:text-marca hover:underline">{fechaCorta(p.formalCreationTime, i18n.language)}</Link>
+              <span className="text-tinta-2">{p.paymentPurposeType ? t(`stock.pagos.propositos.${p.paymentPurposeType}`) : ''}</span>
+              <span className="ml-auto font-semibold tabular-nums">{dinero(p.amount, p.currency, i18n.language)}</span>
+              <EstadoPagoChip estado={p.paymentStatus} />
+            </li>
+          ))}
+        </ul>
+      )}
+    </section>
   );
 }

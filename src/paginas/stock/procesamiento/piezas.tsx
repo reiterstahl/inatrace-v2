@@ -173,7 +173,7 @@ export function Entrada({
           ) : lista.length === 0 ? (
             <p className="rounded-lg border border-dashed border-linea-fuerte p-6 text-center text-sm text-tinta-2">{t('stock.proc.sin_disponible')}</p>
           ) : (
-            <div className="overflow-x-auto rounded-lg border border-linea">
+            <div className="relative overflow-x-auto rounded-lg border border-linea">
               <table className="w-full min-w-[40rem] text-left text-sm">
                 <thead className="bg-superficie-2 text-tinta-2">
                   <tr>

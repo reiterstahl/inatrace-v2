@@ -44,11 +44,21 @@ export function SelectorPersona({
 
   const resultados = useQuery({
     queryKey: ['personas', empresa, tipo, buscado],
-    queryFn: async () =>
-      (await desenvolver(getUserCustomersForCompanyAndType({ path: { companyId: empresa, type: tipo }, query: { query: buscado || undefined, searchBy: 'BY_NAME', limit: 8, sortBy: 'BY_NAME', sort: 'ASC' } }))).items ?? [],
+    queryFn: async () => {
+      // El backend busca por nombre o por apellido, no por los dos: se piden ambos y se unen.
+      const pedir = (searchBy: 'BY_NAME' | 'BY_SURNAME') =>
+        desenvolver(getUserCustomersForCompanyAndType({ path: { companyId: empresa, type: tipo }, query: { query: buscado || undefined, searchBy, limit: 8, sortBy: 'BY_NAME', sort: 'ASC' } }));
+      const [porNombre, porApellido] = await Promise.all([pedir('BY_NAME'), buscado ? pedir('BY_SURNAME') : Promise.resolve({ items: [] })]);
+      const unidos = new Map<number, ApiUserCustomer>();
+      for (const p of [...(porNombre.items ?? []), ...(porApellido.items ?? [])]) if (p.id) unidos.set(p.id, p);
+      return [...unidos.values()].sort((a, b) => nombreCompleto(a).localeCompare(nombreCompleto(b))).slice(0, 8);
+    },
     enabled: abierto,
     staleTime: 30_000,
   });
+  // Mientras lo escrito no coincide con lo buscado (espera breve o consulta en curso), la lista
+  // mostrada es de otra búsqueda: no se puede elegir de ella con Enter.
+  const alDia = buscado === texto.trim() && !resultados.isFetching;
   const lista = resultados.data ?? [];
 
   useEffect(() => {
@@ -103,7 +113,7 @@ export function SelectorPersona({
           onKeyDown={(e) => {
             if (e.key === 'ArrowDown') { e.preventDefault(); setAbierto(true); setActivo((a) => Math.min(a + 1, lista.length - 1)); }
             else if (e.key === 'ArrowUp') { e.preventDefault(); setActivo((a) => Math.max(a - 1, 0)); }
-            else if (e.key === 'Enter' && abierto && lista[activo]) { e.preventDefault(); elegir(lista[activo]); }
+            else if (e.key === 'Enter') { e.preventDefault(); if (abierto && alDia && lista[activo]) elegir(lista[activo]); }
             else if (e.key === 'Escape') setAbierto(false);
           }}
           className="min-w-0 flex-1 bg-transparent outline-none"
@@ -112,7 +122,7 @@ export function SelectorPersona({
       {error && <p role="alert" className="text-sm text-mal">{error}</p>}
       {abierto && (
         <ul id={id + '-lista'} role="listbox" className="absolute top-full z-20 mt-1 max-h-72 w-full overflow-y-auto rounded-lg bg-superficie p-1 shadow-alta ring-1 ring-linea">
-          {resultados.isPending ? (
+          {resultados.isPending || !alDia ? (
             <li className="px-3 py-2 text-sm text-tinta-3">{t('comun.cargando')}</li>
           ) : lista.length === 0 ? (
             <li className="px-3 py-2 text-sm text-tinta-3">{t('selector_persona.sin_resultados')}</li>
