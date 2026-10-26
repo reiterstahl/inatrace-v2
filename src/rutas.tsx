@@ -155,6 +155,17 @@ const stockTodo = createRoute({
   }),
   component: lazyRouteComponent(() => import('@/paginas/stock/todo/Lista'), 'ListaStock'),
 });
+// ---------- Stock: procesamiento (fase 3c) ----------
+const procesamientoRaiz = createRoute({ getParentRoute: () => stockRaiz, path: 'procesamiento' });
+const procesamientoInicio = createRoute({ getParentRoute: () => procesamientoRaiz, path: '/', component: lazyRouteComponent(() => import('@/paginas/stock/procesamiento/Inicio'), 'InicioProcesamiento') });
+const procesamientoNuevo = createRoute({
+  getParentRoute: () => procesamientoRaiz,
+  path: 'nueva',
+  validateSearch: (s: Record<string, unknown>): { accion?: number; inst?: number } => ({ accion: idPositivo(s.accion), inst: idPositivo(s.inst) }),
+  component: lazyRouteComponent(() => import('@/paginas/stock/procesamiento/Orden'), 'ProcesamientoNuevo'),
+});
+const procesamientoEditar = createRoute({ getParentRoute: () => procesamientoRaiz, path: '$lote', component: lazyRouteComponent(() => import('@/paginas/stock/procesamiento/Orden'), 'ProcesamientoExistente') });
+
 const stockTrazabilidad = createRoute({
   getParentRoute: () => stockRaiz,
   path: 'trazabilidad/$id',
@@ -213,7 +224,7 @@ const arbol = raiz.addChildren([
   entradaQr,
   entradaEtiqueta,
   portal.addChildren([inicio, perfil, productoresRaiz.addChildren([productoresLista, productorNuevo, productoresImportar, productorFicha]),
-    stockRaiz.addChildren([stockInicio, entregasRaiz.addChildren([entregasLista, entregaNueva, entregaMasiva, entregaFicha]), stockTodo, stockTrazabilidad]),
+    stockRaiz.addChildren([stockInicio, entregasRaiz.addChildren([entregasLista, entregaNueva, entregaMasiva, entregaFicha]), stockTodo, procesamientoRaiz.addChildren([procesamientoInicio, procesamientoNuevo, procesamientoEditar]), stockTrazabilidad]),
   ]),
   vitrina.addChildren([vPortada, vRecorrido, vPrecios, vProductores, vCalidad, vOpinion, vTerminos, vPrivacidad]),
 ]);

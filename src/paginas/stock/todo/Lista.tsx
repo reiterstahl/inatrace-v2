@@ -3,6 +3,8 @@ import { Link, getRouteApi, useNavigate } from '@tanstack/react-router';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { POR_PAGINA_STOCK, exportarGeoDatos, stock, useBorrarEntrega } from '@/api/stock';
+import { procesamiento, useBorrarProcesamiento } from '@/api/procesamiento';
+import { useQueryClient } from '@tanstack/react-query';
 import type { ApiGroupStockOrder, ApiStockOrder } from '@/api/gen/types.gen';
 import { Boton } from '@/componentes/ui/Boton';
 import { Aviso, Cargando, EstadoError } from '@/componentes/ui/Estados';
@@ -41,6 +43,8 @@ function Contenido({ empresa }: { empresa: number }) {
   const total = consulta.data?.count ?? 0;
   const paginas = Math.max(1, Math.ceil(total / POR_PAGINA_STOCK));
   const borrar = useBorrarEntrega(empresa);
+  const borrarProceso = useBorrarProcesamiento();
+  const qc = useQueryClient();
 
   async function geo(id: number) {
     setError(null);
@@ -53,9 +57,19 @@ function Contenido({ empresa }: { empresa: number }) {
   }
 
   async function eliminar(o: ApiStockOrder) {
-    if (!window.confirm(t('stock.todo.borrar_confirmar', { lote: o.identifier || o.internalLotNumber || `#${o.id}` }))) return;
+    const lote = o.identifier || o.internalLotNumber || `#${o.id}`;
+    const esCompra = o.orderType === 'PURCHASE_ORDER';
+    if (!window.confirm(t(esCompra ? 'stock.todo.borrar_confirmar' : 'stock.todo.borrar_proceso_confirmar', { lote }))) return;
+    setError(null);
     try {
-      await borrar.mutateAsync(o.id!);
+      if (esCompra) {
+        await borrar.mutateAsync(o.id!);
+        return;
+      }
+      // Un lote procesado se borra borrando la orden de procesamiento que lo produjo (como la versión actual).
+      const orden = await qc.fetchQuery({ ...procesamiento.deLote(o.id!), staleTime: 0 });
+      if (!orden.id) throw new Error(t('stock.todo.sin_orden_proceso'));
+      await borrarProceso.mutateAsync(orden.id);
     } catch (e) {
       setError((e as Error).message);
     }
@@ -143,6 +157,9 @@ function Contenido({ empresa }: { empresa: number }) {
   );
 }
 
+/** Igual que la versión actual: una orden general solo se borra si nada de ella se usó todavía. */
+const puedeBorrar = (o: ApiStockOrder) => o.orderType !== 'GENERAL_ORDER' || Math.abs((o.fulfilledQuantity ?? 0) - (o.availableQuantity ?? 0)) < 1e-9;
+
 function Tipo({ tipo }: { tipo?: string }) {
   const { t } = useTranslation();
   const clave = tipo && ['PURCHASE_ORDER', 'PROCESSING_ORDER', 'TRANSFER_ORDER', 'GENERAL_ORDER', 'SALES_ORDER'].includes(tipo) ? tipo : 'OTRO';
@@ -193,14 +210,20 @@ function TablaSuelta({ items, i18n, onGeo, onBorrar }: { items: ApiStockOrder[];
                   <button type="button" onClick={() => onGeo(o.id!)} className="rounded-md p-1.5 text-tinta-3 hover:bg-superficie-2 hover:text-marca" aria-label={t('stock.todo.geojson')} title={t('stock.todo.geojson')}>
                     <Icono nombre="mapa" className="size-4" />
                   </button>
-                  {o.orderType === 'PURCHASE_ORDER' && (
+                  {o.orderType === 'PURCHASE_ORDER' ? (
                     <Link to="/stock/entregas/$id" params={{ id: String(o.id) }} className="rounded-md p-1.5 text-tinta-3 hover:bg-superficie-2 hover:text-marca" aria-label={t('productores.editar')} title={t('productores.editar')}>
                       <Icono nombre="editar" className="size-4" />
                     </Link>
+                  ) : (
+                    <Link to="/stock/procesamiento/$lote" params={{ lote: String(o.id) }} className="rounded-md p-1.5 text-tinta-3 hover:bg-superficie-2 hover:text-marca" aria-label={t('stock.todo.editar_proceso')} title={t('stock.todo.editar_proceso')}>
+                      <Icono nombre="editar" className="size-4" />
+                    </Link>
                   )}
-                  <button type="button" onClick={() => onBorrar(o)} className="rounded-md p-1.5 text-tinta-3 hover:bg-mal-suave hover:text-mal" aria-label={t('stock.entregas.borrar')} title={t('stock.entregas.borrar')}>
-                    <Icono nombre="borrar" className="size-4" />
-                  </button>
+                  {puedeBorrar(o) && (
+                    <button type="button" onClick={() => onBorrar(o)} className="rounded-md p-1.5 text-tinta-3 hover:bg-mal-suave hover:text-mal" aria-label={o.orderType === 'PURCHASE_ORDER' ? t('stock.entregas.borrar') : t('stock.todo.borrar_proceso')} title={o.orderType === 'PURCHASE_ORDER' ? t('stock.entregas.borrar') : t('stock.todo.borrar_proceso')}>
+                      <Icono nombre="borrar" className="size-4" />
+                    </button>
+                  )}
                 </div>
               </td>
             </tr>

@@ -167,6 +167,51 @@ trazabilidad → borrarla desde el stock). Las 47 unitarias siguen pasando.
   (id 5) que el backend no devuelve en el listado de instalaciones; por eso la vista de stock se probó
   creando una entrega en la instalación listada. La trazabilidad por URL del lote sembrado sí funciona.
 
+## Fase 3c.1 (procesamiento) — ✅ cerrada el 26.10.2026 (rama `fase-3`)
+
+La pestaña **Procesamiento** pasa a la v2. Quedan en la versión actual pagos y órdenes (los envíos o
+cotizaciones van con órdenes, en la 3e).
+
+- **Inicio:** cada instalación de la empresa con las acciones que puede iniciar, con la misma regla
+  que la versión actual (procesan algo que la instalación maneja, respetan las instalaciones
+  admitidas por la acción, sin envíos).
+- **Orden de procesamiento** para los cuatro tipos: procesamiento, procesamiento final, traslado y
+  generación de QR.
+  - *Entrada:* instalación, filtros (fechas, lote, orgánico, café de mujeres), lotes disponibles con
+    selección y **cantidad parcial editable en la misma tabla** (la versión actual usa una ventana
+    aparte). Marca si todo lo elegido es orgánico o de mujeres.
+  - *Salidas:* varias en procesamiento, una en los demás; semiproducto o producto final, instalación
+    de destino (se elige sola si hay una), cantidad con unidad, lote con el prefijo de la acción,
+    **reempaque en sacos** (se reparten solos según el peso máximo y se pueden ajustar) y los campos de
+    evidencia que pide la acción, según su tipo.
+  - *Datos:* fecha, documentos obligatorios y otros documentos (con subida de archivos), comentarios.
+  - *Resumen:* entra, sale, queda sin usar (convirtiendo unidades por su peso) y el **rango esperado**
+    según el rendimiento de la acción, con aviso si la salida queda fuera.
+  - Validaciones de la versión actual y del backend: al menos una entrada, salida no mayor que la
+    entrada, lote e instalación obligatorios, sacos que cubran la cantidad, un único lote de salida al
+    generar QR, un lote por cada lote trasladado.
+- **Editar** una orden desde su lote (quitar o agregar entradas y salidas; los sacos vuelven a
+  agruparse) y **borrarla** desde el lote o desde "Todo el stock".
+- Los traslados ya guardados se ven pero no se editan desde la v2: el backend exige que cada lote de
+  salida corresponda uno a uno con su entrada y la versión actual tampoco lo resuelve bien.
+- `scripts/sembrar-procesamiento.mjs` crea dos acciones de demostración (trillado y traslado) en la
+  copia aislada, para las pruebas contra el backend real.
+
+**Pruebas:** 62 unitarias (15 nuevas de la lógica de procesamiento: qué acciones ofrece cada
+instalación, conversión de unidades, rango esperado, sacos, validación, armado del pedido para cada
+tipo y vuelta desde una orden guardada), 58 de punta a punta simuladas (6 nuevas) y 1 nueva contra el
+backend real: entrega → trillado → lote en el stock → trazabilidad → editar → borrar. En 12 corridas
+seguidas de esa prueba hubo **una falla que no se pudo reproducir** después (pendiente de entender).
+
+**Encontrado en el camino:**
+- 🟠 **H19, del backend de `inatrace-enhanced`:** borrar una orden de procesamiento no devuelve la
+  cantidad a los lotes de entrada (quedan en 0 para siempre). Ya está corregido en el original de
+  AgStack (`1a8cc83`, 23.09.2026); el repositorio del contrato es anterior y no lo tiene. La v2 no
+  promete en sus mensajes que la entrada vuelva a quedar disponible.
+- Las acciones de procesamiento exigen traducción al inglés para crearse.
+
+**Sigue (3c.2):** mostrar el QR generado y enlazarlo a la vitrina; pulido según lo que aparezca.
+
 ## Fase 1b (activar la vitrina en una instalación) — pendiente, acordada el 19.10.2026
 
 Pasos, en orden:
@@ -191,5 +236,5 @@ confirmar el uso del video de Anacafé o cambiarlo.**
 1. Fase 1b (arriba), cuando se decida. `fase-0` **no** se pasa a `main` por ahora.
 2. Revisión de alemán y kinyarwanda por alguien que los hable.
 3. Demo pública: más adelante.
-4. Fase 3, lo que sigue: 3c procesamiento → 3d pagos → 3e órdenes y Beyco.
+4. Fase 3, lo que sigue: 3c.2 QR y pulido → 3d pagos → 3e órdenes y Beyco.
    Criterio de salida de la fase: ciclo entrega → procesamiento → pago completo en la v2.

@@ -107,3 +107,26 @@ export function agrupar(ordenes: ApiStockOrder[]): import('@/api/gen/types.gen')
   }
   return [...grupos.values()];
 }
+
+// ---------- Procesamiento ----------
+
+const cadena = [{ id: 1, name: 'Café' }];
+/** Acciones de procesamiento de la cooperativa simulada. */
+export const accionesProcesamiento: import('@/api/gen/types.gen').ApiProcessingAction[] = [
+  {
+    id: 21, name: 'Despulpado y secado', type: 'PROCESSING', prefix: 'DS', estimatedOutputQuantityPerUnit: 0.2,
+    inputSemiProduct: semiproductos[0], outputSemiProducts: [semiproductos[1]!], supportedFacilities: [], valueChains: cadena,
+    requiredEvidenceFields: [{ id: 31, fieldName: 'humedad', label: 'Humedad (%)', type: 'NUMBER', mandatory: true }],
+    requiredDocumentTypes: [],
+  },
+  {
+    id: 22, name: 'Traslado al beneficio', type: 'TRANSFER', prefix: 'TL',
+    inputSemiProduct: semiproductos[1], outputSemiProducts: [semiproductos[1]!], supportedFacilities: [], valueChains: cadena,
+    requiredEvidenceFields: [], requiredDocumentTypes: [],
+  },
+];
+
+export const tiposEvidencia = [
+  { id: 41, code: 'RECEIPT', label: 'Recibo' },
+  { id: 42, code: 'PHOTO', label: 'Fotografía del lote' },
+];

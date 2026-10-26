@@ -198,8 +198,8 @@ function Evidencias({
   if (valores.length === 0 && documentos.length === 0) return null;
   return (
     <div className="mt-3 flex flex-wrap gap-2 border-t border-linea pt-3 text-sm">
-      {valores.map((c) => (
-        <span key={c.id} className="rounded-md bg-superficie-2 px-2 py-1 text-tinta-2">
+      {valores.map((c, i) => (
+        <span key={c.id ?? `${c.evidenceFieldName}-${i}`} className="rounded-md bg-superficie-2 px-2 py-1 text-tinta-2">
           <span className="font-semibold">{c.evidenceFieldName}:</span>{' '}
           {c.dateValue ? fechaCorta(c.dateValue, i18n.language) : c.booleanValue != null ? t(c.booleanValue ? 'comun.si' : 'comun.no') : (c.stringValue ?? c.numericValue)}
         </span>
