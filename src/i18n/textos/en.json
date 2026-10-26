@@ -647,6 +647,20 @@
       "borrar": "Delete processing",
       "borrar_confirmar": "Delete this processing? The lots it produced are deleted. This cannot be undone.",
       "traslado_solo_lectura": "Saved transfers cannot be edited in the new version. You can view their traceability, or delete and redo them."
+    },
+    "qr": {
+      "titulo": "Lot QR code",
+      "descripcion": "What the current version prints for {{producto}}: scanning it records the visit and opens the product's public page.",
+      "sin_etiquetas": "The final product has no published labels, so the QR code has no public page to point to. They are linked in the",
+      "alt": "QR code for lot {{lote}}",
+      "etiqueta": "Label",
+      "copiar": "Copy",
+      "copiado": "Copied",
+      "ver_vitrina": "View public page",
+      "descargar": "Download SVG",
+      "imprimir": "Print",
+      "nota": "To preview it without counting a visit, use \"View public page\": it opens the page without going through scan logging.",
+      "ver": "View the QR code"
     }
   }
 }

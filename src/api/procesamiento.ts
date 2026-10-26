@@ -3,6 +3,7 @@ import {
   createOrUpdateProcessingOrder,
   deleteProcessingOrder,
   getAvailableStockForStockUnitInFacility,
+  getFinalProductLabels,
   getProcessingAction,
   getStockOrderProcessingOrder,
   listFacilitiesByCompany,
@@ -85,6 +86,14 @@ export const procesamiento = {
     queryOptions({
       queryKey: ['procesamiento', 'orden', idLote],
       queryFn: () => desenvolver(getStockOrderProcessingOrder({ path: { id: idLote } })),
+    }),
+
+  /** Etiquetas publicadas de un producto final: a cuál vitrina apunta el QR de un lote. */
+  etiquetasProductoFinal: (producto: number, productoFinal: number) =>
+    queryOptions({
+      queryKey: ['producto', producto, 'final', productoFinal, 'etiquetas'],
+      queryFn: () => desenvolver(getFinalProductLabels({ path: { productId: producto, finalProductId: productoFinal } })),
+      staleTime: 10 * 60_000,
     }),
 
   tiposEvidencia: (cadenas: number[]) =>

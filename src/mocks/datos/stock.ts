@@ -126,6 +126,15 @@ export const accionesProcesamiento: import('@/api/gen/types.gen').ApiProcessingA
   },
 ];
 
+/** Producto final al que apuntan los QR del modo simulado, con su etiqueta publicada (la de la vitrina de ejemplo). */
+export const productoFinalQr = { id: 1, name: 'Café de la Sierra 340 g', product: { id: 1, name: 'Café Flor de la Sierra' }, measurementUnitType: kg };
+
+accionesProcesamiento.push({
+  id: 23, name: 'Generar código QR', type: 'GENERATE_QR_CODE', prefix: 'QR',
+  inputSemiProduct: semiproductos[1], outputSemiProducts: [semiproductos[1]!], supportedFacilities: [], valueChains: cadena,
+  qrCodeForFinalProduct: productoFinalQr, requiredEvidenceFields: [], requiredDocumentTypes: [],
+});
+
 export const tiposEvidencia = [
   { id: 41, code: 'RECEIPT', label: 'Recibo' },
   { id: 42, code: 'PHOTO', label: 'Fotografía del lote' },

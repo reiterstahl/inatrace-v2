@@ -11,6 +11,9 @@ services:
     environment:
       # Igual que TOKEN_FOR_PUBLIC_LOG_ROUTE del frontend actual / INATrace.requestLog.token del backend.
       TOKEN_REGISTRO_PUBLICO: ${TOKEN_REGISTRO_PUBLICO:?falta el token de registro público}
+      # Los mismos valores que el frontend actual: así los QR que se generan desde la v2 son idénticos.
+      APP_BASE_URL: ${APP_BASE_URL:-}
+      QR_CODE_BASE_PATH: ${QR_CODE_BASE_PATH:-q-cd}
     networks: [inatrace]
 
   proxy:

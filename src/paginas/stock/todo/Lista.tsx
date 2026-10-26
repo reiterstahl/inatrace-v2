@@ -207,6 +207,11 @@ function TablaSuelta({ items, i18n, onGeo, onBorrar }: { items: ApiStockOrder[];
                   <Link to="/stock/trazabilidad/$id" params={{ id: String(o.id) }} className="rounded-md p-1.5 text-tinta-3 hover:bg-superficie-2 hover:text-marca" aria-label={t('stock.todo.trazabilidad')} title={t('stock.todo.trazabilidad')}>
                     <Icono nombre="ruta" className="size-4" />
                   </Link>
+                  {o.qrCodeTag && (
+                    <Link to="/stock/trazabilidad/$id" params={{ id: String(o.id) }} hash="qr" className="rounded-md p-1.5 text-tinta-3 hover:bg-superficie-2 hover:text-marca" aria-label={t('stock.qr.ver')} title={t('stock.qr.ver')}>
+                      <Icono nombre="qr" className="size-4" />
+                    </Link>
+                  )}
                   <button type="button" onClick={() => onGeo(o.id!)} className="rounded-md p-1.5 text-tinta-3 hover:bg-superficie-2 hover:text-marca" aria-label={t('stock.todo.geojson')} title={t('stock.todo.geojson')}>
                     <Icono nombre="mapa" className="size-4" />
                   </button>

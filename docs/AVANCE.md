@@ -212,6 +212,33 @@ seguidas de esa prueba hubo **una falla que no se pudo reproducir** después (pe
 
 **Sigue (3c.2):** mostrar el QR generado y enlazarlo a la vitrina; pulido según lo que aparezca.
 
+## Fase 3c.2 (QR del lote y pulido) — ✅ cerrada el 26.10.2026 (rama `fase-3`)
+
+- **QR de un lote** que pasó por "generar código QR", en su trazabilidad (y con un acceso directo
+  desde "Todo el stock"): el **mismo QR que imprime la versión actual**
+  (`{raíz}/{idioma de la etiqueta}/{ruta de QR}/{uuid de la etiqueta}/{código del lote}`), así que al
+  escanearlo se registra la visita igual que hoy. Si el producto final tiene varias etiquetas
+  publicadas, se elige cuál. Copiar la URL, **descargar SVG**, imprimir solo el QR y **ver la vitrina**
+  sin contar una visita.
+- La raíz y la ruta de los QR son configuración de la instalación, con **las mismas variables que el
+  frontend actual** (`APP_BASE_URL`, `QR_CODE_BASE_PATH`, por defecto `q-cd`), en
+  `deploy/convivencia/docker-compose.yml`.
+- Si el producto final no tiene etiquetas publicadas, se avisa y se enlaza a donde se asocian en la
+  versión actual.
+- Línea de tiempo: cada paso de procesamiento con un ícono según su tipo cuando la acción no define uno.
+- `scripts/sembrar-procesamiento.mjs` suma "Generar QR (demo)" y asocia la etiqueta de la vitrina al
+  producto final en la copia aislada.
+- **Prueba intermitente de la 3c.1:** encontrada una causa probable. Las pruebas reales buscaban
+  filas por un número contenido en cualquier texto ("421" también coincide con "1421" o con un lote
+  con esos dígitos); ahora comparan la celda de cantidad exacta. Desde el cambio: 3 de 3 corridas
+  verdes (más las 10 anteriores sin el cambio), sin poder confirmar que fuera esa la causa.
+
+**Comprobado contra el backend real:** un lote con QR generado desde la v2 abre la vitrina v2 de ese
+lote.
+
+**Pruebas:** 64 unitarias, 60 de punta a punta simuladas (2 nuevas de QR, escritorio y celular) y 9
+contra el backend real (1 nueva: entrega → generar QR → panel con la URL de la versión actual → vitrina).
+
 ## Fase 1b (activar la vitrina en una instalación) — pendiente, acordada el 19.10.2026
 
 Pasos, en orden:
@@ -236,5 +263,5 @@ confirmar el uso del video de Anacafé o cambiarlo.**
 1. Fase 1b (arriba), cuando se decida. `fase-0` **no** se pasa a `main` por ahora.
 2. Revisión de alemán y kinyarwanda por alguien que los hable.
 3. Demo pública: más adelante.
-4. Fase 3, lo que sigue: 3c.2 QR y pulido → 3d pagos → 3e órdenes y Beyco.
+4. Fase 3, lo que sigue: 3d pagos → 3e órdenes y Beyco.
    Criterio de salida de la fase: ciclo entrega → procesamiento → pago completo en la v2.

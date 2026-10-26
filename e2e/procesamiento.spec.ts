@@ -85,4 +85,23 @@ test.describe('procesamiento (modo simulado)', () => {
     await expect(visible(page, 'TL-5/1')).toBeVisible();
     await expect(visible(page, 'TL-5/2')).toBeVisible();
   });
+
+  test('generar QR: el lote nuevo muestra su código, con la URL de la versión actual', async ({ page }) => {
+    await ingresar(page, 'stock/procesamiento/nueva?accion=23&inst=11');
+    await expect(page.getByRole('heading', { level: 1, name: 'Generar código QR' })).toBeVisible();
+    await page.getByRole('checkbox', { name: 'Elegir el lote PT-López-2026-10-18' }).check();
+    const salida = page.getByRole('group', { name: 'Salida 1' });
+    // Sale exactamente lo que entra (118 kg) y no se puede cambiar.
+    await expect(salida.getByRole('textbox', { name: /^Cantidad/ })).toHaveValue('118');
+    await expect(salida.getByRole('textbox', { name: /^Cantidad/ })).toBeDisabled();
+    await salida.getByRole('textbox', { name: /^Número de lote interno/ }).fill('QR-SIM-1');
+    await page.getByRole('button', { name: 'Guardar', exact: true }).click();
+
+    await expect(page).toHaveURL(/stock\/todo\?inst=11/);
+    await page.getByRole('row', { name: /QR-SIM-1/ }).getByRole('link', { name: 'Ver el código QR' }).click();
+    await expect(page.getByRole('heading', { name: 'Código QR del lote' })).toBeVisible();
+    await expect(page.getByRole('img', { name: 'Código QR del lote QR-SIM-1' })).toBeVisible();
+    await expect(page.getByText(/\/es\/q-cd\/demo\/[0-9a-f-]{36}$/)).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Ver la vitrina' })).toHaveAttribute('href', /\/v2\/p-cd\/demo\/[0-9a-f-]{36}$/);
+  });
 });

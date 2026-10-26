@@ -2,7 +2,7 @@ import { http, HttpResponse, delay } from 'msw';
 import type { ApiUserGet } from '@/api/gen/types.gen';
 import { ETIQUETA_DEMO, QR_DEMO, etiqueta, qr } from './datos/vitrina';
 import type { ApiUserCustomer } from '@/api/gen/types.gen';
-import { accionesProcesamiento, acopiadores, agrupar, entregasIniciales, historiaDe, instalaciones, loteProcesado, recalcular, semiproductos, tiposEvidencia, usuariosEmpresa } from './datos/stock';
+import { accionesProcesamiento, productoFinalQr, acopiadores, agrupar, entregasIniciales, historiaDe, instalaciones, loteProcesado, recalcular, semiproductos, tiposEvidencia, usuariosEmpresa } from './datos/stock';
 import type { ApiProcessingOrder, ApiPurchaseOrder, ApiStockOrder } from '@/api/gen/types.gen';
 import { EMPRESA_DEMO, capasMapa, paises, parcelasDe, productoresIniciales, tiposCertificacion, tiposProducto } from './datos/productores';
 
@@ -235,7 +235,7 @@ export const manejadores = [
   ),
   http.get('/api/chain/stock-order/:id', ({ params }) => {
     if (!conSesion()) return sinSesion();
-    const o = leerEntregas().find((x) => x.id === Number(params.id));
+    const o = todoElStock().find((x) => x.id === Number(params.id));
     return o ? ok(o) : error(404, 'NOT_FOUND', 'Not found');
   }),
   http.put('/api/chain/stock-order', async ({ request }) => {
@@ -269,6 +269,9 @@ export const manejadores = [
     const a = accionesProcesamiento.find((x) => x.id === Number(params.id));
     return a ? ok(a) : error(404, 'NOT_FOUND', 'Not found');
   }),
+  http.get('/api/product/:producto/finalProduct/:final/labels', ({ params }) =>
+    Number(params.final) === productoFinalQr.id ? ok([{ id: 1, productId: 1, uuid: ETIQUETA_DEMO, title: 'Vitrina de ejemplo', language: 'ES', status: 'PUBLISHED' }]) : ok([]),
+  ),
   http.get('/api/chain/processing-evidence-type/list/by-value-chains', () => paginado(tiposEvidencia)),
   http.get('/api/chain/stock-order/list/facility/:facilityId/available', ({ request, params }) => {
     if (!conSesion()) return sinSesion();
@@ -305,7 +308,8 @@ export const manejadores = [
       targetStockOrders: (p.targetStockOrders ?? []).map((o) => {
         const id = o.id ?? siguienteId++;
         const semi = semiDe(o.semiProduct?.id);
-        return { ...o, id, semiProduct: semi ?? o.semiProduct, measureUnitType: semi?.measurementUnitType ?? o.measureUnitType, facility: instalaciones.find((f) => f.id === o.facility?.id) ?? o.facility, availableQuantity: o.totalQuantity, fulfilledQuantity: o.totalQuantity, lotPrefix: accion?.prefix };
+        const qr = accion?.type === 'GENERATE_QR_CODE' ? { qrCodeTag: o.qrCodeTag ?? crypto.randomUUID(), qrCodeTagFinalProduct: accion.qrCodeForFinalProduct } : {};
+        return { ...o, ...qr, id, semiProduct: semi ?? o.semiProduct, measureUnitType: semi?.measurementUnitType ?? o.measureUnitType, facility: instalaciones.find((f) => f.id === o.facility?.id) ?? o.facility, availableQuantity: o.totalQuantity, fulfilledQuantity: o.totalQuantity, lotPrefix: accion?.prefix };
       }),
     };
     guardarProcesos(anterior ? procesos.map((x) => (x.id === guardada.id ? guardada : x)) : [...procesos, guardada]);

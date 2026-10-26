@@ -12,6 +12,7 @@ import { fechaCorta } from '@/util/fecha';
 import { cantidad, fechaEntrega, nombreInstalacion } from '@/util/formato';
 import { nombreCompleto } from '@/util/productor';
 import { useState } from 'react';
+import { PanelQr } from './PanelQr';
 
 const ruta = getRouteApi('/portal/stock/trazabilidad/$id');
 
@@ -64,6 +65,7 @@ function Contenido({ id, raiz, salidas, items }: { id: number; raiz: ApiStockOrd
       {error && <Aviso tono="mal">{error}</Aviso>}
 
       {raiz && <OrdenRaiz o={raiz} i18n={i18n.language} />}
+      <Qr id={id} />
 
       {salidas.length > 0 && (
         <section className="grid gap-2">
@@ -127,13 +129,17 @@ function OrdenRaiz({ o, i18n }: { o: ApiStockOrder; i18n: string }) {
 }
 
 const ICONO_PASO: Record<string, NombreIcono> = { QRCODE: 'qr', SHIP: 'barco', LEAF: 'hoja', WAREHOUSE: 'bodega' };
+const ICONO_TIPO: Record<string, NombreIcono> = { PROCESSING: 'hoja', FINAL_PROCESSING: 'taza', TRANSFER: 'barco', GENERATE_QR_CODE: 'qr', SHIPMENT: 'barco' };
 
 function Paso({ item, i18n }: { item: ApiStockOrderHistoryTimelineItem; i18n: string }) {
   const { t } = useTranslation();
   const po = item.processingOrder;
   const accion = po?.processingAction;
   const compras = item.purchaseOrders ?? [];
-  const icono = accion?.publicTimelineIconType ? (ICONO_PASO[accion.publicTimelineIconType] ?? 'ruta') : 'personas';
+  // Entregas de productores: personas. Pasos de procesamiento: el ícono público de la acción, o uno según su tipo.
+  const icono: NombreIcono = !accion
+    ? 'personas'
+    : ((accion.publicTimelineIconType && ICONO_PASO[accion.publicTimelineIconType]) ?? ICONO_TIPO[accion.type ?? ''] ?? 'ruta');
 
   return (
     <li className="relative">
@@ -216,4 +222,15 @@ function Evidencias({
 function EstadoTx({ estado }: { estado: string }) {
   const { t } = useTranslation();
   return <span className="rounded-full bg-aviso-suave px-2 py-0.5 text-xs font-semibold text-aviso">{t(`stock.traza.tx.${estado}`, { defaultValue: estado })}</span>;
+}
+
+/** La historia no trae el código QR del lote: se pide la orden aparte y se muestra si tiene. */
+function Qr({ id }: { id: number }) {
+  const orden = useQuery(stock.entrega(id));
+  if (!orden.data?.qrCodeTag) return null;
+  return (
+    <div id="qr" className="scroll-mt-24">
+      <PanelQr orden={orden.data} />
+    </div>
+  );
 }

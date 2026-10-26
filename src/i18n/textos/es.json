@@ -647,6 +647,20 @@
       "borrar": "Borrar procesamiento",
       "borrar_confirmar": "¿Borrar este procesamiento? Se borran los lotes que produjo. No se puede deshacer.",
       "traslado_solo_lectura": "Los traslados ya guardados no se editan desde la nueva versión. Puedes ver su trazabilidad o borrarlo y hacerlo de nuevo."
+    },
+    "qr": {
+      "titulo": "Código QR del lote",
+      "descripcion": "Lo que imprime la versión actual para {{producto}}: al escanearlo se registra la visita y se abre la vitrina del producto.",
+      "sin_etiquetas": "El producto final no tiene etiquetas publicadas, así que el QR no tiene a qué vitrina apuntar. Se asocian en la",
+      "alt": "Código QR del lote {{lote}}",
+      "etiqueta": "Etiqueta",
+      "copiar": "Copiar",
+      "copiado": "Copiado",
+      "ver_vitrina": "Ver la vitrina",
+      "descargar": "Descargar SVG",
+      "imprimir": "Imprimir",
+      "nota": "Para ver cómo queda sin contar una visita, usa \"Ver la vitrina\": abre la vitrina sin pasar por el registro de escaneos.",
+      "ver": "Ver el código QR"
     }
   }
 }
