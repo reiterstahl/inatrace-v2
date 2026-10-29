@@ -3,7 +3,10 @@
 //   2. la cadena de valor y una bodega para esa empresa, que maneja café oro/verde,
 //   3. en el producto, la empresa demo como PRODUCTORA y la nueva como EXPORTADORA (así la
 //      exportadora ve las instalaciones públicas de la productora y le puede pedir café),
-//   4. una acción de envío (pedido de cotización) de café oro/verde para la exportadora.
+//   4. una acción de envío (pedido de cotización) de café oro/verde para la exportadora,
+//   5. para los pedidos de clientes: un cliente de la exportadora, el producto final en la bodega de
+//      la exportadora y en la instalación pública de la productora, y una acción de envío de
+//      producto final para la exportadora.
 //
 // Pensado para la COPIA AISLADA de desarrollo, nunca para una instancia institucional.
 // Uso:
@@ -18,7 +21,9 @@ const CONFIG = {
   cadena: Number(process.env.DEMO_CADENA ?? 1),
   oro: Number(process.env.DEMO_ORO ?? 5),
   modelo: Number(process.env.DEMO_INSTALACION_PROC ?? 6), // instalación pública de la productora que se usa de modelo
+  productoFinal: Number(process.env.DEMO_PRODUCTO_FINAL ?? 1),
 };
+const CLIENTE = 'Tostaduría Cliente Demo (v2)';
 const NOMBRE = 'Exportadora Demo (v2)';
 const BODEGA = 'Bodega de exportación (v2)';
 
@@ -128,7 +133,7 @@ if (nuevas.length) {
 
 // ---------- 4. Acción de envío (pedido de cotización) ----------
 const acciones = (await llamar('GET', `/api/chain/processing-action/list/company/${exportadora.id}?limit=500`)).items ?? [];
-if (!acciones.some((a) => a.type === 'SHIPMENT')) {
+if (!acciones.some((a) => a.type === 'SHIPMENT' && !a.finalProductAction)) {
   const creada = await llamar('PUT', '/api/chain/processing-action', {
     company: { id: exportadora.id },
     name: 'Pedido de café oro (demo)',
@@ -156,3 +161,58 @@ if (!acciones.some((a) => a.type === 'SHIPMENT')) {
 
 const vendedoras = (await llamar('GET', `/api/chain/facility/list/company/${exportadora.id}/available-selling?semiProductId=${CONFIG.oro}&limit=50`)).items ?? [];
 paso(`Instalaciones a las que la exportadora puede pedir café oro: ${vendedoras.map((f) => `${f.name} (${f.id})`).join(', ') || 'ninguna'}`);
+
+// ---------- 5. Pedidos de clientes (producto final) ----------
+const clientes = (await llamar('GET', `/api/company/companyCustomers/list/${exportadora.id}?limit=500`)).items ?? [];
+if (!clientes.some((c) => c.name === CLIENTE)) {
+  const sede = (await llamar('GET', `/api/company/profile/${CONFIG.productora}`)).headquarters ?? {};
+  await llamar('POST', '/api/company/companyCustomers', {
+    companyId: exportadora.id,
+    name: CLIENTE,
+    officialCompanyName: CLIENTE,
+    contact: 'Compras',
+    email: 'compras@cliente.local',
+    location: { address: sede.address ?? 'Ciudad', city: sede.city ?? 'Ciudad', country: { id: sede.country?.id } },
+  });
+  paso(`Cliente "${CLIENTE}" creado`);
+} else {
+  paso(`El cliente "${CLIENTE}" ya existe`);
+}
+
+// El producto final tiene que estar en la bodega que recibe y en la instalación que vende.
+for (const id of [bodega.id, CONFIG.modelo]) {
+  const f = await llamar('GET', `/api/chain/facility/${id}/detail`); // con sus traducciones (sin ellas el backend falla)
+  if (!(f.facilityFinalProducts ?? []).some((x) => x.id === CONFIG.productoFinal)) {
+    await llamar('PUT', '/api/chain/facility', { ...f, facilityFinalProducts: [...(f.facilityFinalProducts ?? []), { id: CONFIG.productoFinal }] });
+    paso(`Producto final agregado a "${f.name}"`);
+  }
+}
+
+if (!acciones.some((a) => a.type === 'SHIPMENT' && a.finalProductAction)) {
+  const creada = await llamar('PUT', '/api/chain/processing-action', {
+    company: { id: exportadora.id },
+    name: 'Pedido de producto final (demo)',
+    description: 'Demostración para la v2: pedido de producto final para un cliente.',
+    type: 'SHIPMENT',
+    prefix: 'PF',
+    sortOrder: 41,
+    language: 'ES',
+    finalProductAction: true,
+    inputFinalProduct: { id: CONFIG.productoFinal },
+    outputFinalProduct: { id: CONFIG.productoFinal },
+    supportedFacilities: [{ id: bodega.id }],
+    valueChains: [{ id: CONFIG.cadena }],
+    requiredDocumentTypes: [],
+    requiredEvidenceFields: [],
+    translations: [
+      { language: 'EN', name: 'Final product order (demo)', description: 'Demo for the v2: final product order for a customer.' },
+      { language: 'ES', name: 'Pedido de producto final (demo)', description: 'Demostración para la v2: pedido de producto final para un cliente.' },
+    ],
+  });
+  paso(`Acción de envío de producto final creada (id ${creada.id})`);
+} else {
+  paso('La acción de envío de producto final ya existe');
+}
+
+const vendedorasFinal = (await llamar('GET', `/api/chain/facility/list/company/${exportadora.id}/available-selling?finalProductId=${CONFIG.productoFinal}&limit=50`)).items ?? [];
+paso(`Instalaciones a las que la exportadora puede pedir el producto final: ${vendedorasFinal.map((f) => `${f.name} (${f.id})`).join(', ') || 'ninguna'}`);

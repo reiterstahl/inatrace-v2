@@ -2,7 +2,7 @@ import { http, HttpResponse, delay } from 'msw';
 import type { ApiUserGet } from '@/api/gen/types.gen';
 import { ETIQUETA_DEMO, QR_DEMO, etiqueta, qr } from './datos/vitrina';
 import type { ApiUserCustomer } from '@/api/gen/types.gen';
-import { accionesProcesamiento, instalacionVecina, pagosIniciales, procesosIniciales, productoFinalQr, acopiadores, agrupar, entregasIniciales, historiaDe, instalaciones, loteProcesado, recalcular, semiproductos, tiposEvidencia, usuariosEmpresa } from './datos/stock';
+import { accionesProcesamiento, clientes, instalacionVecina, pagosIniciales, procesosIniciales, productoFinalQr, acopiadores, agrupar, entregasIniciales, historiaDe, instalaciones, loteProcesado, recalcular, semiproductos, tiposEvidencia, usuariosEmpresa } from './datos/stock';
 import type { ApiBulkPayment, ApiPayment, ApiProcessingOrder, ApiPurchaseOrder, ApiStockOrder } from '@/api/gen/types.gen';
 import { EMPRESA_DEMO, capasMapa, paises, parcelasDe, productoresIniciales, tiposCertificacion, tiposProducto } from './datos/productores';
 
@@ -42,15 +42,17 @@ function recalcularSaldo(idEntrega: number) {
 }
 
 function crearPago(p: ApiPayment, enMasivo = false): ApiPayment | string {
-  const entrega = leerEntregas().find((o) => o.id === p.stockOrder?.id);
+  const entrega = leerEntregas().find((o) => o.id === p.stockOrder?.id) ?? pedidos().find((o) => o.id === p.stockOrder?.id);
   if (!entrega) return 'Not a Purchase or Quote order';
+  if (p.recipientType === 'COMPANY' && !p.recipientCompany) return 'Recipient company is required when type is COMPANY';
   if (!enMasivo && p.paymentPurposeType === 'FIRST_INSTALLMENT' && !p.receiptDocument) return 'Receipt document has to be provided';
   if ((p.amount ?? 0) < 0) return 'Total amount paid cannot be negative';
   const nuevo: ApiPayment = {
     ...p,
     id: siguienteId++,
-    stockOrder: { id: entrega.id, identifier: entrega.identifier },
+    stockOrder: { id: entrega.id, identifier: entrega.identifier, internalLotNumber: entrega.internalLotNumber, orderType: entrega.orderType },
     recipientUserCustomer: entrega.producerUserCustomer,
+    recipientCompany: p.recipientType === 'COMPANY' ? entrega.quoteCompany : undefined,
     representativeOfRecipientUserCustomer: entrega.representativeOfProducerUserCustomer,
     preferredWayOfPayment: entrega.preferredWayOfPayment,
     productionDate: entrega.productionDate,
@@ -300,8 +302,10 @@ export const manejadores = [
   // ---------- Stock: procesamiento ----------
   http.get('/api/chain/processing-action/list/company/:id', ({ request }) => {
     if (!conSesion()) return sinSesion();
-    const tipo = new URL(request.url).searchParams.get('actionType');
-    return paginado(accionesProcesamiento.filter((a) => !tipo || a.type === tipo));
+    const u = new URL(request.url);
+    const tipo = u.searchParams.get('actionType');
+    const soloFinales = u.searchParams.get('onlyFinalProducts') === 'true';
+    return paginado(accionesProcesamiento.filter((a) => (!tipo || a.type === tipo) && (!soloFinales || (a.inputFinalProduct && a.outputFinalProduct))));
   }),
   http.get('/api/chain/processing-action/:id', ({ params }) => {
     const a = accionesProcesamiento.find((x) => x.id === Number(params.id));
@@ -352,7 +356,7 @@ export const manejadores = [
         const enLaOrden = esPedido ? (anterior?.targetStockOrders ?? []).find((x) => x.id === id) : undefined;
         const lugar = (x?: { id?: number }) => [...instalaciones, instalacionVecina].find((f) => f.id === x?.id) ?? x;
         const cantidades = esPedido
-          ? { fulfilledQuantity: enLaOrden?.fulfilledQuantity ?? 0, availableQuantity: enLaOrden?.availableQuantity ?? 0, quoteFacility: lugar(o.quoteFacility) as ApiStockOrder['quoteFacility'] }
+          ? { fulfilledQuantity: enLaOrden?.fulfilledQuantity ?? 0, availableQuantity: enLaOrden?.availableQuantity ?? 0, quoteFacility: lugar(o.quoteFacility) as ApiStockOrder['quoteFacility'], quoteCompany: (lugar(o.quoteFacility) as ApiStockOrder['quoteFacility'])?.company }
           : { availableQuantity: o.totalQuantity, fulfilledQuantity: o.totalQuantity };
         return { ...o, ...qr, ...cantidades, id, semiProduct: semi ?? o.semiProduct, measureUnitType: semi?.measurementUnitType ?? o.measureUnitType, facility: lugar(o.facility) as ApiStockOrder['facility'], lotPrefix: accion?.prefix };
       }),
@@ -385,7 +389,40 @@ export const manejadores = [
     const abiertas = u.searchParams.get('openOnly') === 'true';
     return paginado(pedidos().filter((o) => instalaciones.some((f) => f.id === o.quoteFacility?.id) && (!inst || o.quoteFacility?.id === inst) && (!abiertas || (o.fulfilledQuantity ?? 0) < (o.totalQuantity ?? 0))));
   }),
-  http.get('/api/chain/facility/list/company/:id/available-selling', () => (conSesion() ? paginado([instalacionVecina]) : sinSesion())),
+  http.get('/api/chain/facility/list/company/:id/available-selling', ({ request }) => {
+    if (!conSesion()) return sinSesion();
+    const u = new URL(request.url);
+    const semi = Number(u.searchParams.get('semiProductId')) || null;
+    const final = Number(u.searchParams.get('finalProductId')) || null;
+    const vende = (!semi || (instalacionVecina.facilitySemiProductList ?? []).some((x) => x.id === semi)) && (!final || (instalacionVecina.facilityFinalProducts ?? []).some((x) => x.id === final));
+    return paginado(vende ? [instalacionVecina] : []);
+  }),
+  http.get('/api/company/companyCustomers/list/:companyId', () => (conSesion() ? paginado(clientes) : sinSesion())),
+  // Pedido de un cliente: cada ítem es un procesamiento de envío sin entradas (como el backend).
+  http.post('/api/chain/product-order', async ({ request }) => {
+    if (!conSesion()) return sinSesion();
+    const p = (await request.json()) as import('@/api/gen/types.gen').ApiProductOrder;
+    if (!p.orderId?.trim()) return error(400, 'VALIDATION_ERROR', 'Order ID is required');
+    if (!p.customer?.id) return error(400, 'VALIDATION_ERROR', 'Customer is required');
+    if (!(p.items ?? []).length) return error(400, 'VALIDATION_ERROR', 'At least one Stock order is requried');
+    const cliente = clientes.find((c) => c.id === p.customer!.id);
+    const nuevos = (p.items ?? []).map((o): ApiProcessingOrder => {
+      const accion = accionesProcesamiento.find((a) => a.id === o.processingOrder?.processingAction?.id);
+      const quote = [instalacionVecina].find((f) => f.id === o.quoteFacility?.id);
+      return {
+        id: siguienteId++,
+        processingDate: o.productionDate,
+        processingAction: accion,
+        inputTransactions: [],
+        targetStockOrders: [{
+          ...o, id: siguienteId++, processingOrder: undefined, consumerCompanyCustomer: cliente, finalProduct: accion?.inputFinalProduct, measureUnitType: accion?.inputFinalProduct?.measurementUnitType,
+          facility: instalaciones.find((f) => f.id === o.facility?.id), quoteFacility: quote, quoteCompany: quote?.company,
+        }],
+      };
+    });
+    guardarProcesos([...leerProcesos(), ...nuevos]);
+    return ok({ id: siguienteId++ });
+  }),
   http.get('/api/chain/transaction/list/input/stock-order/:id', ({ params }) => {
     if (!conSesion()) return sinSesion();
     const p = leerProcesos().find((x) => (x.targetStockOrders ?? []).some((o) => o.id === Number(params.id)));

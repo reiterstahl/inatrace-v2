@@ -152,13 +152,24 @@ export const pagosIniciales: import('@/api/gen/types.gen').ApiPayment[] = [
 
 /** Otra empresa de la cadena, con una instalación pública a la que la cooperativa le puede pedir. */
 const vecina = { id: 50, name: 'Cooperativa La Vecina' };
-export const instalacionVecina: ApiFacility = { id: 99, name: 'Bodega La Vecina', isPublic: true, company: vecina, facilitySemiProductList: [semiproductos[1]!] };
+export const instalacionVecina: ApiFacility = { id: 99, name: 'Bodega La Vecina', isPublic: true, company: vecina, facilitySemiProductList: [semiproductos[1]!], facilityFinalProducts: [productoFinalQr] };
 
 accionesProcesamiento.push({
   id: 24, name: 'Pedido de pergamino', type: 'SHIPMENT', prefix: 'PO',
   inputSemiProduct: semiproductos[1], outputSemiProducts: [semiproductos[1]!], supportedFacilities: [], valueChains: cadena,
   requiredEvidenceFields: [], requiredDocumentTypes: [],
 });
+
+accionesProcesamiento.push({
+  id: 25, name: 'Pedido de café empacado', type: 'SHIPMENT', prefix: 'PF', finalProductAction: true,
+  inputFinalProduct: productoFinalQr, outputFinalProduct: productoFinalQr, supportedFacilities: [], valueChains: cadena,
+  requiredEvidenceFields: [], requiredDocumentTypes: [],
+});
+// El beneficio recibe café empacado (para los pedidos de clientes).
+instalaciones[0]!.facilityFinalProducts = [productoFinalQr];
+
+/** Clientes de la cooperativa (empresas que le compran producto final). */
+export const clientes = [{ id: 60, companyId: 1, name: 'Tostaduría El Grano' }];
 
 const accionPedido = accionesProcesamiento.find((a) => a.id === 24)!;
 const beneficio: ApiFacility = { ...instalaciones[0]!, company: { id: 1, name: 'Cooperativa Flor de la Sierra' } };
@@ -168,7 +179,7 @@ export const procesosIniciales: import('@/api/gen/types.gen').ApiProcessingOrder
   {
     id: 801, processingDate: '2026-10-20', processingAction: accionPedido, inputTransactions: [],
     targetStockOrders: [{
-      id: 811, orderType: 'GENERAL_ORDER', internalLotNumber: 'PO-VEC-1', orderId: 'OC-VECINA-7', facility: instalacionVecina, quoteFacility: beneficio,
+      id: 811, orderType: 'GENERAL_ORDER', internalLotNumber: 'PO-VEC-1', orderId: 'OC-VECINA-7', facility: instalacionVecina, quoteFacility: beneficio, quoteCompany: beneficio.company,
       semiProduct: semiproductos[1], measureUnitType: kg, totalQuantity: 200, fulfilledQuantity: 0, availableQuantity: 0, deliveryTime: '2026-11-20', productionDate: '2026-10-20',
     }],
   },
@@ -176,7 +187,7 @@ export const procesosIniciales: import('@/api/gen/types.gen').ApiProcessingOrder
     id: 802, processingDate: '2026-10-21', processingAction: accionPedido,
     inputTransactions: [{ id: 821, status: 'PENDING', inputQuantity: 80, outputQuantity: 80, inputMeasureUnitType: kg, sourceFacility: instalacionVecina, sourceStockOrder: { id: 990, internalLotNumber: 'LV-PERG-3', productionDate: '2026-10-19' } }],
     targetStockOrders: [{
-      id: 812, orderType: 'GENERAL_ORDER', internalLotNumber: 'PO-SIM-2', orderId: 'OC-SIM-2', facility: beneficio, quoteFacility: instalacionVecina,
+      id: 812, orderType: 'GENERAL_ORDER', internalLotNumber: 'PO-SIM-2', orderId: 'OC-SIM-2', facility: beneficio, quoteFacility: instalacionVecina, quoteCompany: vecina,
       semiProduct: semiproductos[1], measureUnitType: kg, totalQuantity: 100, fulfilledQuantity: 0, availableQuantity: 0, deliveryTime: '2026-11-10', productionDate: '2026-10-21',
     }],
   },

@@ -774,7 +774,10 @@
       "pagar_entrega": "Pay the delivery from {{productor}}",
       "de_entrega": "Payments for this delivery",
       "ninguno_entrega": "No payments yet.",
-      "para_masivo": "For bulk payment"
+      "para_masivo": "For bulk payment",
+      "pagado_a": "Paid to",
+      "orden_no_se_puede": "This order cannot be paid",
+      "orden_no_se_puede_texto": "Only orders placed with another company in the value chain can be paid."
     },
     "ord": {
       "titulo": "Orders",
@@ -834,7 +837,35 @@
       "confirmar_decisiones_other": "Confirm {{count}} decisions",
       "resumen_pedido": "Ordered",
       "resumen_enviado": "Sent by the supplier",
-      "resumen_falta": "Remaining"
+      "resumen_falta": "Remaining",
+      "pagar": "Pay order {{orden}}",
+      "instalacion_proveedor": "Supplier facility",
+      "cli": {
+        "titulo": "Customer order",
+        "descripcion": "What a customer orders: final products delivered to one of your facilities. Each product becomes an order placed with the chosen supplier, who fulfils it from their stock.",
+        "sin_acciones": "No final product order templates",
+        "sin_acciones_texto": "To order final products the company needs a final-product shipment action. Create it in the current version:",
+        "sin_clientes": "The company has no customers",
+        "sin_clientes_texto": "First register the customer in the current version:",
+        "el_pedido": "The order",
+        "cliente": "Customer",
+        "fecha_limite": "Delivery deadline",
+        "solo_mujeres": "Women's coffee only",
+        "solo_organico": "Organic only",
+        "productos": "Products",
+        "agregar": "Add product",
+        "item": "Product {{n}}",
+        "quitar": "Remove product {{n}}",
+        "producto_final": "Final product",
+        "pedir_a": "Order from",
+        "primero_producto": "Choose the product first",
+        "sin_proveedores": "No public facility in the value chain sells this product.",
+        "precio": "Price per unit for the customer",
+        "lote": "Lot name",
+        "errores": {
+          "sin_items": "The order needs at least one product."
+        }
+      }
     }
   }
 }

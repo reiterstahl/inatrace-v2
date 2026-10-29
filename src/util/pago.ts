@@ -98,6 +98,35 @@ export function armarPago(f: FormPago, e: ApiStockOrder, empresa: number): ApiPa
   };
 }
 
+// ---------- Pago a otra empresa por una orden ----------
+// Como la versión actual (stock-payments en modo CUSTOMER): la empresa que hizo el pedido le paga a la
+// empresa proveedora; siempre por transferencia y con recibo. La orden no tiene costo ni saldo.
+
+/** Una orden emitida se puede pagar si se le pidió a otra empresa. */
+export const puedePagarseOrden = (o: ApiStockOrder) => o.orderType === 'GENERAL_ORDER' && !!o.quoteCompany?.id;
+
+export function pagoAEmpresaNuevo(o: ApiStockOrder): FormPago {
+  return { fecha: hoy(), proposito: '', tipo: 'BANK_TRANSFER', monto: null, moneda: o.currency ?? '', recibo: '', tipoComprobante: 'RECEIPT', documento: null };
+}
+
+export function armarPagoAEmpresa(f: FormPago, o: ApiStockOrder, empresa: number): ApiPayment {
+  return {
+    stockOrder: { id: o.id } as ApiStockOrder,
+    payingCompany: { id: empresa } as ApiPayment['payingCompany'],
+    recipientType: 'COMPANY',
+    recipientCompany: { id: o.quoteCompany!.id } as ApiPayment['recipientCompany'],
+    formalCreationTime: f.fecha,
+    paymentPurposeType: f.proposito || undefined,
+    paymentType: 'BANK_TRANSFER',
+    amount: f.monto ?? undefined,
+    currency: f.moneda.trim().toUpperCase(),
+    receiptNumber: f.recibo.trim() || undefined,
+    receiptDocumentType: 'RECEIPT',
+    receiptDocument: f.documento ?? undefined,
+    paymentStatus: 'UNCONFIRMED',
+  };
+}
+
 // ---------- Pago masivo (transferencia bancaria por lotes) ----------
 
 /** A quién se le transfiere: al acopiador si la entrega se paga vía acopiador, si no al productor. */

@@ -52,6 +52,21 @@ test.describe('órdenes (modo simulado)', () => {
     await expect(fila(page, 'OC-VECINA-7')).toContainText('Abierta'); // queda pendiente hasta que La Vecina apruebe
   });
 
+  test('pagar una orden emitida a la empresa proveedora', async ({ page }) => {
+    await ingresar(page);
+    await page.getByRole('link', { name: /^Pagar la orden OC-SIM-2/ }).click();
+    await expect(page.getByRole('heading', { name: 'Pago a Cooperativa La Vecina' })).toBeVisible();
+    await expect(page.getByRole('combobox', { name: /^Tipo de pago/ })).toBeDisabled(); // siempre transferencia
+    await page.getByRole('combobox', { name: /^Propósito/ }).selectOption({ label: 'Pago de factura' });
+    await page.getByRole('textbox', { name: /^Monto/ }).fill('150');
+    await page.getByRole('textbox', { name: /^Moneda/ }).fill('USD');
+    await page.getByRole('button', { name: 'Registrar pago' }).click();
+    await expect(page.getByRole('heading', { level: 1, name: 'Pagos' })).toBeVisible();
+    const pago = page.getByRole('row', { name: /Cooperativa La Vecina/ });
+    await expect(pago).toContainText('PO-SIM-2');
+    await expect(pago).toContainText('Sin confirmar');
+  });
+
   test('nuevo pedido a otra empresa', async ({ page }) => {
     await ingresar(page, 'stock/ordenes/nueva');
     await page.getByRole('combobox', { name: 'Instalación que recibe' }).selectOption({ label: 'Beneficio Flor de la Sierra' });
@@ -67,5 +82,31 @@ test.describe('órdenes (modo simulado)', () => {
     await expect(page).toHaveURL(/stock\/ordenes/);
     await expect(fila(page, 'OC-NUEVA-1')).toContainText('Bodega La Vecina');
     await expect(fila(page, 'OC-NUEVA-1')).toContainText('Abierta');
+  });
+
+  test('pedido de cliente: valida y queda como orden emitida al proveedor', async ({ page }) => {
+    await ingresar(page, 'stock/ordenes');
+    await page.getByRole('link', { name: 'Pedido de cliente' }).click();
+    await expect(page.getByRole('heading', { level: 1, name: 'Pedido de cliente' })).toBeVisible();
+    await page.getByRole('button', { name: 'Guardar', exact: true }).click();
+    await expect(page.getByText('Revisa los campos marcados.')).toBeVisible();
+    await expect(page.getByText('Este campo es obligatorio.').first()).toBeVisible();
+    await page.getByRole('textbox', { name: /^Número de orden/ }).fill('CLI-9');
+    await page.getByRole('combobox', { name: /^Cliente/ }).selectOption({ label: 'Tostaduría El Grano' });
+    await page.getByRole('combobox', { name: /^Instalación que recibe/ }).selectOption({ label: 'Beneficio Flor de la Sierra' });
+    await page.getByLabel(/^Fecha límite de entrega/).fill('2026-12-20');
+    const item = page.getByRole('group', { name: 'Producto 1' });
+    await item.getByRole('combobox', { name: /^Producto final/ }).selectOption({ label: 'Café de la Sierra 340 g' });
+    await expect(item.getByRole('combobox', { name: /^Pedir a/ })).toHaveValue('99'); // único proveedor, elegido solo
+    await item.getByRole('textbox', { name: /^Cantidad pedida/ }).fill('40');
+    await item.getByRole('textbox', { name: /^Precio por unidad al cliente/ }).fill('12,5');
+    await item.getByRole('textbox', { name: /^Moneda/ }).fill('USD');
+    await expect(item).toContainText('CLI-9 (Café de la Sierra 340 g, 40 kg)');
+    await page.getByRole('button', { name: 'Guardar', exact: true }).click();
+    await expect(page.getByRole('heading', { level: 1, name: 'Órdenes' })).toBeVisible();
+    const fila = page.locator('tbody tr').filter({ hasText: 'CLI-9' });
+    await expect(fila).toContainText('Tostaduría El Grano');
+    await expect(fila).toContainText('Cooperativa La Vecina');
+    await expect(fila).toContainText('Abierta');
   });
 });

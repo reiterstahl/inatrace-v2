@@ -5,7 +5,7 @@ import { test, expect } from './ayudas';
  * la página entera. Pasó con tablas anchas cuyos textos ocultos (sr-only, posición absoluta) se salían
  * del contenedor con scroll horizontal.
  */
-const PANTALLAS = ['', 'productores', 'stock/entregas', 'stock/todo?inst=11', 'stock/procesamiento', 'stock/procesamiento/nueva?accion=21&inst=11', 'stock/pagos', 'stock/pagos?vista=masivos', 'stock/trazabilidad/310'];
+const PANTALLAS = ['', 'productores', 'stock/entregas', 'stock/todo?inst=11', 'stock/procesamiento', 'stock/procesamiento/nueva?accion=21&inst=11', 'stock/pagos', 'stock/pagos?vista=masivos', 'stock/trazabilidad/310', 'stock/ordenes', 'stock/ordenes?vista=recibidas', 'stock/ordenes/cliente', 'stock/ordenes/812/aprobar', 'stock/pagos/nuevo?orden=812'];
 
 test('ninguna pantalla es más ancha que la ventana', async ({ page }) => {
   await page.goto('ingreso');

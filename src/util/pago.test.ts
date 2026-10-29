@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { ApiStockOrder } from '@/api/gen/types.gen';
-import { armarPago, armarPagoMasivo, destinatario, pagaDeMas, pagoMasivoNuevo, pagoNuevo, puedePagarse, sinErroresMasivo, tiposDePago, totalMasivo, validarPago, validarPagoMasivo } from './pago';
+import { armarPago, armarPagoAEmpresa, armarPagoMasivo, destinatario, pagaDeMas, pagoMasivoNuevo, pagoAEmpresaNuevo, pagoNuevo, puedePagarse, puedePagarseOrden, sinErroresMasivo, tiposDePago, totalMasivo, validarPago, validarPagoMasivo } from './pago';
 
 const productor = { id: 1, name: 'Ana', surname: 'Mora', bank: { accountNumber: '' } };
 const acopiador = { id: 2, name: 'Julio', surname: 'Tzul', bank: { accountNumber: 'GT-123' } };
@@ -39,6 +39,26 @@ describe('pago de una entrega', () => {
   it('armado: destinatario y entrega por id, sin confirmar', () => {
     const p = armarPago({ ...pagoNuevo(entrega()), documento: doc, recibo: ' R-1 ' }, entrega(), 1);
     expect(p).toMatchObject({ stockOrder: { id: 10 }, payingCompany: { id: 1 }, recipientType: 'USER_CUSTOMER', recipientUserCustomer: { id: 1 }, amount: 350, currency: 'USD', receiptNumber: 'R-1', receiptDocument: doc, paymentStatus: 'UNCONFIRMED' });
+  });
+});
+
+describe('pago a otra empresa por una orden', () => {
+  const orden = { id: 9, orderType: 'GENERAL_ORDER', quoteCompany: { id: 50, name: 'La Vecina' } } as ApiStockOrder;
+  it('solo órdenes pedidas a otra empresa', () => {
+    expect(puedePagarseOrden(orden)).toBe(true);
+    expect(puedePagarseOrden({ ...orden, quoteCompany: undefined })).toBe(false);
+    expect(puedePagarseOrden({ ...orden, orderType: 'PURCHASE_ORDER' })).toBe(false);
+  });
+  it('transferencia con recibo; sin monto por defecto; el pago base sigue pidiendo documento', () => {
+    const f = pagoAEmpresaNuevo(orden);
+    expect(f).toMatchObject({ tipo: 'BANK_TRANSFER', tipoComprobante: 'RECEIPT', monto: null, proposito: '' });
+    expect(validarPago({ ...f, proposito: 'FIRST_INSTALLMENT', monto: 10, moneda: 'USD' }).documento).toBe('documento_pago_base');
+    expect(validarPago({ ...f, proposito: 'INVOICE_PAYMENT', monto: 10, moneda: 'USD' })).toEqual({});
+  });
+  it('armado: a la empresa proveedora', () => {
+    const p = armarPagoAEmpresa({ ...pagoAEmpresaNuevo(orden), proposito: 'INVOICE_PAYMENT', monto: 120, moneda: 'usd' }, orden, 1);
+    expect(p).toMatchObject({ recipientType: 'COMPANY', recipientCompany: { id: 50 }, payingCompany: { id: 1 }, stockOrder: { id: 9 }, paymentType: 'BANK_TRANSFER', currency: 'USD', paymentStatus: 'UNCONFIRMED' });
+    expect(p.recipientUserCustomer).toBeUndefined();
   });
 });
 

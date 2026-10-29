@@ -25,7 +25,7 @@ async function comoEmpresa(page: Page, nombre: string) {
 
 const filaCon = (page: Page, cantidad: string) => page.locator('tbody tr').filter({ has: page.getByRole('cell', { name: new RegExp(`^${cantidad} `) }) });
 
-test('pedido entre empresas: pedir, completar con stock del proveedor, aprobar y borrar', async ({ page }) => {
+test('pedido entre empresas: pedir, completar con stock del proveedor, aprobar, pagar y borrar', async ({ page }) => {
   test.setTimeout(120_000);
   const bruto = String(600 + (Date.now() % 97));
   const orden = 'OC-E2E-' + Date.now().toString().slice(-6);
@@ -83,7 +83,24 @@ test('pedido entre empresas: pedir, completar con stock del proveedor, aprobar y
   await expect(page).toHaveURL(/stock\/ordenes/);
   await expect(page.locator('tbody tr').filter({ hasText: orden }).first()).toContainText('Cumplida');
 
-  // 5. Limpieza: borrar la orden (exportadora) y la entrega (productora).
+  // 5. La exportadora le paga a la productora por la orden; se ve en Pagos y se borra.
+  await page.getByRole('link', { name: new RegExp(`^Pagar la orden ${orden}`) }).click();
+  await expect(page.getByRole('heading', { name: `Pago a ${PRODUCTORA}` })).toBeVisible();
+  await page.getByRole('combobox', { name: /^Propósito/ }).selectOption({ label: 'Pago de factura' });
+  await page.getByRole('textbox', { name: /^Monto/ }).fill('321');
+  await page.getByRole('textbox', { name: /^Moneda/ }).fill('USD');
+  await page.getByRole('button', { name: 'Registrar pago' }).click();
+  await expect(page.getByRole('heading', { level: 1, name: 'Pagos' })).toBeVisible();
+  const pago = page.locator('tbody tr').filter({ hasText: orden }).first();
+  await expect(pago).toContainText(PRODUCTORA);
+  await expect(pago).toContainText(/321/);
+  await pago.getByRole('link').first().click();
+  page.once('dialog', (d) => void d.accept());
+  await page.getByRole('button', { name: 'Borrar pago' }).click();
+  await expect(page.getByRole('heading', { level: 1, name: 'Pagos' })).toBeVisible();
+  await page.goto('/v2/stock/ordenes');
+
+  // 6. Limpieza: borrar la orden (exportadora) y la entrega (productora).
   page.once('dialog', (d) => void d.accept());
   await page.locator('tbody tr').filter({ hasText: orden }).first().getByRole('button', { name: new RegExp(`^Borrar la orden`) }).click();
   await expect(page.locator('tbody tr').filter({ hasText: orden })).toHaveCount(0);
@@ -93,4 +110,44 @@ test('pedido entre empresas: pedir, completar con stock del proveedor, aprobar y
   page.once('dialog', (d) => void d.accept());
   await filaCon(page, bruto).first().getByRole('button', { name: 'Borrar entrega' }).click();
   await expect(filaCon(page, bruto)).toHaveCount(0);
+});
+
+test('pedido de cliente: la exportadora lo crea, la productora lo recibe y se borra', async ({ page }) => {
+  test.setTimeout(90_000);
+  const numero = 'CLI-E2E-' + Date.now().toString().slice(-6);
+  await ingresar(page);
+
+  // 1. La exportadora registra lo que pide su cliente: producto final a la productora.
+  await comoEmpresa(page, EXPORTADORA);
+  await page.goto('/v2/stock/ordenes/cliente');
+  await page.getByRole('textbox', { name: /^Número de orden/ }).fill(numero);
+  await page.getByRole('combobox', { name: /^Cliente/ }).selectOption({ label: 'Tostaduría Cliente Demo (v2)' });
+  await page.getByRole('combobox', { name: /^Instalación que recibe/ }).selectOption({ label: 'Bodega de exportación (v2)' });
+  await page.getByLabel(/^Fecha límite de entrega/).fill('2026-12-20');
+  const item = page.getByRole('group', { name: 'Producto 1' });
+  await item.getByRole('combobox', { name: /^Producto final/ }).selectOption({ index: 1 });
+  await expect(item.getByRole('combobox', { name: /^Pedir a/ })).toHaveValue(/\d+/); // la única vendedora, elegida sola
+  await item.getByRole('textbox', { name: /^Cantidad pedida/ }).fill('10');
+  await item.getByRole('textbox', { name: /^Precio por unidad al cliente/ }).fill('250');
+  await item.getByRole('textbox', { name: /^Moneda/ }).fill('USD');
+  await page.getByRole('button', { name: 'Guardar', exact: true }).click();
+  await expect(page.getByRole('heading', { level: 1, name: 'Órdenes' })).toBeVisible();
+  const emitida = page.locator('tbody tr').filter({ hasText: numero }).first();
+  await expect(emitida).toContainText('Para Tostaduría Cliente Demo (v2)');
+  await expect(emitida).toContainText(PRODUCTORA);
+  await expect(emitida).toContainText('Abierta');
+
+  // 2. La productora la ve en Recibidas y puede abrirla para completarla.
+  await comoEmpresa(page, PRODUCTORA);
+  await page.goto('/v2/stock/ordenes?vista=recibidas');
+  await page.getByRole('link', { name: new RegExp(`^Completar la orden ${numero}`) }).click();
+  await expect(page.getByText(`Orden de ${EXPORTADORA}`)).toBeVisible();
+  await expect(page.getByRole('group', { name: 'Salida 1' }).getByRole('textbox', { name: /^Cantidad pedida/ })).toBeDisabled();
+
+  // 3. Limpieza: la exportadora borra la orden.
+  await comoEmpresa(page, EXPORTADORA);
+  await page.goto('/v2/stock/ordenes');
+  page.once('dialog', (d) => void d.accept());
+  await page.locator('tbody tr').filter({ hasText: numero }).first().getByRole('button', { name: /^Borrar la orden/ }).click();
+  await expect(page.locator('tbody tr').filter({ hasText: numero })).toHaveCount(0);
 });

@@ -774,7 +774,10 @@
       "pagar_entrega": "Pagar la entrega de {{productor}}",
       "de_entrega": "Pagos de esta entrega",
       "ninguno_entrega": "Todavía no tiene pagos.",
-      "para_masivo": "Para pago masivo"
+      "para_masivo": "Para pago masivo",
+      "pagado_a": "Pagado a",
+      "orden_no_se_puede": "Esta orden no se puede pagar",
+      "orden_no_se_puede_texto": "Solo se pagan órdenes pedidas a otra empresa de la cadena."
     },
     "ord": {
       "titulo": "Órdenes",
@@ -834,7 +837,35 @@
       "confirmar_decisiones_other": "Confirmar {{count}} decisiones",
       "resumen_pedido": "Pedido",
       "resumen_enviado": "Enviado por el proveedor",
-      "resumen_falta": "Falta"
+      "resumen_falta": "Falta",
+      "pagar": "Pagar la orden {{orden}}",
+      "instalacion_proveedor": "Instalación del proveedor",
+      "cli": {
+        "titulo": "Pedido de cliente",
+        "descripcion": "Lo que pide un cliente: productos finales que llegan a una instalación propia. Cada producto queda como una orden emitida al proveedor que se elija, que la completa con su stock.",
+        "sin_acciones": "No hay plantillas de pedido de producto final",
+        "sin_acciones_texto": "Para pedir productos finales, la empresa necesita una acción de envío de producto final. Se crea en la versión actual:",
+        "sin_clientes": "La empresa no tiene clientes",
+        "sin_clientes_texto": "Primero hay que registrar al cliente en la versión actual:",
+        "el_pedido": "El pedido",
+        "cliente": "Cliente",
+        "fecha_limite": "Fecha límite de entrega",
+        "solo_mujeres": "Solo café de mujeres",
+        "solo_organico": "Solo orgánico",
+        "productos": "Productos",
+        "agregar": "Agregar producto",
+        "item": "Producto {{n}}",
+        "quitar": "Quitar el producto {{n}}",
+        "producto_final": "Producto final",
+        "pedir_a": "Pedir a",
+        "primero_producto": "Primero elige el producto",
+        "sin_proveedores": "Ninguna instalación pública de la cadena vende este producto.",
+        "precio": "Precio por unidad al cliente",
+        "lote": "Nombre del lote",
+        "errores": {
+          "sin_items": "El pedido necesita al menos un producto."
+        }
+      }
     }
   }
 }

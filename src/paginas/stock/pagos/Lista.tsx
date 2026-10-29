@@ -218,7 +218,8 @@ function Pagos({ empresa, filtro, fijar, setError }: { empresa: number; filtro: 
               <tbody className="divide-y divide-linea">
                 {items.map((p) => {
                   const pendiente = p.paymentStatus === 'UNCONFIRMED';
-                  const ref = p.stockOrder?.identifier || `#${p.stockOrder?.id}`;
+                  const aEmpresa = p.recipientType === 'COMPANY';
+                  const ref = (aEmpresa ? p.stockOrder?.orderId || p.stockOrder?.internalLotNumber : p.stockOrder?.identifier) || `#${p.stockOrder?.id}`;
                   return (
                     <tr key={p.id} className="hover:bg-superficie-2/60">
                       <td className="px-3 py-3">
@@ -236,7 +237,11 @@ function Pagos({ empresa, filtro, fijar, setError }: { empresa: number; filtro: 
                         <Link to="/stock/pagos/$id" params={{ id: String(p.id) }} className="font-semibold hover:text-marca hover:underline">{fechaCorta(p.formalCreationTime, i18n.language) || `#${p.id}`}</Link>
                       </td>
                       <td className="px-3 py-3">
-                        {p.stockOrder?.id ? <Link to="/stock/entregas/$id" params={{ id: String(p.stockOrder.id) }} className="hover:text-marca hover:underline">{ref}</Link> : '—'}
+                        {!p.stockOrder?.id ? '—' : aEmpresa ? (
+                          <Link to="/stock/procesamiento/$lote" params={{ lote: String(p.stockOrder.id) }} className="hover:text-marca hover:underline">{ref}</Link>
+                        ) : (
+                          <Link to="/stock/entregas/$id" params={{ id: String(p.stockOrder.id) }} className="hover:text-marca hover:underline">{ref}</Link>
+                        )}
                       </td>
                       <td className="px-3 py-3">
                         {p.recipientUserCustomer ? nombreCompleto(p.recipientUserCustomer) : p.recipientCompany?.name ?? '—'}

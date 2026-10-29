@@ -202,7 +202,7 @@ const pagosLista = createRoute({
 const pagoNuevo = createRoute({
   getParentRoute: () => pagosRaiz,
   path: 'nuevo',
-  validateSearch: (s: Record<string, unknown>): { entrega?: number } => ({ entrega: idPositivo(s.entrega) }),
+  validateSearch: (s: Record<string, unknown>): { entrega?: number; orden?: number } => ({ entrega: idPositivo(s.entrega), orden: idPositivo(s.orden) }),
   component: lazyRouteComponent(() => import('@/paginas/stock/pagos/Pago'), 'PagoNuevo'),
 });
 const pagoMasivoNuevo = createRoute({
@@ -233,6 +233,7 @@ const ordenesLista = createRoute({
   component: lazyRouteComponent(() => import('@/paginas/stock/ordenes/Lista'), 'ListaOrdenes'),
 });
 const ordenNueva = createRoute({ getParentRoute: () => ordenesRaiz, path: 'nueva', component: lazyRouteComponent(() => import('@/paginas/stock/ordenes/Nueva'), 'OrdenNueva') });
+const pedidoCliente = createRoute({ getParentRoute: () => ordenesRaiz, path: 'cliente', component: lazyRouteComponent(() => import('@/paginas/stock/ordenes/Cliente'), 'PedidoClienteNuevo') });
 const ordenAprobar = createRoute({ getParentRoute: () => ordenesRaiz, path: '$id/aprobar', component: lazyRouteComponent(() => import('@/paginas/stock/ordenes/Aprobar'), 'AprobarOrden') });
 
 const stockTrazabilidad = createRoute({
@@ -293,7 +294,7 @@ const arbol = raiz.addChildren([
   entradaQr,
   entradaEtiqueta,
   portal.addChildren([inicio, perfil, productoresRaiz.addChildren([productoresLista, productorNuevo, productoresImportar, productorFicha]),
-    stockRaiz.addChildren([stockInicio, entregasRaiz.addChildren([entregasLista, entregaNueva, entregaMasiva, entregaFicha]), stockTodo, procesamientoRaiz.addChildren([procesamientoInicio, procesamientoNuevo, procesamientoEditar]), pagosRaiz.addChildren([pagosLista, pagoNuevo, pagoMasivoNuevo, pagoMasivoVer, pagoVer]), ordenesRaiz.addChildren([ordenesLista, ordenNueva, ordenAprobar]), stockTrazabilidad]),
+    stockRaiz.addChildren([stockInicio, entregasRaiz.addChildren([entregasLista, entregaNueva, entregaMasiva, entregaFicha]), stockTodo, procesamientoRaiz.addChildren([procesamientoInicio, procesamientoNuevo, procesamientoEditar]), pagosRaiz.addChildren([pagosLista, pagoNuevo, pagoMasivoNuevo, pagoMasivoVer, pagoVer]), ordenesRaiz.addChildren([ordenesLista, ordenNueva, pedidoCliente, ordenAprobar]), stockTrazabilidad]),
   ]),
   vitrina.addChildren([vPortada, vRecorrido, vPrecios, vProductores, vCalidad, vOpinion, vTerminos, vPrivacidad]),
 ]);

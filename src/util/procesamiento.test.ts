@@ -184,6 +184,13 @@ describe('pedido a otra empresa (envío)', () => {
     expect(o.inputTransactions).toEqual([expect.objectContaining({ status: 'PENDING', isProcessing: false, inputQuantity: 400 })]);
   });
 
+  it('un pedido de producto final (de un cliente) no lleva semiproducto', () => {
+    const final = { id: 3, name: 'Café empacado' };
+    const deFinal: ApiProcessingAction = { ...envio, finalProductAction: true, inputSemiProduct: undefined, outputSemiProducts: [], inputFinalProduct: final, outputFinalProduct: final };
+    const e = validar(pedido({ accion: deFinal, salidas: [salida({ semiproducto: null, productoFinal: 3, instalacion: destino, cantidad: 10, lote: 'CLI-1', entrega: '2026-12-20' })] }), ctx);
+    expect(e.salidas.s1?.semiproducto).toBeUndefined();
+  });
+
   it('al editar, el proveedor sale de la orden aunque todavía no haya transacciones', async () => {
     const { formularioDesdeOrden } = await import('./procesamiento');
     const f = formularioDesdeOrden({ id: 3, inputTransactions: [], targetStockOrders: [{ id: 30, quoteFacility: proveedor, facility: destino, semiProduct: oro, totalQuantity: 1000, deliveryTime: '2026-11-15', orderId: 'OC-77', internalLotNumber: 'PO-1' }] }, envio);

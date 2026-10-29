@@ -12,9 +12,9 @@ import { Aviso, Cargando, EstadoError } from '@/componentes/ui/Estados';
 import { Icono } from '@/componentes/ui/Icono';
 import { useEmpresaActual } from '@/util/empresa';
 import { fechaCorta } from '@/util/fecha';
-import { dinero, fechaEntrega } from '@/util/formato';
+import { cantidad, dinero, fechaEntrega, nombreInstalacion } from '@/util/formato';
 import { nombreCompleto } from '@/util/productor';
-import { PROPOSITOS, armarPago, pagaDeMas, pagoNuevo, puedePagarse, tiposDePago, validarPago, type ErroresPago, type FormPago } from '@/util/pago';
+import { PROPOSITOS, armarPago, armarPagoAEmpresa, pagaDeMas, pagoAEmpresaNuevo, pagoNuevo, puedePagarse, puedePagarseOrden, tiposDePago, validarPago, type ErroresPago, type FormPago } from '@/util/pago';
 import { CONTROL } from '../entregas/campos';
 import { MensajeError, NumeroConUnidad } from '../procesamiento/piezas';
 import { EstadoPagoChip } from './Lista';
@@ -24,15 +24,49 @@ const rutaVer = getRouteApi('/portal/stock/pagos/$id');
 
 export function PagoNuevo() {
   const { t } = useTranslation();
-  const { entrega } = rutaNuevo.useSearch();
+  const { entrega, orden } = rutaNuevo.useSearch();
   const empresa = useEmpresaActual();
-  const e = useQuery({ ...stock.entrega(entrega ?? 0), enabled: !!entrega });
+  // Se paga una entrega a su productor, o una orden emitida a la empresa proveedora.
+  const id = orden ?? entrega;
+  const e = useQuery({ ...stock.entrega(id ?? 0), enabled: !!id });
   if (!empresa) return <Aviso tono="info">{t('productores.sin_empresa')}</Aviso>;
-  if (!entrega) return <EstadoError texto={t('stock.pagos.falta_entrega')} />;
+  if (!id) return <EstadoError texto={t('stock.pagos.falta_entrega')} />;
   if (e.isPending) return <Cargando />;
   if (e.isError) return <EstadoError texto={e.error.message} reintentar={() => void e.refetch()} />;
+  if (orden) {
+    if (!puedePagarseOrden(e.data)) return <Aviso tono="aviso" titulo={t('stock.pagos.orden_no_se_puede')}>{t('stock.pagos.orden_no_se_puede_texto')}</Aviso>;
+    return <Formulario empresa={empresa.id} entrega={e.data} aEmpresa />;
+  }
   if (!puedePagarse(e.data)) return <Aviso tono="aviso" titulo={t('stock.pagos.no_se_puede')}>{t('stock.pagos.no_se_puede_texto')}</Aviso>;
   return <Formulario empresa={empresa.id} entrega={e.data} />;
+}
+
+/** Datos de la orden que se paga: a qué empresa, qué se pidió y cuánto se cumplió. */
+function ResumenOrden({ o }: { o: ApiStockOrder }) {
+  const { t, i18n } = useTranslation();
+  const unidad = o.measureUnitType?.label;
+  const filas: [string, ReactNode][] = [
+    [t('stock.ord.col_orden'), <Link key="o" to="/stock/procesamiento/$lote" params={{ lote: String(o.id) }} className="text-marca hover:underline">{o.orderId || o.internalLotNumber || `#${o.id}`}</Link>],
+    [t('stock.ord.col_proveedor'), o.quoteCompany?.name ?? '—'],
+    ...(o.quoteFacility ? [[t('stock.ord.instalacion_proveedor'), nombreInstalacion(o.quoteFacility)] as [string, ReactNode]] : []),
+    [t('stock.ord.col_producto'), o.semiProduct?.name ?? o.finalProduct?.name ?? '—'],
+    [t('stock.ord.col_entrega'), fechaCorta(o.deliveryTime, i18n.language) || '—'],
+    [t('stock.ord.resumen_pedido'), cantidad(o.totalQuantity, unidad, i18n.language)],
+    [t('stock.ord.resumen_enviado'), cantidad(o.fulfilledQuantity ?? 0, unidad, i18n.language)],
+  ];
+  return (
+    <aside className="grid gap-3 rounded-caja border border-linea bg-superficie p-5 shadow-suave lg:sticky lg:top-24">
+      <h2 className="font-titulo text-lg font-semibold">{t('stock.ord.el_pedido')}</h2>
+      <dl className="grid gap-2 text-sm">
+        {filas.map(([k, v]) => (
+          <div key={k} className="flex items-baseline justify-between gap-3">
+            <dt className="text-tinta-2">{k}</dt>
+            <dd className="text-right font-medium">{v}</dd>
+          </div>
+        ))}
+      </dl>
+    </aside>
+  );
 }
 
 /** Datos de la entrega que se paga: a quién, cuánto costó, cuánto se pagó y cuánto falta. */
@@ -66,11 +100,11 @@ function ResumenEntrega({ e }: { e: ApiStockOrder }) {
   );
 }
 
-function Formulario({ empresa, entrega }: { empresa: number; entrega: ApiStockOrder }) {
+function Formulario({ empresa, entrega, aEmpresa = false }: { empresa: number; entrega: ApiStockOrder; aEmpresa?: boolean }) {
   const { t, i18n } = useTranslation();
   const navegar = useNavigate();
   const guardar = useGuardarPago();
-  const [f, setF] = useState<FormPago>(() => pagoNuevo(entrega));
+  const [f, setF] = useState<FormPago>(() => (aEmpresa ? pagoAEmpresaNuevo(entrega) : pagoNuevo(entrega)));
   const [tocado, setTocado] = useState(false);
   const [errores, setErrores] = useState<ErroresPago>({});
   const [aviso, setAviso] = useState<string | null>(null);
@@ -109,9 +143,10 @@ function Formulario({ empresa, entrega }: { empresa: number; entrega: ApiStockOr
       return;
     }
     try {
-      await guardar.mutateAsync(armarPago(f, entrega, empresa));
+      await guardar.mutateAsync(aEmpresa ? armarPagoAEmpresa(f, entrega, empresa) : armarPago(f, entrega, empresa));
       setTocado(false);
-      await navegar({ to: '/stock/entregas/$id', params: { id: String(entrega.id) } });
+      if (aEmpresa) await navegar({ to: '/stock/pagos' });
+      else await navegar({ to: '/stock/entregas/$id', params: { id: String(entrega.id) } });
     } catch (x) {
       setAviso((x as Error).message);
     }
@@ -123,7 +158,7 @@ function Formulario({ empresa, entrega }: { empresa: number; entrega: ApiStockOr
         <Link to="/stock/pagos" className="inline-flex items-center gap-1.5 text-sm font-medium text-marca hover:underline">
           <Icono nombre="volver" className="size-4" /> {t('stock.pagos.titulo')}
         </Link>
-        <h1 className="mt-2 font-titulo text-3xl font-semibold tracking-tight">{t('stock.pagos.nuevo_para', { productor: entrega.producerUserCustomer ? nombreCompleto(entrega.producerUserCustomer) : entrega.identifier })}</h1>
+        <h1 className="mt-2 font-titulo text-3xl font-semibold tracking-tight">{t('stock.pagos.nuevo_para', { productor: aEmpresa ? entrega.quoteCompany?.name : entrega.producerUserCustomer ? nombreCompleto(entrega.producerUserCustomer) : entrega.identifier })}</h1>
       </header>
       {aviso && <Aviso tono="mal">{aviso}</Aviso>}
 
@@ -139,7 +174,7 @@ function Formulario({ empresa, entrega }: { empresa: number; entrega: ApiStockOr
             </select>
           </Campo>
           <Campo id={ids.tipo} etiqueta={t('stock.pagos.tipo')} requerido error={err('tipo')}>
-            <select id={ids.tipo} value={f.tipo} aria-invalid={!!err('tipo')} onChange={(e) => cambiar({ tipo: e.target.value as FormPago['tipo'] })} className={CONTROL + ' h-11'}>
+            <select id={ids.tipo} value={f.tipo} disabled={aEmpresa} aria-invalid={!!err('tipo')} onChange={(e) => cambiar({ tipo: e.target.value as FormPago['tipo'] })} className={CONTROL + ' h-11'}>
               <option value="">{t('stock.elegir')}</option>
               {tiposDePago(conAcopiador).map((x) => <option key={x} value={x}>{t(`stock.forma_pago.${x}`)}</option>)}
             </select>
@@ -151,7 +186,7 @@ function Formulario({ empresa, entrega }: { empresa: number; entrega: ApiStockOr
             alCambiar={(monto) => cambiar({ monto })}
             unidad={f.moneda || undefined}
             error={err('monto')}
-            ayuda={pagaDeMas(f, entrega) ? <span className="text-aviso">{t('stock.pagos.de_mas', { saldo: dinero(entrega.balance, entrega.currency, i18n.language) })}</span> : undefined}
+            ayuda={!aEmpresa && pagaDeMas(f, entrega) ? <span className="text-aviso">{t('stock.pagos.de_mas', { saldo: dinero(entrega.balance, entrega.currency, i18n.language) })}</span> : undefined}
           />
           <Campo id={ids.moneda} etiqueta={t('stock.entrega.moneda')} requerido error={err('moneda')}>
             <input id={ids.moneda} value={f.moneda} maxLength={3} aria-invalid={!!err('moneda')} onChange={(e) => cambiar({ moneda: e.target.value.toUpperCase() })} className={CONTROL + ' h-11 uppercase'} />
@@ -160,7 +195,7 @@ function Formulario({ empresa, entrega }: { empresa: number; entrega: ApiStockOr
             <input id={ids.recibo} value={f.recibo} onChange={(e) => cambiar({ recibo: e.target.value })} className={CONTROL + ' h-11'} />
           </Campo>
           <Campo id={ids.comprobante} etiqueta={t('stock.pagos.tipo_comprobante')}>
-            <select id={ids.comprobante} value={f.tipoComprobante} disabled={!conAcopiador} onChange={(e) => cambiar({ tipoComprobante: e.target.value as FormPago['tipoComprobante'] })} className={CONTROL + ' h-11'}>
+            <select id={ids.comprobante} value={f.tipoComprobante} disabled={aEmpresa || !conAcopiador} onChange={(e) => cambiar({ tipoComprobante: e.target.value as FormPago['tipoComprobante'] })} className={CONTROL + ' h-11'}>
               <option value="">{t('stock.elegir')}</option>
               <option value="RECEIPT">{t('stock.pagos.comprobantes.RECEIPT')}</option>
               <option value="PURCHASE_SHEET">{t('stock.pagos.comprobantes.PURCHASE_SHEET')}</option>
@@ -187,7 +222,7 @@ function Formulario({ empresa, entrega }: { empresa: number; entrega: ApiStockOr
             <MensajeError>{err('documento')}</MensajeError>
           </div>
         </section>
-        <ResumenEntrega e={entrega} />
+        {aEmpresa ? <ResumenOrden o={entrega} /> : <ResumenEntrega e={entrega} />}
       </div>
 
       <div className="fixed inset-x-0 bottom-0 z-10 border-t border-linea bg-superficie/95 backdrop-blur">
@@ -250,8 +285,10 @@ export function PagoVer() {
 
   const datos: [string, ReactNode][] = [
     [t('stock.pagos.fecha'), fechaCorta(p.formalCreationTime, i18n.language)],
-    [t('stock.pagos.col_entrega'), p.stockOrder?.id ? <Link key="e" to="/stock/entregas/$id" params={{ id: String(p.stockOrder.id) }} className="text-marca hover:underline">{p.stockOrder.identifier || `#${p.stockOrder.id}`}</Link> : '—'],
-    [t('stock.entrega.productor'), p.recipientUserCustomer ? nombreCompleto(p.recipientUserCustomer) : (p.recipientCompany?.name ?? '—')],
+    p.recipientType === 'COMPANY'
+      ? [t('stock.ord.col_orden'), p.stockOrder?.id ? <Link key="e" to="/stock/procesamiento/$lote" params={{ lote: String(p.stockOrder.id) }} className="text-marca hover:underline">{p.stockOrder.orderId || p.stockOrder.internalLotNumber || `#${p.stockOrder.id}`}</Link> : '—']
+      : [t('stock.pagos.col_entrega'), p.stockOrder?.id ? <Link key="e" to="/stock/entregas/$id" params={{ id: String(p.stockOrder.id) }} className="text-marca hover:underline">{p.stockOrder.identifier || `#${p.stockOrder.id}`}</Link> : '—'],
+    p.recipientType === 'COMPANY' ? [t('stock.pagos.pagado_a'), p.recipientCompany?.name ?? '—'] : [t('stock.entrega.productor'), p.recipientUserCustomer ? nombreCompleto(p.recipientUserCustomer) : '—'],
     ...(p.representativeOfRecipientUserCustomer ? [[t('stock.entrega.acopiador'), nombreCompleto(p.representativeOfRecipientUserCustomer)] as [string, ReactNode]] : []),
     [t('stock.pagos.proposito'), p.paymentPurposeType ? t(`stock.pagos.propositos.${p.paymentPurposeType}`) : '—'],
     [t('stock.pagos.tipo'), p.paymentType ? t(`stock.forma_pago.${p.paymentType}`) : '—'],

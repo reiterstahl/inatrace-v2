@@ -12,6 +12,7 @@ import { Icono } from '@/componentes/ui/Icono';
 import { useEmpresaActual } from '@/util/empresa';
 import { fechaCorta } from '@/util/fecha';
 import { cantidad, nombreInstalacion } from '@/util/formato';
+import { puedePagarseOrden } from '@/util/pago';
 
 const ruta = getRouteApi('/portal/stock/ordenes/');
 
@@ -71,9 +72,14 @@ function Contenido({ empresa }: { empresa: number }) {
           <p className="mt-1 max-w-2xl text-tinta-2">{recibidas ? t('stock.ord.descripcion_recibidas') : t('stock.ord.descripcion_emitidas')}</p>
         </div>
         {!recibidas && (
-          <Link to="/stock/ordenes/nueva" className={clasesBoton('primario')}>
-            <Icono nombre="mas" className="size-4" /> {t('stock.ord.nuevo_pedido')}
-          </Link>
+          <div className="flex flex-wrap gap-2">
+            <Link to="/stock/ordenes/cliente" className={clasesBoton('secundario')}>
+              <Icono nombre="personas" className="size-4" /> {t('stock.ord.cli.titulo')}
+            </Link>
+            <Link to="/stock/ordenes/nueva" className={clasesBoton('primario')}>
+              <Icono nombre="mas" className="size-4" /> {t('stock.ord.nuevo_pedido')}
+            </Link>
+          </div>
         )}
       </header>
 
@@ -177,6 +183,11 @@ function Contenido({ empresa }: { empresa: number }) {
                               <Link to="/stock/ordenes/$id/aprobar" params={{ id: String(o.id) }} className="rounded-md p-1.5 text-tinta-3 hover:bg-ok-suave hover:text-ok" aria-label={t('stock.ord.aprobar', { orden: ref })} title={t('stock.ord.aprobar_corto')}>
                                 <Icono nombre="ok" className="size-4" />
                               </Link>
+                              {puedePagarseOrden(o) && (
+                                <Link to="/stock/pagos/nuevo" search={{ orden: o.id! }} className="rounded-md p-1.5 text-tinta-3 hover:bg-ok-suave hover:text-ok" aria-label={t('stock.ord.pagar', { orden: ref })} title={t('stock.pagos.pagar')}>
+                                  <Icono nombre="precio" className="size-4" />
+                                </Link>
+                              )}
                               {o.qrCodeTag && (
                                 <Link to="/stock/trazabilidad/$id" params={{ id: String(o.id) }} hash="qr" className="rounded-md p-1.5 text-tinta-3 hover:bg-superficie-2 hover:text-marca" aria-label={t('stock.qr.ver')} title={t('stock.qr.ver')}>
                                   <Icono nombre="qr" className="size-4" />

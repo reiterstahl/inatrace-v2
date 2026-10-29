@@ -1,6 +1,8 @@
 import { keepPreviousData, queryOptions, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   approveTransaction,
+  createProductOrder,
+  getCompanyCustomersList,
   getQuoteOrdersInFacility,
   getStockOrderInputTransactions,
   getStockOrdersInFacilityForCustomer,
@@ -8,6 +10,7 @@ import {
   listProcessingActionsByCompany,
   rejectTransaction,
 } from './gen/sdk.gen';
+import type { ApiProductOrder } from './gen/types.gen';
 import { desenvolver } from './respuesta';
 
 export const POR_PAGINA_ORDENES = 20;
@@ -60,6 +63,22 @@ export const ordenes = {
       staleTime: 10 * 60_000,
     }),
 
+  /** Acciones de envío de producto final (para los pedidos de clientes). */
+  accionesDeProductoFinal: (empresa: number) =>
+    queryOptions({
+      queryKey: ['procesamiento', 'acciones', empresa, 'SHIPMENT', 'final'],
+      queryFn: async () => (await desenvolver(listProcessingActionsByCompany({ path: { id: empresa }, query: { actionType: 'SHIPMENT', onlyFinalProducts: true, limit: 500 } }))).items ?? [],
+      staleTime: 10 * 60_000,
+    }),
+
+  /** Clientes (empresas compradoras) de esta empresa. */
+  clientes: (empresa: number) =>
+    queryOptions({
+      queryKey: ['clientes', empresa],
+      queryFn: async () => (await desenvolver(getCompanyCustomersList({ path: { companyId: empresa }, query: { limit: 500 } }))).items ?? [],
+      staleTime: 10 * 60_000,
+    }),
+
   /** Instalaciones públicas de otras empresas de la cadena a las que esta empresa puede pedir. */
   vendedoras: (empresa: number, producto: { semi?: number | null; final?: number | null }) =>
     queryOptions({
@@ -90,6 +109,18 @@ export function useResolverTransacciones() {
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: ['ordenes'] });
       void qc.invalidateQueries({ queryKey: ['stock'] });
+      void qc.invalidateQueries({ queryKey: ['procesamiento'] });
+    },
+  });
+}
+
+/** Crea el pedido de un cliente: una orden por producto final, que después completan los proveedores. */
+export function useCrearPedidoCliente() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (p: ApiProductOrder) => desenvolver(createProductOrder({ body: p })),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: ['ordenes'] });
       void qc.invalidateQueries({ queryKey: ['procesamiento'] });
     },
   });

@@ -286,8 +286,8 @@ la prueba de pago masivo deja un registro "E2E-MASIVO" sin pagos.
 
 ## Fase 3e.1 (órdenes entre empresas) — ✅ cerrada el 29.10.2026 (rama `fase-3`)
 
-La pestaña **Órdenes** pasa a la v2 para los pedidos entre empresas de la cadena. Quedan para
-3e.2 los pagos a empresas y los pedidos de clientes (producto final), y para 3e.3 Beyco.
+La pestaña **Órdenes** pasa a la v2 para los pedidos entre empresas de la cadena. Los pagos a
+empresas y los pedidos de clientes llegaron en 3e.2; Beyco queda para 3e.3.
 
 - **Emitidas / Recibidas:** emitidas son los pedidos que esta empresa hizo; recibidas, los que otras
   empresas le hicieron (esta es el proveedor). Filtros por instalación, semiproducto, cliente y
@@ -313,6 +313,39 @@ café, la exportadora le pide 500, la productora completa con su stock (se toma 
 la exportadora aprueba (orden cumplida) y se borra todo. Necesita `scripts/sembrar-ordenes.mjs`
 (segunda empresa, su bodega y una plantilla de pedido; solo en copias aisladas).
 
+## Fase 3e.2 (pagos a empresas y pedidos de clientes) — ✅ cerrada el 29.10.2026 (rama `fase-3`)
+
+- **Pagar una orden emitida** a la empresa proveedora (desde Órdenes → Emitidas): como la versión
+  actual, siempre por transferencia y con recibo; fecha, propósito, monto, moneda, número de recibo
+  y documento (obligatorio si es pago base). El pago aparece en **Pagos** con la empresa como
+  destinatario y enlaza a la orden; se confirma o se borra igual que los pagos a productores.
+- **Pedido de cliente** (orden de producto): número de orden, cliente, instalación propia que
+  recibe, fecha límite, "solo café de mujeres" / "solo orgánico" y uno o más productos finales
+  (solo los que maneja la instalación), cada uno con a quién se le pide (si hay uno solo, queda
+  elegido), cantidad, precio por unidad al cliente y moneda; el nombre del lote se arma solo, como
+  en la versión actual. Cada producto queda como una orden emitida "Para <cliente>" que el
+  proveedor completa desde Recibidas, igual que cualquier pedido.
+- Si la empresa no tiene clientes o plantillas de pedido de producto final, la pantalla lo dice y
+  enlaza a la versión actual, donde se crean.
+
+**Arreglado en el camino (3e.1):** al completar un pedido de producto final, la v2 exigía un
+semiproducto en la salida (solo lo eximía en los traslados). Una prueba unitaria nueva lo cubre
+(comprobado: falla con la regla anterior).
+
+**Pruebas:** 85 unitarias (8 nuevas), 82 de punta a punta simuladas (pagar una orden y pedido de
+cliente, en escritorio y celular; y 5 pantallas más en la prueba de ancho) y contra el backend real
+13 de 14 (la de convivencia necesita sus propias variables). La real de órdenes ahora también paga
+la orden a la productora, verifica el pago en Pagos y lo borra; y una nueva crea un pedido de
+cliente como exportadora, comprueba que la productora lo ve en Recibidas y lo puede abrir para
+completarlo, y lo borra. `scripts/sembrar-ordenes.mjs` suma un cliente, el producto final en las dos
+instalaciones y la plantilla de pedido de producto final.
+
+**Sin probar contra el backend real:** completar un pedido de producto final con stock, porque la
+copia aislada no tiene stock de producto final (haría falta una acción de procesamiento final para
+la productora). En modo simulado, sí. **Nota:** al borrar un pedido de cliente se borra su orden; la
+cabecera del pedido queda en la base, porque el backend no tiene forma de borrarla (igual que en la
+versión actual).
+
 ## Fase 1b (activar la vitrina en una instalación) — pendiente, acordada el 19.10.2026
 
 Pasos, en orden:
@@ -337,7 +370,7 @@ confirmar el uso del video de Anacafé o cambiarlo.**
 1. Fase 1b (arriba), cuando se decida. `fase-0` **no** se pasa a `main` por ahora.
 2. Revisión de alemán y kinyarwanda por alguien que los hable.
 3. Demo pública: más adelante.
-4. Fase 3, lo que sigue: 3e.2 pagos a empresas y pedidos de clientes; 3e.3 Beyco (solo se puede
-   probar en modo simulado: no hay cuenta de Beyco de pruebas). Con eso se cumple el criterio de
+4. Fase 3, lo que sigue: 3e.3 Beyco (solo se puede probar en modo simulado: no hay cuenta de
+   Beyco de pruebas). Con eso se cumple el criterio de
    salida de la fase.
    Criterio de salida de la fase: ciclo entrega → procesamiento → pago completo en la v2.

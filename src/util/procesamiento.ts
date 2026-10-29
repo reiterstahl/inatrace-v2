@@ -166,7 +166,7 @@ export function validar(
 
   for (const s of f.salidas) {
     const es: ErroresProcesamiento['salidas'][string] = {};
-    if (tipo !== 'FINAL_PROCESSING' && !(tipo === 'TRANSFER' && f.accion.finalProductAction) && s.semiproducto === null) es.semiproducto = 'requerido';
+    if (tipo !== 'FINAL_PROCESSING' && !((tipo === 'TRANSFER' || tipo === 'SHIPMENT') && f.accion.finalProductAction) && s.semiproducto === null) es.semiproducto = 'requerido';
     if (!s.instalacion) es.instalacion = 'requerido';
     if (!s.lote.trim()) es.lote = 'requerido';
     if (pedido && !/^\d{4}-\d{2}-\d{2}$/.test(s.entrega ?? '')) es.entrega = 'requerido';
