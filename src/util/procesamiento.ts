@@ -100,6 +100,9 @@ export type Salida = {
   sacos: Saco[] | null;
   /** Valores de los campos de evidencia que pide la acción, por nombre de campo. */
   campos: Record<string, string | number | null>;
+  /** Pedidos (envío): fecha de entrega pedida y número de orden del comprador. */
+  entrega?: string;
+  numeroOrden?: string;
   /** Al editar un lote reempacado: el identificador que agrupa sus sacos. */
   origenReempaque?: string;
 };
@@ -137,7 +140,7 @@ export const maximoSaco = (accion: ApiProcessingAction, semi?: { repackedOutput?
 
 export type ErroresProcesamiento = {
   generales: string[];
-  salidas: Record<string, Partial<Record<'semiproducto' | 'instalacion' | 'cantidad' | 'lote' | 'sacos', string>> & { campos?: Record<string, string> }>;
+  salidas: Record<string, Partial<Record<'semiproducto' | 'instalacion' | 'cantidad' | 'lote' | 'sacos' | 'entrega', string>> & { campos?: Record<string, string> }>;
   requeridos: Record<number, string>;
 };
 
@@ -148,20 +151,26 @@ export function validar(
   const e: ErroresProcesamiento = { generales: [], salidas: {}, requeridos: {} };
   const tipo = f.accion.type;
   if (!/^\d{4}-\d{2}-\d{2}$/.test(f.fecha)) e.generales.push('fecha');
-  if (f.existentes.length + f.selecciones.length === 0) e.generales.push('sin_entrada');
+  const pedido = tipo === 'SHIPMENT';
+  // Un pedido se crea sin entradas: las agrega después el proveedor, con su stock.
+  if (!pedido && f.existentes.length + f.selecciones.length === 0) e.generales.push('sin_entrada');
+  if (pedido && !f.instalacionEntrada) e.generales.push('sin_proveedor');
   if (f.salidas.length === 0) e.generales.push('sin_salida');
   if (f.selecciones.some((s) => !(s.cantidad > 0) || s.cantidad > n(s.orden.availableQuantity) + 1e-9)) e.generales.push('cantidad_entrada');
 
   const entra = totalEntrada(f);
   const sale = totalSalida(f.salidas, ctx.unidadDe, ctx.unidadEntrada);
-  if (tipo !== 'TRANSFER' && tipo !== 'GENERATE_QR_CODE' && sale > entra + 1e-6) e.generales.push('salida_mayor');
+  if (!pedido && tipo !== 'TRANSFER' && tipo !== 'GENERATE_QR_CODE' && sale > entra + 1e-6) e.generales.push('salida_mayor');
+  // En un pedido, lo que manda el proveedor no puede pasar de lo pedido.
+  if (pedido && f.selecciones.length > 0 && entra > sale + 1e-6) e.generales.push('entrada_mayor_que_pedido');
 
   for (const s of f.salidas) {
     const es: ErroresProcesamiento['salidas'][string] = {};
     if (tipo !== 'FINAL_PROCESSING' && !(tipo === 'TRANSFER' && f.accion.finalProductAction) && s.semiproducto === null) es.semiproducto = 'requerido';
     if (!s.instalacion) es.instalacion = 'requerido';
     if (!s.lote.trim()) es.lote = 'requerido';
-    if (tipo === 'PROCESSING' || tipo === 'FINAL_PROCESSING') {
+    if (pedido && !/^\d{4}-\d{2}-\d{2}$/.test(s.entrega ?? '')) es.entrega = 'requerido';
+    if (tipo === 'PROCESSING' || tipo === 'FINAL_PROCESSING' || pedido) {
       if (s.cantidad === null) es.cantidad = 'requerido';
       else if (!(s.cantidad > 0)) es.cantidad = 'positivo';
     }
@@ -230,10 +239,11 @@ export function armarOrden(
     ...f.existentes,
     ...f.selecciones.map((s) => ({
       isProcessing: tipo === 'PROCESSING' || tipo === 'FINAL_PROCESSING' || tipo === 'GENERATE_QR_CODE',
+      // En un pedido, lo que manda el proveedor queda pendiente hasta que el comprador lo aprueba.
       company: { id: ctx.empresa } as ApiTransaction['company'],
       initiationUserId: ctx.usuario,
       sourceStockOrder: s.orden,
-      status: 'EXECUTED' as const,
+      status: tipo === 'SHIPMENT' ? ('PENDING' as const) : ('EXECUTED' as const),
       inputQuantity: s.cantidad,
       outputQuantity: s.cantidad,
     })),
@@ -254,7 +264,7 @@ export function armarOrden(
     sinVacios({
       ...(s.original ?? {}),
       creatorId: s.original?.creatorId ?? ctx.usuario,
-      orderType: s.original?.orderType ?? (tipo === 'TRANSFER' ? 'TRANSFER_ORDER' : 'PROCESSING_ORDER'),
+      orderType: s.original?.orderType ?? (tipo === 'TRANSFER' ? 'TRANSFER_ORDER' : tipo === 'SHIPMENT' ? 'GENERAL_ORDER' : 'PROCESSING_ORDER'),
       productionDate: f.fecha,
       facility: s.instalacion ? ({ id: s.instalacion.id } as ApiFacility) : undefined,
       semiProduct: s.semiproducto ? ({ id: s.semiproducto } as ApiStockOrder['semiProduct']) : undefined,
@@ -262,6 +272,9 @@ export function armarOrden(
       measureUnitType: ctx.unidadDe(s) ?? undefined,
       internalLotNumber: s.lote.trim(),
       totalQuantity: s.cantidad ?? undefined,
+      ...(tipo === 'SHIPMENT'
+        ? { quoteFacility: f.instalacionEntrada ? ({ id: f.instalacionEntrada.id } as ApiFacility) : undefined, deliveryTime: s.entrega, orderId: s.numeroOrden?.trim() || undefined }
+        : {}),
       ...comunes(s),
     } as ApiStockOrder);
 
@@ -372,6 +385,8 @@ export function formularioDesdeOrden(orden: ApiProcessingOrder, accion: ApiProce
         lote: o.internalLotNumber ?? '',
         sacos: null,
         campos: campos(o),
+        entrega: o.deliveryTime?.slice(0, 10),
+        numeroOrden: o.orderId ?? o.productOrder?.orderId,
       });
     }
   }
@@ -394,7 +409,8 @@ export function formularioDesdeOrden(orden: ApiProcessingOrder, accion: ApiProce
   }
   return {
     accion,
-    instalacionEntrada: orden.inputTransactions?.[0]?.sourceFacility ?? null,
+    // En un pedido, la "entrada" es la instalación del proveedor (quoteFacility), aunque todavía no haya transacciones.
+    instalacionEntrada: accion.type === 'SHIPMENT' ? (primera?.quoteFacility ?? null) : (orden.inputTransactions?.[0]?.sourceFacility ?? null),
     fecha: orden.processingDate?.slice(0, 10) ?? primera?.productionDate?.slice(0, 10) ?? hoyIso(),
     existentes: orden.inputTransactions ?? [],
     selecciones: [],

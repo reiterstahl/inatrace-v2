@@ -80,6 +80,8 @@ export function Entrada({
   excluir,
   editando,
   unidad,
+  pedido,
+  restante,
 }: {
   accion: ApiProcessingAction;
   instalaciones: ApiFacility[];
@@ -93,21 +95,43 @@ export function Entrada({
   excluir: number[];
   editando: boolean;
   unidad?: string;
+  /**
+   * En un pedido a otra empresa: el comprador elige el proveedor pero no ve su stock; el proveedor,
+   * al completar la orden, elige de su propio stock.
+   */
+  pedido?: 'comprador' | 'proveedor';
+  /** Lo que falta mandar de un pedido: el proveedor toma como mucho eso de cada lote. */
+  restante?: number;
 }) {
   const { t, i18n } = useTranslation();
   const idInst = useId();
   const [filtro, setFiltro] = useState<FiltroDisponible>({});
-  const disponibles = useQuery({ ...procesamiento.disponible(instalacion?.id ?? 0, accion, filtro), enabled: !!instalacion });
+  const veStock = pedido !== 'comprador';
+  const disponibles = useQuery({ ...procesamiento.disponible(instalacion?.id ?? 0, accion, filtro), enabled: !!instalacion && veStock });
   const lista = (disponibles.data ?? []).filter((o) => !excluir.includes(o.id!));
   const traslado = accion.type === 'TRANSFER';
   const elegida = (o: ApiStockOrder) => selecciones.find((s) => s.orden.id === o.id);
 
+  // En un pedido, cada lote aporta como mucho lo que falta (como la versión actual).
+  const aTomar = (o: ApiStockOrder, yaElegido = 0) =>
+    pedido === 'proveedor' && typeof restante === 'number' ? Math.max(0, Math.min(o.availableQuantity ?? 0, Number((restante - yaElegido).toFixed(2)))) : (o.availableQuantity ?? 0);
   function alternar(o: ApiStockOrder) {
-    alCambiarSelecciones(elegida(o) ? selecciones.filter((s) => s.orden.id !== o.id) : [...selecciones, { orden: o, cantidad: o.availableQuantity ?? 0 }]);
+    alCambiarSelecciones(elegida(o) ? selecciones.filter((s) => s.orden.id !== o.id) : [...selecciones, { orden: o, cantidad: aTomar(o) }]);
   }
   const todas = lista.length > 0 && lista.every((o) => elegida(o));
   function alternarTodas() {
-    alCambiarSelecciones(todas ? selecciones.filter((s) => !lista.some((o) => o.id === s.orden.id)) : [...selecciones, ...lista.filter((o) => !elegida(o)).map((o) => ({ orden: o, cantidad: o.availableQuantity ?? 0 }))]);
+    if (todas) {
+      alCambiarSelecciones(selecciones.filter((s) => !lista.some((o) => o.id === s.orden.id)));
+      return;
+    }
+    // En un pedido se reparte lo que falta entre los lotes, en orden, sin pasarse.
+    let acumulado = 0;
+    const nuevas = lista.filter((o) => !elegida(o)).map((o) => {
+      const cantidad = aTomar(o, acumulado);
+      acumulado += cantidad;
+      return { orden: o, cantidad };
+    });
+    alCambiarSelecciones([...selecciones, ...(pedido === 'proveedor' ? nuevas.filter((x) => x.cantidad > 0) : nuevas)]);
   }
 
   const organico = selecciones.length > 0 && selecciones.every((s) => s.orden.organic);
@@ -116,7 +140,7 @@ export function Entrada({
   return (
     <div className="grid gap-5">
       <div className="grid gap-1.5 sm:max-w-sm">
-        <Etiqueta htmlFor={idInst} requerido>{t('stock.proc.instalacion_entrada')}</Etiqueta>
+        <Etiqueta htmlFor={idInst} requerido>{pedido ? t('stock.ord.proveedor') : t('stock.proc.instalacion_entrada')}</Etiqueta>
         <select
           id={idInst}
           value={instalacion?.id ?? ''}
@@ -125,9 +149,11 @@ export function Entrada({
           className={CONTROL + ' h-11'}
         >
           <option value="">{t('stock.elegir')}</option>
-          {instalaciones.map((f) => <option key={f.id} value={f.id}>{nombreInstalacion(f)}</option>)}
+          {instalaciones.map((f) => <option key={f.id} value={f.id}>{pedido ? `${nombreInstalacion(f)} · ${f.company?.name ?? ''}` : nombreInstalacion(f)}</option>)}
+          {instalacion && !instalaciones.some((f) => f.id === instalacion.id) && <option value={instalacion.id}>{nombreInstalacion(instalacion)}</option>}
         </select>
       </div>
+      {pedido === 'comprador' && <p className="text-sm text-tinta-2">{t('stock.ord.comprador_nota')}</p>}
 
       {existentes.length > 0 && (
         <div className="grid gap-2">
@@ -138,7 +164,9 @@ export function Entrada({
                 <span className="font-semibold">{tx.sourceStockOrder?.identifier || tx.sourceStockOrder?.internalLotNumber || `#${tx.sourceStockOrder?.id}`}</span>
                 <span className="text-tinta-2 tabular-nums">{cantidad(tx.outputQuantity ?? tx.inputQuantity, tx.inputMeasureUnitType?.label ?? unidad, i18n.language)}</span>
                 {tx.status === 'CANCELED' && <span className="rounded-full bg-mal-suave px-2 text-xs font-semibold text-mal">{t('stock.traza.tx.CANCELED')}</span>}
-                {!traslado && (
+                {tx.status === 'PENDING' && <span className="rounded-full bg-aviso-suave px-2 text-xs font-semibold text-aviso">{t('stock.traza.tx.PENDING')}</span>}
+                {tx.status === 'CANCELED' && tx.rejectComment && <span className="basis-full text-xs text-mal">{tx.rejectComment}</span>}
+                {!traslado && pedido !== 'comprador' && (!pedido || tx.status === 'PENDING') && (
                   <button type="button" onClick={() => alQuitarExistente(i)} className="ml-auto rounded-md p-1 text-tinta-3 hover:bg-mal-suave hover:text-mal" aria-label={t('stock.proc.quitar_entrada')}>
                     <Icono nombre="cerrar" className="size-4" />
                   </button>
@@ -149,7 +177,7 @@ export function Entrada({
         </div>
       )}
 
-      {instalacion && (
+      {instalacion && veStock && (
         <>
           <div className="flex flex-wrap items-end gap-3">
             <label className="grid gap-1 text-sm">
@@ -270,6 +298,8 @@ export function SalidaTarjeta({
   errores,
   unidad,
   cantidadFija,
+  soportadas,
+  preferida,
 }: {
   empresa: number;
   accion: ApiProcessingAction;
@@ -284,22 +314,31 @@ export function SalidaTarjeta({
   unidad?: ApiMeasureUnitType | null;
   /** Generar QR: la cantidad sigue a la entrada. Traslado: cada lote se traslada entero. */
   cantidadFija?: 'entrada' | 'traslado';
+  /** Instalaciones de destino admitidas por la acción (en un pedido, las de la acción de envío). */
+  soportadas?: number[];
+  /** Instalación de destino a proponer si está entre las posibles. */
+  preferida?: number;
 }) {
   const { t, i18n } = useTranslation();
   const idSemi = useId();
   const idInst = useId();
   const idLote = useId();
+  const idEntrega = useId();
+  const idOrden = useId();
   const tipo = accion.type;
+  const pedido = tipo === 'SHIPMENT';
   const semis = accion.outputSemiProducts ?? [];
   const semi = semis.find((s) => s.id === salida.semiproducto) ?? null;
   const instalaciones = useQuery(procesamiento.instalacionesPara(empresa, { semi: salida.semiproducto, final: salida.productoFinal }));
-  const opciones = instalaciones.data ?? [];
+  const opciones = (instalaciones.data ?? []).filter((f) => !soportadas?.length || soportadas.includes(f.id!));
   const maximo = maximoSaco(accion, semi);
-  const err = (k: 'semiproducto' | 'instalacion' | 'cantidad' | 'lote' | 'sacos') => (errores?.[k] ? t(`stock.proc.errores.${errores[k]}`) : undefined);
+  const err = (k: 'semiproducto' | 'instalacion' | 'cantidad' | 'lote' | 'sacos' | 'entrega') => (errores?.[k] ? t(`stock.proc.errores.${errores[k]}`) : undefined);
 
-  // Con una sola instalación posible para el producto, se elige sola.
+  // Con una sola instalación posible para el producto (o la propuesta, si está), se elige sola.
   useEffect(() => {
-    if (!salida.instalacion && opciones.length === 1) (alAutocompletar ?? alCambiar)({ ...salida, instalacion: opciones[0]! });
+    if (salida.instalacion) return;
+    const elegida = opciones.find((f) => f.id === preferida) ?? (opciones.length === 1 ? opciones[0] : undefined);
+    if (elegida) (alAutocompletar ?? alCambiar)({ ...salida, instalacion: elegida });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [opciones.length, salida.semiproducto, salida.productoFinal]);
 
@@ -367,8 +406,8 @@ export function SalidaTarjeta({
 
         {cantidadFija !== 'traslado' && (
           <NumeroConUnidad
-            etiqueta={t('stock.proc.cantidad_salida')}
-            requerido={tipo === 'PROCESSING' || tipo === 'FINAL_PROCESSING'}
+            etiqueta={pedido ? t('stock.ord.cantidad_pedida') : t('stock.proc.cantidad_salida')}
+            requerido={tipo === 'PROCESSING' || tipo === 'FINAL_PROCESSING' || pedido}
             valor={salida.cantidad}
             alCambiar={cambiarCantidad}
             unidad={unidad?.label}
@@ -387,6 +426,20 @@ export function SalidaTarjeta({
           <MensajeError>{err('lote')}</MensajeError>
           {cantidadFija === 'traslado' && !err('lote') && <p className="text-sm text-tinta-3">{t('stock.proc.lote_traslado_ayuda', { lote: salida.lote || '…' })}</p>}
         </div>
+
+        {pedido && (
+          <>
+            <div className="grid content-start gap-1.5">
+              <Etiqueta htmlFor={idEntrega} requerido>{t('stock.ord.fecha_entrega')}</Etiqueta>
+              <input id={idEntrega} type="date" value={salida.entrega ?? ''} aria-invalid={!!err('entrega')} onChange={(e) => alCambiar({ ...salida, entrega: e.target.value || undefined })} className={CONTROL + ' h-11'} />
+              <MensajeError>{err('entrega')}</MensajeError>
+            </div>
+            <div className="grid content-start gap-1.5">
+              <Etiqueta htmlFor={idOrden}>{t('stock.ord.numero_orden')}</Etiqueta>
+              <input id={idOrden} value={salida.numeroOrden ?? ''} onChange={(e) => alCambiar({ ...salida, numeroOrden: e.target.value })} className={CONTROL + ' h-11'} />
+            </div>
+          </>
+        )}
       </div>
 
       {salida.sacos && maximo && (

@@ -241,7 +241,7 @@ contra el backend real (1 nueva: entrega → generar QR → panel con la URL de 
 
 ## Fase 3d (pagos) — ✅ cerrada el 26.10.2026 (rama `fase-3`)
 
-La pestaña **Pagos** pasa a la v2. Solo queda en la versión actual "Órdenes" (3e).
+La pestaña **Pagos** pasa a la v2. Solo quedaba en la versión actual "Órdenes" (3e).
 
 - **Lista de pagos:** filtros por productor, forma de pago, estado y fechas de entrega (en la URL),
   estado sin confirmar / confirmado, **confirmar varios a la vez**, ver, borrar y exportar a Excel.
@@ -284,6 +284,35 @@ por falta de cuenta y luego carga una cuenta de prueba por la API y la restaura 
 **Nota sobre la copia aislada:** el backend no tiene forma de borrar un pago masivo; cada corrida de
 la prueba de pago masivo deja un registro "E2E-MASIVO" sin pagos.
 
+## Fase 3e.1 (órdenes entre empresas) — ✅ cerrada el 29.10.2026 (rama `fase-3`)
+
+La pestaña **Órdenes** pasa a la v2 para los pedidos entre empresas de la cadena. Quedan para
+3e.2 los pagos a empresas y los pedidos de clientes (producto final), y para 3e.3 Beyco.
+
+- **Emitidas / Recibidas:** emitidas son los pedidos que esta empresa hizo; recibidas, los que otras
+  empresas le hicieron (esta es el proveedor). Filtros por instalación, semiproducto, cliente y
+  "solo abiertas" (en la URL), cumplido sobre pedido, abierta / cumplida, trazabilidad, QR y mapa.
+- **Nuevo pedido:** se elige la instalación que recibe y la plantilla de pedido (acción de envío
+  de la empresa); el proveedor sale de las instalaciones públicas de otras empresas que venden ese
+  semiproducto (si hay una sola, queda elegida). Cantidad pedida, fecha de entrega y número de orden.
+  El comprador no ve el stock del proveedor.
+- **Completar (proveedor):** abre la orden con lo pedido, lo enviado y lo que falta; el proveedor
+  elige lotes de su stock y la v2 toma solo lo que falta. Lo pedido no se puede cambiar. Lo enviado
+  queda **pendiente** hasta que el comprador lo resuelva.
+- **Aprobar o rechazar (comprador):** cada envío pendiente se aprueba o se rechaza; **rechazar exige
+  el motivo**. Lo aprobado suma a lo cumplido; lo rechazado queda anulado con su motivo a la vista.
+- **Borrar:** solo el comprador y solo si nada de lo cumplido ya se usó.
+- Reglas tomadas del backend: el pedido es una orden general de la instalación del comprador con la
+  instalación del proveedor como "a quién se pide"; las transacciones del proveedor nacen pendientes.
+
+**Pruebas:** 77 unitarias (4 nuevas de pedidos), 78 de punta a punta simuladas (escritorio y celular;
+4 nuevas de órdenes: rechazar pide motivo, aprobar suma, el proveedor completa, nuevo pedido) y
+contra el backend real 12 de 13 (la de convivencia necesita sus propias variables; ver
+`e2e-real/README.md`). La nueva real recorre el ciclo entre dos empresas: la productora registra
+café, la exportadora le pide 500, la productora completa con su stock (se toma solo lo que falta),
+la exportadora aprueba (orden cumplida) y se borra todo. Necesita `scripts/sembrar-ordenes.mjs`
+(segunda empresa, su bodega y una plantilla de pedido; solo en copias aisladas).
+
 ## Fase 1b (activar la vitrina en una instalación) — pendiente, acordada el 19.10.2026
 
 Pasos, en orden:
@@ -308,5 +337,7 @@ confirmar el uso del video de Anacafé o cambiarlo.**
 1. Fase 1b (arriba), cuando se decida. `fase-0` **no** se pasa a `main` por ahora.
 2. Revisión de alemán y kinyarwanda por alguien que los hable.
 3. Demo pública: más adelante.
-4. Fase 3, lo que sigue: 3e órdenes y Beyco (con eso se cumple el criterio de salida de la fase).
+4. Fase 3, lo que sigue: 3e.2 pagos a empresas y pedidos de clientes; 3e.3 Beyco (solo se puede
+   probar en modo simulado: no hay cuenta de Beyco de pruebas). Con eso se cumple el criterio de
+   salida de la fase.
    Criterio de salida de la fase: ciclo entrega → procesamiento → pago completo en la v2.

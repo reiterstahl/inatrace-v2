@@ -161,7 +161,8 @@ const procesamientoInicio = createRoute({ getParentRoute: () => procesamientoRai
 const procesamientoNuevo = createRoute({
   getParentRoute: () => procesamientoRaiz,
   path: 'nueva',
-  validateSearch: (s: Record<string, unknown>): { accion?: number; inst?: number } => ({ accion: idPositivo(s.accion), inst: idPositivo(s.inst) }),
+  // destino: en un pedido a otra empresa, la instalación propia que recibe el café.
+  validateSearch: (s: Record<string, unknown>): { accion?: number; inst?: number; destino?: number } => ({ accion: idPositivo(s.accion), inst: idPositivo(s.inst), destino: idPositivo(s.destino) }),
   component: lazyRouteComponent(() => import('@/paginas/stock/procesamiento/Orden'), 'ProcesamientoNuevo'),
 });
 const procesamientoEditar = createRoute({ getParentRoute: () => procesamientoRaiz, path: '$lote', component: lazyRouteComponent(() => import('@/paginas/stock/procesamiento/Orden'), 'ProcesamientoExistente') });
@@ -214,6 +215,25 @@ const pagoMasivoNuevo = createRoute({
 });
 const pagoMasivoVer = createRoute({ getParentRoute: () => pagosRaiz, path: 'masivo/$id', component: lazyRouteComponent(() => import('@/paginas/stock/pagos/Masivo'), 'PagoMasivoVer') });
 const pagoVer = createRoute({ getParentRoute: () => pagosRaiz, path: '$id', component: lazyRouteComponent(() => import('@/paginas/stock/pagos/Pago'), 'PagoVer') });
+
+// ---------- Stock: órdenes entre empresas (fase 3e) ----------
+type BusquedaOrdenes = { vista?: 'recibidas'; inst?: number; semi?: number; cliente?: number; abiertas?: boolean; pagina?: number };
+const ordenesRaiz = createRoute({ getParentRoute: () => stockRaiz, path: 'ordenes' });
+const ordenesLista = createRoute({
+  getParentRoute: () => ordenesRaiz,
+  path: '/',
+  validateSearch: (s: Record<string, unknown>): BusquedaOrdenes => ({
+    vista: uno(s.vista, ['recibidas'] as const),
+    inst: idPositivo(s.inst),
+    semi: idPositivo(s.semi),
+    cliente: idPositivo(s.cliente),
+    abiertas: s.abiertas === true || s.abiertas === 'true' ? true : undefined,
+    pagina: Number(s.pagina) > 1 ? Math.floor(Number(s.pagina)) : undefined,
+  }),
+  component: lazyRouteComponent(() => import('@/paginas/stock/ordenes/Lista'), 'ListaOrdenes'),
+});
+const ordenNueva = createRoute({ getParentRoute: () => ordenesRaiz, path: 'nueva', component: lazyRouteComponent(() => import('@/paginas/stock/ordenes/Nueva'), 'OrdenNueva') });
+const ordenAprobar = createRoute({ getParentRoute: () => ordenesRaiz, path: '$id/aprobar', component: lazyRouteComponent(() => import('@/paginas/stock/ordenes/Aprobar'), 'AprobarOrden') });
 
 const stockTrazabilidad = createRoute({
   getParentRoute: () => stockRaiz,
@@ -273,7 +293,7 @@ const arbol = raiz.addChildren([
   entradaQr,
   entradaEtiqueta,
   portal.addChildren([inicio, perfil, productoresRaiz.addChildren([productoresLista, productorNuevo, productoresImportar, productorFicha]),
-    stockRaiz.addChildren([stockInicio, entregasRaiz.addChildren([entregasLista, entregaNueva, entregaMasiva, entregaFicha]), stockTodo, procesamientoRaiz.addChildren([procesamientoInicio, procesamientoNuevo, procesamientoEditar]), pagosRaiz.addChildren([pagosLista, pagoNuevo, pagoMasivoNuevo, pagoMasivoVer, pagoVer]), stockTrazabilidad]),
+    stockRaiz.addChildren([stockInicio, entregasRaiz.addChildren([entregasLista, entregaNueva, entregaMasiva, entregaFicha]), stockTodo, procesamientoRaiz.addChildren([procesamientoInicio, procesamientoNuevo, procesamientoEditar]), pagosRaiz.addChildren([pagosLista, pagoNuevo, pagoMasivoNuevo, pagoMasivoVer, pagoVer]), ordenesRaiz.addChildren([ordenesLista, ordenNueva, ordenAprobar]), stockTrazabilidad]),
   ]),
   vitrina.addChildren([vPortada, vRecorrido, vPrecios, vProductores, vCalidad, vOpinion, vTerminos, vPrivacidad]),
 ]);

@@ -2,7 +2,7 @@ import { http, HttpResponse, delay } from 'msw';
 import type { ApiUserGet } from '@/api/gen/types.gen';
 import { ETIQUETA_DEMO, QR_DEMO, etiqueta, qr } from './datos/vitrina';
 import type { ApiUserCustomer } from '@/api/gen/types.gen';
-import { accionesProcesamiento, pagosIniciales, productoFinalQr, acopiadores, agrupar, entregasIniciales, historiaDe, instalaciones, loteProcesado, recalcular, semiproductos, tiposEvidencia, usuariosEmpresa } from './datos/stock';
+import { accionesProcesamiento, instalacionVecina, pagosIniciales, procesosIniciales, productoFinalQr, acopiadores, agrupar, entregasIniciales, historiaDe, instalaciones, loteProcesado, recalcular, semiproductos, tiposEvidencia, usuariosEmpresa } from './datos/stock';
 import type { ApiBulkPayment, ApiPayment, ApiProcessingOrder, ApiPurchaseOrder, ApiStockOrder } from '@/api/gen/types.gen';
 import { EMPRESA_DEMO, capasMapa, paises, parcelasDe, productoresIniciales, tiposCertificacion, tiposProducto } from './datos/productores';
 
@@ -62,9 +62,10 @@ function crearPago(p: ApiPayment, enMasivo = false): ApiPayment | string {
 
 // Procesamientos hechos en el modo simulado: las órdenes y los lotes que producen.
 const CLAVE_PROCESOS = 'simulado.procesos';
-const leerProcesos = (): ApiProcessingOrder[] => JSON.parse(sessionStorage.getItem(CLAVE_PROCESOS) ?? '[]');
+const leerProcesos = (): ApiProcessingOrder[] => JSON.parse(sessionStorage.getItem(CLAVE_PROCESOS) ?? 'null') ?? procesosIniciales;
 const guardarProcesos = (l: ApiProcessingOrder[]) => sessionStorage.setItem(CLAVE_PROCESOS, JSON.stringify(l));
-const lotesProcesados = () => leerProcesos().flatMap((p) => p.targetStockOrders ?? []);
+const lotesProcesados = () => leerProcesos().flatMap((p) => p.targetStockOrders ?? []).filter((o) => o.orderType !== 'GENERAL_ORDER');
+const pedidos = () => leerProcesos().flatMap((p) => p.targetStockOrders ?? []).filter((o) => o.orderType === 'GENERAL_ORDER');
 /** Todo el stock: entregas, el lote de ejemplo y lo procesado acá. */
 const todoElStock = () => [...leerEntregas(), loteProcesado, ...lotesProcesados()];
 const semiDe = (id?: number) => semiproductos.find((x) => x.id === id);
@@ -268,7 +269,7 @@ export const manejadores = [
   ),
   http.get('/api/chain/stock-order/:id', ({ params }) => {
     if (!conSesion()) return sinSesion();
-    const o = todoElStock().find((x) => x.id === Number(params.id));
+    const o = [...todoElStock(), ...pedidos()].find((x) => x.id === Number(params.id));
     return o ? ok(o) : error(404, 'NOT_FOUND', 'Not found');
   }),
   http.put('/api/chain/stock-order', async ({ request }) => {
@@ -297,7 +298,11 @@ export const manejadores = [
   }),
 
   // ---------- Stock: procesamiento ----------
-  http.get('/api/chain/processing-action/list/company/:id', () => (conSesion() ? paginado(accionesProcesamiento) : sinSesion())),
+  http.get('/api/chain/processing-action/list/company/:id', ({ request }) => {
+    if (!conSesion()) return sinSesion();
+    const tipo = new URL(request.url).searchParams.get('actionType');
+    return paginado(accionesProcesamiento.filter((a) => !tipo || a.type === tipo));
+  }),
   http.get('/api/chain/processing-action/:id', ({ params }) => {
     const a = accionesProcesamiento.find((x) => x.id === Number(params.id));
     return a ? ok(a) : error(404, 'NOT_FOUND', 'Not found');
@@ -325,14 +330,16 @@ export const manejadores = [
   http.put('/api/chain/processing-order', async ({ request }) => {
     if (!conSesion()) return sinSesion();
     const p = (await request.json()) as ApiProcessingOrder;
-    if (!(p.inputTransactions ?? []).length) return error(400, 'INVALID_REQUEST', 'At least one input Transaction has to be provided!');
+    const accion = accionesProcesamiento.find((a) => a.id === p.processingAction?.id);
+    const esPedido = accion?.type === 'SHIPMENT';
+    // Un pedido nace sin entradas: las pone el proveedor después.
+    if (!esPedido && !(p.inputTransactions ?? []).length) return error(400, 'INVALID_REQUEST', 'At least one input Transaction has to be provided!');
     const procesos = leerProcesos();
     const anterior = procesos.find((x) => x.id === p.id);
-    // Se devuelve lo que la versión anterior tomaba y se descuenta lo nuevo.
-    for (const t of anterior?.inputTransactions ?? []) ajustarDisponible(t.sourceStockOrder!.id!, t.outputQuantity ?? 0);
-    const accion = accionesProcesamiento.find((a) => a.id === p.processingAction?.id);
+    // Se devuelve lo que la versión anterior tomaba y se descuenta lo nuevo (lo pendiente de un pedido aún no se toma).
+    for (const t of anterior?.inputTransactions ?? []) if (t.status !== 'PENDING' || !esPedido) ajustarDisponible(t.sourceStockOrder!.id!, t.outputQuantity ?? 0);
     const transacciones = (p.inputTransactions ?? []).map((t) => ({ ...t, id: t.id ?? siguienteId++, sourceFacility: instalaciones.find((f) => f.id === todoElStock().find((o) => o.id === t.sourceStockOrder?.id)?.facility?.id) }));
-    for (const t of transacciones) ajustarDisponible(t.sourceStockOrder!.id!, -(t.outputQuantity ?? 0));
+    for (const t of transacciones) if (!esPedido || t.status !== 'PENDING') ajustarDisponible(t.sourceStockOrder!.id!, -(t.outputQuantity ?? 0));
     const guardada: ApiProcessingOrder = {
       ...p,
       id: p.id ?? siguienteId++,
@@ -342,7 +349,12 @@ export const manejadores = [
         const id = o.id ?? siguienteId++;
         const semi = semiDe(o.semiProduct?.id);
         const qr = accion?.type === 'GENERATE_QR_CODE' ? { qrCodeTag: o.qrCodeTag ?? crypto.randomUUID(), qrCodeTagFinalProduct: accion.qrCodeForFinalProduct } : {};
-        return { ...o, ...qr, id, semiProduct: semi ?? o.semiProduct, measureUnitType: semi?.measurementUnitType ?? o.measureUnitType, facility: instalaciones.find((f) => f.id === o.facility?.id) ?? o.facility, availableQuantity: o.totalQuantity, fulfilledQuantity: o.totalQuantity, lotPrefix: accion?.prefix };
+        const enLaOrden = esPedido ? (anterior?.targetStockOrders ?? []).find((x) => x.id === id) : undefined;
+        const lugar = (x?: { id?: number }) => [...instalaciones, instalacionVecina].find((f) => f.id === x?.id) ?? x;
+        const cantidades = esPedido
+          ? { fulfilledQuantity: enLaOrden?.fulfilledQuantity ?? 0, availableQuantity: enLaOrden?.availableQuantity ?? 0, quoteFacility: lugar(o.quoteFacility) as ApiStockOrder['quoteFacility'] }
+          : { availableQuantity: o.totalQuantity, fulfilledQuantity: o.totalQuantity };
+        return { ...o, ...qr, ...cantidades, id, semiProduct: semi ?? o.semiProduct, measureUnitType: semi?.measurementUnitType ?? o.measureUnitType, facility: lugar(o.facility) as ApiStockOrder['facility'], lotPrefix: accion?.prefix };
       }),
     };
     guardarProcesos(anterior ? procesos.map((x) => (x.id === guardada.id ? guardada : x)) : [...procesos, guardada]);
@@ -352,11 +364,55 @@ export const manejadores = [
     if (!conSesion()) return sinSesion();
     const p = leerProcesos().find((x) => x.id === Number(params.id));
     if (!p) return error(404, 'NOT_FOUND', 'Not found');
-    for (const t of p.inputTransactions ?? []) ajustarDisponible(t.sourceStockOrder!.id!, t.outputQuantity ?? 0);
+    for (const t of p.inputTransactions ?? []) if (t.status === 'EXECUTED' || !t.status) ajustarDisponible(t.sourceStockOrder!.id!, t.outputQuantity ?? 0);
     guardarProcesos(leerProcesos().filter((x) => x.id !== p.id));
     return ok();
   }),
   http.post('/api/common/document', () => ok({ id: siguienteId++, storageKey: 'doc-' + siguienteId, name: 'documento.pdf', contentType: 'application/pdf', size: 1024 })),
+
+  // ---------- Stock: órdenes entre empresas ----------
+  http.get('/api/chain/stock-order/list/company/:companyId/orders-for-customers', ({ request }) => {
+    if (!conSesion()) return sinSesion();
+    const u = new URL(request.url);
+    const inst = Number(u.searchParams.get('facilityId')) || null;
+    const abiertas = u.searchParams.get('openOnly') === 'true';
+    return paginado(pedidos().filter((o) => instalaciones.some((f) => f.id === o.facility?.id) && (!inst || o.facility?.id === inst) && (!abiertas || (o.fulfilledQuantity ?? 0) < (o.totalQuantity ?? 0))));
+  }),
+  http.get('/api/chain/stock-order/list/company/:companyId/quote-orders', ({ request }) => {
+    if (!conSesion()) return sinSesion();
+    const u = new URL(request.url);
+    const inst = Number(u.searchParams.get('facilityId')) || null;
+    const abiertas = u.searchParams.get('openOnly') === 'true';
+    return paginado(pedidos().filter((o) => instalaciones.some((f) => f.id === o.quoteFacility?.id) && (!inst || o.quoteFacility?.id === inst) && (!abiertas || (o.fulfilledQuantity ?? 0) < (o.totalQuantity ?? 0))));
+  }),
+  http.get('/api/chain/facility/list/company/:id/available-selling', () => (conSesion() ? paginado([instalacionVecina]) : sinSesion())),
+  http.get('/api/chain/transaction/list/input/stock-order/:id', ({ params }) => {
+    if (!conSesion()) return sinSesion();
+    const p = leerProcesos().find((x) => (x.targetStockOrders ?? []).some((o) => o.id === Number(params.id)));
+    return paginado(p?.inputTransactions ?? []);
+  }),
+  http.put('/api/chain/transaction/:id/:accion', async ({ params, request }) => {
+    if (!conSesion()) return sinSesion();
+    const id = Number(params.id);
+    const aprobar = params.accion === 'approve';
+    const cuerpo = aprobar ? null : ((await request.json()) as { rejectComment?: string });
+    const tx = leerProcesos().flatMap((p) => p.inputTransactions ?? []).find((t) => t.id === id);
+    if (!tx) return error(404, 'NOT_FOUND', 'Not found');
+    // Al aprobar, el envío sale del stock del proveedor.
+    if (aprobar) ajustarDisponible(tx.sourceStockOrder!.id!, -(tx.outputQuantity ?? 0));
+    guardarProcesos(
+      leerProcesos().map((p) => {
+        if (!(p.inputTransactions ?? []).some((t) => t.id === id)) return p;
+        const cantidad = aprobar ? (tx.outputQuantity ?? 0) : 0;
+        return {
+          ...p,
+          inputTransactions: p.inputTransactions!.map((t) => (t.id === id ? { ...t, status: aprobar ? 'EXECUTED' : 'CANCELED', rejectComment: cuerpo?.rejectComment } : t)),
+          targetStockOrders: p.targetStockOrders!.map((o) => ({ ...o, fulfilledQuantity: (o.fulfilledQuantity ?? 0) + cantidad, availableQuantity: (o.availableQuantity ?? 0) + cantidad })),
+        };
+      }),
+    );
+    return ok();
+  }),
 
   // ---------- Stock: pagos ----------
   http.get('/api/chain/payment/list/company/:id', ({ request }) => {

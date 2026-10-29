@@ -157,3 +157,37 @@ describe('editar: orden guardada → formulario', () => {
     expect(totalEntrada(f)).toBe(200);
   });
 });
+
+describe('pedido a otra empresa (envío)', () => {
+  const proveedor: ApiFacility = { id: 6, name: 'Bodega del proveedor', company: { id: 1 } };
+  const destino: ApiFacility = { id: 7, name: 'Bodega propia', company: { id: 2 } };
+  const envio: ApiProcessingAction = { ...trillado, id: 5, type: 'SHIPMENT', prefix: 'PO', inputSemiProduct: oro, outputSemiProducts: [oro] };
+  const pedido = (c: Partial<FormProcesamiento> = {}): FormProcesamiento =>
+    form({ accion: envio, instalacionEntrada: proveedor, selecciones: [], salidas: [salida({ semiproducto: 5, instalacion: destino, cantidad: 1000, lote: 'PO-1', entrega: '2026-11-15', numeroOrden: 'OC-77' })], ...c });
+
+  it('se crea sin entradas, pero con proveedor, cantidad y fecha de entrega', () => {
+    expect(sinErrores(validar(pedido(), ctx))).toBe(true);
+    const e = validar(pedido({ instalacionEntrada: null, salidas: [salida({ cantidad: null, entrega: undefined })] }), ctx);
+    expect(e.generales).toContain('sin_proveedor');
+    expect(e.salidas.s1).toMatchObject({ cantidad: 'requerido', entrega: 'requerido' });
+  });
+
+  it('el proveedor no puede mandar más de lo pedido', () => {
+    expect(validar(pedido({ selecciones: [{ orden: lote(9, 2000, { semiProduct: oro }), cantidad: 1200 }] }), ctx).generales).toContain('entrada_mayor_que_pedido');
+  });
+
+  it('armado: orden general en la bodega propia, apuntando al proveedor; lo que manda el proveedor queda pendiente', () => {
+    const o = armarOrden(pedido({ selecciones: [{ orden: lote(9, 2000, { semiProduct: oro }), cantidad: 400 }] }), { empresa: 1, usuario: 7, unidadDe: () => kg });
+    expect(o.targetStockOrders).toEqual([
+      expect.objectContaining({ orderType: 'GENERAL_ORDER', facility: { id: 7 }, quoteFacility: { id: 6 }, totalQuantity: 1000, deliveryTime: '2026-11-15', orderId: 'OC-77', fulfilledQuantity: 0 }),
+    ]);
+    expect(o.inputTransactions).toEqual([expect.objectContaining({ status: 'PENDING', isProcessing: false, inputQuantity: 400 })]);
+  });
+
+  it('al editar, el proveedor sale de la orden aunque todavía no haya transacciones', async () => {
+    const { formularioDesdeOrden } = await import('./procesamiento');
+    const f = formularioDesdeOrden({ id: 3, inputTransactions: [], targetStockOrders: [{ id: 30, quoteFacility: proveedor, facility: destino, semiProduct: oro, totalQuantity: 1000, deliveryTime: '2026-11-15', orderId: 'OC-77', internalLotNumber: 'PO-1' }] }, envio);
+    expect(f.instalacionEntrada).toBe(proveedor);
+    expect(f.salidas[0]).toMatchObject({ entrega: '2026-11-15', numeroOrden: 'OC-77', cantidad: 1000 });
+  });
+});
