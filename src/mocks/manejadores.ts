@@ -1,10 +1,11 @@
 import { http, HttpResponse, delay } from 'msw';
-import type { ApiUserGet } from '@/api/gen/types.gen';
+import type { ApiProduct, ApiUserGet } from '@/api/gen/types.gen';
 import { ETIQUETA_DEMO, QR_DEMO, etiqueta, qr } from './datos/vitrina';
 import type { ApiUserCustomer } from '@/api/gen/types.gen';
 import { accionesProcesamiento, clientes, instalacionVecina, pagosIniciales, procesosIniciales, productoFinalQr, acopiadores, agrupar, entregasIniciales, historiaDe, instalaciones, loteProcesado, recalcular, semiproductos, tiposEvidencia, usuariosEmpresa } from './datos/stock';
 import type { ApiBulkPayment, ApiPayment, ApiProcessingOrder, ApiPurchaseOrder, ApiStockOrder } from '@/api/gen/types.gen';
 import { EMPRESA_DEMO, capasMapa, paises, parcelasDe, productoresIniciales, tiposCertificacion, tiposProducto } from './datos/productores';
+import { productosIniciales } from './datos/productos';
 
 /**
  * Respuestas simuladas con la misma forma que el backend ({ status, data }).
@@ -63,6 +64,10 @@ function crearPago(p: ApiPayment, enMasivo = false): ApiPayment | string {
 }
 
 // Procesamientos hechos en el modo simulado: las órdenes y los lotes que producen.
+const CLAVE_PRODUCTOS = 'simulado.productos';
+const leerProductos = (): ApiProduct[] => JSON.parse(sessionStorage.getItem(CLAVE_PRODUCTOS) ?? 'null') ?? productosIniciales;
+const guardarProductos = (l: ApiProduct[]) => sessionStorage.setItem(CLAVE_PRODUCTOS, JSON.stringify(l));
+
 const CLAVE_PROCESOS = 'simulado.procesos';
 const leerProcesos = (): ApiProcessingOrder[] => JSON.parse(sessionStorage.getItem(CLAVE_PROCESOS) ?? 'null') ?? procesosIniciales;
 const guardarProcesos = (l: ApiProcessingOrder[]) => sessionStorage.setItem(CLAVE_PROCESOS, JSON.stringify(l));
@@ -160,7 +165,7 @@ export const manejadores = [
   http.get('/api/user/profile', () => (conSesion() ? ok(usuario) : error(401, 'UNAUTHORIZED', 'Unauthorized'))),
   // ---------- Empresa y catálogos ----------
   http.get('/api/company/profile/:id/name', () => (conSesion() ? ok(EMPRESA_DEMO) : sinSesion())),
-  http.get('/api/company/profile/:id', () => (conSesion() ? ok({ ...EMPRESA_DEMO, allowBeycoIntegration: true, headquarters: { country: paises[0] }, currency: { code: 'USD', label: 'US dollar' } }) : sinSesion())),
+  http.get('/api/company/profile/:id', () => (conSesion() ? ok({ ...EMPRESA_DEMO, allowBeycoIntegration: true, valueChains: [{ id: 1, name: 'Café' }], headquarters: { country: paises[0] }, currency: { code: 'USD', label: 'US dollar' } }) : sinSesion())),
   http.get('/api/company/profile/:id/users', () => (conSesion() ? ok(usuariosEmpresa) : sinSesion())),
   http.get('/api/company/:id/product-types', () => paginado(tiposProducto)),
   http.get('/api/company/associations/:id', () => paginado([{ id: 7, name: 'Asociación de Caficultores del Norte' }])),
@@ -313,7 +318,43 @@ export const manejadores = [
     const a = accionesProcesamiento.find((x) => x.id === Number(params.id));
     return a ? ok(a) : error(404, 'NOT_FOUND', 'Not found');
   }),
-  http.get('/api/product/:producto/finalProduct/:final/labels', ({ params }) =>
+  // ---------- Productos ----------
+  http.get('/api/product/list', ({ request }) => {
+    if (!conSesion()) return sinSesion();
+    const q = (new URL(request.url).searchParams.get('name') ?? '').toLowerCase();
+    return paginado(leerProductos().filter((p) => p.name.toLowerCase().includes(q)).map((p) => ({ id: p.id, name: p.name, photoStorageId: p.photo?.storageKey })));
+  }),
+  http.get('/api/product/admin/list', () => (conSesion() ? paginado(leerProductos().map((p) => ({ id: p.id, name: p.name, photoStorageId: p.photo?.storageKey }))) : sinSesion())),
+  http.get('/api/product/:id', ({ params }) => {
+    if (!conSesion()) return sinSesion();
+    const p = leerProductos().find((x) => x.id === Number(params.id));
+    return p ? ok(p) : error(400, 'INVALID_REQUEST', 'Invalid product id');
+  }),
+  http.post('/api/product/create', async ({ request }) => {
+    if (!conSesion()) return sinSesion();
+    const p = (await request.json()) as ApiProduct;
+    if (!p.company?.id) return error(400, 'INVALID_REQUEST', 'Company ID is required');
+    const nuevo: ApiProduct = { ...p, id: siguienteId++, company: EMPRESA_DEMO, valueChain: { id: p.valueChain?.id, name: 'Café' }, associatedCompanies: [{ company: EMPRESA_DEMO, type: 'OWNER' }], labels: [] };
+    guardarProductos([...leerProductos(), nuevo]);
+    return ok({ id: nuevo.id });
+  }),
+  http.put('/api/product/', async ({ request }) => {
+    if (!conSesion()) return sinSesion();
+    const p = (await request.json()) as ApiProduct;
+    const actual = leerProductos().find((x) => x.id === p.id);
+    if (!actual) return error(400, 'INVALID_REQUEST', 'Invalid product id');
+    // Como la versión actual: edita la empresa dueña.
+    if (!(actual.associatedCompanies ?? []).some((a) => a.type === 'OWNER' && a.company?.id === EMPRESA_DEMO.id)) return error(403, 'UNAUTHORIZED', 'Invalid product id or forbidden');
+    guardarProductos(leerProductos().map((x) => (x.id === p.id ? { ...p, associatedCompanies: actual.associatedCompanies } : x)));
+    return ok();
+  }),
+  http.delete('/api/product/:id', ({ params }) => {
+    if (!conSesion()) return sinSesion();
+    guardarProductos(leerProductos().filter((x) => x.id !== Number(params.id)));
+    return ok();
+  }),
+  http.post('/api/common/image', () => ok({ id: siguienteId++, storageKey: 'imagen-' + siguienteId, name: 'foto.jpg', contentType: 'image/jpeg', size: 2048 })),
+    http.get('/api/product/:producto/finalProduct/:final/labels', ({ params }) =>
     Number(params.final) === productoFinalQr.id ? ok([{ id: 1, productId: 1, uuid: ETIQUETA_DEMO, title: 'Vitrina de ejemplo', language: 'ES', status: 'PUBLISHED' }]) : ok([]),
   ),
   http.get('/api/chain/processing-evidence-type/list/by-value-chains', () => paginado(tiposEvidencia)),

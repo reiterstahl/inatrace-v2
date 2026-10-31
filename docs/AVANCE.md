@@ -374,6 +374,40 @@ la copia aislada). Esa prueba intercepta la salida hacia Beyco y simula su vuelt
 parámetros de la salida y el `state`, que sin Beyco configurado el backend no entrega token y la v2
 lo muestra limpio, y la precarga real desde un lote recién creado.
 
+## Fase 5a.1 (ficha de producto) — ✅ cerrada el 31.10.2026 (rama `fase-5`)
+
+Primera parte de «Productos y etiquetas». Rutas `/productos` (lista con búsqueda; el administrador
+puede ver todos), `/productos/nuevo` y `/productos/$id`.
+
+- **Ficha por secciones**, como el modo producto de la versión actual: datos (nombre, descripción,
+  foto), origen (texto y lugares en el mapa), proceso, responsabilidad social, sostenibilidad
+  ambiental y ajustes (idioma de la vitrina, textos de GDPR, privacidad y términos). Índice lateral
+  que marca las secciones con errores. Mismos obligatorios que la versión actual.
+- **Lugares de origen en el mapa:** tocar el mapa agrega un lugar; los pines van numerados igual
+  que la lista y se arrastran. Cada lugar lleva nombre, coordenadas y número de productores.
+- **Solo la empresa dueña edita y borra**, como en la versión actual; las empresas asociadas lo ven
+  en solo lectura. (El backend sí deja actualizar a las asociadas, a propósito según sus pruebas;
+  la v2 sigue el criterio de la interfaz actual.)
+- **Lección de H16 aplicada:** el backend reescribe el producto completo con lo que recibe. La v2
+  parte del producto tal como vino (empresas asociadas, etiquetas, vitrina, recorrido…) y cambia
+  solo los campos de la ficha. La prueba real lo verifica.
+- **Idioma obligatorio:** la base no acepta un producto sin idioma (el backend respondía 500); la v2
+  lo exige y, al crear, propone el idioma de la interfaz.
+- **Alta:** se elige la cadena de valor de la empresa; si la empresa no tiene ninguna, se avisa y se
+  enlaza a la versión actual para configurarla.
+- **Corrección arrastrada de la sincronización:** desde upstream 1db6e5f los documentos privados ya
+  no se sirven por `/api/public/document`. Recibos, fotos y adjuntos de la v2 pasan a
+  `/api/common/document` y `/api/common/image/{key}/{tamaño}`; la vitrina sigue con la ruta pública.
+
+**Pruebas:** 98 unitarias (6 nuevas de producto), 92 de punta a punta simuladas (6 nuevas en
+escritorio y celular: lista y edición, solo lectura de un producto ajeno, alta con obligatorios, foto
+y lugar en el mapa) y una nueva contra el backend real (`scripts/sembrar-productos.mjs` asigna la
+cadena de valor 1 a la empresa demo de la copia aislada): alta con foto y origen, edición que
+conserva lo demás, solo lectura desde la exportadora asociada y borrado.
+
+Sigue 5a.2: vitrina del producto (ajustes B2C), recorrido, empresas asociadas y productos finales.
+Después 5b (etiquetas), 5c (lotes, opiniones y estadísticas) y 5d (base de conocimiento).
+
 ## Fase 1b (activar la vitrina en una instalación) — pendiente, acordada el 19.10.2026
 
 Pasos, en orden:
@@ -399,6 +433,5 @@ confirmar el uso del video de Anacafé o cambiarlo.**
 2. Revisión de alemán y kinyarwanda por alguien que los hable.
 3. Demo pública: más adelante.
 4. **Fase 3 cerrada** (3a–3e.3). Queda probar Beyco de verdad cuando haya una cuenta de pruebas.
-5. Lo que sigue en la v2: migrar «Productos y etiquetas» y «Empresa y administración», que todavía
-   abren la versión actual.
+5. En curso: «Productos y etiquetas» (fase 5, ver arriba). Después, «Empresa y administración».
    Criterio de salida de la fase: ciclo entrega → procesamiento → pago completo en la v2.

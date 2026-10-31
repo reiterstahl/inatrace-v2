@@ -48,7 +48,7 @@
       "productores": "Farmers and plots",
       "productores_desc": "Profiles, plots and map.",
       "stock": "Stock",
-      "stock_desc": "Deliveries, processing, payments and traceability.",
+      "stock_desc": "Deliveries, processing, payments, orders and traceability.",
       "empresa": "Company and administration",
       "empresa_desc": "Facilities, users, value chains and catalogs.",
       "productos": "Products and labels",
@@ -58,7 +58,8 @@
     "empresa": "Company",
     "stock": "Stock",
     "en_parte": "Partly in the new version",
-    "resto_actual": "The rest, in the current version"
+    "resto_actual": "The rest, in the current version",
+    "productos": "Products"
   },
   "perfil": {
     "titulo": "My profile",
@@ -988,5 +989,83 @@
         "Grade5": "Grade 5"
       }
     }
+  },
+  "productos": {
+    "titulo": "Products",
+    "descripcion": "Your companies' products: their profile, origin and what the public page tells. Labels, batches and statistics remain in the current version for now.",
+    "nuevo": "New product",
+    "buscar": "Search",
+    "buscar_placeholder": "Product name",
+    "todos": "All products of the instance",
+    "vacio": "There are no products yet.",
+    "sin_resultados": "No products with that name.",
+    "total_one": "{{count}} product",
+    "total_other": "{{count}} products",
+    "indice": "Profile sections",
+    "secciones": {
+      "datos": "Product data",
+      "origen": "Origin",
+      "proceso": "Process",
+      "responsabilidad": "Social responsibility",
+      "sostenibilidad": "Environmental sustainability",
+      "ajustes": "Settings"
+    },
+    "nombre": "Name",
+    "cadena": "Value chain",
+    "descripcion_producto": "Description",
+    "foto": "Product photo",
+    "foto_de": "Photo of {{nombre}}",
+    "subir_foto": "Upload photo",
+    "cambiar_foto": "Change photo",
+    "foto_tipo": "The photo must be PNG or JPG.",
+    "origen": {
+      "ayuda": "Where the product or its ingredients come from.",
+      "texto": "Origin description",
+      "puntos": "Places of origin",
+      "instrucciones": "Tap the map to add a place; drag the number to move it.",
+      "mapa": "Map of the places of origin",
+      "punto": "Place {{n}}",
+      "nombre_punto": "Place name",
+      "latitud": "Latitude",
+      "longitud": "Longitude",
+      "productores": "Farmers",
+      "quitar": "Remove place {{n}}"
+    },
+    "produccion": "How it is produced",
+    "produccion_ayuda": "The production process as the consumer will see it.",
+    "politicas": "Labor policies",
+    "politicas_ayuda": "Working conditions and social practices along the chain.",
+    "sostenible_produccion": "Sustainable production",
+    "sostenible_empaque": "Sustainable packaging",
+    "huella": "Carbon footprint",
+    "caracteres": "{{n}} of {{max}} characters",
+    "idioma": "Public page language",
+    "idioma_ayuda": "Language the product is shown in when the consumer does not choose another.",
+    "idiomas": {
+      "ES": "Spanish",
+      "EN": "English",
+      "DE": "German",
+      "RW": "Kinyarwanda"
+    },
+    "gdpr": "Data protection text (GDPR)",
+    "privacidad": "Privacy policy",
+    "terminos": "Terms of use",
+    "de_empresa": "By {{empresa}}",
+    "cadena_de": "Chain: {{cadena}}",
+    "borrar": "Delete product",
+    "borrar_pregunta": "Delete the product \"{{nombre}}\" with its labels? This cannot be undone.",
+    "guardado": "Product saved.",
+    "nuevo_ayuda": "Fill in the profile and save to create the product.",
+    "solo_lectura_titulo": "Read only",
+    "solo_lectura": "This product belongs to another company in the chain. Only the owner company can change it.",
+    "errores": {
+      "sin_puntos": "Add at least one place of origin on the map.",
+      "latitud": "Between −90 and 90.",
+      "longitud": "Between −180 and 180.",
+      "entero": "A whole number, no decimals.",
+      "largo_1000": "At most 1000 characters."
+    },
+    "sin_cadenas_titulo": "The company has no value chains",
+    "sin_cadenas": "A product belongs to one of the company's value chains. They are assigned in the company profile, in the current version:"
   }
 }

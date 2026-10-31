@@ -7,10 +7,11 @@ import { InterruptorTema, Logo, SelectorIdioma } from '@/componentes/ui/Preferen
 import { enAnterior } from '@/util/entorno';
 import { SelectorEmpresa } from '@/componentes/SelectorEmpresa';
 
-const NAV: { to: '/' | '/productores' | '/stock'; clave: string; icono: NombreIcono; exacto?: boolean }[] = [
+const NAV: { to: '/' | '/productores' | '/stock' | '/productos'; clave: string; icono: NombreIcono; exacto?: boolean }[] = [
   { to: '/', clave: 'portal.inicio', icono: 'inicio', exacto: true },
   { to: '/productores', clave: 'portal.productores', icono: 'personas' },
   { to: '/stock', clave: 'portal.stock', icono: 'bodega' },
+  { to: '/productos', clave: 'portal.productos', icono: 'certificado' },
 ];
 
 export function Marco() {

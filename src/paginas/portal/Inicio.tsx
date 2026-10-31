@@ -6,11 +6,12 @@ import { Link } from '@tanstack/react-router';
 import { enAnterior } from '@/util/entorno';
 
 /** Estado de cada módulo en la migración. Se actualiza a medida que avanzan las fases. */
-const MODULOS: { clave: string; icono: NombreIcono; enV2: boolean; anterior?: string; v2?: '/productores' | '/stock'; parcial?: boolean }[] = [
+const MODULOS: { clave: string; icono: NombreIcono; enV2: boolean; anterior?: string; v2?: '/productores' | '/stock' | '/productos'; parcial?: boolean }[] = [
   { clave: 'vitrina', icono: 'qr', enV2: true },
   { clave: 'productores', icono: 'personas', enV2: true, v2: '/productores' },
-  { clave: 'stock', icono: 'bodega', enV2: true, parcial: true, v2: '/stock', anterior: '/my-stock/payments' },
-  { clave: 'productos', icono: 'certificado', enV2: false, anterior: '/product-labels' },
+  { clave: 'stock', icono: 'bodega', enV2: true, v2: '/stock' },
+  // Los productos ya están en la v2; las etiquetas, lotes y estadísticas siguen en la versión actual.
+  { clave: 'productos', icono: 'certificado', enV2: true, parcial: true, v2: '/productos', anterior: '/product-labels' },
   { clave: 'empresa', icono: 'web', enV2: false, anterior: '/home' },
 ];
 

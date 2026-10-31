@@ -21,6 +21,7 @@ el pago masivo y la deja como estaba al terminar. El backend no permite borrar p
 corrida deja un registro "E2E-MASIVO" sin pagos.
 
 `ordenes.spec.ts` necesita `scripts/sembrar-ordenes.mjs` (segunda empresa, cliente y plantillas de
-pedido) y `beyco.spec.ts` necesita `scripts/sembrar-beyco.mjs` (Beyco habilitado en la empresa demo).
-Los dos scripts son solo para copias aisladas. `beyco.spec.ts` no usa Beyco de verdad: intercepta la
+pedido), `beyco.spec.ts` necesita `scripts/sembrar-beyco.mjs` (Beyco habilitado en la empresa demo)
+y `productos.spec.ts` necesita `scripts/sembrar-productos.mjs` (cadena de valor en la empresa demo).
+Los tres scripts son solo para copias aisladas. `beyco.spec.ts` no usa Beyco de verdad: intercepta la
 salida hacia Beyco y simula su vuelta.

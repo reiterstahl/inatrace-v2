@@ -48,7 +48,7 @@
       "productores": "Productores y parcelas",
       "productores_desc": "Fichas, parcelas y mapa.",
       "stock": "Stock",
-      "stock_desc": "Entregas, procesamiento, pagos y trazabilidad.",
+      "stock_desc": "Entregas, procesamiento, pagos, órdenes y trazabilidad.",
       "empresa": "Empresa y administración",
       "empresa_desc": "Instalaciones, usuarios, cadenas de valor y catálogos.",
       "productos": "Productos y etiquetas",
@@ -58,7 +58,8 @@
     "empresa": "Empresa",
     "stock": "Stock",
     "en_parte": "En parte en la nueva versión",
-    "resto_actual": "Lo demás, en la versión actual"
+    "resto_actual": "Lo demás, en la versión actual",
+    "productos": "Productos"
   },
   "perfil": {
     "titulo": "Mi perfil",
@@ -988,5 +989,83 @@
         "Grade5": "Grado 5"
       }
     }
+  },
+  "productos": {
+    "titulo": "Productos",
+    "descripcion": "Los productos de tus empresas: su ficha, el origen y lo que cuenta la vitrina. Las etiquetas, los lotes y las estadísticas siguen, por ahora, en la versión actual.",
+    "nuevo": "Nuevo producto",
+    "buscar": "Buscar",
+    "buscar_placeholder": "Nombre del producto",
+    "todos": "Todos los de la instancia",
+    "vacio": "Todavía no hay productos.",
+    "sin_resultados": "No hay productos con ese nombre.",
+    "total_one": "{{count}} producto",
+    "total_other": "{{count}} productos",
+    "indice": "Secciones de la ficha",
+    "secciones": {
+      "datos": "Datos del producto",
+      "origen": "Origen",
+      "proceso": "Proceso",
+      "responsabilidad": "Responsabilidad social",
+      "sostenibilidad": "Sostenibilidad ambiental",
+      "ajustes": "Ajustes"
+    },
+    "nombre": "Nombre",
+    "cadena": "Cadena de valor",
+    "descripcion_producto": "Descripción",
+    "foto": "Foto del producto",
+    "foto_de": "Foto de {{nombre}}",
+    "subir_foto": "Subir foto",
+    "cambiar_foto": "Cambiar foto",
+    "foto_tipo": "La foto tiene que ser PNG o JPG.",
+    "origen": {
+      "ayuda": "De dónde viene el producto o sus ingredientes.",
+      "texto": "Descripción del origen",
+      "puntos": "Lugares de origen",
+      "instrucciones": "Toca el mapa para agregar un lugar; arrastra el número para moverlo.",
+      "mapa": "Mapa de los lugares de origen",
+      "punto": "Lugar {{n}}",
+      "nombre_punto": "Nombre del lugar",
+      "latitud": "Latitud",
+      "longitud": "Longitud",
+      "productores": "Productores",
+      "quitar": "Quitar el lugar {{n}}"
+    },
+    "produccion": "Cómo se produce",
+    "produccion_ayuda": "El proceso de producción tal como lo verá el consumidor.",
+    "politicas": "Políticas laborales",
+    "politicas_ayuda": "Condiciones de trabajo y prácticas sociales de la cadena.",
+    "sostenible_produccion": "Producción sostenible",
+    "sostenible_empaque": "Empaque sostenible",
+    "huella": "Huella de carbono",
+    "caracteres": "{{n}} de {{max}} caracteres",
+    "idioma": "Idioma de la vitrina",
+    "idioma_ayuda": "Idioma en que se muestra el producto si el consumidor no elige otro.",
+    "idiomas": {
+      "ES": "Español",
+      "EN": "Inglés",
+      "DE": "Alemán",
+      "RW": "Kinyarwanda"
+    },
+    "gdpr": "Texto de protección de datos (GDPR)",
+    "privacidad": "Política de privacidad",
+    "terminos": "Términos de uso",
+    "de_empresa": "De {{empresa}}",
+    "cadena_de": "Cadena: {{cadena}}",
+    "borrar": "Borrar producto",
+    "borrar_pregunta": "¿Borrar el producto «{{nombre}}» con sus etiquetas? No se puede deshacer.",
+    "guardado": "Producto guardado.",
+    "nuevo_ayuda": "Completa la ficha y guarda para crear el producto.",
+    "solo_lectura_titulo": "Solo lectura",
+    "solo_lectura": "Este producto es de otra empresa de la cadena. Solo la empresa dueña puede modificarlo.",
+    "errores": {
+      "sin_puntos": "Agrega al menos un lugar de origen en el mapa.",
+      "latitud": "Entre −90 y 90.",
+      "longitud": "Entre −180 y 180.",
+      "entero": "Un número entero, sin decimales.",
+      "largo_1000": "Máximo 1000 caracteres."
+    },
+    "sin_cadenas_titulo": "La empresa no tiene cadenas de valor",
+    "sin_cadenas": "Un producto pertenece a una cadena de valor de la empresa. Se asignan desde la ficha de la empresa, en la versión actual:"
   }
 }
