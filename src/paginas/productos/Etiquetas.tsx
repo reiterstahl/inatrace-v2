@@ -40,7 +40,7 @@ export function EtiquetasProducto() {
   const { t, i18n } = useTranslation();
   const { producto, editable } = useProducto();
   const lista = useQuery(etiquetas.lista(producto.id!));
-  const crear = useCrearEtiqueta(producto);
+  const crear = useCrearEtiqueta(producto.id!);
   const navegar = useNavigate();
   const delUsuario = i18n.language.slice(0, 2).toUpperCase() as Idioma;
   const [nueva, setNueva] = useState<{ titulo: string; idioma: Idioma } | null>(null);
@@ -165,7 +165,7 @@ function FormEtiqueta({ etiqueta, contenido, medios: mediosIniciales, volverText
 
   async function alGuardar() {
     setAviso(null);
-    const e = { ficha: validarProducto(f, { puntosOpcionales: true }), vitrina: validarVitrina(vitrina), medios: validarMedios(medios), titulo: !titulo.trim() };
+    const e = { ficha: validarProducto(f), vitrina: validarVitrina(vitrina), medios: validarMedios(medios), titulo: !titulo.trim() };
     setErrores(e);
     if (!sinErroresProducto(e.ficha) || Object.keys(e.vitrina).length || e.medios || e.titulo) {
       setAviso({ tono: 'mal', texto: t('stock.entrega.revisar') });
@@ -278,7 +278,7 @@ function FormEtiqueta({ etiqueta, contenido, medios: mediosIniciales, volverText
         </nav>
 
         <div className="grid min-w-0 gap-6">
-          <CamposFicha f={f} cambiar={(c) => { setF((x) => ({ ...x, ...c })); tocar(); }} errores={errores.ficha} editable={editable} nombre={nombre} visibilidad={visibilidad} avisoOrigen={<Aviso tono="aviso">{t('productos.etiquetas.lugares_h23')}</Aviso>} alAvisar={(texto) => setAviso({ tono: 'mal', texto })} alSubir={setSubiendo} />
+          <CamposFicha f={f} cambiar={(c) => { setF((x) => ({ ...x, ...c })); tocar(); }} errores={errores.ficha} editable={editable} nombre={nombre} visibilidad={visibilidad} alAvisar={(texto) => setAviso({ tono: 'mal', texto })} alSubir={setSubiendo} />
           <EmpresaEtiqueta contenido={contenido} visibilidad={visibilidad} editable={editable} />
           <EditorVitrina f={vitrina} cambiar={(c) => { setVitrina((x) => ({ ...x, ...c })); tocar(); }} errores={errores.vitrina} editable={editable} visibilidad={visibilidad} />
           <Medios medios={medios} error={errores.medios} editable={editable} alCambiar={(m) => { setMedios(m); setMediosTocados(true); tocar(); }} />

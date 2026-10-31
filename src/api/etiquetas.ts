@@ -3,7 +3,7 @@ import {
   createProductLabel, deleteProductLabel, executeProductAction, getCompanyDocumentsForProductLabel, getProductLabel, getProductLabelContent,
   getProductLabels, updateCompanyDocumentsForProductLabel, updateProductLabel, updateProductLabelContent,
 } from './gen/sdk.gen';
-import type { ApiProduct, ApiProductLabel, ApiProductLabelCompanyDocument, ApiProductLabelContent } from './gen/types.gen';
+import type { ApiProductLabel, ApiProductLabelCompanyDocument, ApiProductLabelContent } from './gen/types.gen';
 import { desenvolver } from './respuesta';
 import { camposIniciales } from '@/util/etiqueta';
 
@@ -43,26 +43,18 @@ function useInvalidar(producto: number) {
 
 /**
  * Crea la etiqueta con los campos de una nueva (los datos del producto a la vista) y deja su
- * contenido en el idioma elegido, como la versión actual. Además completa lo que la copia del
- * backend pierde (H23): las políticas laborales y los lugares de origen del producto.
+ * contenido en el idioma elegido, como la versión actual. El backend copia el contenido del
+ * producto (con el arreglo H23, también las políticas laborales y los lugares de origen).
  */
-export function useCrearEtiqueta(producto: ApiProduct) {
-  const invalidar = useInvalidar(producto.id!);
+export function useCrearEtiqueta(producto: number) {
+  const invalidar = useInvalidar(producto);
   return useMutation({
     mutationFn: async ({ titulo, idioma }: { titulo: string; idioma: Idioma }): Promise<number> => {
-      const { id } = await desenvolver(createProductLabel({ body: { productId: producto.id, title: titulo, language: idioma, fields: camposIniciales() } }));
+      const { id } = await desenvolver(createProductLabel({ body: { productId: producto, title: titulo, language: idioma, fields: camposIniciales() } }));
       const contenido = await desenvolver(getProductLabelContent({ path: { id: id! } }));
-      await desenvolver(
-        updateProductLabelContent({
-          body: {
-            ...contenido,
-            labelId: id,
-            settings: { ...(contenido.settings ?? {}), language: idioma },
-            responsibility: { ...(contenido.responsibility ?? {}), laborPolicies: contenido.responsibility?.laborPolicies || producto.responsibility?.laborPolicies },
-            origin: { ...(contenido.origin ?? {}), locations: contenido.origin?.locations?.length ? contenido.origin.locations : producto.origin?.locations },
-          },
-        }),
-      );
+      if (contenido.settings?.language !== idioma) {
+        await desenvolver(updateProductLabelContent({ body: { ...contenido, labelId: id, settings: { ...(contenido.settings ?? {}), language: idioma } } }));
+      }
       return id!;
     },
     onSuccess: invalidar,

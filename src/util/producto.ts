@@ -70,17 +70,13 @@ export const SECCION_DE: Record<Campo | 'puntos', Seccion> = {
   idioma: 'ajustes', gdpr: 'ajustes', privacidad: 'ajustes', terminos: 'ajustes',
 };
 
-/**
- * `puntosOpcionales`: en una etiqueta no se exigen lugares de origen, porque el backend no los guarda
- * (H23: la copia al crear la etiqueta los deja sueltos y la actualización los descarta).
- */
-export function validarProducto(f: FormProducto, { puntosOpcionales = false } = {}): ErroresProducto {
+export function validarProducto(f: FormProducto): ErroresProducto {
   const e: ErroresProducto = { puntos: {} };
   if (!f.nombre.trim()) e.nombre = 'requerido';
   if (!f.descripcion.trim()) e.descripcion = 'requerido';
   if (!f.foto) e.foto = 'requerido';
   if (!f.origenTexto.trim()) e.origenTexto = 'requerido';
-  if (!f.puntos.length && !puntosOpcionales) e.sinPuntos = 'sin_puntos';
+  if (!f.puntos.length) e.sinPuntos = 'sin_puntos';
   for (const p of f.puntos) {
     const ep: Partial<Record<'lat' | 'lng' | 'productores', string>> = {};
     if (p.lat === null || Number.isNaN(p.lat)) ep.lat = 'requerido';

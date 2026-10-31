@@ -1283,8 +1283,7 @@
         "MEET_THE_FARMER": "Conoce a los productores",
         "PRODUCTION_RECORD": "Registros de producción",
         "abrir": "Abrir {{nombre}}"
-      },
-      "lugares_h23": "Por un defecto del servidor, los lugares de origen de una etiqueta todavía no se guardan: la vitrina de la etiqueta muestra el texto del origen. Los lugares del producto no se ven afectados."
+      }
     }
   }
 }

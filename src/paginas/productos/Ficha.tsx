@@ -166,7 +166,7 @@ export type Visibilidad = { visibles: Visibles; alternar: (campo: string, visibl
  * Las secciones de la ficha: las usan el producto y el contenido de cada etiqueta. En una etiqueta,
  * `visibilidad` agrega a cada campo el interruptor de si se muestra en la vitrina.
  */
-export function CamposFicha({ f, cambiar, errores, editable, nombre, datosExtra, visibilidad, avisoOrigen, alAvisar, alSubir }: {
+export function CamposFicha({ f, cambiar, errores, editable, nombre, datosExtra, visibilidad, alAvisar, alSubir }: {
   f: FormProducto;
   cambiar: (c: Partial<FormProducto>) => void;
   errores: ErroresProducto;
@@ -174,8 +174,6 @@ export function CamposFicha({ f, cambiar, errores, editable, nombre, datosExtra,
   nombre: string;
   datosExtra?: ReactNode;
   visibilidad?: Visibilidad;
-  /** Aviso sobre los lugares de origen (en una etiqueta). */
-  avisoOrigen?: ReactNode;
   alAvisar: (texto: string) => void;
   alSubir?: (subiendo: boolean) => void;
 }) {
@@ -242,8 +240,7 @@ export function CamposFicha({ f, cambiar, errores, editable, nombre, datosExtra,
             <ConVisibilidad campo="origin" texto={t('productos.secciones.origen')} v={visibilidad}>
             <Area etiqueta={req(t('productos.origen.texto'))} rows={3} value={f.origenTexto} onChange={(e) => cambiar({ origenTexto: e.target.value })} error={err('origenTexto')} />
             <div className="mt-5 grid gap-3">
-              <span className="text-sm font-semibold text-tinta-2">{avisoOrigen ? t('productos.origen.puntos') : req(t('productos.origen.puntos'))}</span>
-              {avisoOrigen}
+              <span className="text-sm font-semibold text-tinta-2">{req(t('productos.origen.puntos'))}</span>
               {editable && <p className="text-sm text-tinta-3">{t('productos.origen.instrucciones')}</p>}
               <Suspense fallback={<div className="h-80 rounded-caja bg-superficie-2" />}>
                 <SelectorPuntos

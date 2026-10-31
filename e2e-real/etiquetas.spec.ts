@@ -43,6 +43,8 @@ test('etiqueta: crear, elegir campos, vista previa, publicar en la vitrina, reti
     await datos.getByRole('textbox', { name: 'Nombre', exact: true }).fill('Café de la etiqueta E2E');
     await page.getByRole('checkbox', { name: 'Mostrar en la vitrina: Cómo se produce' }).check();
     await page.getByRole('textbox', { name: 'Color primario', exact: true }).fill('#224466');
+    await expect(page.getByRole('listitem', { name: 'Lugar 1' }).getByRole('textbox', { name: /^Nombre del lugar/ })).toHaveValue('Finca');
+    await page.getByRole('listitem', { name: 'Lugar 1' }).getByRole('textbox', { name: /^Nombre del lugar/ }).fill('Finca de la etiqueta');
     await page.getByRole('button', { name: 'Guardar' }).click();
     await expect(page.getByText('Etiqueta guardada.')).toBeVisible();
     const etiqueta = (await json(page.request.get(`/api/product/label/${id}`))).data;
@@ -53,13 +55,14 @@ test('etiqueta: crear, elegir campos, vista previa, publicar en la vitrina, reti
     expect(contenido.name).toBe('Café de la etiqueta E2E');
     expect(contenido.businessToCustomerSettings.primaryColor).toBe('#224466');
     expect(contenido.origin.text).toBe('Huehuetenango.');
-    // H23: la copia del backend pierde las políticas laborales (la v2 las completa al crear)…
+    // H23 (corregido en el backend del contrato): la copia trae las políticas laborales y los
+    // lugares de origen del producto, y los lugares de la etiqueta se guardan.
     expect(contenido.responsibility.laborPolicies).toBe('Pago justo.');
-    // …y no guarda lugares de origen en la etiqueta. Si esto falla, el backend ya lo corrigió:
-    // quitar el aviso del editor y volver a exigir los lugares.
-    expect(contenido.origin.locations ?? []).toHaveLength(0);
+    expect(contenido.origin.locations.map((l: { pinName: string }) => l.pinName)).toEqual(['Finca de la etiqueta']);
     // El producto no cambió.
-    expect((await json(page.request.get(`/api/product/${producto}`))).data.name).toMatch(/^Etiquetas E2E/);
+    const delProducto = (await json(page.request.get(`/api/product/${producto}`))).data;
+    expect(delProducto.name).toMatch(/^Etiquetas E2E/);
+    expect(delProducto.origin.locations.map((l: { pinName: string }) => l.pinName)).toEqual(['Finca']);
 
     // 3. Vista previa sin publicar (la vitrina pública todavía no la entrega).
     expect((await json(page.request.get(`/api/public/product/label/${etiqueta.uuid}`))).status).not.toBe('OK');

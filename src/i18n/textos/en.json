@@ -1283,8 +1283,7 @@
         "MEET_THE_FARMER": "Meet the farmers",
         "PRODUCTION_RECORD": "Production records",
         "abrir": "Open {{nombre}}"
-      },
-      "lugares_h23": "Due to a server defect, a label's origin places are not saved yet: the label's showcase shows the origin text. The product's places are not affected."
+      }
     }
   }
 }

@@ -466,20 +466,22 @@ Nueva pestaña **Etiquetas** del producto: `/productos/$id/etiquetas` (lista y a
   precios (`settings.incomeIncreaseDescription`), que la vitrina ya sabía leer pero la versión
   actual no dejaba hacer visible.
 
-### H23 🟠 — la copia del producto en una etiqueta pierde datos (backend, también en AgStack 19d0ea3)
+### H23 🟠 — la copia del producto en una etiqueta perdía datos (backend; corregido)
 
-Encontrado con la prueba real. Tres defectos en el backend, presentes también en el original:
+Encontrado con la prueba real; también está en el original (AgStack `main` 19d0ea3):
 
-1. `Responsibility.copy()` devuelve un objeto vacío: la etiqueta nueva pierde las políticas laborales.
-2. `ProductLabelContent.fromProduct` copia los lugares de origen sin vincularlos a la etiqueta
-   (`ProductLocation.content` queda vacío): quedan huérfanos en la base.
-3. `updateProductLabelContent` reemplaza los lugares en una copia de la lista
-   (`new ArrayList<>(p.getOriginLocations())`): los lugares de una etiqueta nunca se guardan.
+1. `Responsibility.copy()` devolvía un objeto vacío: la etiqueta nueva perdía las políticas laborales.
+2. `ProductLabelContent.fromProduct` copiaba los lugares de origen sin vincularlos a la etiqueta:
+   quedaban huérfanos en la base.
+3. `updateProductLabelContent` reemplazaba los lugares en una copia de la lista: los lugares de una
+   etiqueta nunca se guardaban.
 
-En la v2: al crear la etiqueta se completan las políticas laborales desde el producto; el editor no
-exige lugares de origen en una etiqueta y avisa por qué. La prueba real comprueba que el defecto 3
-sigue (si el backend se corrige, falla y avisa que hay que quitar el aviso). **Pendiente:** corregirlo
-en el backend del contrato y proponerlo a AgStack por PR (no es de seguridad).
+**Corregido en el backend del contrato** (dapdevs/inatrace-enhanced `46c2b89`, prueba
+`ProductLabelContentCopyTest`, 377 pruebas en verde) y **propuesto al original como
+[PR #116](https://github.com/agstack/inatrace-backend/pull/116)** (31.10.2026, CI en verde). La copia
+aislada corre `inatrace-backend:dev-h23`. La v2 no necesita compensarlo; la prueba real verifica que
+la etiqueta trae las políticas y los lugares del producto y que los lugares de la etiqueta se guardan.
+Las etiquetas creadas antes del arreglo se completan editándolas.
 
 **Pruebas:** 110 unitarias (8 nuevas de etiquetas), 108 de punta a punta simuladas (6 nuevas en
 escritorio y celular: alta, visibilidad, medios, publicación; vista previa con cambios sin guardar;
@@ -514,5 +516,5 @@ confirmar el uso del video de Anacafé o cambiarlo.**
 4. **Fase 3 cerrada** (3a–3e.3). Queda probar Beyco de verdad cuando haya una cuenta de pruebas.
 5. En curso: «Productos y etiquetas» (fase 5): faltan 5c (lotes, opiniones y estadísticas) y 5d
    (base de conocimiento). Después, «Empresa y administración».
-6. H23 (arriba): corregir en el backend y proponerlo a AgStack por PR.
+6. H23: esperar la revisión del PR #116 en AgStack (junto con #112 y #113).
    Criterio de salida de la fase: ciclo entrega → procesamiento → pago completo en la v2.
