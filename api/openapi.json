@@ -278,37 +278,6 @@
     }
    }
   },
-  "/api/product/label/values": {
-   "put": {
-    "tags": [
-     "product-controller"
-    ],
-    "summary": "Update field values",
-    "operationId": "updateProductLabelValues",
-    "requestBody": {
-     "content": {
-      "application/json": {
-       "schema": {
-        "$ref": "#/components/schemas/ApiProductLabelUpdateValues"
-       }
-      }
-     },
-     "required": true
-    },
-    "responses": {
-     "200": {
-      "description": "OK",
-      "content": {
-       "application/json": {
-        "schema": {
-         "$ref": "#/components/schemas/ApiDefaultResponse"
-        }
-       }
-      }
-     }
-    }
-   }
-  },
   "/api/product/label/content": {
    "put": {
     "tags": [
@@ -2654,319 +2623,6 @@
     }
    }
   },
-  "/api/chain/csv/purchases/company/{id}": {
-   "post": {
-    "tags": [
-     "common-csv-controller"
-    ],
-    "summary": "Generate a csv file with a list of filtered purchases by companyId.",
-    "operationId": "generatePurchasesByCompanyCsv",
-    "parameters": [
-     {
-      "name": "language",
-      "in": "header",
-      "required": false,
-      "schema": {
-       "type": "string",
-       "default": "EN",
-       "enum": [
-        "EN",
-        "DE",
-        "RW",
-        "ES"
-       ]
-      }
-     },
-     {
-      "name": "requestType",
-      "in": "query",
-      "description": "Only count, only fetch, or return both values (if null)",
-      "required": false,
-      "schema": {
-       "type": "string",
-       "enum": [
-        "COUNT",
-        "FETCH"
-       ]
-      }
-     },
-     {
-      "name": "limit",
-      "in": "query",
-      "description": "Number of records to return. Min: 1, default: 100",
-      "required": false,
-      "schema": {
-       "minimum": 1,
-       "type": "integer",
-       "format": "int32"
-      }
-     },
-     {
-      "name": "offset",
-      "in": "query",
-      "description": "Number of records to skip before returning. Default: 0, min: 0",
-      "required": false,
-      "schema": {
-       "minimum": 0,
-       "type": "integer",
-       "format": "int32"
-      }
-     },
-     {
-      "name": "sortBy",
-      "in": "query",
-      "description": "Column name to be sorted by, varies for each endpoint, default is id",
-      "required": false,
-      "schema": {
-       "type": "string"
-      }
-     },
-     {
-      "name": "sort",
-      "in": "query",
-      "description": "Direction of sorting (ASC or DESC). Default DESC.",
-      "required": false,
-      "schema": {
-       "type": "string",
-       "enum": [
-        "ASC",
-        "DESC"
-       ]
-      }
-     },
-     {
-      "name": "id",
-      "in": "path",
-      "description": "Company ID",
-      "required": true,
-      "schema": {
-       "type": "integer",
-       "format": "int64"
-      }
-     },
-     {
-      "name": "preferredWayOfPayment",
-      "in": "query",
-      "description": "Preferred way of payment",
-      "required": false,
-      "schema": {
-       "type": "string",
-       "enum": [
-        "CASH",
-        "CASH_VIA_COLLECTOR",
-        "BANK_TRANSFER",
-        "CHEQUE",
-        "OFFSETTING",
-        "UNKNOWN"
-       ]
-      }
-     },
-     {
-      "name": "isWomenShare",
-      "in": "query",
-      "description": "Is women share",
-      "required": false,
-      "schema": {
-       "type": "boolean"
-      }
-     },
-     {
-      "name": "productionDateStart",
-      "in": "query",
-      "description": "Production date range start",
-      "required": false,
-      "schema": {
-       "type": "string",
-       "format": "date"
-      }
-     },
-     {
-      "name": "productionDateEnd",
-      "in": "query",
-      "description": "Production date range end",
-      "required": false,
-      "schema": {
-       "type": "string",
-       "format": "date"
-      }
-     },
-     {
-      "name": "query",
-      "in": "query",
-      "description": "Search by farmer name",
-      "required": false,
-      "schema": {
-       "type": "string"
-      }
-     }
-    ],
-    "responses": {
-     "200": {
-      "description": "OK",
-      "content": {
-       "application/octet-stream": {
-        "schema": {
-         "type": "string",
-         "format": "byte"
-        }
-       }
-      }
-     }
-    },
-    "deprecated": true
-   }
-  },
-  "/api/chain/csv/payments/company/{id}": {
-   "post": {
-    "tags": [
-     "common-csv-controller"
-    ],
-    "summary": "Generate a csv file with a list of filtered payments by companyId.",
-    "operationId": "generatePaymentsByCompanyCsv",
-    "parameters": [
-     {
-      "name": "requestType",
-      "in": "query",
-      "description": "Only count, only fetch, or return both values (if null)",
-      "required": false,
-      "schema": {
-       "type": "string",
-       "enum": [
-        "COUNT",
-        "FETCH"
-       ]
-      }
-     },
-     {
-      "name": "limit",
-      "in": "query",
-      "description": "Number of records to return. Min: 1, default: 100",
-      "required": false,
-      "schema": {
-       "minimum": 1,
-       "type": "integer",
-       "format": "int32"
-      }
-     },
-     {
-      "name": "offset",
-      "in": "query",
-      "description": "Number of records to skip before returning. Default: 0, min: 0",
-      "required": false,
-      "schema": {
-       "minimum": 0,
-       "type": "integer",
-       "format": "int32"
-      }
-     },
-     {
-      "name": "sortBy",
-      "in": "query",
-      "description": "Column name to be sorted by, varies for each endpoint, default is id",
-      "required": false,
-      "schema": {
-       "type": "string"
-      }
-     },
-     {
-      "name": "sort",
-      "in": "query",
-      "description": "Direction of sorting (ASC or DESC). Default DESC.",
-      "required": false,
-      "schema": {
-       "type": "string",
-       "enum": [
-        "ASC",
-        "DESC"
-       ]
-      }
-     },
-     {
-      "name": "id",
-      "in": "path",
-      "description": "Company ID",
-      "required": true,
-      "schema": {
-       "type": "integer",
-       "format": "int64"
-      }
-     },
-     {
-      "name": "preferredWayOfPayment",
-      "in": "query",
-      "description": "Preferred way of payment",
-      "required": false,
-      "schema": {
-       "type": "string",
-       "enum": [
-        "CASH",
-        "CASH_VIA_COLLECTOR",
-        "BANK_TRANSFER",
-        "CHEQUE",
-        "OFFSETTING",
-        "UNKNOWN"
-       ]
-      }
-     },
-     {
-      "name": "paymentStatus",
-      "in": "query",
-      "description": "Payment status",
-      "required": false,
-      "schema": {
-       "type": "string",
-       "enum": [
-        "UNCONFIRMED",
-        "CONFIRMED"
-       ]
-      }
-     },
-     {
-      "name": "productionDateStart",
-      "in": "query",
-      "description": "Production date range start",
-      "required": false,
-      "schema": {
-       "type": "string",
-       "format": "date"
-      }
-     },
-     {
-      "name": "productionDateEnd",
-      "in": "query",
-      "description": "Production date range end",
-      "required": false,
-      "schema": {
-       "type": "string",
-       "format": "date"
-      }
-     },
-     {
-      "name": "query",
-      "in": "query",
-      "description": "Search by farmer name",
-      "required": false,
-      "schema": {
-       "type": "string"
-      }
-     }
-    ],
-    "responses": {
-     "200": {
-      "description": "OK",
-      "content": {
-       "application/octet-stream": {
-        "schema": {
-         "type": "string",
-         "format": "byte"
-        }
-       }
-      }
-     }
-    },
-    "deprecated": true
-   }
-  },
   "/api/chain/beyco-order/company/{companyId}/order": {
    "post": {
     "tags": [
@@ -4628,39 +4284,6 @@
        "application/json": {
         "schema": {
          "$ref": "#/components/schemas/ApiPaginatedResponseApiProductLabelBatch"
-        }
-       }
-      }
-     }
-    }
-   }
-  },
-  "/api/product/label/values/{id}": {
-   "get": {
-    "tags": [
-     "product-controller"
-    ],
-    "summary": "Get label with field values",
-    "operationId": "getProductLabelValues",
-    "parameters": [
-     {
-      "name": "id",
-      "in": "path",
-      "description": "Record id",
-      "required": true,
-      "schema": {
-       "type": "integer",
-       "format": "int64"
-      }
-     }
-    ],
-    "responses": {
-     "200": {
-      "description": "OK",
-      "content": {
-       "application/json": {
-        "schema": {
-         "$ref": "#/components/schemas/ApiResponseApiProductLabelValues"
         }
        }
       }
@@ -8912,112 +8535,6 @@
     }
    }
   },
-  "/api/chain/processing-evidence-type/list/value-chain/{id}": {
-   "get": {
-    "tags": [
-     "processing-evidence-type-controller"
-    ],
-    "summary": "Get a list of processing evidence types by value chain ID.",
-    "operationId": "listProcessingEvidenceTypesByValueChain",
-    "parameters": [
-     {
-      "name": "id",
-      "in": "path",
-      "description": "Value chain ID",
-      "required": true,
-      "schema": {
-       "type": "integer",
-       "format": "int64"
-      }
-     },
-     {
-      "name": "requestType",
-      "in": "query",
-      "description": "Only count, only fetch, or return both values (if null)",
-      "required": false,
-      "schema": {
-       "type": "string",
-       "enum": [
-        "COUNT",
-        "FETCH"
-       ]
-      }
-     },
-     {
-      "name": "limit",
-      "in": "query",
-      "description": "Number of records to return. Min: 1, default: 100",
-      "required": false,
-      "schema": {
-       "minimum": 1,
-       "type": "integer",
-       "format": "int32"
-      }
-     },
-     {
-      "name": "offset",
-      "in": "query",
-      "description": "Number of records to skip before returning. Default: 0, min: 0",
-      "required": false,
-      "schema": {
-       "minimum": 0,
-       "type": "integer",
-       "format": "int32"
-      }
-     },
-     {
-      "name": "sortBy",
-      "in": "query",
-      "description": "Column name to be sorted by, varies for each endpoint, default is id",
-      "required": false,
-      "schema": {
-       "type": "string"
-      }
-     },
-     {
-      "name": "sort",
-      "in": "query",
-      "description": "Direction of sorting (ASC or DESC). Default DESC.",
-      "required": false,
-      "schema": {
-       "type": "string",
-       "enum": [
-        "ASC",
-        "DESC"
-       ]
-      }
-     },
-     {
-      "name": "language",
-      "in": "header",
-      "required": false,
-      "schema": {
-       "type": "string",
-       "default": "EN",
-       "enum": [
-        "EN",
-        "DE",
-        "RW",
-        "ES"
-       ]
-      }
-     }
-    ],
-    "responses": {
-     "200": {
-      "description": "OK",
-      "content": {
-       "application/json": {
-        "schema": {
-         "$ref": "#/components/schemas/ApiPaginatedResponseApiProcessingEvidenceType"
-        }
-       }
-      }
-     }
-    },
-    "deprecated": true
-   }
-  },
   "/api/chain/processing-evidence-type/list/by-value-chains": {
    "get": {
     "tags": [
@@ -9298,112 +8815,6 @@
       }
      }
     }
-   }
-  },
-  "/api/chain/processing-evidence-field/list/value-chain/{id}": {
-   "get": {
-    "tags": [
-     "processing-evidence-field-controller"
-    ],
-    "summary": "Get a list of processing evidence fields by value chain ID.",
-    "operationId": "listProcessingEvidenceFieldsByValueChain",
-    "parameters": [
-     {
-      "name": "id",
-      "in": "path",
-      "description": "Value chain ID",
-      "required": true,
-      "schema": {
-       "type": "integer",
-       "format": "int64"
-      }
-     },
-     {
-      "name": "requestType",
-      "in": "query",
-      "description": "Only count, only fetch, or return both values (if null)",
-      "required": false,
-      "schema": {
-       "type": "string",
-       "enum": [
-        "COUNT",
-        "FETCH"
-       ]
-      }
-     },
-     {
-      "name": "limit",
-      "in": "query",
-      "description": "Number of records to return. Min: 1, default: 100",
-      "required": false,
-      "schema": {
-       "minimum": 1,
-       "type": "integer",
-       "format": "int32"
-      }
-     },
-     {
-      "name": "offset",
-      "in": "query",
-      "description": "Number of records to skip before returning. Default: 0, min: 0",
-      "required": false,
-      "schema": {
-       "minimum": 0,
-       "type": "integer",
-       "format": "int32"
-      }
-     },
-     {
-      "name": "sortBy",
-      "in": "query",
-      "description": "Column name to be sorted by, varies for each endpoint, default is id",
-      "required": false,
-      "schema": {
-       "type": "string"
-      }
-     },
-     {
-      "name": "sort",
-      "in": "query",
-      "description": "Direction of sorting (ASC or DESC). Default DESC.",
-      "required": false,
-      "schema": {
-       "type": "string",
-       "enum": [
-        "ASC",
-        "DESC"
-       ]
-      }
-     },
-     {
-      "name": "language",
-      "in": "header",
-      "required": false,
-      "schema": {
-       "type": "string",
-       "default": "EN",
-       "enum": [
-        "EN",
-        "DE",
-        "RW",
-        "ES"
-       ]
-      }
-     }
-    ],
-    "responses": {
-     "200": {
-      "description": "OK",
-      "content": {
-       "application/json": {
-        "schema": {
-         "$ref": "#/components/schemas/ApiPaginatedResponseApiProcessingEvidenceField"
-        }
-       }
-      }
-     }
-    },
-    "deprecated": true
    }
   },
   "/api/chain/processing-evidence-field/list/by-value-chains": {
@@ -10853,6 +10264,16 @@
       "schema": {
        "type": "string"
       }
+     },
+     {
+      "name": "companyId",
+      "in": "query",
+      "description": "Company the plots are imported for",
+      "required": true,
+      "schema": {
+       "type": "integer",
+       "format": "int64"
+      }
      }
     ],
     "responses": {
@@ -11695,94 +11116,6 @@
        "application/json": {
         "schema": {
          "type": "number"
-        }
-       }
-      }
-     }
-    }
-   }
-  },
-  "/api/chain/currency-type/list": {
-   "get": {
-    "tags": [
-     "currency-type-controller"
-    ],
-    "summary": "Get list of enabled and disables supported currencies",
-    "operationId": "getCurrencyTypes",
-    "parameters": [
-     {
-      "name": "query",
-      "in": "query",
-      "required": false,
-      "schema": {
-       "type": "string"
-      }
-     },
-     {
-      "name": "requestType",
-      "in": "query",
-      "description": "Only count, only fetch, or return both values (if null)",
-      "required": false,
-      "schema": {
-       "type": "string",
-       "enum": [
-        "COUNT",
-        "FETCH"
-       ]
-      }
-     },
-     {
-      "name": "limit",
-      "in": "query",
-      "description": "Number of records to return. Min: 1, default: 100",
-      "required": false,
-      "schema": {
-       "minimum": 1,
-       "type": "integer",
-       "format": "int32"
-      }
-     },
-     {
-      "name": "offset",
-      "in": "query",
-      "description": "Number of records to skip before returning. Default: 0, min: 0",
-      "required": false,
-      "schema": {
-       "minimum": 0,
-       "type": "integer",
-       "format": "int32"
-      }
-     },
-     {
-      "name": "sortBy",
-      "in": "query",
-      "description": "Column name to be sorted by, varies for each endpoint, default is id",
-      "required": false,
-      "schema": {
-       "type": "string"
-      }
-     },
-     {
-      "name": "sort",
-      "in": "query",
-      "description": "Direction of sorting (ASC or DESC). Default DESC.",
-      "required": false,
-      "schema": {
-       "type": "string",
-       "enum": [
-        "ASC",
-        "DESC"
-       ]
-      }
-     }
-    ],
-    "responses": {
-     "200": {
-      "description": "OK",
-      "content": {
-       "application/json": {
-        "schema": {
-         "$ref": "#/components/schemas/ApiPaginatedResponseApiCurrencyType"
         }
        }
       }
@@ -13115,81 +12448,6 @@
      }
     }
    },
-   "ApiProductLabelFieldValue": {
-    "type": "object",
-    "properties": {
-     "name": {
-      "maxLength": 255,
-      "minLength": 0,
-      "type": "string",
-      "description": "Field name in Product"
-     },
-     "section": {
-      "maxLength": 255,
-      "minLength": 0,
-      "type": "string",
-      "description": "Section on FE"
-     },
-     "value": {
-      "type": "object",
-      "description": "Field value in Product"
-     }
-    },
-    "description": "Fields"
-   },
-   "ApiProductLabelUpdateValues": {
-    "required": [
-     "fields"
-    ],
-    "type": "object",
-    "properties": {
-     "id": {
-      "type": "integer",
-      "description": "Entity id",
-      "format": "int64"
-     },
-     "productId": {
-      "type": "integer",
-      "description": "Product id",
-      "format": "int64"
-     },
-     "status": {
-      "type": "string",
-      "description": "Product label status",
-      "enum": [
-       "UNPUBLISHED",
-       "PUBLISHED"
-      ]
-     },
-     "uuid": {
-      "type": "string",
-      "description": "Product label uuid (for url)"
-     },
-     "title": {
-      "maxLength": 255,
-      "minLength": 0,
-      "type": "string",
-      "description": "label title"
-     },
-     "language": {
-      "type": "string",
-      "description": "Label language",
-      "enum": [
-       "EN",
-       "DE",
-       "RW",
-       "ES"
-      ]
-     },
-     "fields": {
-      "type": "array",
-      "description": "Fields",
-      "items": {
-       "$ref": "#/components/schemas/ApiProductLabelFieldValue"
-      }
-     }
-    }
-   },
    "ApiCertification": {
     "type": "object",
     "properties": {
@@ -13430,7 +12688,7 @@
       "description": "label"
      }
     },
-    "description": "list of supported facility types"
+    "description": "List of supported facility types. Omit on update to preserve associations; send an empty list to clear them."
    },
    "ApiProcess": {
     "type": "object",
@@ -13491,7 +12749,7 @@
       }
      }
     },
-    "description": "list of supported processing evidence fields"
+    "description": "List of supported processing evidence fields. Omit on update to preserve associations; send an empty list to clear them."
    },
    "ApiProcessingEvidenceFieldTranslation": {
     "type": "object",
@@ -13578,7 +12836,7 @@
       }
      }
     },
-    "description": "list of supported processing evidence types"
+    "description": "List of supported processing evidence types. Omit on update to preserve associations; send an empty list to clear them."
    },
    "ApiProcessingEvidenceTypeTranslation": {
     "type": "object",
@@ -13843,7 +13101,7 @@
       "type": "boolean"
      }
     },
-    "description": "list of supported semi-products"
+    "description": "List of supported semi-products. Omit on update to preserve associations; send an empty list to clear them."
    },
    "ApiSemiProductTranslation": {
     "type": "object",
@@ -13923,35 +13181,35 @@
      },
      "facilityTypes": {
       "type": "array",
-      "description": "list of supported facility types",
+      "description": "List of supported facility types. Omit on update to preserve associations; send an empty list to clear them.",
       "items": {
        "$ref": "#/components/schemas/ApiFacilityType"
       }
      },
      "measureUnitTypes": {
       "type": "array",
-      "description": "list of supported measuring unit types",
+      "description": "List of supported measuring unit types. Omit on update to preserve associations; send an empty list to clear them.",
       "items": {
        "$ref": "#/components/schemas/ApiMeasureUnitType"
       }
      },
      "processingEvidenceTypes": {
       "type": "array",
-      "description": "list of supported processing evidence types",
+      "description": "List of supported processing evidence types. Omit on update to preserve associations; send an empty list to clear them.",
       "items": {
        "$ref": "#/components/schemas/ApiProcessingEvidenceType"
       }
      },
      "processingEvidenceFields": {
       "type": "array",
-      "description": "list of supported processing evidence fields",
+      "description": "List of supported processing evidence fields. Omit on update to preserve associations; send an empty list to clear them.",
       "items": {
        "$ref": "#/components/schemas/ApiProcessingEvidenceField"
       }
      },
      "semiProducts": {
       "type": "array",
-      "description": "list of supported semi-products",
+      "description": "List of supported semi-products. Omit on update to preserve associations; send an empty list to clear them.",
       "items": {
        "$ref": "#/components/schemas/ApiSemiProduct"
       }
@@ -14166,6 +13424,28 @@
      }
     },
     "description": "Data sharing agreements"
+   },
+   "ApiProductLabelFieldValue": {
+    "type": "object",
+    "properties": {
+     "name": {
+      "maxLength": 255,
+      "minLength": 0,
+      "type": "string",
+      "description": "Field name in Product"
+     },
+     "section": {
+      "maxLength": 255,
+      "minLength": 0,
+      "type": "string",
+      "description": "Section on FE"
+     },
+     "value": {
+      "type": "object",
+      "description": "Field value in Product"
+     }
+    },
+    "description": "Fields"
    },
    "ApiProductLabelValues": {
     "type": "object",
@@ -15126,21 +14406,21 @@
      },
      "facilitySemiProductList": {
       "type": "array",
-      "description": "List of semi product ID's for this facility",
+      "description": "List of semi product IDs for this facility. Omit on update to preserve associations; send an empty list to clear them.",
       "items": {
        "$ref": "#/components/schemas/ApiSemiProduct"
       }
      },
      "facilityFinalProducts": {
       "type": "array",
-      "description": "List of final product ID's for this facility",
+      "description": "List of final product IDs for this facility. Omit on update to preserve associations; send an empty list to clear them.",
       "items": {
        "$ref": "#/components/schemas/ApiFinalProduct"
       }
      },
      "facilityValueChains": {
       "type": "array",
-      "description": "List of value chains for this facility",
+      "description": "List of value chains for this facility. Omit on update to preserve associations; send an empty list to clear them.",
       "items": {
        "$ref": "#/components/schemas/ApiValueChain"
       }
@@ -15903,13 +15183,13 @@
       "type": "string",
       "description": "The ID from which this repacked stock order was created; This ID is generated and provided by the client; Only applicable for repacked stock orders"
      },
+     "openOrder": {
+      "type": "boolean"
+     },
      "purchaseOrder": {
       "type": "boolean"
      },
      "available": {
-      "type": "boolean"
-     },
-     "openOrder": {
       "type": "boolean"
      }
     },
@@ -16225,9 +15505,9 @@
       "description": "Credit line shown on the map"
      },
      "opacity": {
-      "maximum": 1.0,
+      "maximum": 1,
       "exclusiveMaximum": false,
-      "minimum": 0.0,
+      "minimum": 0,
       "exclusiveMinimum": false,
       "type": "number",
       "description": "Rendering opacity, between 0 and 1",
@@ -17257,7 +16537,7 @@
       }
      },
      "quantity": {
-      "maximum": 999999999999999999,
+      "maximum": 1000000000000000000,
       "minimum": 0,
       "type": "number",
       "description": "Quantity of beans"
@@ -17416,7 +16696,7 @@
       "description": "Custom incoterms"
      },
      "price": {
-      "maximum": 999999999999999999,
+      "maximum": 1000000000000000000,
       "minimum": 0,
       "type": "number",
       "description": "Price of order"
@@ -18903,48 +18183,6 @@
       "$ref": "#/components/schemas/ApiValidationErrorDetails"
      }
     }
-   },
-   "ApiResponseApiProductLabelValues": {
-    "required": [
-     "status"
-    ],
-    "type": "object",
-    "properties": {
-     "status": {
-      "type": "string",
-      "description": "Response status. OK for successful reponses.",
-      "example": "OK",
-      "enum": [
-       "OK",
-       "ERROR",
-       "REQUEST_BODY_ERROR",
-       "VALIDATION_ERROR",
-       "TOO_MANY_REQUESTS",
-       "UNAUTHORIZED",
-       "AUTH_ERROR",
-       "UPSTREAM_HTTP_ERROR",
-       "INVALID_REQUEST",
-       "INVALID_OR_EXPIRED_STORAGE_KEY",
-       "NOT_IMPLEMENTED",
-       "NOT_FOUND"
-      ]
-     },
-     "errorMessage": {
-      "type": "string",
-      "description": "Simple message to explain client developers the reason for error."
-     },
-     "data": {
-      "$ref": "#/components/schemas/ApiProductLabelValues"
-     },
-     "errorDetails": {
-      "type": "string",
-      "description": "Optional details for unexpected error responses."
-     },
-     "validationErrorDetails": {
-      "$ref": "#/components/schemas/ApiValidationErrorDetails"
-     }
-    },
-    "description": "Generic API response. See documentation for data type for specific type details."
    },
    "ApiResponseApiProductLabelContent": {
     "required": [

@@ -494,57 +494,6 @@ export type ApiProductLabelCompanyDocument = {
 };
 
 /**
- * Fields
- */
-export type ApiProductLabelFieldValue = {
-    /**
-     * Field name in Product
-     */
-    name?: string;
-    /**
-     * Section on FE
-     */
-    section?: string;
-    /**
-     * Field value in Product
-     */
-    value?: {
-        [key: string]: unknown;
-    };
-};
-
-export type ApiProductLabelUpdateValues = {
-    /**
-     * Entity id
-     */
-    id?: number;
-    /**
-     * Product id
-     */
-    productId?: number;
-    /**
-     * Product label status
-     */
-    status?: 'UNPUBLISHED' | 'PUBLISHED';
-    /**
-     * Product label uuid (for url)
-     */
-    uuid?: string;
-    /**
-     * label title
-     */
-    title?: string;
-    /**
-     * Label language
-     */
-    language?: 'EN' | 'DE' | 'RW' | 'ES';
-    /**
-     * Fields
-     */
-    fields: Array<ApiProductLabelFieldValue>;
-};
-
-/**
  * company certifications
  */
 export type ApiCertification = {
@@ -697,7 +646,7 @@ export type ApiCurrencyType = {
 };
 
 /**
- * list of supported facility types
+ * List of supported facility types. Omit on update to preserve associations; send an empty list to clear them.
  */
 export type ApiFacilityType = {
     /**
@@ -725,7 +674,7 @@ export type ApiProcess = {
 };
 
 /**
- * list of supported processing evidence fields
+ * List of supported processing evidence fields. Omit on update to preserve associations; send an empty list to clear them.
  */
 export type ApiProcessingEvidenceField = {
     /**
@@ -774,7 +723,7 @@ export type ApiProcessingEvidenceFieldTranslation = {
 };
 
 /**
- * list of supported processing evidence types
+ * List of supported processing evidence types. Omit on update to preserve associations; send an empty list to clear them.
  */
 export type ApiProcessingEvidenceType = {
     /**
@@ -963,7 +912,7 @@ export type ApiResponsibility = {
 };
 
 /**
- * list of supported semi-products
+ * List of supported semi-products. Omit on update to preserve associations; send an empty list to clear them.
  */
 export type ApiSemiProduct = {
     /**
@@ -1037,23 +986,23 @@ export type ApiValueChain = {
      */
     valueChainStatus?: 'ENABLED' | 'DISABLED';
     /**
-     * list of supported facility types
+     * List of supported facility types. Omit on update to preserve associations; send an empty list to clear them.
      */
     facilityTypes?: Array<ApiFacilityType>;
     /**
-     * list of supported measuring unit types
+     * List of supported measuring unit types. Omit on update to preserve associations; send an empty list to clear them.
      */
     measureUnitTypes?: Array<ApiMeasureUnitType>;
     /**
-     * list of supported processing evidence types
+     * List of supported processing evidence types. Omit on update to preserve associations; send an empty list to clear them.
      */
     processingEvidenceTypes?: Array<ApiProcessingEvidenceType>;
     /**
-     * list of supported processing evidence fields
+     * List of supported processing evidence fields. Omit on update to preserve associations; send an empty list to clear them.
      */
     processingEvidenceFields?: Array<ApiProcessingEvidenceField>;
     /**
-     * list of supported semi-products
+     * List of supported semi-products. Omit on update to preserve associations; send an empty list to clear them.
      */
     semiProducts?: Array<ApiSemiProduct>;
     productType?: ApiProductType;
@@ -1180,6 +1129,26 @@ export type ApiProductDataSharingAgreement = {
      */
     description?: string;
     document?: ApiDocument;
+};
+
+/**
+ * Fields
+ */
+export type ApiProductLabelFieldValue = {
+    /**
+     * Field name in Product
+     */
+    name?: string;
+    /**
+     * Section on FE
+     */
+    section?: string;
+    /**
+     * Field value in Product
+     */
+    value?: {
+        [key: string]: unknown;
+    };
 };
 
 /**
@@ -1863,15 +1832,15 @@ export type ApiFacility = {
     company?: ApiCompanyBase;
     facilityType?: ApiFacilityType;
     /**
-     * List of semi product ID's for this facility
+     * List of semi product IDs for this facility. Omit on update to preserve associations; send an empty list to clear them.
      */
     facilitySemiProductList?: Array<ApiSemiProduct>;
     /**
-     * List of final product ID's for this facility
+     * List of final product IDs for this facility. Omit on update to preserve associations; send an empty list to clear them.
      */
     facilityFinalProducts?: Array<ApiFinalProduct>;
     /**
-     * List of value chains for this facility
+     * List of value chains for this facility. Omit on update to preserve associations; send an empty list to clear them.
      */
     facilityValueChains?: Array<ApiValueChain>;
     /**
@@ -2387,9 +2356,9 @@ export type ApiStockOrder = {
      * The ID from which this repacked stock order was created; This ID is generated and provided by the client; Only applicable for repacked stock orders
      */
     repackedOriginStockOrderId?: string;
+    openOrder?: boolean;
     purchaseOrder?: boolean;
     available?: boolean;
-    openOrder?: boolean;
 };
 
 /**
@@ -4116,26 +4085,6 @@ export type ApiPaginatedResponseApiProductLabelBatch = {
      */
     errorMessage?: string;
     data?: ApiPaginatedListApiProductLabelBatch;
-    /**
-     * Optional details for unexpected error responses.
-     */
-    errorDetails?: string;
-    validationErrorDetails?: ApiValidationErrorDetails;
-};
-
-/**
- * Generic API response. See documentation for data type for specific type details.
- */
-export type ApiResponseApiProductLabelValues = {
-    /**
-     * Response status. OK for successful reponses.
-     */
-    status: 'OK' | 'ERROR' | 'REQUEST_BODY_ERROR' | 'VALIDATION_ERROR' | 'TOO_MANY_REQUESTS' | 'UNAUTHORIZED' | 'AUTH_ERROR' | 'UPSTREAM_HTTP_ERROR' | 'INVALID_REQUEST' | 'INVALID_OR_EXPIRED_STORAGE_KEY' | 'NOT_IMPLEMENTED' | 'NOT_FOUND';
-    /**
-     * Simple message to explain client developers the reason for error.
-     */
-    errorMessage?: string;
-    data?: ApiProductLabelValues;
     /**
      * Optional details for unexpected error responses.
      */
@@ -6226,22 +6175,6 @@ export type UpdateCompanyDocumentsForProductLabelResponses = {
 
 export type UpdateCompanyDocumentsForProductLabelResponse = UpdateCompanyDocumentsForProductLabelResponses[keyof UpdateCompanyDocumentsForProductLabelResponses];
 
-export type UpdateProductLabelValuesData = {
-    body: ApiProductLabelUpdateValues;
-    path?: never;
-    query?: never;
-    url: '/api/product/label/values';
-};
-
-export type UpdateProductLabelValuesResponses = {
-    /**
-     * OK
-     */
-    200: ApiDefaultResponse;
-};
-
-export type UpdateProductLabelValuesResponse = UpdateProductLabelValuesResponses[keyof UpdateProductLabelValuesResponses];
-
 export type UpdateProductLabelContentData = {
     body: ApiProductLabelContent;
     path?: never;
@@ -7401,133 +7334,6 @@ export type CreateBulkPaymentResponses = {
 
 export type CreateBulkPaymentResponse = CreateBulkPaymentResponses[keyof CreateBulkPaymentResponses];
 
-export type GeneratePurchasesByCompanyCsvData = {
-    body?: never;
-    headers?: {
-        language?: 'EN' | 'DE' | 'RW' | 'ES';
-    };
-    path: {
-        /**
-         * Company ID
-         */
-        id: number;
-    };
-    query?: {
-        /**
-         * Only count, only fetch, or return both values (if null)
-         */
-        requestType?: 'COUNT' | 'FETCH';
-        /**
-         * Number of records to return. Min: 1, default: 100
-         */
-        limit?: number;
-        /**
-         * Number of records to skip before returning. Default: 0, min: 0
-         */
-        offset?: number;
-        /**
-         * Column name to be sorted by, varies for each endpoint, default is id
-         */
-        sortBy?: string;
-        /**
-         * Direction of sorting (ASC or DESC). Default DESC.
-         */
-        sort?: 'ASC' | 'DESC';
-        /**
-         * Preferred way of payment
-         */
-        preferredWayOfPayment?: 'CASH' | 'CASH_VIA_COLLECTOR' | 'BANK_TRANSFER' | 'CHEQUE' | 'OFFSETTING' | 'UNKNOWN';
-        /**
-         * Is women share
-         */
-        isWomenShare?: boolean;
-        /**
-         * Production date range start
-         */
-        productionDateStart?: string;
-        /**
-         * Production date range end
-         */
-        productionDateEnd?: string;
-        /**
-         * Search by farmer name
-         */
-        query?: string;
-    };
-    url: '/api/chain/csv/purchases/company/{id}';
-};
-
-export type GeneratePurchasesByCompanyCsvResponses = {
-    /**
-     * OK
-     */
-    200: string;
-};
-
-export type GeneratePurchasesByCompanyCsvResponse = GeneratePurchasesByCompanyCsvResponses[keyof GeneratePurchasesByCompanyCsvResponses];
-
-export type GeneratePaymentsByCompanyCsvData = {
-    body?: never;
-    path: {
-        /**
-         * Company ID
-         */
-        id: number;
-    };
-    query?: {
-        /**
-         * Only count, only fetch, or return both values (if null)
-         */
-        requestType?: 'COUNT' | 'FETCH';
-        /**
-         * Number of records to return. Min: 1, default: 100
-         */
-        limit?: number;
-        /**
-         * Number of records to skip before returning. Default: 0, min: 0
-         */
-        offset?: number;
-        /**
-         * Column name to be sorted by, varies for each endpoint, default is id
-         */
-        sortBy?: string;
-        /**
-         * Direction of sorting (ASC or DESC). Default DESC.
-         */
-        sort?: 'ASC' | 'DESC';
-        /**
-         * Preferred way of payment
-         */
-        preferredWayOfPayment?: 'CASH' | 'CASH_VIA_COLLECTOR' | 'BANK_TRANSFER' | 'CHEQUE' | 'OFFSETTING' | 'UNKNOWN';
-        /**
-         * Payment status
-         */
-        paymentStatus?: 'UNCONFIRMED' | 'CONFIRMED';
-        /**
-         * Production date range start
-         */
-        productionDateStart?: string;
-        /**
-         * Production date range end
-         */
-        productionDateEnd?: string;
-        /**
-         * Search by farmer name
-         */
-        query?: string;
-    };
-    url: '/api/chain/csv/payments/company/{id}';
-};
-
-export type GeneratePaymentsByCompanyCsvResponses = {
-    /**
-     * OK
-     */
-    200: string;
-};
-
-export type GeneratePaymentsByCompanyCsvResponse = GeneratePaymentsByCompanyCsvResponses[keyof GeneratePaymentsByCompanyCsvResponses];
-
 export type SendBeycoOrderData = {
     body: ApiBeycoOrderFields;
     headers: {
@@ -8386,27 +8192,6 @@ export type GetProductLabelBatchesResponses = {
 };
 
 export type GetProductLabelBatchesResponse = GetProductLabelBatchesResponses[keyof GetProductLabelBatchesResponses];
-
-export type GetProductLabelValuesData = {
-    body?: never;
-    path: {
-        /**
-         * Record id
-         */
-        id: number;
-    };
-    query?: never;
-    url: '/api/product/label/values/{id}';
-};
-
-export type GetProductLabelValuesResponses = {
-    /**
-     * OK
-     */
-    200: ApiResponseApiProductLabelValues;
-};
-
-export type GetProductLabelValuesResponse = GetProductLabelValuesResponses[keyof GetProductLabelValuesResponses];
 
 export type GetProductLabelContentData = {
     body?: never;
@@ -10414,51 +10199,6 @@ export type GetProcessingEvidenceTypeListResponses = {
 
 export type GetProcessingEvidenceTypeListResponse = GetProcessingEvidenceTypeListResponses[keyof GetProcessingEvidenceTypeListResponses];
 
-export type ListProcessingEvidenceTypesByValueChainData = {
-    body?: never;
-    headers?: {
-        language?: 'EN' | 'DE' | 'RW' | 'ES';
-    };
-    path: {
-        /**
-         * Value chain ID
-         */
-        id: number;
-    };
-    query?: {
-        /**
-         * Only count, only fetch, or return both values (if null)
-         */
-        requestType?: 'COUNT' | 'FETCH';
-        /**
-         * Number of records to return. Min: 1, default: 100
-         */
-        limit?: number;
-        /**
-         * Number of records to skip before returning. Default: 0, min: 0
-         */
-        offset?: number;
-        /**
-         * Column name to be sorted by, varies for each endpoint, default is id
-         */
-        sortBy?: string;
-        /**
-         * Direction of sorting (ASC or DESC). Default DESC.
-         */
-        sort?: 'ASC' | 'DESC';
-    };
-    url: '/api/chain/processing-evidence-type/list/value-chain/{id}';
-};
-
-export type ListProcessingEvidenceTypesByValueChainResponses = {
-    /**
-     * OK
-     */
-    200: ApiPaginatedResponseApiProcessingEvidenceType;
-};
-
-export type ListProcessingEvidenceTypesByValueChainResponse = ListProcessingEvidenceTypesByValueChainResponses[keyof ListProcessingEvidenceTypesByValueChainResponses];
-
 export type ListProcessingEvidenceTypesByValueChainsData = {
     body?: never;
     headers?: {
@@ -10587,51 +10327,6 @@ export type GetProcessingEvidenceFieldListResponses = {
 };
 
 export type GetProcessingEvidenceFieldListResponse = GetProcessingEvidenceFieldListResponses[keyof GetProcessingEvidenceFieldListResponses];
-
-export type ListProcessingEvidenceFieldsByValueChainData = {
-    body?: never;
-    headers?: {
-        language?: 'EN' | 'DE' | 'RW' | 'ES';
-    };
-    path: {
-        /**
-         * Value chain ID
-         */
-        id: number;
-    };
-    query?: {
-        /**
-         * Only count, only fetch, or return both values (if null)
-         */
-        requestType?: 'COUNT' | 'FETCH';
-        /**
-         * Number of records to return. Min: 1, default: 100
-         */
-        limit?: number;
-        /**
-         * Number of records to skip before returning. Default: 0, min: 0
-         */
-        offset?: number;
-        /**
-         * Column name to be sorted by, varies for each endpoint, default is id
-         */
-        sortBy?: string;
-        /**
-         * Direction of sorting (ASC or DESC). Default DESC.
-         */
-        sort?: 'ASC' | 'DESC';
-    };
-    url: '/api/chain/processing-evidence-field/list/value-chain/{id}';
-};
-
-export type ListProcessingEvidenceFieldsByValueChainResponses = {
-    /**
-     * OK
-     */
-    200: ApiPaginatedResponseApiProcessingEvidenceField;
-};
-
-export type ListProcessingEvidenceFieldsByValueChainResponse = ListProcessingEvidenceFieldsByValueChainResponses[keyof ListProcessingEvidenceFieldsByValueChainResponses];
 
 export type ListProcessingEvidenceFieldsByValueChainsData = {
     body?: never;
@@ -11339,6 +11034,10 @@ export type GetPlotsByProducerData = {
          * Producer code in the external system
          */
         producerCode: string;
+        /**
+         * Company the plots are imported for
+         */
+        companyId: number;
     };
     url: '/api/chain/gis/plots';
 };
@@ -11736,44 +11435,6 @@ export type ConvertAtDateResponses = {
 };
 
 export type ConvertAtDateResponse = ConvertAtDateResponses[keyof ConvertAtDateResponses];
-
-export type GetCurrencyTypesData = {
-    body?: never;
-    path?: never;
-    query?: {
-        query?: string;
-        /**
-         * Only count, only fetch, or return both values (if null)
-         */
-        requestType?: 'COUNT' | 'FETCH';
-        /**
-         * Number of records to return. Min: 1, default: 100
-         */
-        limit?: number;
-        /**
-         * Number of records to skip before returning. Default: 0, min: 0
-         */
-        offset?: number;
-        /**
-         * Column name to be sorted by, varies for each endpoint, default is id
-         */
-        sortBy?: string;
-        /**
-         * Direction of sorting (ASC or DESC). Default DESC.
-         */
-        sort?: 'ASC' | 'DESC';
-    };
-    url: '/api/chain/currency-type/list';
-};
-
-export type GetCurrencyTypesResponses = {
-    /**
-     * OK
-     */
-    200: ApiPaginatedResponseApiCurrencyType;
-};
-
-export type GetCurrencyTypesResponse = GetCurrencyTypesResponses[keyof GetCurrencyTypesResponses];
 
 export type GetEnabledCurrencyTypesData = {
     body?: never;
