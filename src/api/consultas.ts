@@ -10,7 +10,8 @@ import {
   updateProfile,
 } from './gen/sdk.gen';
 import type { ApiProductLabelFeedback, ApiUserUpdate } from './gen/types.gen';
-import { desenvolver } from './respuesta';
+import { desenvolver, ErrorApi } from './respuesta';
+import { esVistaPrevia, leerVistaPrevia, type EtiquetaVitrina } from '@/util/etiqueta';
 import { olvidarBeyco } from './beyco';
 
 /** Un QR "EMPTY" es una etiqueta sin lote: la vitrina se muestra sin datos del pedido. */
@@ -25,10 +26,16 @@ export const consultas = {
       staleTime: 5 * 60_000,
     }),
 
+  /** La etiqueta publicada, o la vista previa que dejó el editor en este navegador. */
   etiqueta: (uid: string) =>
     queryOptions({
       queryKey: ['vitrina', 'etiqueta', uid],
-      queryFn: () => desenvolver(getPublicProductLabelValues({ path: { uid } })),
+      queryFn: async (): Promise<EtiquetaVitrina> => {
+        if (!esVistaPrevia(uid)) return desenvolver(getPublicProductLabelValues({ path: { uid } }));
+        const previa = leerVistaPrevia(uid);
+        if (!previa) throw new ErrorApi('La vista previa ya no está disponible: ábrela de nuevo desde el editor de la etiqueta.', 'NOT_FOUND', 404);
+        return previa;
+      },
       staleTime: 10 * 60_000,
     }),
 

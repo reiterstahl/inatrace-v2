@@ -1,11 +1,11 @@
 import { http, HttpResponse, delay } from 'msw';
-import type { ApiFinalProduct, ApiProduct, ApiUserGet } from '@/api/gen/types.gen';
+import type { ApiFinalProduct, ApiProduct, ApiProductLabel, ApiProductLabelCompanyDocument, ApiProductLabelContent, ApiUserGet } from '@/api/gen/types.gen';
 import { ETIQUETA_DEMO, QR_DEMO, etiqueta, qr } from './datos/vitrina';
 import type { ApiUserCustomer } from '@/api/gen/types.gen';
 import { accionesProcesamiento, clientes, instalacionVecina, pagosIniciales, procesosIniciales, productoFinalQr, acopiadores, agrupar, entregasIniciales, historiaDe, instalaciones, loteProcesado, recalcular, semiproductos, tiposEvidencia, usuariosEmpresa } from './datos/stock';
 import type { ApiBulkPayment, ApiPayment, ApiProcessingOrder, ApiPurchaseOrder, ApiStockOrder } from '@/api/gen/types.gen';
 import { EMPRESA_DEMO, capasMapa, paises, parcelasDe, productoresIniciales, tiposCertificacion, tiposProducto } from './datos/productores';
-import { empresasInstancia, finalesIniciales, productosIniciales, unidadesMedida } from './datos/productos';
+import { contenidoDe, empresasInstancia, etiquetasIniciales, finalesIniciales, mediosEmpresa, productosIniciales, unidadesMedida, type EtiquetaSimulada } from './datos/productos';
 
 /**
  * Respuestas simuladas con la misma forma que el backend ({ status, data }).
@@ -69,6 +69,11 @@ const leerProductos = (): ApiProduct[] => JSON.parse(sessionStorage.getItem(CLAV
 const guardarProductos = (l: ApiProduct[]) => sessionStorage.setItem(CLAVE_PRODUCTOS, JSON.stringify(l));
 const CLAVE_ROL = 'simulado.rol';
 const esAdministracion = () => ['SYSTEM_ADMIN', 'REGIONAL_ADMIN'].includes(sessionStorage.getItem(CLAVE_ROL) ?? '');
+const CLAVE_ETIQUETAS = 'simulado.etiquetas';
+const leerEtiquetas = (): EtiquetaSimulada[] => JSON.parse(sessionStorage.getItem(CLAVE_ETIQUETAS) ?? 'null') ?? etiquetasIniciales;
+const guardarEtiquetas = (l: EtiquetaSimulada[]) => sessionStorage.setItem(CLAVE_ETIQUETAS, JSON.stringify(l));
+const baseEtiqueta = ({ etiqueta: e }: EtiquetaSimulada) => ({ id: e.id, productId: e.productId, uuid: e.uuid, title: e.title, language: e.language, status: e.status });
+const etiquetasDe = (producto?: number) => leerEtiquetas().filter((x) => x.etiqueta.productId === producto).map(baseEtiqueta);
 const CLAVE_FINALES = 'simulado.finales';
 const leerFinales = (): ApiFinalProduct[] => JSON.parse(sessionStorage.getItem(CLAVE_FINALES) ?? 'null') ?? finalesIniciales;
 const guardarFinales = (l: ApiFinalProduct[]) => sessionStorage.setItem(CLAVE_FINALES, JSON.stringify(l));
@@ -334,7 +339,7 @@ export const manejadores = [
   http.get('/api/product/:id', ({ params }) => {
     if (!conSesion()) return sinSesion();
     const p = leerProductos().find((x) => x.id === Number(params.id));
-    return p ? ok(p) : error(400, 'INVALID_REQUEST', 'Invalid product id');
+    return p ? ok({ ...p, labels: etiquetasDe(p.id) }) : error(400, 'INVALID_REQUEST', 'Invalid product id');
   }),
   http.post('/api/product/create', async ({ request }) => {
     if (!conSesion()) return sinSesion();
@@ -362,6 +367,63 @@ export const manejadores = [
   http.delete('/api/product/:id', ({ params }) => {
     if (!conSesion()) return sinSesion();
     guardarProductos(leerProductos().filter((x) => x.id !== Number(params.id)));
+    return ok();
+  }),
+  // ---------- Etiquetas ----------
+  http.get('/api/product/:id/labels', ({ params }) => (conSesion() ? ok(etiquetasDe(Number(params.id))) : sinSesion())),
+  http.post('/api/product/label/create', async ({ request }) => {
+    if (!conSesion()) return sinSesion();
+    const e = (await request.json()) as ApiProductLabel;
+    if (!e.language) return error(400, 'VALIDATION_ERROR', 'Label language is required');
+    const producto = leerProductos().find((x) => x.id === e.productId);
+    if (!producto) return error(400, 'INVALID_REQUEST', 'Invalid product id');
+    const id = siguienteId++;
+    guardarEtiquetas([...leerEtiquetas(), { etiqueta: { ...e, id, uuid: `etiqueta-${id}`, status: 'UNPUBLISHED' }, contenido: contenidoDe(producto), medios: [] }]);
+    return ok({ id });
+  }),
+  http.get('/api/product/label/content/:id', ({ params }) => {
+    if (!conSesion()) return sinSesion();
+    const x = leerEtiquetas().find((y) => y.etiqueta.id === Number(params.id));
+    return x ? ok({ ...x.contenido, labelId: x.etiqueta.id }) : error(400, 'INVALID_REQUEST', 'Invalid label id');
+  }),
+  http.get('/api/product/label/:id/documents', ({ params }) => {
+    if (!conSesion()) return sinSesion();
+    const x = leerEtiquetas().find((y) => y.etiqueta.id === Number(params.id));
+    return x ? ok(mediosEmpresa.map((m) => ({ ...m, active: x.medios.includes(m.id!) }))) : error(400, 'INVALID_REQUEST', 'Invalid label id');
+  }),
+  http.get('/api/product/label/:id', ({ params }) => {
+    if (!conSesion()) return sinSesion();
+    const x = leerEtiquetas().find((y) => y.etiqueta.id === Number(params.id));
+    return x ? ok(x.etiqueta) : error(400, 'INVALID_REQUEST', 'Invalid label id');
+  }),
+  http.put('/api/product/label', async ({ request }) => {
+    if (!conSesion()) return sinSesion();
+    const e = (await request.json()) as ApiProductLabel;
+    guardarEtiquetas(leerEtiquetas().map((x) => (x.etiqueta.id === e.id ? { ...x, etiqueta: { ...x.etiqueta, title: e.title, fields: e.fields } } : x)));
+    return ok();
+  }),
+  http.put('/api/product/label/content', async ({ request }) => {
+    if (!conSesion()) return sinSesion();
+    const c = (await request.json()) as ApiProductLabelContent;
+    guardarEtiquetas(leerEtiquetas().map((x) => (x.etiqueta.id === c.labelId ? { ...x, contenido: { ...c, company: x.contenido.company } } : x)));
+    return ok();
+  }),
+  http.put('/api/product/label/:id/documents', async ({ request, params }) => {
+    if (!conSesion()) return sinSesion();
+    const docs = (await request.json()) as ApiProductLabelCompanyDocument[];
+    guardarEtiquetas(leerEtiquetas().map((x) => (x.etiqueta.id === Number(params.id) ? { ...x, medios: docs.filter((d) => d.active).map((d) => d.id!) } : x)));
+    return ok();
+  }),
+  http.post('/api/product/label/execute/:accion', async ({ request, params }) => {
+    if (!conSesion()) return sinSesion();
+    const { id } = (await request.json()) as { id: number };
+    const status = params.accion === 'PUBLISH_LABEL' ? 'PUBLISHED' : 'UNPUBLISHED';
+    guardarEtiquetas(leerEtiquetas().map((x) => (x.etiqueta.id === id ? { ...x, etiqueta: { ...x.etiqueta, status } } : x)));
+    return ok();
+  }),
+  http.delete('/api/product/label/:id', ({ params }) => {
+    if (!conSesion()) return sinSesion();
+    guardarEtiquetas(leerEtiquetas().filter((x) => x.etiqueta.id !== Number(params.id)));
     return ok();
   }),
   http.get('/api/company/list', ({ request }) => {

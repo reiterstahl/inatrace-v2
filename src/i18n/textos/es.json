@@ -184,6 +184,14 @@
     "pie": {
       "trazabilidad": "Trazabilidad con INATrace",
       "redes": "Redes sociales"
+    },
+    "previa": {
+      "titulo": "Vista previa",
+      "sin_publicar": "Así se verá la etiqueta «{{titulo}}» con los cambios del editor. Todavía no está publicada.",
+      "publicada": "Así se verá la etiqueta «{{titulo}}» con los cambios del editor, cuando se guarden.",
+      "sin_opinion": "En la vista previa no se envían opiniones.",
+      "vencida_titulo": "La vista previa ya no está disponible",
+      "vencida": "Ábrela de nuevo desde el editor de la etiqueta."
     }
   },
   "mapa": {
@@ -993,7 +1001,7 @@
   },
   "productos": {
     "titulo": "Productos",
-    "descripcion": "Los productos de tus empresas: su ficha, la vitrina, las empresas de la cadena y los productos finales. Las etiquetas, los lotes y las estadísticas siguen, por ahora, en la versión actual.",
+    "descripcion": "Los productos de tus empresas: su ficha, la vitrina, las empresas de la cadena, los productos finales y las etiquetas. Los lotes, las opiniones y las estadísticas siguen, por ahora, en la versión actual.",
     "nuevo": "Nuevo producto",
     "buscar": "Buscar",
     "buscar_placeholder": "Nombre del producto",
@@ -1209,7 +1217,74 @@
       "borrado": "Se borró «{{nombre}}»."
     },
     "etiquetas": {
-      "no_publicada": "sin publicar"
+      "no_publicada": "sin publicar",
+      "publicada": "Publicada",
+      "sin_publicar": "Sin publicar",
+      "titulo": "Etiquetas",
+      "ayuda": "Cada etiqueta es una vitrina del producto: la abren sus códigos QR. Guarda su propio contenido (copiado del producto al crearla) y elige qué se muestra.",
+      "nueva": "Nueva etiqueta",
+      "nueva_ayuda": "La etiqueta nueva copia el contenido y la apariencia actuales del producto, y muestra al principio solo sus datos y el recorrido.",
+      "nombre": "Nombre de la etiqueta",
+      "nombre_placeholder": "Por ejemplo, «Tienda en línea» o «Feria 2026»",
+      "idioma": "Idioma",
+      "crear": "Crear etiqueta",
+      "vacio": "Todavía no hay etiquetas.",
+      "ver_publica": "Ver en la vitrina",
+      "cabecera": "Datos de la etiqueta",
+      "vista_previa": "Vista previa",
+      "publicar": "Publicar",
+      "retirar": "Retirar de la vitrina",
+      "borrar": "Borrar etiqueta",
+      "guarda_antes": "Guarda los cambios antes de publicar o retirar la etiqueta.",
+      "en_actual": "En la versión actual",
+      "anterior": {
+        "batches": "Lotes",
+        "feedback": "Opiniones",
+        "statistics": "Estadísticas"
+      },
+      "editor_ayuda": "Lo que cambies aquí vale solo para esta etiqueta. Marca en cada campo si se muestra en la vitrina; la vista previa abre la vitrina con los cambios, aunque no estén guardados.",
+      "secciones": {
+        "empresa": "Empresa",
+        "apariencia": "Apariencia",
+        "pestanas": "Pestañas",
+        "precios": "Precios y gráficos",
+        "recorrido": "Recorrido",
+        "medios": "Videos y fotos"
+      },
+      "guardada": "Etiqueta guardada.",
+      "retirada": "La etiqueta ya no se muestra en la vitrina.",
+      "publicada_ok": "La etiqueta está publicada: sus QR abren la vitrina.",
+      "borrar_pregunta": "¿Borrar la etiqueta «{{nombre}}» con sus lotes? Los QR impresos dejarán de abrir la vitrina. No se puede deshacer.",
+      "mostrar_campo": "Mostrar en la vitrina: {{campo}}",
+      "visible": "Se muestra",
+      "oculto": "Oculto",
+      "empresa": {
+        "ayuda": "Los datos de la empresa dueña se editan en la ficha de la empresa (versión actual) y cambian en todas sus etiquetas. Aquí eliges cuáles se muestran.",
+        "vacio": "Sin dato",
+        "logo": "Logo",
+        "name": "Nombre de la empresa",
+        "headquarters": "Sede",
+        "about": "Acerca de la empresa",
+        "manager": "Gerencia",
+        "email": "Correo",
+        "phone": "Teléfono",
+        "webPage": "Sitio web",
+        "facebook": "Facebook",
+        "instagram": "Instagram",
+        "twitter": "X (Twitter)",
+        "youtube": "YouTube",
+        "other": "Otro enlace"
+      },
+      "medios": {
+        "ayuda": "Documentos que cargaron las empresas de la cadena en su ficha. Los marcados se muestran en la pestaña «Productores» de la vitrina.",
+        "vacio": "Las empresas de la cadena todavía no cargaron videos ni fotos.",
+        "un_video": "Elige un solo video: la vitrina muestra uno.",
+        "VIDEO": "Video",
+        "MEET_THE_FARMER": "Conoce a los productores",
+        "PRODUCTION_RECORD": "Registros de producción",
+        "abrir": "Abrir {{nombre}}"
+      },
+      "lugares_h23": "Por un defecto del servidor, los lugares de origen de una etiqueta todavía no se guardan: la vitrina de la etiqueta muestra el texto del origen. Los lugares del producto no se ven afectados."
     }
   }
 }

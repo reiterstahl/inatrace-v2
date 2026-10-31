@@ -39,7 +39,7 @@ export const SECCIONES: Seccion[] = ['datos', 'origen', 'proceso', 'responsabili
 let contador = 0;
 export const puntoNuevo = (lng: number | null = null, lat: number | null = null): PuntoOrigen => ({ clave: `p${++contador}`, nombre: '', lat, lng, productores: null });
 
-export function formDesdeProducto(p: ApiProduct | null): FormProducto {
+export function formDesdeProducto(p: ConFicha | null): FormProducto {
   return {
     nombre: p?.name ?? '',
     descripcion: p?.description ?? '',
@@ -70,13 +70,17 @@ export const SECCION_DE: Record<Campo | 'puntos', Seccion> = {
   idioma: 'ajustes', gdpr: 'ajustes', privacidad: 'ajustes', terminos: 'ajustes',
 };
 
-export function validarProducto(f: FormProducto): ErroresProducto {
+/**
+ * `puntosOpcionales`: en una etiqueta no se exigen lugares de origen, porque el backend no los guarda
+ * (H23: la copia al crear la etiqueta los deja sueltos y la actualización los descarta).
+ */
+export function validarProducto(f: FormProducto, { puntosOpcionales = false } = {}): ErroresProducto {
   const e: ErroresProducto = { puntos: {} };
   if (!f.nombre.trim()) e.nombre = 'requerido';
   if (!f.descripcion.trim()) e.descripcion = 'requerido';
   if (!f.foto) e.foto = 'requerido';
   if (!f.origenTexto.trim()) e.origenTexto = 'requerido';
-  if (!f.puntos.length) e.sinPuntos = 'sin_puntos';
+  if (!f.puntos.length && !puntosOpcionales) e.sinPuntos = 'sin_puntos';
   for (const p of f.puntos) {
     const ep: Partial<Record<'lat' | 'lng' | 'productores', string>> = {};
     if (p.lat === null || Number.isNaN(p.lat)) ep.lat = 'requerido';
@@ -112,14 +116,16 @@ export function seccionesConError(e: ErroresProducto): Set<Seccion> {
 
 const opcional = (s: string) => s.trim() || undefined;
 
+/** Lo que comparten un producto y el contenido de una etiqueta (la ficha). */
+export type ConFicha = Pick<ApiProduct, 'name' | 'description' | 'photo' | 'origin' | 'process' | 'responsibility' | 'sustainability' | 'settings'>;
+
 /**
- * Producto a guardar. Al editar se parte del original completo (empresas asociadas, etiquetas,
- * configuración de la vitrina, recorrido…) y solo se reemplaza lo de la ficha.
+ * Ficha a guardar sobre lo que vino (producto o contenido de una etiqueta): se conserva todo lo demás
+ * (empresas asociadas, etiquetas, vitrina, recorrido…) y solo se reemplaza lo de la ficha.
  */
-export function armarProducto(f: FormProducto, original: ApiProduct | null, alta?: { empresa: number; cadena: number }): ApiProduct {
-  const base: ApiProduct = original ?? { name: '', company: { id: alta!.empresa } as ApiProduct['company'], valueChain: { id: alta!.cadena } as ApiProduct['valueChain'], dataSharingAgreements: [] };
+export function armarContenido<T extends ConFicha>(f: FormProducto, base: T): T {
   const ubicaciones: ApiLocation[] = f.puntos.map((p, i) => ({
-    ...(original?.origin?.locations?.[i] ?? {}),
+    ...(base.origin?.locations?.[i] ?? {}),
     pinName: opcional(p.nombre),
     latitude: p.lat!,
     longitude: p.lng!,
@@ -136,6 +142,12 @@ export function armarProducto(f: FormProducto, original: ApiProduct | null, alta
     sustainability: { ...(base.sustainability ?? {}), production: f.sostenibleProduccion.trim(), packaging: opcional(f.sostenibleEmpaque), co2Footprint: opcional(f.huellaCo2) },
     settings: { ...(base.settings ?? {}), language: f.idioma || undefined, gdprText: opcional(f.gdpr), privacyPolicyText: opcional(f.privacidad), termsOfUseText: opcional(f.terminos) },
   };
+}
+
+/** Producto a guardar. Al editar se parte del original completo (lección de H16). */
+export function armarProducto(f: FormProducto, original: ApiProduct | null, alta?: { empresa: number; cadena: number }): ApiProduct {
+  const base: ApiProduct = original ?? { name: '', company: { id: alta!.empresa } as ApiProduct['company'], valueChain: { id: alta!.cadena } as ApiProduct['valueChain'], dataSharingAgreements: [] };
+  return armarContenido(f, base);
 }
 
 /** La empresa elegida es dueña del producto (puede editarlo y borrarlo). */

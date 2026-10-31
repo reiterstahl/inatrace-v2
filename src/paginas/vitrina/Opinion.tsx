@@ -135,8 +135,9 @@ export function Opinion() {
         </div>
 
         {enviar.isError && <Aviso tono="mal">{t('vitrina.opinion.error')}</Aviso>}
+        {d.etiqueta.vistaPrevia && <Aviso tono="info">{t('vitrina.previa.sin_opinion')}</Aviso>}
         <div>
-          <Boton type="submit" disabled={enviar.isPending}>
+          <Boton type="submit" disabled={enviar.isPending || !!d.etiqueta.vistaPrevia}>
             {enviar.isPending ? t('vitrina.opinion.enviando') : t('vitrina.opinion.enviar')}
           </Boton>
         </div>

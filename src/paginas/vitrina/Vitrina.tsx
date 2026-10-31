@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { Link, Outlet, useRouter, type ErrorComponentProps } from '@tanstack/react-router';
 import { useTranslation } from 'react-i18next';
-import { ErrorApi, urlDocumentoPublico } from '@/api/respuesta';
+import { ErrorApi } from '@/api/respuesta';
 import { EstadoError } from '@/componentes/ui/Estados';
 import { Icono, type NombreIcono } from '@/componentes/ui/Icono';
 import { SelectorIdioma } from '@/componentes/ui/Preferencias';
@@ -14,7 +14,7 @@ import { estiloMarca } from './marca';
 export function Vitrina() {
   const d = useVitrina();
   useIdiomaDeEtiqueta(d.etiqueta.language);
-  useFuentesDelProducto(d.ajustes);
+  useFuentesDelProducto(d.ajustes, d.urlDoc);
 
   useEffect(() => {
     document.title = d.producto ? `${d.producto} · INATrace` : 'INATrace';
@@ -22,6 +22,7 @@ export function Vitrina() {
 
   return (
     <div className="tema-claro flex min-h-dvh flex-col bg-papel text-tinta" style={{ ...estiloMarca(d.ajustes), fontFamily: 'var(--fuente-texto, inherit)' }}>
+      {d.etiqueta.vistaPrevia && <AvisoVistaPrevia />}
       <div className="flex-1">
         <Outlet />
       </div>
@@ -39,14 +40,14 @@ function useIdiomaDeEtiqueta(idiomaEtiqueta?: string) {
 }
 
 /** Fuentes propias del producto (si las cargaron): títulos y texto. */
-function useFuentesDelProducto(a: ApiBusinessToCustomerSettings) {
+function useFuentesDelProducto(a: ApiBusinessToCustomerSettings, urlDoc: (clave?: string) => string | undefined) {
   const titulo = a.productFont?.storageKey;
   const texto = a.textFont?.storageKey;
   useEffect(() => {
     const raiz = document.documentElement.style;
     const cargar = (familia: string, clave: string | undefined, variable: string) => {
       if (!clave) return;
-      new FontFace(familia, `url(${urlDocumentoPublico(clave)})`)
+      new FontFace(familia, `url(${urlDoc(clave)})`)
         .load()
         .then((f) => {
           document.fonts.add(f);
@@ -90,7 +91,7 @@ export function iconoPestana(p: Pestana) {
 export function Seccion({ titulo, intro, children }: { titulo: string; intro?: React.ReactNode; children: React.ReactNode }) {
   const d = useVitrina();
   const { t } = useTranslation();
-  const fondo = urlDocumentoPublico(d.ajustes.headerBackgroundImage?.storageKey);
+  const fondo = d.urlDoc(d.ajustes.headerBackgroundImage?.storageKey);
   // En el celular las pestañas no entran: la activa se desplaza a la vista.
   const barra = useRef<HTMLElement>(null);
   useEffect(() => {
@@ -152,6 +153,21 @@ export function enlaceSeguro(url?: string | null): string | undefined {
   }
 }
 
+/** Franja de la vista previa: la etiqueta se ve como quedaría, todavía sin guardar o sin publicar. */
+function AvisoVistaPrevia() {
+  const { etiqueta } = useVitrina();
+  const { t } = useTranslation();
+  const v = etiqueta.vistaPrevia!;
+  return (
+    <div role="status" className="sticky top-0 z-40 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 bg-tinta px-4 py-2 text-center text-sm text-papel">
+      <Icono nombre="alerta" className="size-4" />
+      <span>
+        <strong>{t('vitrina.previa.titulo')}</strong> · {v.publicada ? t('vitrina.previa.publicada', { titulo: v.titulo }) : t('vitrina.previa.sin_publicar', { titulo: v.titulo })}
+      </span>
+    </div>
+  );
+}
+
 function Pie() {
   const d = useVitrina();
   const { t } = useTranslation();
@@ -194,9 +210,12 @@ export function VitrinaError({ error }: ErrorComponentProps) {
   const { t } = useTranslation();
   const router = useRouter();
   const noEsta = error instanceof ErrorApi && error.noEncontrado;
+  const previa = /\/p-cd\/previa-/.test(window.location.pathname);
   return (
     <div className="tema-claro grid min-h-dvh place-items-center bg-papel text-tinta">
-      {noEsta ? (
+      {noEsta && previa ? (
+        <EstadoError titulo={t('vitrina.previa.vencida_titulo')} texto={t('vitrina.previa.vencida')} />
+      ) : noEsta ? (
         <EstadoError titulo={t('vitrina.no_encontrada')} texto={t('vitrina.no_encontrada_texto')} />
       ) : (
         <EstadoError reintentar={() => void router.invalidate()} />

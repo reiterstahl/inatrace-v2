@@ -14,16 +14,16 @@ import { esDuena } from '@/util/producto';
 
 const ruta = getRouteApi('/portal/productos/$id');
 
-type Destino = '/productos/$id' | '/productos/$id/vitrina' | '/productos/$id/empresas' | '/productos/$id/finales';
+type Destino = '/productos/$id' | '/productos/$id/vitrina' | '/productos/$id/empresas' | '/productos/$id/finales' | '/productos/$id/etiquetas';
 const PESTANAS: { to: Destino; clave: string; icono: NombreIcono; exacta?: boolean }[] = [
   { to: '/productos/$id', clave: 'productos.pestanas.ficha', icono: 'lista', exacta: true },
   { to: '/productos/$id/vitrina', clave: 'productos.pestanas.vitrina', icono: 'ruta' },
   { to: '/productos/$id/empresas', clave: 'productos.pestanas.empresas', icono: 'personas' },
   { to: '/productos/$id/finales', clave: 'productos.pestanas.finales', icono: 'taza' },
+  { to: '/productos/$id/etiquetas', clave: 'productos.pestanas.etiquetas', icono: 'qr' },
 ];
-/** Lo que sigue en la versión actual (se migra en 5b–5d). */
+/** Lo que sigue en la versión actual (se migra en 5d). */
 const PENDIENTES: { clave: string; anterior: (id: string) => string }[] = [
-  { clave: 'productos.pestanas.etiquetas', anterior: (id) => `/product-labels/${id}` },
   { clave: 'productos.pestanas.conocimiento', anterior: (id) => `/product-labels/${id}/knowledge-blog` },
 ];
 

@@ -1,7 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import type { ApiCompanyDocument } from '@/api/gen/types.gen';
-import { urlDocumentoPublico } from '@/api/respuesta';
-import { useVitrina } from './datos';
+import { useVitrina, type DatosVitrina } from './datos';
 import { Seccion, enlaceSeguro } from './Vitrina';
 
 /** Convierte un enlace de YouTube a su versión sin cookies para insertarlo. Otros enlaces no se insertan. */
@@ -15,16 +14,16 @@ export function videoInsertable(enlace?: string | null): string | undefined {
   return id && /^[\w-]{6,20}$/.test(id) ? `https://www.youtube-nocookie.com/embed/${id}` : undefined;
 }
 
-function imagen(doc: ApiCompanyDocument) {
-  return doc.type === 'LINK' ? enlaceSeguro(doc.link) : urlDocumentoPublico(doc.document?.storageKey);
+function imagen(doc: ApiCompanyDocument, urlDoc: DatosVitrina['urlDoc']) {
+  return doc.type === 'LINK' ? enlaceSeguro(doc.link) : urlDoc(doc.document?.storageKey);
 }
 
 export function Productores() {
   const d = useVitrina();
   const { t } = useTranslation();
   const video = videoInsertable(d.etiqueta.videoMeetTheFarmers?.link);
-  const fotos = (d.etiqueta.photosMeetTheFarmers ?? []).filter(imagen);
-  const registros = (d.etiqueta.productionRecords ?? []).filter(imagen);
+  const fotos = (d.etiqueta.photosMeetTheFarmers ?? []).filter((x) => imagen(x, d.urlDoc));
+  const registros = (d.etiqueta.productionRecords ?? []).filter((x) => imagen(x, d.urlDoc));
   const vacio = !video && fotos.length === 0 && registros.length === 0;
 
   return (
@@ -50,12 +49,13 @@ export function Productores() {
 
 /** Carrusel con desplazamiento nativo: funciona con el dedo, la rueda y el teclado, sin librerías. */
 function Galeria({ docs }: { docs: ApiCompanyDocument[] }) {
+  const { urlDoc } = useVitrina();
   return (
     <ul className="-mx-5 flex snap-x snap-mandatory scroll-px-5 gap-4 relative overflow-x-auto px-5 pb-2 [scrollbar-width:thin]" tabIndex={0}>
       {docs.map((doc) => (
         <li key={doc.id ?? doc.name} className="w-[78%] shrink-0 snap-start sm:w-[60%]">
           <figure className="overflow-hidden rounded-caja border border-linea bg-superficie shadow-suave">
-            <img src={imagen(doc)} alt={doc.name ?? ''} loading="lazy" className="aspect-[4/3] w-full object-cover" />
+            <img src={imagen(doc, urlDoc)} alt={doc.name ?? ''} loading="lazy" className="aspect-[4/3] w-full object-cover" />
             {(doc.name || doc.quote || doc.description) && (
               <figcaption className="grid gap-1 p-4">
                 {doc.quote && <blockquote className="font-titulo text-lg leading-snug italic">“{doc.quote}”</blockquote>}

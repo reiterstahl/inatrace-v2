@@ -1,4 +1,5 @@
-import type { ApiFinalProduct, ApiMeasureUnitType, ApiProduct } from '@/api/gen/types.gen';
+import type { ApiFinalProduct, ApiMeasureUnitType, ApiProduct, ApiProductLabel, ApiProductLabelCompanyDocument, ApiProductLabelContent } from '@/api/gen/types.gen';
+import { camposIniciales } from '@/util/etiqueta';
 import { EMPRESA_DEMO } from './productores';
 
 /** Productos del modo simulado: uno propio de la cooperativa y uno de otra empresa donde es compradora. */
@@ -54,4 +55,31 @@ export const unidadesMedida: ApiMeasureUnitType[] = [
 
 export const finalesIniciales: ApiFinalProduct[] = [
   { id: 21, name: 'Café tostado 340 g', description: 'Bolsa con válvula, tueste medio.', product: { id: 1, name: 'Café Flor de la Sierra' }, measurementUnitType: unidadesMedida[2], labels: [{ id: 11, title: 'Tienda en línea', status: 'PUBLISHED' }] },
+];
+
+/** Etiquetas del modo simulado: cada una con su contenido (copia del producto) y los medios elegidos. */
+export type EtiquetaSimulada = { etiqueta: ApiProductLabel; contenido: ApiProductLabelContent; medios: number[] };
+
+const empresaCompleta = { ...EMPRESA_DEMO, about: 'Cooperativa de 120 familias cafetaleras.', webPage: 'https://flordelasierra.example', mediaLinks: { facebook: 'https://facebook.com/flordelasierra' } };
+
+export function contenidoDe(p: ApiProduct): ApiProductLabelContent {
+  const { name, description, photo, origin, process, responsibility, sustainability, settings, businessToCustomerSettings, journeyMarkers } = p;
+  return structuredClone({ name, description, photo, origin, process, responsibility, sustainability, settings, businessToCustomerSettings, journeyMarkers, company: empresaCompleta });
+}
+
+export const etiquetasIniciales: EtiquetaSimulada[] = [
+  {
+    etiqueta: { id: 11, productId: 1, uuid: 'etiqueta-tienda', title: 'Tienda en línea', language: 'ES', status: 'PUBLISHED', fields: camposIniciales().map((c) => (c.name === 'process.production' ? { ...c, visible: true } : c)) },
+    contenido: contenidoDe(productosIniciales[0]!),
+    medios: [302],
+  },
+];
+
+/** Documentos de las empresas de la cadena que una etiqueta puede mostrar. */
+export const mediosEmpresa: ApiProductLabelCompanyDocument[] = [
+  { id: 301, category: 'VIDEO', type: 'LINK', name: 'Visita a la finca', link: 'https://youtu.be/dQw4w9WgXcQ' },
+  { id: 305, category: 'VIDEO', type: 'LINK', name: 'Día de corte', link: 'https://youtu.be/abcdefghijk' },
+  { id: 302, category: 'MEET_THE_FARMER', type: 'FILE', name: 'Doña Marta', quote: 'Cuidamos la sombra del cafetal.', document: { id: 902, storageKey: 'productora-marta', name: 'marta.jpg', contentType: 'image/jpeg' } },
+  { id: 303, category: 'MEET_THE_FARMER', type: 'FILE', name: 'Don Luis', document: { id: 903, storageKey: 'productor-luis', name: 'luis.jpg', contentType: 'image/jpeg' } },
+  { id: 304, category: 'PRODUCTION_RECORD', type: 'FILE', name: 'Registro de cosecha 2026', document: { id: 904, storageKey: 'registro-2026', name: 'registro.jpg', contentType: 'image/jpeg' } },
 ];

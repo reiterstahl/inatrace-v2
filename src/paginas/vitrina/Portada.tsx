@@ -1,6 +1,5 @@
 import { Link } from '@tanstack/react-router';
 import { useTranslation } from 'react-i18next';
-import { urlDocumentoPublico } from '@/api/respuesta';
 import { Icono } from '@/componentes/ui/Icono';
 import { pestanas, useVitrina } from './datos';
 import { iconoPestana, enlacePestana } from './Vitrina';
@@ -9,8 +8,8 @@ import { colorTituloProducto } from './marca';
 export function Portada() {
   const d = useVitrina();
   const { t } = useTranslation();
-  const fondo = urlDocumentoPublico(d.ajustes.landingPageBackgroundImage?.storageKey);
-  const imagen = urlDocumentoPublico(d.ajustes.landingPageImage?.storageKey);
+  const fondo = d.urlDoc(d.ajustes.landingPageBackgroundImage?.storageKey);
+  const imagen = d.urlDoc(d.ajustes.landingPageImage?.storageKey);
   const colorTitulo = colorTituloProducto(d.ajustes, !!fondo);
   const secciones = pestanas(d.ajustes);
 

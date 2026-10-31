@@ -439,6 +439,54 @@ finales y solo lectura de un producto ajeno; el modo simulado acepta `sessionSto
 para probar como administración) y una nueva contra el backend real (`e2e-real/productos-partes.spec.ts`,
 crea su producto por la API y lo borra al terminar).
 
+## Fase 5b (etiquetas) — ✅ cerrada el 31.10.2026 (rama `fase-5`)
+
+Nueva pestaña **Etiquetas** del producto: `/productos/$id/etiquetas` (lista y alta) y
+`/productos/$id/etiquetas/$etiqueta` (editor).
+
+- **Alta:** nombre e idioma. La etiqueta copia el contenido y la apariencia del producto y, como en
+  la versión actual, al principio muestra solo los datos del producto (nombre, foto, descripción,
+  origen) y el recorrido.
+- **Editor:** el mismo formulario de la ficha (componente compartido) con un interruptor «Se
+  muestra / Oculto» en cada campo; los datos de la empresa dueña (solo lectura, se editan en su
+  ficha) con su visibilidad; la apariencia, pestañas, precios y recorrido propios de la etiqueta
+  (el mismo editor de la pestaña Vitrina); y los **videos y fotos** de las empresas de la cadena
+  (un solo video, como muestra la vitrina). Se guarda en tres llamadas como la versión actual
+  (título y campos, contenido, medios), respetando el orden de campos que ya tenía la etiqueta y
+  los campos que la v2 no conoce.
+- **Publicar / retirar** (deshabilitado con cambios sin guardar), **ver en la vitrina** cuando está
+  publicada y **borrar**. Lotes, opiniones y estadísticas siguen enlazando a la versión actual (5c).
+- **Vista previa con la vitrina de la v2:** abre en otra pestaña la vitrina tal como quedaría con
+  lo que hay en el editor, aunque no esté guardado ni publicada. Se arma igual que el backend arma
+  la pública (campos visibles, apariencia del producto con la de la etiqueta encima, medios
+  elegidos) y se guarda en este navegador por 24 horas con un identificador propio (`previa-<id>`),
+  así que nunca reemplaza a una etiqueta real. En la vista previa los documentos se piden por la
+  ruta autenticada, una franja avisa que es vista previa y no se envían opiniones.
+- **Mejora sobre la versión actual:** la etiqueta puede mostrar el texto de transparencia de
+  precios (`settings.incomeIncreaseDescription`), que la vitrina ya sabía leer pero la versión
+  actual no dejaba hacer visible.
+
+### H23 🟠 — la copia del producto en una etiqueta pierde datos (backend, también en AgStack 19d0ea3)
+
+Encontrado con la prueba real. Tres defectos en el backend, presentes también en el original:
+
+1. `Responsibility.copy()` devuelve un objeto vacío: la etiqueta nueva pierde las políticas laborales.
+2. `ProductLabelContent.fromProduct` copia los lugares de origen sin vincularlos a la etiqueta
+   (`ProductLocation.content` queda vacío): quedan huérfanos en la base.
+3. `updateProductLabelContent` reemplaza los lugares en una copia de la lista
+   (`new ArrayList<>(p.getOriginLocations())`): los lugares de una etiqueta nunca se guardan.
+
+En la v2: al crear la etiqueta se completan las políticas laborales desde el producto; el editor no
+exige lugares de origen en una etiqueta y avisa por qué. La prueba real comprueba que el defecto 3
+sigue (si el backend se corrige, falla y avisa que hay que quitar el aviso). **Pendiente:** corregirlo
+en el backend del contrato y proponerlo a AgStack por PR (no es de seguridad).
+
+**Pruebas:** 110 unitarias (8 nuevas de etiquetas), 108 de punta a punta simuladas (6 nuevas en
+escritorio y celular: alta, visibilidad, medios, publicación; vista previa con cambios sin guardar;
+retirar y borrar) y una nueva contra el backend real (`e2e-real/etiquetas.spec.ts`: crea su producto
+con foto por la API, crea la etiqueta, comprueba campos y contenido en el backend, la vista previa
+sin publicar, la vitrina pública de la v2 al publicar, retirar y borrar).
+
 ## Fase 1b (activar la vitrina en una instalación) — pendiente, acordada el 19.10.2026
 
 Pasos, en orden:
@@ -464,5 +512,7 @@ confirmar el uso del video de Anacafé o cambiarlo.**
 2. Revisión de alemán y kinyarwanda por alguien que los hable.
 3. Demo pública: más adelante.
 4. **Fase 3 cerrada** (3a–3e.3). Queda probar Beyco de verdad cuando haya una cuenta de pruebas.
-5. En curso: «Productos y etiquetas» (fase 5, ver arriba). Después, «Empresa y administración».
+5. En curso: «Productos y etiquetas» (fase 5): faltan 5c (lotes, opiniones y estadísticas) y 5d
+   (base de conocimiento). Después, «Empresa y administración».
+6. H23 (arriba): corregir en el backend y proponerlo a AgStack por PR.
    Criterio de salida de la fase: ciclo entrega → procesamiento → pago completo en la v2.

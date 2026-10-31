@@ -10,6 +10,7 @@ import {
   type ErroresVitrina, type FormVitrina,
 } from '@/util/vitrinaProducto';
 import { NumeroConUnidad } from '../stock/procesamiento/piezas';
+import { ConVisibilidad, type Visibilidad } from './Ficha';
 import { useProducto } from './Marco';
 import { BarraGuardar, CampoArchivo, CampoColor, Casilla, Tarjeta } from './piezas';
 
@@ -63,7 +64,7 @@ export function VitrinaProducto() {
  * Apariencia, pestañas, precios y recorrido de la vitrina. Lo usan el producto y cada etiqueta
  * (que guarda su propia copia).
  */
-export function EditorVitrina({ f, cambiar, errores, editable }: { f: FormVitrina; cambiar: (c: Partial<FormVitrina>) => void; errores: ErroresVitrina; editable: boolean }) {
+export function EditorVitrina({ f, cambiar, errores, editable, visibilidad }: { f: FormVitrina; cambiar: (c: Partial<FormVitrina>) => void; errores: ErroresVitrina; editable: boolean; visibilidad?: Visibilidad }) {
   const { t } = useTranslation();
   const err = (k: keyof ErroresVitrina) => (errores[k] ? t(`productos.vitrina.errores.${errores[k]}`) : undefined);
   const archivo = (k: keyof FormVitrina['archivos']) => ({ doc: f.archivos[k], alCambiar: (d: FormVitrina['archivos'][typeof k]) => cambiar({ archivos: { ...f.archivos, [k]: d } }), deshabilitado: !editable });
@@ -117,7 +118,9 @@ export function EditorVitrina({ f, cambiar, errores, editable }: { f: FormVitrin
           ))}
         </div>
         <div className="mt-5 grid gap-5">
-          <Area etiqueta={t('productos.vitrina.transparencia')} ayuda={t('productos.vitrina.transparencia_ayuda')} rows={4} value={f.transparencia} onChange={(e) => cambiar({ transparencia: e.target.value })} />
+          <ConVisibilidad campo="settings.incomeIncreaseDescription" texto={t('productos.vitrina.transparencia')} v={visibilidad}>
+            <Area etiqueta={t('productos.vitrina.transparencia')} ayuda={t('productos.vitrina.transparencia_ayuda')} rows={4} value={f.transparencia} onChange={(e) => cambiar({ transparencia: e.target.value })} />
+          </ConVisibilidad>
           <Casilla marcada={f.graficoCalidad} alCambiar={(graficoCalidad) => cambiar({ graficoCalidad })} deshabilitada={!editable}>
             {t('productos.vitrina.grafico_calidad')}
           </Casilla>

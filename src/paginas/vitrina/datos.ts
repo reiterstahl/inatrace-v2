@@ -2,21 +2,28 @@ import { getRouteApi } from '@tanstack/react-router';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { consultas } from '@/api/consultas';
-import type { ApiBusinessToCustomerSettings, ApiProductLabelValuesExtended, ApiQrTagPublic } from '@/api/gen/types.gen';
+import type { ApiBusinessToCustomerSettings, ApiQrTagPublic } from '@/api/gen/types.gen';
+import { urlDocumento, urlDocumentoPublico } from '@/api/respuesta';
+import type { EtiquetaVitrina } from '@/util/etiqueta';
 
 const ruta = getRouteApi('/p-cd/$etiqueta/$qr');
 
 export type DatosVitrina = {
-  etiqueta: ApiProductLabelValuesExtended;
+  etiqueta: EtiquetaVitrina;
   qr: ApiQrTagPublic | null;
   ajustes: ApiBusinessToCustomerSettings;
   /** Valor de un campo de la etiqueta por nombre (p. ej. "name", "settings.gdprText"). */
   campo: <T = string>(nombre: string) => T | undefined;
   producto: string;
   params: { etiqueta: string; qr: string };
+  /**
+   * Dirección de un documento de la vitrina. En la vista previa (etiqueta sin publicar) se piden por
+   * la ruta autenticada: la pública solo entrega los de etiquetas publicadas.
+   */
+  urlDoc: (clave?: string | null) => string | undefined;
 };
 
-export function armarDatos(etiqueta: ApiProductLabelValuesExtended, qr: ApiQrTagPublic | null, params: { etiqueta: string; qr: string }): DatosVitrina {
+export function armarDatos(etiqueta: EtiquetaVitrina, qr: ApiQrTagPublic | null, params: { etiqueta: string; qr: string }): DatosVitrina {
   const campos = new Map((etiqueta.fields ?? []).map((f) => [f.name, f.value]));
   const campo = <T,>(nombre: string) => (campos.get(nombre) ?? undefined) as T | undefined;
   return {
@@ -26,6 +33,7 @@ export function armarDatos(etiqueta: ApiProductLabelValuesExtended, qr: ApiQrTag
     campo,
     producto: (campo<string>('name') ?? etiqueta.title ?? '').trim(),
     params,
+    urlDoc: etiqueta.vistaPrevia ? urlDocumento : urlDocumentoPublico,
   };
 }
 

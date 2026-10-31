@@ -184,6 +184,14 @@
     "pie": {
       "trazabilidad": "Traceability with INATrace",
       "redes": "Social media"
+    },
+    "previa": {
+      "titulo": "Preview",
+      "sin_publicar": "This is how the label «{{titulo}}» will look with the editor's changes. It is not published yet.",
+      "publicada": "This is how the label «{{titulo}}» will look with the editor's changes, once saved.",
+      "sin_opinion": "Feedback is not sent from the preview.",
+      "vencida_titulo": "The preview is no longer available",
+      "vencida": "Open it again from the label editor."
     }
   },
   "mapa": {
@@ -993,7 +1001,7 @@
   },
   "productos": {
     "titulo": "Products",
-    "descripcion": "Your companies' products: details, showcase, the chain's companies and final products. Labels, batches and statistics remain in the current version for now.",
+    "descripcion": "Your companies' products: details, showcase, the chain's companies, final products and labels. Batches, feedback and statistics remain in the current version for now.",
     "nuevo": "New product",
     "buscar": "Search",
     "buscar_placeholder": "Product name",
@@ -1209,7 +1217,74 @@
       "borrado": "«{{nombre}}» was deleted."
     },
     "etiquetas": {
-      "no_publicada": "unpublished"
+      "no_publicada": "unpublished",
+      "publicada": "Published",
+      "sin_publicar": "Unpublished",
+      "titulo": "Labels",
+      "ayuda": "Each label is a showcase of the product, opened by its QR codes. It keeps its own content (copied from the product when created) and chooses what is shown.",
+      "nueva": "New label",
+      "nueva_ayuda": "The new label copies the product's current content and appearance, and at first shows only its details and the journey.",
+      "nombre": "Label name",
+      "nombre_placeholder": "For example «Online store» or «Fair 2026»",
+      "idioma": "Language",
+      "crear": "Create label",
+      "vacio": "No labels yet.",
+      "ver_publica": "View showcase",
+      "cabecera": "Label details",
+      "vista_previa": "Preview",
+      "publicar": "Publish",
+      "retirar": "Unpublish",
+      "borrar": "Delete label",
+      "guarda_antes": "Save your changes before publishing or unpublishing the label.",
+      "en_actual": "In the current version",
+      "anterior": {
+        "batches": "Batches",
+        "feedback": "Feedback",
+        "statistics": "Statistics"
+      },
+      "editor_ayuda": "Changes here apply only to this label. Mark on each field whether it is shown in the showcase; the preview opens the showcase with your changes, even unsaved.",
+      "secciones": {
+        "empresa": "Company",
+        "apariencia": "Appearance",
+        "pestanas": "Tabs",
+        "precios": "Prices and charts",
+        "recorrido": "Journey",
+        "medios": "Videos and photos"
+      },
+      "guardada": "Label saved.",
+      "retirada": "The label is no longer shown in the showcase.",
+      "publicada_ok": "The label is published: its QR codes open the showcase.",
+      "borrar_pregunta": "Delete the label «{{nombre}}» with its batches? Printed QR codes will stop opening the showcase. This cannot be undone.",
+      "mostrar_campo": "Show in the showcase: {{campo}}",
+      "visible": "Shown",
+      "oculto": "Hidden",
+      "empresa": {
+        "ayuda": "The owner company's details are edited in the company profile (current version) and change in all its labels. Here you choose which are shown.",
+        "vacio": "No data",
+        "logo": "Logo",
+        "name": "Company name",
+        "headquarters": "Headquarters",
+        "about": "About the company",
+        "manager": "Manager",
+        "email": "Email",
+        "phone": "Phone",
+        "webPage": "Website",
+        "facebook": "Facebook",
+        "instagram": "Instagram",
+        "twitter": "X (Twitter)",
+        "youtube": "YouTube",
+        "other": "Other link"
+      },
+      "medios": {
+        "ayuda": "Documents uploaded by the chain's companies in their profiles. Checked ones show in the showcase's «Producers» tab.",
+        "vacio": "The chain's companies have not uploaded videos or photos yet.",
+        "un_video": "Choose a single video: the showcase shows one.",
+        "VIDEO": "Video",
+        "MEET_THE_FARMER": "Meet the farmers",
+        "PRODUCTION_RECORD": "Production records",
+        "abrir": "Open {{nombre}}"
+      },
+      "lugares_h23": "Due to a server defect, a label's origin places are not saved yet: the label's showcase shows the origin text. The product's places are not affected."
     }
   }
 }
