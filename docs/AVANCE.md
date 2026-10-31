@@ -346,6 +346,34 @@ la productora). En modo simulado, sí. **Nota:** al borrar un pedido de cliente 
 cabecera del pedido queda en la base, porque el backend no tiene forma de borrarla (igual que en la
 versión actual).
 
+## Fase 3e.3 (Beyco) — ✅ cerrada el 31.10.2026 (rama `fase-3`) · probada sin Beyco real
+
+Exportar lotes a **Beyco** (marketplace de café verde) como oferta, igual que la versión actual.
+**No hay cuenta de Beyco de pruebas:** el envío real a Beyco queda sin probar hasta tener acceso.
+
+- **Todo el stock:** si la empresa tiene Beyco habilitado y la instalación lo configuró
+  (`BEYCO_AUTH_URL` y `BEYCO_CLIENT_ID`, las mismas variables que la versión actual), la lista por
+  orden muestra casillas y **«Exportar a Beyco (N)»**.
+- **Autorización (OAuth2):** se sale a Beyco con los mismos parámetros que la versión actual y un
+  `state` aleatorio guardado en la pestaña; al volver, el `state` tiene que coincidir (si no, se
+  rechaza) y el backend cambia el código por el token. El token vive solo en memoria (se pierde al
+  recargar o al salir) y **se renueva antes de enviar si venció**. En la versión actual esa
+  renovación nunca funciona (pasa el método sin enlazar y no se suscribe al resultado).
+- **Oferta:** el backend la precarga desde los lotes (cosecha, puerto según la instalación,
+  zaranda, taza, grado y sellos de la empresa). Las mismas validaciones de la versión actual:
+  título hasta 70 caracteres, zaranda 8–20 con mínima ≤ máxima, taza 60–100 (desde 80 se marca
+  especialidad), textos libres cuando se elige «Otro». Selección múltiple accesible para
+  variedades, segmento, grados y sellos.
+- **Mejora sobre la versión actual:** el backend nombra cada café con el número interno del lote,
+  que las entregas no tienen, así que llegaba vacío. La v2 lo completa con el identificador del lote.
+
+**Pruebas:** 92 unitarias (7 nuevas de Beyco), 86 de punta a punta simuladas (2 nuevas en escritorio
+y celular: el ciclo completo con autorización simulada, y el rechazo de una vuelta con otro `state`)
+y una nueva contra el backend real (`scripts/sembrar-beyco.mjs` habilita Beyco en la empresa demo de
+la copia aislada). Esa prueba intercepta la salida hacia Beyco y simula su vuelta. Verifica: los
+parámetros de la salida y el `state`, que sin Beyco configurado el backend no entrega token y la v2
+lo muestra limpio, y la precarga real desde un lote recién creado.
+
 ## Fase 1b (activar la vitrina en una instalación) — pendiente, acordada el 19.10.2026
 
 Pasos, en orden:
@@ -370,7 +398,7 @@ confirmar el uso del video de Anacafé o cambiarlo.**
 1. Fase 1b (arriba), cuando se decida. `fase-0` **no** se pasa a `main` por ahora.
 2. Revisión de alemán y kinyarwanda por alguien que los hable.
 3. Demo pública: más adelante.
-4. Fase 3, lo que sigue: 3e.3 Beyco (solo se puede probar en modo simulado: no hay cuenta de
-   Beyco de pruebas). Con eso se cumple el criterio de
-   salida de la fase.
+4. **Fase 3 cerrada** (3a–3e.3). Queda probar Beyco de verdad cuando haya una cuenta de pruebas.
+5. Lo que sigue en la v2: migrar «Productos y etiquetas» y «Empresa y administración», que todavía
+   abren la versión actual.
    Criterio de salida de la fase: ciclo entrega → procesamiento → pago completo en la v2.

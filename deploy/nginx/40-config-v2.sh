@@ -7,7 +7,9 @@ cat > /tmp/config-v2.js <<JS
 window.__INATRACE__ = {
   tokenRegistro: "$(escapar "${TOKEN_REGISTRO_PUBLICO:-}")",
   urlPublica: "$(escapar "${APP_BASE_URL:-}")",
-  rutaQr: "$(escapar "${QR_CODE_BASE_PATH:-q-cd}")"
+  rutaQr: "$(escapar "${QR_CODE_BASE_PATH:-q-cd}")",
+  beycoUrl: "$(escapar "${BEYCO_AUTH_URL:-}")",
+  beycoClientId: "$(escapar "${BEYCO_CLIENT_ID:-}")"
 };
 JS
 echo "config-v2: configuración escrita"

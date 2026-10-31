@@ -19,3 +19,8 @@ necesitan al menos dos productores en la empresa y una instalación de acopio.
 `pagos.spec.ts` carga temporalmente una cuenta bancaria de prueba a la productora 1 (por la API) para
 el pago masivo y la deja como estaba al terminar. El backend no permite borrar pagos masivos: cada
 corrida deja un registro "E2E-MASIVO" sin pagos.
+
+`ordenes.spec.ts` necesita `scripts/sembrar-ordenes.mjs` (segunda empresa, cliente y plantillas de
+pedido) y `beyco.spec.ts` necesita `scripts/sembrar-beyco.mjs` (Beyco habilitado en la empresa demo).
+Los dos scripts son solo para copias aisladas. `beyco.spec.ts` no usa Beyco de verdad: intercepta la
+salida hacia Beyco y simula su vuelta.

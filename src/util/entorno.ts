@@ -9,6 +9,10 @@ type Config = {
   urlPublica?: string;
   /** Ruta de los QR impresos (QR_CODE_BASE_PATH de la versión actual). */
   rutaQr?: string;
+  /** Autorización de Beyco (BEYCO_AUTH_URL de la versión actual). Vacío: sin Beyco. */
+  beycoUrl?: string;
+  /** Cliente de INATrace en Beyco (BEYCO_CLIENT_ID de la versión actual). */
+  beycoClientId?: string;
 };
 export const CONFIG: Config = (window as unknown as { __INATRACE__?: Config }).__INATRACE__ ?? {};
 

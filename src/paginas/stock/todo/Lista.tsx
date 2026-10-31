@@ -4,6 +4,8 @@ import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { POR_PAGINA_STOCK, exportarGeoDatos, stock, useBorrarEntrega } from '@/api/stock';
 import { procesamiento, useBorrarProcesamiento } from '@/api/procesamiento';
+import { beycoConfigurado, conectadoABeyco, irAAutorizar } from '@/api/beyco';
+import { productores } from '@/api/productores';
 import { useQueryClient } from '@tanstack/react-query';
 import type { ApiGroupStockOrder, ApiStockOrder } from '@/api/gen/types.gen';
 import { Boton } from '@/componentes/ui/Boton';
@@ -46,6 +48,22 @@ function Contenido({ empresa }: { empresa: number }) {
   const borrarProceso = useBorrarProcesamiento();
   const qc = useQueryClient();
 
+  // Beyco: solo si la empresa lo tiene habilitado y la instalación lo configuró (como la versión actual).
+  const perfil = useQuery(productores.perfilEmpresa(empresa));
+  const conBeyco = !!perfil.data?.allowBeycoIntegration && beycoConfigurado();
+  const [elegidos, setElegidos] = useState<number[]>([]);
+  const claveFiltro = JSON.stringify(comun);
+  const [filtroElegidos, setFiltroElegidos] = useState(claveFiltro);
+  if (filtroElegidos !== claveFiltro) {
+    // Cambiar de filtro o de página vacía la selección: lo elegido tiene que estar a la vista.
+    setFiltroElegidos(claveFiltro);
+    setElegidos([]);
+  }
+  function exportarABeyco() {
+    if (conectadoABeyco(empresa)) void navegar({ to: '/stock/beyco/oferta', search: { lotes: elegidos.join(',') } });
+    else irAAutorizar(empresa, elegidos);
+  }
+
   async function geo(id: number) {
     setError(null);
     try {
@@ -77,9 +95,16 @@ function Contenido({ empresa }: { empresa: number }) {
 
   return (
     <div className="grid gap-6">
-      <header>
-        <h1 className="font-titulo text-3xl font-semibold tracking-tight">{t('stock.todo.titulo')}</h1>
-        <p className="mt-1 text-tinta-2">{t('stock.todo.descripcion')}</p>
+      <header className="flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <h1 className="font-titulo text-3xl font-semibold tracking-tight">{t('stock.todo.titulo')}</h1>
+          <p className="mt-1 text-tinta-2">{t('stock.todo.descripcion')}</p>
+        </div>
+        {conBeyco && !agrupado && filtro.inst && (
+          <Boton variante="secundario" disabled={!elegidos.length} onClick={exportarABeyco}>
+            <Icono nombre="externo" className="size-4" /> {t('stock.beyco.exportar', { count: elegidos.length })}
+          </Boton>
+        )}
       </header>
 
       {error && <Aviso tono="mal">{error}</Aviso>}
@@ -140,7 +165,7 @@ function Contenido({ empresa }: { empresa: number }) {
           {agrupado ? (
             <TablaAgrupada items={grupos.data!.items ?? []} i18n={i18n.language} />
           ) : (
-            <TablaSuelta items={sueltas.data!.items ?? []} i18n={i18n.language} onGeo={geo} onBorrar={eliminar} />
+            <TablaSuelta items={sueltas.data!.items ?? []} i18n={i18n.language} onGeo={geo} onBorrar={eliminar} eleccion={conBeyco ? { elegidos, setElegidos } : undefined} />
           )}
           {paginas > 1 && (
             <nav className="flex items-center justify-between gap-3 text-sm" aria-label={t('productores.paginacion')}>
@@ -172,13 +197,26 @@ function Disponible({ o }: { o: { availableQuantity?: number } }) {
   return <span className={'rounded-full px-2.5 py-1 text-xs font-semibold ' + (hay ? 'bg-ok-suave text-ok' : 'bg-superficie-2 text-tinta-3')}>{hay ? t('stock.todo.disponible') : t('stock.todo.agotado')}</span>;
 }
 
-function TablaSuelta({ items, i18n, onGeo, onBorrar }: { items: ApiStockOrder[]; i18n: string; onGeo: (id: number) => void; onBorrar: (o: ApiStockOrder) => void }) {
+type Eleccion = { elegidos: number[]; setElegidos: (v: number[]) => void };
+
+function TablaSuelta({ items, i18n, onGeo, onBorrar, eleccion }: { items: ApiStockOrder[]; i18n: string; onGeo: (id: number) => void; onBorrar: (o: ApiStockOrder) => void; eleccion?: Eleccion }) {
   const { t } = useTranslation();
   return (
     <div className="relative overflow-x-auto rounded-caja border border-linea bg-superficie shadow-suave">
       <table className="w-full min-w-[56rem] text-left text-sm">
         <thead className="border-b border-linea bg-superficie-2 text-tinta-2">
           <tr>
+            {eleccion && (
+              <th scope="col" className="px-4 py-3">
+                <input
+                  type="checkbox"
+                  className="size-4 accent-[var(--marca)]"
+                  aria-label={t('stock.beyco.elegir_todos')}
+                  checked={items.length > 0 && items.every((o) => eleccion.elegidos.includes(o.id!))}
+                  onChange={(e) => eleccion.setElegidos(e.target.checked ? items.map((o) => o.id!) : [])}
+                />
+              </th>
+            )}
             <th scope="col" className="px-4 py-3 font-semibold">{t('stock.todo.col_fecha')}</th>
             <th scope="col" className="px-4 py-3 font-semibold">{t('stock.todo.col_lote')}</th>
             <th scope="col" className="px-4 py-3 font-semibold">{t('stock.todo.col_tipo')}</th>
@@ -191,6 +229,17 @@ function TablaSuelta({ items, i18n, onGeo, onBorrar }: { items: ApiStockOrder[];
         <tbody className="divide-y divide-linea">
           {items.map((o) => (
             <tr key={o.id} className="hover:bg-superficie-2/60">
+              {eleccion && (
+                <td className="px-4 py-3">
+                  <input
+                    type="checkbox"
+                    className="size-4 accent-[var(--marca)]"
+                    aria-label={t('stock.beyco.elegir', { lote: o.identifier || o.internalLotNumber || `#${o.id}` })}
+                    checked={eleccion.elegidos.includes(o.id!)}
+                    onChange={(e) => eleccion.setElegidos(e.target.checked ? [...eleccion.elegidos, o.id!] : eleccion.elegidos.filter((x) => x !== o.id))}
+                  />
+                </td>
+              )}
               <td className="px-4 py-3 whitespace-nowrap">{fechaCorta(fechaEntrega(o), i18n) || '—'}</td>
               <td className="px-4 py-3">
                 <Link to="/stock/trazabilidad/$id" params={{ id: String(o.id) }} className="font-semibold hover:text-marca hover:underline">

@@ -158,7 +158,7 @@ export const manejadores = [
   http.get('/api/user/profile', () => (conSesion() ? ok(usuario) : error(401, 'UNAUTHORIZED', 'Unauthorized'))),
   // ---------- Empresa y catálogos ----------
   http.get('/api/company/profile/:id/name', () => (conSesion() ? ok(EMPRESA_DEMO) : sinSesion())),
-  http.get('/api/company/profile/:id', () => (conSesion() ? ok({ ...EMPRESA_DEMO, headquarters: { country: paises[0] }, currency: { code: 'USD', label: 'US dollar' } }) : sinSesion())),
+  http.get('/api/company/profile/:id', () => (conSesion() ? ok({ ...EMPRESA_DEMO, allowBeycoIntegration: true, headquarters: { country: paises[0] }, currency: { code: 'USD', label: 'US dollar' } }) : sinSesion())),
   http.get('/api/company/profile/:id/users', () => (conSesion() ? ok(usuariosEmpresa) : sinSesion())),
   http.get('/api/company/:id/product-types', () => paginado(tiposProducto)),
   http.get('/api/company/associations/:id', () => paginado([{ id: 7, name: 'Asociación de Caficultores del Norte' }])),
@@ -449,6 +449,42 @@ export const manejadores = [
       }),
     );
     return ok();
+  }),
+
+  // ---------- Stock: Beyco ----------
+  // El código de autorización simulado se cambia por un token; las ofertas enviadas quedan en la sesión.
+  http.get('/api/chain/beyco-order/company/:id/token', ({ request }) => {
+    if (!conSesion()) return sinSesion();
+    const code = new URL(request.url).searchParams.get('authCode');
+    return code ? ok({ accessToken: 'token-beyco-simulado', tokenType: 'Bearer', expiresIn: 3600, refreshToken: 'renovar-simulado', scope: ['Offer:Create'] }) : error(400, 'INVALID_REQUEST', 'authCode');
+  }),
+  http.get('/api/chain/beyco-order/company/:id/token/refresh', () => (conSesion() ? ok({ accessToken: 'token-beyco-renovado', tokenType: 'Bearer', expiresIn: 3600, refreshToken: 'renovar-simulado' }) : sinSesion())),
+  http.get('/api/chain/beyco-order/company/:id/fields', ({ request }) => {
+    if (!conSesion()) return sinSesion();
+    const ids = new URL(request.url).searchParams.getAll('id').map(Number);
+    const lotes = todoElStock().filter((o) => ids.includes(o.id!));
+    if (!lotes.length) return error(400, 'INVALID_REQUEST', 'Invalid StockOrder ID');
+    // Como BeycoOrderService: el puerto sale de la instalación del primer lote; cada lote es un café.
+    return ok({
+      privacy: 'Public',
+      portOfExport: { address: 'Huehuetenango, Huehuetenango', country: 'Guatemala', latitude: 15.3197, longitude: -91.4714 },
+      offerCoffees: lotes.map((o) => ({
+        coffee: {
+          name: o.internalLotNumber,
+          harvestAt: (o.productionDate ?? '2026-10-14') + 'T00:00:00Z',
+          minScreenSize: 15, maxScreenSize: 16, cuppingScore: 84,
+          qualitySegments: [{ type: 'Specialty' }], grades: [{ type: 'ShgShb' }], certificates: [{ type: 'Organic' }],
+        },
+      })),
+    });
+  }),
+  http.post('/api/chain/beyco-order/company/:id/order', async ({ request }) => {
+    if (!conSesion()) return sinSesion();
+    if (!request.headers.get('X-Beyco-Token')) return error(400, 'INVALID_REQUEST', 'X-Beyco-Token');
+    const oferta = await request.json();
+    const enviadas = JSON.parse(sessionStorage.getItem('simulado.beyco') ?? '[]');
+    sessionStorage.setItem('simulado.beyco', JSON.stringify([...enviadas, oferta]));
+    return ok({ id: 'oferta-simulada-' + (enviadas.length + 1) });
   }),
 
   // ---------- Stock: pagos ----------

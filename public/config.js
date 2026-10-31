@@ -8,4 +8,7 @@ window.__INATRACE__ = {
   urlPublica: '',
   // Ruta de los QR impresos (QR_CODE_BASE_PATH de la versión actual).
   rutaQr: 'q-cd',
+  // Beyco (BEYCO_AUTH_URL y BEYCO_CLIENT_ID de la versión actual). Vacíos: sin Beyco.
+  beycoUrl: '',
+  beycoClientId: '',
 };

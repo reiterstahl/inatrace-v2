@@ -11,6 +11,7 @@ import {
 } from './gen/sdk.gen';
 import type { ApiProductLabelFeedback, ApiUserUpdate } from './gen/types.gen';
 import { desenvolver } from './respuesta';
+import { olvidarBeyco } from './beyco';
 
 /** Un QR "EMPTY" es una etiqueta sin lote: la vitrina se muestra sin datos del pedido. */
 export const QR_VACIO = 'EMPTY';
@@ -55,7 +56,10 @@ export function useSalir() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: () => desenvolver(logout()),
-    onSettled: () => qc.clear(),
+    onSettled: () => {
+      olvidarBeyco();
+      qc.clear();
+    },
   });
 }
 
