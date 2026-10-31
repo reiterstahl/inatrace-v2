@@ -102,7 +102,11 @@ const productosLista = createRoute({
   component: lazyRouteComponent(() => import('@/paginas/productos/Lista'), 'ListaProductos'),
 });
 const productoNuevo = createRoute({ getParentRoute: () => productosRaiz, path: 'nuevo', component: lazyRouteComponent(() => import('@/paginas/productos/Ficha'), 'ProductoNuevo') });
-const productoFicha = createRoute({ getParentRoute: () => productosRaiz, path: '$id', component: lazyRouteComponent(() => import('@/paginas/productos/Ficha'), 'ProductoExistente') });
+const productoRaiz = createRoute({ getParentRoute: () => productosRaiz, path: '$id', component: lazyRouteComponent(() => import('@/paginas/productos/Marco'), 'MarcoProducto') });
+const productoFicha = createRoute({ getParentRoute: () => productoRaiz, path: '/', component: lazyRouteComponent(() => import('@/paginas/productos/Ficha'), 'ProductoExistente') });
+const productoVitrina = createRoute({ getParentRoute: () => productoRaiz, path: 'vitrina', component: lazyRouteComponent(() => import('@/paginas/productos/Vitrina'), 'VitrinaProducto') });
+const productoEmpresas = createRoute({ getParentRoute: () => productoRaiz, path: 'empresas', component: lazyRouteComponent(() => import('@/paginas/productos/Empresas'), 'EmpresasProducto') });
+const productoFinales = createRoute({ getParentRoute: () => productoRaiz, path: 'finales', component: lazyRouteComponent(() => import('@/paginas/productos/Finales'), 'FinalesProducto') });
 
 const productorFicha = createRoute({ getParentRoute: () => productoresRaiz, path: '$id', component: lazyRouteComponent(() => import('@/paginas/productores/Ficha'), 'FichaExistente') });
 
@@ -325,7 +329,7 @@ const arbol = raiz.addChildren([
   ingreso,
   entradaQr,
   entradaEtiqueta,
-  portal.addChildren([inicio, perfil, productoresRaiz.addChildren([productoresLista, productorNuevo, productoresImportar, productorFicha]), productosRaiz.addChildren([productosLista, productoNuevo, productoFicha]),
+  portal.addChildren([inicio, perfil, productoresRaiz.addChildren([productoresLista, productorNuevo, productoresImportar, productorFicha]), productosRaiz.addChildren([productosLista, productoNuevo, productoRaiz.addChildren([productoFicha, productoVitrina, productoEmpresas, productoFinales])]),
     stockRaiz.addChildren([stockInicio, entregasRaiz.addChildren([entregasLista, entregaNueva, entregaMasiva, entregaFicha]), stockTodo, procesamientoRaiz.addChildren([procesamientoInicio, procesamientoNuevo, procesamientoEditar]), pagosRaiz.addChildren([pagosLista, pagoNuevo, pagoMasivoNuevo, pagoMasivoVer, pagoVer]), ordenesRaiz.addChildren([ordenesLista, ordenNueva, pedidoCliente, ordenAprobar]), beycoVuelta, beycoOferta, stockTrazabilidad]),
   ]),
   vitrina.addChildren([vPortada, vRecorrido, vPrecios, vProductores, vCalidad, vOpinion, vTerminos, vPrivacidad]),

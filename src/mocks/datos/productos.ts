@@ -1,4 +1,4 @@
-import type { ApiProduct } from '@/api/gen/types.gen';
+import type { ApiFinalProduct, ApiMeasureUnitType, ApiProduct } from '@/api/gen/types.gen';
 import { EMPRESA_DEMO } from './productores';
 
 /** Productos del modo simulado: uno propio de la cooperativa y uno de otra empresa donde es compradora. */
@@ -17,8 +17,9 @@ export const productosIniciales: ApiProduct[] = [
     settings: { language: 'ES', costBreakdown: false },
     businessToCustomerSettings: { primaryColor: '#2f5d50' },
     associatedCompanies: [{ company: EMPRESA_DEMO, type: 'OWNER' }],
-    labels: [],
+    labels: [{ id: 11, productId: 1, uuid: 'etiqueta-tienda', title: 'Tienda en línea', language: 'ES', status: 'PUBLISHED' }],
     dataSharingAgreements: [],
+    journeyMarkers: [{ latitude: 15.508, longitude: -91.605 }, { latitude: 14.634, longitude: -90.507 }],
   },
   {
     id: 2,
@@ -35,4 +36,22 @@ export const productosIniciales: ApiProduct[] = [
     labels: [],
     dataSharingAgreements: [],
   },
+];
+
+/** Empresas de la instancia, para asociarlas a un producto (lo hace la administración). */
+export const empresasInstancia = [
+  EMPRESA_DEMO,
+  { id: 50, name: 'Cooperativa La Vecina' },
+  { id: 60, name: 'Exportadora del Norte' },
+  { id: 61, name: 'Tostaduría Central' },
+];
+
+export const unidadesMedida: ApiMeasureUnitType[] = [
+  { id: 2, code: 'WEIGHT_KG', label: 'kg', weight: 1 },
+  { id: 5, code: 'WEIGHT_LB', label: 'lb', weight: 0.4536 },
+  { id: 6, code: 'PIECE', label: 'unidad' },
+];
+
+export const finalesIniciales: ApiFinalProduct[] = [
+  { id: 21, name: 'Café tostado 340 g', description: 'Bolsa con válvula, tueste medio.', product: { id: 1, name: 'Café Flor de la Sierra' }, measurementUnitType: unidadesMedida[2], labels: [{ id: 11, title: 'Tienda en línea', status: 'PUBLISHED' }] },
 ];

@@ -1,14 +1,15 @@
-import { useEffect, useRef } from 'react';
-import { LngLatBounds, Map as MapaGL, Marker, NavigationControl } from 'maplibre-gl';
+import { useEffect, useRef, useState } from 'react';
+import { LngLatBounds, Map as MapaGL, Marker, NavigationControl, type GeoJSONSource } from 'maplibre-gl';
 import { useTranslation } from 'react-i18next';
 import type { Punto } from '@/util/geo';
 import { cerrarAtribucion, colorMarca, ESTILO_BASE } from './base';
 
 /**
- * Varios puntos sobre el mapa (el origen de un producto): tocar el mapa agrega uno y cada pin se
- * arrastra. Los pines llevan el número del punto en la lista que acompaña al mapa.
+ * Varios puntos sobre el mapa (el origen de un producto, su recorrido): tocar el mapa agrega uno y
+ * cada pin se arrastra. Los pines llevan el número del punto en la lista que acompaña al mapa. Con
+ * `linea`, los puntos se unen en orden, como los muestra la vitrina.
  */
-export default function SelectorPuntos({ puntos, alAgregar, alMover }: { puntos: (Punto | null)[]; alAgregar: (p: Punto) => void; alMover: (i: number, p: Punto) => void }) {
+export default function SelectorPuntos({ puntos, alAgregar, alMover, linea = false, etiqueta }: { puntos: (Punto | null)[]; alAgregar: (p: Punto) => void; alMover: (i: number, p: Punto) => void; linea?: boolean; etiqueta?: string }) {
   const { t } = useTranslation();
   const caja = useRef<HTMLDivElement>(null);
   const mapaRef = useRef<MapaGL | null>(null);
@@ -16,6 +17,7 @@ export default function SelectorPuntos({ puntos, alAgregar, alMover }: { puntos:
   const pines = useRef<(Marker | undefined)[]>([]);
   const avisos = useRef({ alAgregar, alMover });
   avisos.current = { alAgregar, alMover };
+  const [cargado, setCargado] = useState(false);
 
   useEffect(() => {
     if (!caja.current) return;
@@ -24,6 +26,13 @@ export default function SelectorPuntos({ puntos, alAgregar, alMover }: { puntos:
     m.addControl(new NavigationControl({ showCompass: false }), 'top-right');
     cerrarAtribucion(m);
     m.on('click', (e) => avisos.current.alAgregar([e.lngLat.lng, e.lngLat.lat]));
+    m.on('load', () => {
+      if (linea && caja.current) {
+        m.addSource('linea', { type: 'geojson', data: { type: 'Feature', properties: {}, geometry: { type: 'LineString', coordinates: [] } } });
+        m.addLayer({ id: 'linea', type: 'line', source: 'linea', paint: { 'line-color': colorMarca(caja.current), 'line-width': 3, 'line-dasharray': [2, 1.5] } });
+      }
+      setCargado(true);
+    });
     if (conPosicion.length > 1) {
       const b = new LngLatBounds();
       conPosicion.forEach((p) => b.extend(p));
@@ -70,5 +79,12 @@ export default function SelectorPuntos({ puntos, alAgregar, alMover }: { puntos:
     });
   }, [puntos, t]);
 
-  return <div ref={caja} className="h-80 overflow-hidden rounded-caja border border-linea bg-superficie-2" role="application" aria-label={t('productos.origen.mapa')} />;
+  useEffect(() => {
+    const fuente = cargado && linea ? mapaRef.current?.getSource('linea') : undefined;
+    if (fuente && 'setData' in fuente) {
+      (fuente as GeoJSONSource).setData({ type: 'Feature', properties: {}, geometry: { type: 'LineString', coordinates: puntos.filter((p): p is Punto => !!p) } });
+    }
+  }, [puntos, cargado, linea]);
+
+  return <div ref={caja} className="h-80 overflow-hidden rounded-caja border border-linea bg-superficie-2" role="application" aria-label={etiqueta ?? t('productos.origen.mapa')} />;
 }

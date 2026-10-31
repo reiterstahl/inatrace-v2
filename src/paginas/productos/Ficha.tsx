@@ -1,9 +1,9 @@
 import { Suspense, lazy, useEffect, useState, type ReactNode } from 'react';
-import { Link, getRouteApi, useBlocker, useNavigate } from '@tanstack/react-router';
+import { Link, useBlocker, useNavigate } from '@tanstack/react-router';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { productores } from '@/api/productores';
-import { productos, subirImagen, useBorrarProducto, useGuardarProducto } from '@/api/productos';
+import { subirImagen, useGuardarProducto } from '@/api/productos';
 import { urlImagen } from '@/api/respuesta';
 import type { ApiProduct, ApiValueChain } from '@/api/gen/types.gen';
 import { Boton } from '@/componentes/ui/Boton';
@@ -17,30 +17,24 @@ import {
   type ErroresProducto, type FormProducto, type PuntoOrigen, type Seccion,
 } from '@/util/producto';
 import { NumeroConUnidad } from '../stock/procesamiento/piezas';
+import { useProducto } from './Marco';
 
 const SelectorPuntos = lazy(() => import('@/componentes/mapa/SelectorPuntos'));
-const rutaFicha = getRouteApi('/portal/productos/$id');
 
 export function ProductoNuevo() {
-  return <Ficha />;
-}
-
-export function ProductoExistente() {
-  const { id } = rutaFicha.useParams();
-  return <Ficha id={Number(id)} />;
-}
-
-function Ficha({ id }: { id?: number }) {
   const { t } = useTranslation();
   const empresa = useEmpresaActual();
-  const producto = useQuery({ ...productos.producto(id ?? 0), enabled: !!id });
-  const perfil = useQuery({ ...productores.perfilEmpresa(empresa?.id ?? 0), enabled: !!empresa && !id });
+  const perfil = useQuery({ ...productores.perfilEmpresa(empresa?.id ?? 0), enabled: !!empresa });
   if (!empresa) return <Aviso tono="info">{t('productores.sin_empresa')}</Aviso>;
-  if (id && producto.isPending) return <Cargando />;
-  if (id && producto.isError) return <EstadoError texto={producto.error.message} reintentar={() => void producto.refetch()} />;
-  if (!id && perfil.isPending) return <Cargando />;
-  const original = id ? producto.data! : null;
-  return <Formulario key={original?.id ?? 'nuevo'} empresa={empresa.id} original={original} cadenas={perfil.data?.valueChains ?? []} />;
+  if (perfil.isPending) return <Cargando />;
+  if (perfil.isError) return <EstadoError texto={perfil.error.message} reintentar={() => void perfil.refetch()} />;
+  return <Formulario empresa={empresa.id} original={null} cadenas={perfil.data?.valueChains ?? []} />;
+}
+
+/** Pestaña "Ficha" de un producto existente (la cabecera y el borrado están en el marco). */
+export function ProductoExistente() {
+  const { producto, empresa } = useProducto();
+  return <Formulario key={producto.id} empresa={empresa} original={producto} cadenas={[]} />;
 }
 
 const MAXIMO = 1000;
@@ -49,7 +43,6 @@ function Formulario({ empresa, original, cadenas }: { empresa: number; original:
   const { t, i18n } = useTranslation();
   const navegar = useNavigate();
   const guardar = useGuardarProducto();
-  const borrar = useBorrarProducto();
   const editable = !original || esDuena(original, empresa);
   const [f, setF] = useState<FormProducto>(() => {
     const inicial = formDesdeProducto(original);
@@ -77,8 +70,8 @@ function Formulario({ empresa, original, cadenas }: { empresa: number; original:
 
   useBlocker({ shouldBlockFn: () => tocado && !guardar.isPending && !window.confirm(t('stock.entrega.salir_sin_guardar')), enableBeforeUnload: () => tocado });
   useEffect(() => {
-    document.title = `${nombre} · INATrace v2`;
-  }, [nombre]);
+    if (!original) document.title = `${nombre} · INATrace v2`;
+  }, [nombre, original]);
 
   async function subirFoto(archivo?: File) {
     if (!archivo) return;
@@ -116,17 +109,6 @@ function Formulario({ empresa, original, cadenas }: { empresa: number; original:
     }
   }
 
-  async function eliminar() {
-    if (!original?.id || !window.confirm(t('productos.borrar_pregunta', { nombre }))) return;
-    try {
-      await borrar.mutateAsync(original.id);
-      setTocado(false);
-      await navegar({ to: '/productos' });
-    } catch (x) {
-      setAviso({ tono: 'mal', texto: (x as Error).message });
-    }
-  }
-
   const req = (texto: string) => (
     <>
       {texto}
@@ -134,31 +116,19 @@ function Formulario({ empresa, original, cadenas }: { empresa: number; original:
     </>
   );
   const contador = (texto: string) => t('productos.caracteres', { n: texto.trim().length, max: MAXIMO });
-  const duena = original?.associatedCompanies?.find((a) => a.type === 'OWNER')?.company?.name ?? original?.company?.name;
 
   return (
-    <div className="grid gap-6 pb-24">
-      <header className="flex flex-wrap items-end justify-between gap-4">
-        <div>
+    <div className={original ? 'grid gap-6' : 'grid gap-6 pb-24'}>
+      {!original && (
+        <header>
           <Link to="/productos" className="inline-flex items-center gap-1.5 text-sm font-medium text-marca hover:underline">
             <Icono nombre="volver" className="size-4" /> {t('productos.titulo')}
           </Link>
           <h1 className="mt-2 font-titulo text-3xl font-semibold tracking-tight">{nombre}</h1>
-          {original && (
-            <p className="mt-1 text-sm text-tinta-2">
-              {[duena && t('productos.de_empresa', { empresa: duena }), original.valueChain?.name && t('productos.cadena_de', { cadena: original.valueChain.name })].filter(Boolean).join(' · ')}
-            </p>
-          )}
-        </div>
-        {original && editable && (
-          <Boton variante="peligro" chico onClick={() => void eliminar()} disabled={borrar.isPending}>
-            <Icono nombre="borrar" className="size-4" /> {t('productos.borrar')}
-          </Boton>
-        )}
-      </header>
+        </header>
+      )}
 
       {aviso && <Aviso tono={aviso.tono}>{aviso.texto}</Aviso>}
-      {!editable && <Aviso tono="info" titulo={t('productos.solo_lectura_titulo')}>{t('productos.solo_lectura')}</Aviso>}
 
       <div className="grid gap-6 lg:grid-cols-[13rem_1fr]">
         <nav aria-label={t('productos.indice')} className="hidden lg:block">

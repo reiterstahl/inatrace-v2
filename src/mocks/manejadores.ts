@@ -1,11 +1,11 @@
 import { http, HttpResponse, delay } from 'msw';
-import type { ApiProduct, ApiUserGet } from '@/api/gen/types.gen';
+import type { ApiFinalProduct, ApiProduct, ApiUserGet } from '@/api/gen/types.gen';
 import { ETIQUETA_DEMO, QR_DEMO, etiqueta, qr } from './datos/vitrina';
 import type { ApiUserCustomer } from '@/api/gen/types.gen';
 import { accionesProcesamiento, clientes, instalacionVecina, pagosIniciales, procesosIniciales, productoFinalQr, acopiadores, agrupar, entregasIniciales, historiaDe, instalaciones, loteProcesado, recalcular, semiproductos, tiposEvidencia, usuariosEmpresa } from './datos/stock';
 import type { ApiBulkPayment, ApiPayment, ApiProcessingOrder, ApiPurchaseOrder, ApiStockOrder } from '@/api/gen/types.gen';
 import { EMPRESA_DEMO, capasMapa, paises, parcelasDe, productoresIniciales, tiposCertificacion, tiposProducto } from './datos/productores';
-import { productosIniciales } from './datos/productos';
+import { empresasInstancia, finalesIniciales, productosIniciales, unidadesMedida } from './datos/productos';
 
 /**
  * Respuestas simuladas con la misma forma que el backend ({ status, data }).
@@ -67,6 +67,11 @@ function crearPago(p: ApiPayment, enMasivo = false): ApiPayment | string {
 const CLAVE_PRODUCTOS = 'simulado.productos';
 const leerProductos = (): ApiProduct[] => JSON.parse(sessionStorage.getItem(CLAVE_PRODUCTOS) ?? 'null') ?? productosIniciales;
 const guardarProductos = (l: ApiProduct[]) => sessionStorage.setItem(CLAVE_PRODUCTOS, JSON.stringify(l));
+const CLAVE_ROL = 'simulado.rol';
+const esAdministracion = () => ['SYSTEM_ADMIN', 'REGIONAL_ADMIN'].includes(sessionStorage.getItem(CLAVE_ROL) ?? '');
+const CLAVE_FINALES = 'simulado.finales';
+const leerFinales = (): ApiFinalProduct[] => JSON.parse(sessionStorage.getItem(CLAVE_FINALES) ?? 'null') ?? finalesIniciales;
+const guardarFinales = (l: ApiFinalProduct[]) => sessionStorage.setItem(CLAVE_FINALES, JSON.stringify(l));
 
 const CLAVE_PROCESOS = 'simulado.procesos';
 const leerProcesos = (): ApiProcessingOrder[] => JSON.parse(sessionStorage.getItem(CLAVE_PROCESOS) ?? 'null') ?? procesosIniciales;
@@ -162,7 +167,8 @@ export const manejadores = [
     return ok();
   }),
   http.post('/api/user/refresh_authentication', () => (conSesion() ? ok() : error(401, 'AUTH_ERROR', 'Invalid or expired refresh token'))),
-  http.get('/api/user/profile', () => (conSesion() ? ok(usuario) : error(401, 'UNAUTHORIZED', 'Unauthorized'))),
+  // El rol se puede cambiar en las pruebas (sessionStorage "simulado.rol") para ver lo de la administración.
+  http.get('/api/user/profile', () => (conSesion() ? ok({ ...usuario, role: (sessionStorage.getItem(CLAVE_ROL) as ApiUserGet['role']) ?? usuario.role }) : error(401, 'UNAUTHORIZED', 'Unauthorized'))),
   // ---------- Empresa y catálogos ----------
   http.get('/api/company/profile/:id/name', () => (conSesion() ? ok(EMPRESA_DEMO) : sinSesion())),
   http.get('/api/company/profile/:id', () => (conSesion() ? ok({ ...EMPRESA_DEMO, allowBeycoIntegration: true, valueChains: [{ id: 1, name: 'Café' }], headquarters: { country: paises[0] }, currency: { code: 'USD', label: 'US dollar' } }) : sinSesion())),
@@ -343,14 +349,51 @@ export const manejadores = [
     const p = (await request.json()) as ApiProduct;
     const actual = leerProductos().find((x) => x.id === p.id);
     if (!actual) return error(400, 'INVALID_REQUEST', 'Invalid product id');
-    // Como la versión actual: edita la empresa dueña.
-    if (!(actual.associatedCompanies ?? []).some((a) => a.type === 'OWNER' && a.company?.id === EMPRESA_DEMO.id)) return error(403, 'UNAUTHORIZED', 'Invalid product id or forbidden');
-    guardarProductos(leerProductos().map((x) => (x.id === p.id ? { ...p, associatedCompanies: actual.associatedCompanies } : x)));
+    // Como la versión actual: edita la empresa dueña (o la administración).
+    if (!esAdministracion() && !(actual.associatedCompanies ?? []).some((a) => a.type === 'OWNER' && a.company?.id === EMPRESA_DEMO.id)) return error(403, 'UNAUTHORIZED', 'Invalid product id or forbidden');
+    // Las empresas asociadas solo las cambia la administración; el backend ignora el resto.
+    const asociadas = esAdministracion() && p.associatedCompanies
+      ? p.associatedCompanies.map((a) => ({ type: a.type, company: empresasInstancia.find((c) => c.id === a.company?.id) ?? { id: a.company?.id } }))
+      : actual.associatedCompanies;
+    const acuerdos = (p.dataSharingAgreements ?? []).map((d) => ({ ...d, id: d.id ?? siguienteId++ }));
+    guardarProductos(leerProductos().map((x) => (x.id === p.id ? { ...p, associatedCompanies: asociadas, dataSharingAgreements: acuerdos } : x)));
     return ok();
   }),
   http.delete('/api/product/:id', ({ params }) => {
     if (!conSesion()) return sinSesion();
     guardarProductos(leerProductos().filter((x) => x.id !== Number(params.id)));
+    return ok();
+  }),
+  http.get('/api/company/list', ({ request }) => {
+    if (!conSesion()) return sinSesion();
+    const q = (new URL(request.url).searchParams.get('name') ?? '').toLowerCase();
+    return paginado(empresasInstancia.filter((c) => c.name.toLowerCase().includes(q)));
+  }),
+  http.get('/api/company/admin/list', ({ request }) => {
+    if (!conSesion()) return sinSesion();
+    const q = (new URL(request.url).searchParams.get('name') ?? '').toLowerCase();
+    return paginado(empresasInstancia.filter((c) => c.name.toLowerCase().includes(q)));
+  }),
+  http.get('/api/chain/measure-unit-type/list', () => paginado(unidadesMedida)),
+  http.get('/api/product/:producto/finalProduct/list', ({ params }) => (conSesion() ? paginado(leerFinales().filter((f) => f.product?.id === Number(params.producto))) : sinSesion())),
+  http.put('/api/product/:producto/finalProduct', async ({ request, params }) => {
+    if (!conSesion()) return sinSesion();
+    const f = (await request.json()) as ApiFinalProduct;
+    if (!f.name || !f.description || !f.measurementUnitType?.id) return error(400, 'INVALID_REQUEST', 'Final product name needs to be provided.');
+    const producto = leerProductos().find((x) => x.id === Number(params.producto));
+    const completo: ApiFinalProduct = {
+      ...f,
+      id: f.id ?? siguienteId++,
+      product: { id: producto?.id, name: producto?.name ?? '' },
+      measurementUnitType: unidadesMedida.find((u) => u.id === f.measurementUnitType?.id),
+      labels: (f.labels ?? []).map((l) => (producto?.labels ?? []).find((x) => x.id === l.id) ?? l),
+    };
+    guardarFinales(f.id ? leerFinales().map((x) => (x.id === f.id ? completo : x)) : [...leerFinales(), completo]);
+    return ok({ id: completo.id });
+  }),
+  http.delete('/api/product/:producto/finalProduct/:final', ({ params }) => {
+    if (!conSesion()) return sinSesion();
+    guardarFinales(leerFinales().filter((x) => x.id !== Number(params.final)));
     return ok();
   }),
   http.post('/api/common/image', () => ok({ id: siguienteId++, storageKey: 'imagen-' + siguienteId, name: 'foto.jpg', contentType: 'image/jpeg', size: 2048 })),

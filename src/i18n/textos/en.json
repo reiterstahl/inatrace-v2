@@ -11,7 +11,8 @@
     "tema_claro": "Light theme",
     "tema_oscuro": "Dark theme",
     "si": "Yes",
-    "no": "No"
+    "no": "No",
+    "editar": "Edit"
   },
   "idiomas": {
     "es": "Español",
@@ -992,7 +993,7 @@
   },
   "productos": {
     "titulo": "Products",
-    "descripcion": "Your companies' products: their profile, origin and what the public page tells. Labels, batches and statistics remain in the current version for now.",
+    "descripcion": "Your companies' products: details, showcase, the chain's companies and final products. Labels, batches and statistics remain in the current version for now.",
     "nuevo": "New product",
     "buscar": "Search",
     "buscar_placeholder": "Product name",
@@ -1066,6 +1067,149 @@
       "largo_1000": "At most 1000 characters."
     },
     "sin_cadenas_titulo": "The company has no value chains",
-    "sin_cadenas": "A product belongs to one of the company's value chains. They are assigned in the company profile, in the current version:"
+    "sin_cadenas": "A product belongs to one of the company's value chains. They are assigned in the company profile, in the current version:",
+    "pestanas": {
+      "titulo": "Product parts",
+      "ficha": "Details",
+      "vitrina": "Showcase and journey",
+      "empresas": "Companies",
+      "finales": "Final products",
+      "etiquetas": "Labels",
+      "conocimiento": "Knowledge base"
+    },
+    "vitrina": {
+      "intro": "How the product's public showcase looks. Each label keeps its own copy when created: changes here apply to new labels, and each label can be adjusted separately.",
+      "apariencia": "Appearance",
+      "apariencia_ayuda": "Colors, fonts and images of the showcase.",
+      "colores": {
+        "primaryColor": "Primary color",
+        "secondaryColor": "Secondary color",
+        "tertiaryColor": "Tertiary color",
+        "quaternaryColor": "Quaternary color",
+        "productTitleColor": "Title color",
+        "headingColor": "Heading color",
+        "textColor": "Text color"
+      },
+      "archivos": {
+        "productFont": "Title font",
+        "textFont": "Text font",
+        "landingPageImage": "Landing image",
+        "landingPageBackgroundImage": "Landing background",
+        "headerBackgroundImage": "Header background"
+      },
+      "ayuda_fuente_titulo": "TTF, WOFF or WOFF2. Used for the product name.",
+      "ayuda_fuente_texto": "TTF, WOFF or WOFF2. Used for the content.",
+      "ayuda_tamano": "PNG or JPG; recommended size {{tamano}} px.",
+      "archivo_tipo": "Only {{tipos}} files are accepted.",
+      "sin_archivo": "No file",
+      "subir": "Upload",
+      "cambiar": "Change",
+      "quitar": "Remove {{que}}",
+      "pestanas": "Showcase tabs",
+      "pestanas_ayuda": "The journey always comes first; the others show when enabled, ordered by position.",
+      "pestana": {
+        "FairPrices": "Fair prices",
+        "Producers": "Producers",
+        "Quality": "Quality",
+        "Feedback": "Feedback"
+      },
+      "posicion": "Position",
+      "precios": "Prices and charts",
+      "precios_ayuda": "The «Fair prices» charts. World market, Fairtrade and regional average are in USD per pound; manual prices in USD per kg.",
+      "grafico_productor": "Price paid to producer chart",
+      "grafico_finca": "Farm-gate price chart",
+      "graficos": {
+        "DISABLED": "Hidden",
+        "PER_CONTAINER": "Per container",
+        "PER_KG": "Per kg",
+        "PERCENT_VALUE": "As percentage"
+      },
+      "precio": {
+        "containerSize": "Container size (kg)",
+        "worldMarket": "World market price (USD/lb)",
+        "fairTrade": "Fairtrade minimum + premium (USD/lb)",
+        "manualFarmGatePrice": "Manual farm-gate price (USD/kg)",
+        "averageRegionFarmGatePrice": "Regional average farm-gate price (USD/lb)",
+        "manualProducerPrice": "Manual producer price (USD/kg)"
+      },
+      "transparencia": "Pricing transparency text",
+      "transparencia_ayuda": "Shown with the income chart. Basic formatting (HTML) allowed, as in the current version.",
+      "grafico_calidad": "Show the quality chart",
+      "recorrido": "Journey",
+      "recorrido_ayuda": "The product's path to the consumer, drawn on the showcase map.",
+      "recorrido_instrucciones": "Tap the map to add a stop; drag the number to move it and use the arrows to reorder.",
+      "recorrido_mapa": "Journey map",
+      "parada": "Stop {{n}}",
+      "subir_parada": "Move stop {{n}} up",
+      "bajar_parada": "Move stop {{n}} down",
+      "quitar_parada": "Remove stop {{n}}",
+      "errores": {
+        "color": "A color as #rrggbb.",
+        "orden": "A whole number from 1.",
+        "positivo": "A number greater than or equal to 0."
+      },
+      "elegir_color": "Palette for «{{color}}»"
+    },
+    "empresas": {
+      "titulo": "Companies in the chain",
+      "ayuda": "Who takes part in the product's chain. System administration associates them.",
+      "ayuda_admin": "Who takes part in the product's chain. As an administrator you can add and remove companies; there must always be an owner.",
+      "roles": {
+        "OWNER": "Product administration (owner)",
+        "PRODUCER": "Producers",
+        "ASSOCIATION": "Associations",
+        "PROCESSOR": "Processors",
+        "TRADER": "Traders",
+        "EXPORTER": "Exporters",
+        "IMPORTER": "Importers",
+        "ROASTER": "Roasters",
+        "BUYER": "Buyers"
+      },
+      "ninguna": "None.",
+      "quitar": "Remove {{nombre}}",
+      "quitar_pregunta": "Remove «{{nombre}}» from this product?",
+      "quitada": "{{nombre}} was removed.",
+      "agregada": "{{nombre}} was added.",
+      "ultima_duena": "The product must have at least one owner. Add another before removing this one.",
+      "agregar": "Associate a company",
+      "rol": "As",
+      "buscar": "Company",
+      "buscar_placeholder": "Type at least two letters",
+      "resultados": "Companies found",
+      "sin_resultados": "No companies with that name.",
+      "agregar_como": "Add",
+      "ya_esta": "Already added"
+    },
+    "acuerdos": {
+      "titulo": "Data sharing agreements",
+      "ayuda": "Agreements signed with the chain's companies about the use of data. Uploaded by the owner.",
+      "agregar": "Add agreement",
+      "vacio": "No agreements yet.",
+      "uno": "Agreement {{n}}",
+      "descripcion": "Description",
+      "documento": "Document",
+      "quitar": "Remove agreement {{n}}"
+    },
+    "finales": {
+      "titulo": "Final products",
+      "ayuda": "What is sold made from this product (e.g. «Roasted coffee 250 g»), with its unit and the labels that go with it. Used in final processing and orders.",
+      "nuevo": "New final product",
+      "editar": "Edit final product",
+      "vacio": "No final products yet.",
+      "nombre": "Name",
+      "descripcion": "Description",
+      "unidad": "Measurement unit",
+      "etiquetas": "Labels",
+      "sin_etiquetas_producto": "The product has no labels yet.",
+      "con_etiquetas": "Labels: {{etiquetas}}",
+      "sin_etiquetas": "No labels",
+      "guardado": "«{{nombre}}» was saved.",
+      "borrar": "Delete {{nombre}}",
+      "borrar_pregunta": "Delete the final product «{{nombre}}»?",
+      "borrado": "«{{nombre}}» was deleted."
+    },
+    "etiquetas": {
+      "no_publicada": "unpublished"
+    }
   }
 }

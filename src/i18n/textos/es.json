@@ -11,7 +11,8 @@
     "tema_claro": "Tema claro",
     "tema_oscuro": "Tema oscuro",
     "si": "Sí",
-    "no": "No"
+    "no": "No",
+    "editar": "Editar"
   },
   "idiomas": {
     "es": "Español",
@@ -992,7 +993,7 @@
   },
   "productos": {
     "titulo": "Productos",
-    "descripcion": "Los productos de tus empresas: su ficha, el origen y lo que cuenta la vitrina. Las etiquetas, los lotes y las estadísticas siguen, por ahora, en la versión actual.",
+    "descripcion": "Los productos de tus empresas: su ficha, la vitrina, las empresas de la cadena y los productos finales. Las etiquetas, los lotes y las estadísticas siguen, por ahora, en la versión actual.",
     "nuevo": "Nuevo producto",
     "buscar": "Buscar",
     "buscar_placeholder": "Nombre del producto",
@@ -1066,6 +1067,149 @@
       "largo_1000": "Máximo 1000 caracteres."
     },
     "sin_cadenas_titulo": "La empresa no tiene cadenas de valor",
-    "sin_cadenas": "Un producto pertenece a una cadena de valor de la empresa. Se asignan desde la ficha de la empresa, en la versión actual:"
+    "sin_cadenas": "Un producto pertenece a una cadena de valor de la empresa. Se asignan desde la ficha de la empresa, en la versión actual:",
+    "pestanas": {
+      "titulo": "Partes del producto",
+      "ficha": "Ficha",
+      "vitrina": "Vitrina y recorrido",
+      "empresas": "Empresas",
+      "finales": "Productos finales",
+      "etiquetas": "Etiquetas",
+      "conocimiento": "Base de conocimiento"
+    },
+    "vitrina": {
+      "intro": "Cómo se ve la vitrina pública del producto. Cada etiqueta guarda su propia copia al crearse: los cambios de aquí valen para las etiquetas nuevas, y cada etiqueta se puede ajustar por separado.",
+      "apariencia": "Apariencia",
+      "apariencia_ayuda": "Colores, tipografías e imágenes de la vitrina.",
+      "colores": {
+        "primaryColor": "Color primario",
+        "secondaryColor": "Color secundario",
+        "tertiaryColor": "Color terciario",
+        "quaternaryColor": "Color cuaternario",
+        "productTitleColor": "Color del título",
+        "headingColor": "Color de los subtítulos",
+        "textColor": "Color del texto"
+      },
+      "archivos": {
+        "productFont": "Tipografía del título",
+        "textFont": "Tipografía del texto",
+        "landingPageImage": "Imagen de portada",
+        "landingPageBackgroundImage": "Fondo de la portada",
+        "headerBackgroundImage": "Fondo del encabezado"
+      },
+      "ayuda_fuente_titulo": "TTF, WOFF o WOFF2. Se usa en el nombre del producto.",
+      "ayuda_fuente_texto": "TTF, WOFF o WOFF2. Se usa en el contenido.",
+      "ayuda_tamano": "PNG o JPG; tamaño recomendado {{tamano}} px.",
+      "archivo_tipo": "Solo se aceptan archivos {{tipos}}.",
+      "sin_archivo": "Sin archivo",
+      "subir": "Subir",
+      "cambiar": "Cambiar",
+      "quitar": "Quitar {{que}}",
+      "pestanas": "Pestañas de la vitrina",
+      "pestanas_ayuda": "El recorrido va siempre primero; las demás se muestran si están activas, en el orden de su posición.",
+      "pestana": {
+        "FairPrices": "Precios justos",
+        "Producers": "Productores",
+        "Quality": "Calidad",
+        "Feedback": "Opinión"
+      },
+      "posicion": "Posición",
+      "precios": "Precios y gráficos",
+      "precios_ayuda": "Los gráficos de «Precios justos». Mercado mundial, Fairtrade y promedio regional van en USD por libra; los precios manuales, en USD por kg.",
+      "grafico_productor": "Gráfico del precio pagado al productor",
+      "grafico_finca": "Gráfico del precio en finca",
+      "graficos": {
+        "DISABLED": "No mostrar",
+        "PER_CONTAINER": "Por contenedor",
+        "PER_KG": "Por kg",
+        "PERCENT_VALUE": "En porcentaje"
+      },
+      "precio": {
+        "containerSize": "Tamaño del contenedor (kg)",
+        "worldMarket": "Precio del mercado mundial (USD/lb)",
+        "fairTrade": "Mínimo Fairtrade + prima (USD/lb)",
+        "manualFarmGatePrice": "Precio en finca manual (USD/kg)",
+        "averageRegionFarmGatePrice": "Precio en finca promedio de la región (USD/lb)",
+        "manualProducerPrice": "Precio al productor manual (USD/kg)"
+      },
+      "transparencia": "Texto de transparencia de precios",
+      "transparencia_ayuda": "Acompaña al gráfico de ingreso. Admite formato básico (HTML), como en la versión actual.",
+      "grafico_calidad": "Mostrar el gráfico de calidad",
+      "recorrido": "Recorrido",
+      "recorrido_ayuda": "El camino del producto hasta el consumidor, que la vitrina dibuja en el mapa.",
+      "recorrido_instrucciones": "Toca el mapa para agregar una parada; arrastra el número para moverla y usa las flechas para cambiar el orden.",
+      "recorrido_mapa": "Mapa del recorrido",
+      "parada": "Parada {{n}}",
+      "subir_parada": "Subir la parada {{n}}",
+      "bajar_parada": "Bajar la parada {{n}}",
+      "quitar_parada": "Quitar la parada {{n}}",
+      "errores": {
+        "color": "Un color en formato #rrggbb.",
+        "orden": "Un número entero desde 1.",
+        "positivo": "Un número mayor o igual a 0."
+      },
+      "elegir_color": "Paleta de «{{color}}»"
+    },
+    "empresas": {
+      "titulo": "Empresas de la cadena",
+      "ayuda": "Quién participa en la cadena del producto. Las asocia la administración del sistema.",
+      "ayuda_admin": "Quién participa en la cadena del producto. Como administración, puedes asociar y quitar empresas; siempre tiene que quedar una dueña.",
+      "roles": {
+        "OWNER": "Administración del producto (dueña)",
+        "PRODUCER": "Productoras",
+        "ASSOCIATION": "Asociaciones",
+        "PROCESSOR": "Procesadoras",
+        "TRADER": "Comercializadoras",
+        "EXPORTER": "Exportadoras",
+        "IMPORTER": "Importadoras",
+        "ROASTER": "Tostadoras",
+        "BUYER": "Compradoras"
+      },
+      "ninguna": "Ninguna.",
+      "quitar": "Quitar a {{nombre}}",
+      "quitar_pregunta": "¿Quitar a «{{nombre}}» de este producto?",
+      "quitada": "Se quitó a {{nombre}}.",
+      "agregada": "Se agregó a {{nombre}}.",
+      "ultima_duena": "El producto tiene que tener al menos una empresa dueña. Agrega otra antes de quitar esta.",
+      "agregar": "Asociar una empresa",
+      "rol": "Como",
+      "buscar": "Empresa",
+      "buscar_placeholder": "Escribe al menos dos letras",
+      "resultados": "Empresas encontradas",
+      "sin_resultados": "No hay empresas con ese nombre.",
+      "agregar_como": "Agregar",
+      "ya_esta": "Ya está"
+    },
+    "acuerdos": {
+      "titulo": "Acuerdos de uso de datos",
+      "ayuda": "Los acuerdos firmados con las empresas de la cadena sobre el uso de los datos. Los carga la empresa dueña.",
+      "agregar": "Agregar acuerdo",
+      "vacio": "Todavía no hay acuerdos.",
+      "uno": "Acuerdo {{n}}",
+      "descripcion": "Descripción",
+      "documento": "Documento",
+      "quitar": "Quitar el acuerdo {{n}}"
+    },
+    "finales": {
+      "titulo": "Productos finales",
+      "ayuda": "Lo que se vende hecho con este producto (por ejemplo, «Café tostado 250 g»), con su unidad y las etiquetas que lo acompañan. Se usan en el procesamiento final y en los pedidos.",
+      "nuevo": "Nuevo producto final",
+      "editar": "Editar producto final",
+      "vacio": "Todavía no hay productos finales.",
+      "nombre": "Nombre",
+      "descripcion": "Descripción",
+      "unidad": "Unidad de medida",
+      "etiquetas": "Etiquetas",
+      "sin_etiquetas_producto": "El producto todavía no tiene etiquetas.",
+      "con_etiquetas": "Etiquetas: {{etiquetas}}",
+      "sin_etiquetas": "Sin etiquetas",
+      "guardado": "Se guardó «{{nombre}}».",
+      "borrar": "Borrar {{nombre}}",
+      "borrar_pregunta": "¿Borrar el producto final «{{nombre}}»?",
+      "borrado": "Se borró «{{nombre}}»."
+    },
+    "etiquetas": {
+      "no_publicada": "sin publicar"
+    }
   }
 }

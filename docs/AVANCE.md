@@ -408,6 +408,37 @@ conserva lo demás, solo lectura desde la exportadora asociada y borrado.
 Sigue 5a.2: vitrina del producto (ajustes B2C), recorrido, empresas asociadas y productos finales.
 Después 5b (etiquetas), 5c (lotes, opiniones y estadísticas) y 5d (base de conocimiento).
 
+## Fase 5a.2 (vitrina, recorrido, empresas y productos finales) — ✅ cerrada el 31.10.2026 (rama `fase-5`)
+
+La ficha del producto pasa a tener pestañas: **Ficha · Vitrina y recorrido · Empresas · Productos
+finales**. Etiquetas y base de conocimiento siguen abriendo la versión actual (5b y 5d). La cabecera
+(nombre, empresa dueña, cadena, borrar) y el aviso de solo lectura son comunes a todas las pestañas.
+
+- **Vitrina y recorrido** (sección "B2C settings" y "Product journey" de la versión actual): colores
+  con selector, tipografías del título y del texto, imágenes de portada y encabezado, pestañas de la
+  vitrina con su posición, gráficos de precios y precios de referencia, texto de transparencia y el
+  recorrido como paradas en el mapa unidas por una línea, con flechas para cambiar el orden.
+  Validación de colores (#rrggbb), posiciones (enteros desde 1) y precios (≥ 0).
+- **Detalle encontrado:** el backend guarda por defecto el color del título sin «#» (`25265E`); la v2
+  lo normaliza para no perderlo al editar.
+- **Cada etiqueta guarda su propia copia** de la apariencia al crearse (`ProductLabelContent.fromProduct`)
+  y la vitrina pública usa la de la etiqueta cuando tiene valores: la pestaña lo explica.
+- **Empresas:** las de la cadena agrupadas por rol. Asociar y quitar lo hace solo la administración
+  del sistema o regional, igual que en la versión actual y en el backend (que ignora el cambio de
+  cualquier otra persona); siempre queda al menos una dueña. Los **acuerdos de uso de datos**
+  (descripción y documento) los carga la empresa dueña.
+- **Productos finales:** lista, alta, edición y borrado con nombre, descripción, unidad y las
+  etiquetas que lo acompañan. Edita la empresa dueña. El backend exige la lista de etiquetas aunque
+  esté vacía: la v2 siempre la manda.
+- Todo se guarda sobre el producto completo tal como vino (lección de H16): la prueba real comprueba
+  que guardar la vitrina no toca el origen ni el proceso.
+
+**Pruebas:** 102 unitarias (4 nuevas), 102 de punta a punta simuladas (10 nuevas en escritorio y
+celular: vitrina y recorrido, acuerdos, asociar y quitar empresas como administración, productos
+finales y solo lectura de un producto ajeno; el modo simulado acepta `sessionStorage["simulado.rol"]`
+para probar como administración) y una nueva contra el backend real (`e2e-real/productos-partes.spec.ts`,
+crea su producto por la API y lo borra al terminar).
+
 ## Fase 1b (activar la vitrina en una instalación) — pendiente, acordada el 19.10.2026
 
 Pasos, en orden:
