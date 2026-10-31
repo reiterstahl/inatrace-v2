@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import type { ApiCompanyDocument } from '@/api/gen/types.gen';
-import { urlDocumento } from '@/api/respuesta';
+import { urlDocumentoPublico } from '@/api/respuesta';
 import { useVitrina } from './datos';
 import { Seccion, enlaceSeguro } from './Vitrina';
 
@@ -16,7 +16,7 @@ export function videoInsertable(enlace?: string | null): string | undefined {
 }
 
 function imagen(doc: ApiCompanyDocument) {
-  return doc.type === 'LINK' ? enlaceSeguro(doc.link) : urlDocumento(doc.document?.storageKey);
+  return doc.type === 'LINK' ? enlaceSeguro(doc.link) : urlDocumentoPublico(doc.document?.storageKey);
 }
 
 export function Productores() {

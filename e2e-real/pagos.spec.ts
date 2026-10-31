@@ -65,6 +65,11 @@ test.describe('pagos contra el backend real', () => {
     // Confirmar desde la ficha del pago: ya no se puede confirmar de nuevo.
     await page.getByRole('region', { name: 'Pagos de esta entrega' }).getByRole('listitem').first().getByRole('link').click();
     await expect(page.getByRole('heading', { level: 1, name: /300,00/ })).toBeVisible();
+    // El comprobante se tiene que poder abrir, no solo estar enlazado (por la ruta pública el backend responde 400).
+    const recibo = await page.getByRole('link', { name: 'recibo-e2e.txt' }).getAttribute('href');
+    const descarga = await page.request.get(recibo!);
+    expect(descarga.status()).toBe(200);
+    expect(await descarga.text()).toBe('recibo de prueba');
     page.once('dialog', (d) => void d.accept());
     await page.getByRole('button', { name: 'Confirmar' }).click();
     await expect(page.getByText('Confirmado', { exact: true }).first()).toBeVisible();

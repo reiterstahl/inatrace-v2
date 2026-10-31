@@ -139,6 +139,8 @@ export const manejadores = [
     return b.token === 'token' ? ok() : error(400, 'INVALID_REQUEST', 'Invalid token');
   }),
   http.get('/api/public/document/:clave', ({ params }) => imagen(String(params.clave))),
+  http.get('/api/common/document/:clave', ({ params }) => (conSesion() ? imagen(String(params.clave)) : sinSesion())),
+  http.get('/api/common/image/:clave/:tamano?', ({ params }) => (conSesion() ? imagen(String(params.clave)) : sinSesion())),
 
   // ---------- Sesión ----------
   http.post('/api/user/login', async ({ request }) => {

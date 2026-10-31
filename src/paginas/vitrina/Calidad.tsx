@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { urlDocumento } from '@/api/respuesta';
+import { urlDocumentoPublico } from '@/api/respuesta';
 import { Icono } from '@/componentes/ui/Icono';
 import { useVitrina } from './datos';
 import { Seccion } from './Vitrina';
@@ -58,7 +58,7 @@ export function Calidad() {
                     {c.description && <p className="mt-1 text-sm text-tinta-2">{c.description}</p>}
                   </div>
                   {c.certificate?.storageKey && (
-                    <a href={urlDocumento(c.certificate.storageKey)} download={c.certificate.name ?? true} aria-label={`${t('vitrina.calidad.descargar')}: ${c.type ?? ''}`} className="inline-flex h-9 shrink-0 items-center gap-1.5 rounded-lg border border-linea-fuerte px-3 text-sm font-semibold hover:bg-superficie-2">
+                    <a href={urlDocumentoPublico(c.certificate.storageKey)} download={c.certificate.name ?? true} aria-label={`${t('vitrina.calidad.descargar')}: ${c.type ?? ''}`} className="inline-flex h-9 shrink-0 items-center gap-1.5 rounded-lg border border-linea-fuerte px-3 text-sm font-semibold hover:bg-superficie-2">
                       <Icono nombre="descarga" className="size-4" />
                       <span className="hidden sm:inline">{t('vitrina.calidad.descargar')}</span>
                     </a>

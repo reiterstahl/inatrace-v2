@@ -34,7 +34,22 @@ export async function desenvolver<T>(peticion: Promise<Resultado<T>>): Promise<T
 }
 
 /** URL pública de un documento o imagen guardado en el backend. */
+/**
+ * Documento de una pantalla con sesión (comprobantes, evidencias, fotos en edición). Va por la ruta
+ * autenticada: desde 1db6e5f el backend rechaza por la ruta pública las claves que no tienen un
+ * alcance público explícito (respondía 400).
+ */
 export function urlDocumento(storageKey?: string | null): string | undefined {
+  return storageKey ? `/api/common/document/${encodeURIComponent(storageKey)}` : undefined;
+}
+
+/** Imagen de una pantalla con sesión, en el tamaño que pida la vista (SMALL, MEDIUM, LARGE). */
+export function urlImagen(storageKey?: string | null, tamano?: 'SMALL' | 'MEDIUM' | 'LARGE'): string | undefined {
+  return storageKey ? `/api/common/image/${encodeURIComponent(storageKey)}${tamano ? '/' + tamano : ''}` : undefined;
+}
+
+/** Documento o imagen de la vitrina pública: claves con alcance público que da la propia vitrina. */
+export function urlDocumentoPublico(storageKey?: string | null): string | undefined {
   return storageKey ? `/api/public/document/${encodeURIComponent(storageKey)}` : undefined;
 }
 

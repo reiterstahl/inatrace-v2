@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { Link, Outlet, useRouter, type ErrorComponentProps } from '@tanstack/react-router';
 import { useTranslation } from 'react-i18next';
-import { ErrorApi, urlDocumento } from '@/api/respuesta';
+import { ErrorApi, urlDocumentoPublico } from '@/api/respuesta';
 import { EstadoError } from '@/componentes/ui/Estados';
 import { Icono, type NombreIcono } from '@/componentes/ui/Icono';
 import { SelectorIdioma } from '@/componentes/ui/Preferencias';
@@ -46,7 +46,7 @@ function useFuentesDelProducto(a: ApiBusinessToCustomerSettings) {
     const raiz = document.documentElement.style;
     const cargar = (familia: string, clave: string | undefined, variable: string) => {
       if (!clave) return;
-      new FontFace(familia, `url(${urlDocumento(clave)})`)
+      new FontFace(familia, `url(${urlDocumentoPublico(clave)})`)
         .load()
         .then((f) => {
           document.fonts.add(f);
@@ -90,7 +90,7 @@ export function iconoPestana(p: Pestana) {
 export function Seccion({ titulo, intro, children }: { titulo: string; intro?: React.ReactNode; children: React.ReactNode }) {
   const d = useVitrina();
   const { t } = useTranslation();
-  const fondo = urlDocumento(d.ajustes.headerBackgroundImage?.storageKey);
+  const fondo = urlDocumentoPublico(d.ajustes.headerBackgroundImage?.storageKey);
   // En el celular las pestañas no entran: la activa se desplaza a la vista.
   const barra = useRef<HTMLElement>(null);
   useEffect(() => {
