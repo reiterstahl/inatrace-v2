@@ -1,4 +1,4 @@
-import type { ApiFinalProduct, ApiMeasureUnitType, ApiProduct, ApiProductLabel, ApiProductLabelCompanyDocument, ApiProductLabelContent } from '@/api/gen/types.gen';
+import type { ApiFinalProduct, ApiMeasureUnitType, ApiProduct, ApiProductLabel, ApiProductLabelAnalytics, ApiProductLabelBatch, ApiProductLabelCompanyDocument, ApiProductLabelContent, ApiProductLabelFeedback } from '@/api/gen/types.gen';
 import { camposIniciales } from '@/util/etiqueta';
 import { EMPRESA_DEMO } from './productores';
 
@@ -83,3 +83,24 @@ export const mediosEmpresa: ApiProductLabelCompanyDocument[] = [
   { id: 303, category: 'MEET_THE_FARMER', type: 'FILE', name: 'Don Luis', document: { id: 903, storageKey: 'productor-luis', name: 'luis.jpg', contentType: 'image/jpeg' } },
   { id: 304, category: 'PRODUCTION_RECORD', type: 'FILE', name: 'Registro de cosecha 2026', document: { id: 904, storageKey: 'registro-2026', name: 'registro.jpg', contentType: 'image/jpeg' } },
 ];
+
+export const lotesIniciales: ApiProductLabelBatch[] = [
+  { id: 31, labelId: 11, number: 'FS202601', productionDate: '2026-03-10', expiryDate: '2027-03-10', checkAuthenticity: true, traceOrigin: true, locations: [{ pinName: 'Todos Santos', latitude: 15.508, longitude: -91.605, numberOfFarmers: 12 }] },
+  { id: 32, labelId: 11, number: 'FS202602', productionDate: '2026-06-02', checkAuthenticity: false, traceOrigin: false, locations: [] },
+];
+
+export const opinionesIniciales: ApiProductLabelFeedback[] = [
+  { id: 41, labelId: 11, type: 'PRAISE', feedback: 'Muy buen café, se siente el chocolate.', email: 'lucia@example.com', gdprConsent: true, questionnaireAnswers: { age: '34', gender: 'Female', rateTaste: 'Better' }, productName: 'Café Flor de la Sierra' },
+  { id: 42, labelId: 11, type: 'PROPOSAL', feedback: 'Me gustaría una bolsa más pequeña.', email: 'sin.permiso@example.com', gdprConsent: false, questionnaireAnswers: { gender: 'Male' }, productName: 'Café Flor de la Sierra' },
+  { id: 43, labelId: 11, type: 'COMPLAINT', feedback: 'La bolsa llegó abierta.', gdprConsent: false, questionnaireAnswers: {}, productName: 'Café Flor de la Sierra' },
+];
+
+export const estadisticasDemo: ApiProductLabelAnalytics = {
+  visits: 128,
+  visitsCountries: { GT: 74, US: 31, DE: 23 },
+  visitsLocations: { '14.634:-90.507': 60, '15.32:-91.47': 14, '40.71:-74.0': 31, '52.52:13.4': 23 },
+  authTrue: 9,
+  authFalse: 1,
+  originTrue: 5,
+  originFalse: 0,
+};

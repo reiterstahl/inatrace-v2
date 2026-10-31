@@ -489,6 +489,43 @@ retirar y borrar) y una nueva contra el backend real (`e2e-real/etiquetas.spec.t
 con foto por la API, crea la etiqueta, comprueba campos y contenido en el backend, la vista previa
 sin publicar, la vitrina pública de la v2 al publicar, retirar y borrar).
 
+## Fase 5c (lotes, opiniones y estadísticas) — ✅ cerrada el 31.10.2026 (rama `fase-5`)
+
+Cada etiqueta tiene ahora subpestañas: **Contenido · Lotes · Opiniones · Estadísticas**
+(`/productos/$id/etiquetas/$etiqueta/…`).
+
+- **Lotes:** lista con búsqueda por número y páginas; alta, edición y borrado. Número obligatorio y
+  solo letras ASCII y números (el backend valida con `\p{Alnum}` de Java: guiones, tildes y ñ dan
+  «Invalid field(s)»). Verificación de autenticidad con al menos una fecha (el vencimiento no puede
+  ser anterior a la producción); rastreo de origen con al menos un lugar en el mapa y un botón para
+  usar los lugares del producto; foto del lote. La prueba real comprueba que el consumidor puede
+  verificar el lote sin sesión.
+- **Opiniones:** filtro por tipo, correo con su consentimiento, edad, género y sabor; borrar y
+  exportar quedan para la empresa dueña. **La exportación incluye solo los correos de quienes dieron
+  su consentimiento** (la versión actual exportaba todos).
+- **Estadísticas:** visitas desde los QR con su reparto por país y un mapa de puntos proporcionales,
+  y las verificaciones de autenticidad y de origen (el backend las agrega cada minuto).
+
+### H24 🔴 — la lista pública de opiniones exponía datos de los consumidores (backend; corregido)
+
+Al migrar la página de opiniones: `GET /api/public/product/label/feedback/list/{labelUid}` no pide
+sesión y entregaba correo, edad, género y consentimientos de cada opinión. El identificador de la
+etiqueta va impreso en cada QR, así que cualquiera con el producto podía listarlos. La versión actual
+usaba esa ruta pública para su página de opiniones. Está igual en el original (AgStack 19d0ea3).
+
+**Corregido en el backend del contrato** (dapdevs/inatrace-enhanced `5f9fd0b`, privado): la lista
+pública conserva tipo y texto; la nueva ruta con sesión `GET /api/product/label/{id}/feedback/list`
+entrega todo a las empresas del producto, y la interfaz actual pasa a usarla. Prueba
+`ProductLabelFeedbackPrivacyTest`; 380 pruebas del backend y compilación de Angular en verde. La
+v2 usa la ruta nueva (SDK regenerado). **Al original va por correo privado** (es de seguridad):
+parches y texto en `upstream/seguridad/` del repo del contrato; lo envía Rolo. La copia aislada
+corre `inatrace-backend:dev-h24` y `inatrace-frontend:dev-h24`.
+
+**Pruebas:** 115 unitarias (5 nuevas), 114 de punta a punta simuladas (6 nuevas en escritorio y
+celular) y una nueva contra el backend real (`e2e-real/etiqueta-partes.spec.ts`: lote con
+verificación pública, opinión cuyo correo no sale por la ruta pública y sí en la de la empresa,
+estadísticas y limpieza).
+
 ## Fase 1b (activar la vitrina en una instalación) — pendiente, acordada el 19.10.2026
 
 Pasos, en orden:
@@ -514,7 +551,8 @@ confirmar el uso del video de Anacafé o cambiarlo.**
 2. Revisión de alemán y kinyarwanda por alguien que los hable.
 3. Demo pública: más adelante.
 4. **Fase 3 cerrada** (3a–3e.3). Queda probar Beyco de verdad cuando haya una cuenta de pruebas.
-5. En curso: «Productos y etiquetas» (fase 5): faltan 5c (lotes, opiniones y estadísticas) y 5d
-   (base de conocimiento). Después, «Empresa y administración».
+5. En curso: «Productos y etiquetas» (fase 5): falta 5d (base de conocimiento). Después,
+   «Empresa y administración».
 6. H23: esperar la revisión del PR #116 en AgStack (junto con #112 y #113).
+7. H24: Rolo envía el correo privado a AgStack (`upstream/seguridad/EMAIL-feedback.md`).
    Criterio de salida de la fase: ciclo entrega → procesamiento → pago completo en la v2.

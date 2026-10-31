@@ -1,11 +1,11 @@
 import { http, HttpResponse, delay } from 'msw';
-import type { ApiFinalProduct, ApiProduct, ApiProductLabel, ApiProductLabelCompanyDocument, ApiProductLabelContent, ApiUserGet } from '@/api/gen/types.gen';
+import type { ApiFinalProduct, ApiProduct, ApiProductLabel, ApiProductLabelBatch, ApiProductLabelCompanyDocument, ApiProductLabelContent, ApiProductLabelFeedback, ApiUserGet } from '@/api/gen/types.gen';
 import { ETIQUETA_DEMO, QR_DEMO, etiqueta, qr } from './datos/vitrina';
 import type { ApiUserCustomer } from '@/api/gen/types.gen';
 import { accionesProcesamiento, clientes, instalacionVecina, pagosIniciales, procesosIniciales, productoFinalQr, acopiadores, agrupar, entregasIniciales, historiaDe, instalaciones, loteProcesado, recalcular, semiproductos, tiposEvidencia, usuariosEmpresa } from './datos/stock';
 import type { ApiBulkPayment, ApiPayment, ApiProcessingOrder, ApiPurchaseOrder, ApiStockOrder } from '@/api/gen/types.gen';
 import { EMPRESA_DEMO, capasMapa, paises, parcelasDe, productoresIniciales, tiposCertificacion, tiposProducto } from './datos/productores';
-import { contenidoDe, empresasInstancia, etiquetasIniciales, finalesIniciales, mediosEmpresa, productosIniciales, unidadesMedida, type EtiquetaSimulada } from './datos/productos';
+import { contenidoDe, empresasInstancia, estadisticasDemo, etiquetasIniciales, finalesIniciales, lotesIniciales, mediosEmpresa, opinionesIniciales, productosIniciales, unidadesMedida, type EtiquetaSimulada } from './datos/productos';
 
 /**
  * Respuestas simuladas con la misma forma que el backend ({ status, data }).
@@ -74,6 +74,16 @@ const leerEtiquetas = (): EtiquetaSimulada[] => JSON.parse(sessionStorage.getIte
 const guardarEtiquetas = (l: EtiquetaSimulada[]) => sessionStorage.setItem(CLAVE_ETIQUETAS, JSON.stringify(l));
 const baseEtiqueta = ({ etiqueta: e }: EtiquetaSimulada) => ({ id: e.id, productId: e.productId, uuid: e.uuid, title: e.title, language: e.language, status: e.status });
 const etiquetasDe = (producto?: number) => leerEtiquetas().filter((x) => x.etiqueta.productId === producto).map(baseEtiqueta);
+const CLAVE_LOTES = 'simulado.lotes';
+const leerLotes = (): ApiProductLabelBatch[] => JSON.parse(sessionStorage.getItem(CLAVE_LOTES) ?? 'null') ?? lotesIniciales;
+const guardarLotes = (l: ApiProductLabelBatch[]) => sessionStorage.setItem(CLAVE_LOTES, JSON.stringify(l));
+const CLAVE_OPINIONES = 'simulado.opiniones';
+const leerOpiniones = (): ApiProductLabelFeedback[] => JSON.parse(sessionStorage.getItem(CLAVE_OPINIONES) ?? 'null') ?? opinionesIniciales;
+/** Página de una lista según limit/offset, como el backend. */
+const pagina = <T,>(items: T[], u: URL) => {
+  const limit = Number(u.searchParams.get('limit')) || 100, offset = Number(u.searchParams.get('offset')) || 0;
+  return ok({ items: items.slice(offset, offset + limit), count: items.length, offset, limit });
+};
 const CLAVE_FINALES = 'simulado.finales';
 const leerFinales = (): ApiFinalProduct[] => JSON.parse(sessionStorage.getItem(CLAVE_FINALES) ?? 'null') ?? finalesIniciales;
 const guardarFinales = (l: ApiFinalProduct[]) => sessionStorage.setItem(CLAVE_FINALES, JSON.stringify(l));
@@ -426,6 +436,43 @@ export const manejadores = [
     guardarEtiquetas(leerEtiquetas().filter((x) => x.etiqueta.id !== Number(params.id)));
     return ok();
   }),
+  // ---------- Lotes, opiniones y estadísticas de una etiqueta ----------
+  http.get('/api/product/label/:id/batches', ({ request, params }) => {
+    if (!conSesion()) return sinSesion();
+    const u = new URL(request.url);
+    const numero = (u.searchParams.get('number') ?? '').toLowerCase();
+    return pagina(leerLotes().filter((l) => l.labelId === Number(params.id) && (l.number ?? '').toLowerCase().startsWith(numero)).sort((a, b) => b.id! - a.id!), u);
+  }),
+  http.post('/api/product/label_batch/create', async ({ request }) => {
+    if (!conSesion()) return sinSesion();
+    const l = (await request.json()) as ApiProductLabelBatch;
+    const id = siguienteId++;
+    guardarLotes([...leerLotes(), { ...l, id }]);
+    return ok({ id });
+  }),
+  http.put('/api/product/label_batch', async ({ request }) => {
+    if (!conSesion()) return sinSesion();
+    const l = (await request.json()) as ApiProductLabelBatch;
+    guardarLotes(leerLotes().map((x) => (x.id === l.id ? { ...x, ...l, labelId: x.labelId } : x)));
+    return ok();
+  }),
+  http.delete('/api/product/label_batch/:id', ({ params }) => {
+    if (!conSesion()) return sinSesion();
+    guardarLotes(leerLotes().filter((x) => x.id !== Number(params.id)));
+    return ok();
+  }),
+  http.get('/api/product/label/:id/feedback/list', ({ request, params }) => {
+    if (!conSesion()) return sinSesion();
+    const u = new URL(request.url);
+    const tipo = u.searchParams.get('type');
+    return pagina(leerOpiniones().filter((o) => o.labelId === Number(params.id) && (!tipo || o.type === tipo)).sort((a, b) => b.id! - a.id!), u);
+  }),
+  http.delete('/api/product/label/feedback/:id', ({ params }) => {
+    if (!conSesion()) return sinSesion();
+    sessionStorage.setItem(CLAVE_OPINIONES, JSON.stringify(leerOpiniones().filter((o) => o.id !== Number(params.id))));
+    return ok();
+  }),
+  http.get('/api/product/label/analytics/:uid', ({ params }) => (conSesion() ? ok(params.uid === 'etiqueta-tienda' ? estadisticasDemo : { visits: 0 }) : sinSesion())),
   http.get('/api/company/list', ({ request }) => {
     if (!conSesion()) return sinSesion();
     const q = (new URL(request.url).searchParams.get('name') ?? '').toLowerCase();

@@ -2356,9 +2356,9 @@ export type ApiStockOrder = {
      * The ID from which this repacked stock order was created; This ID is generated and provided by the client; Only applicable for repacked stock orders
      */
     repackedOriginStockOrderId?: string;
-    openOrder?: boolean;
     purchaseOrder?: boolean;
     available?: boolean;
+    openOrder?: boolean;
 };
 
 /**
@@ -8146,6 +8146,52 @@ export type GetProductLabelInstructionsResponses = {
 };
 
 export type GetProductLabelInstructionsResponse = GetProductLabelInstructionsResponses[keyof GetProductLabelInstructionsResponses];
+
+export type ListProductLabelFeedbacksForLabelData = {
+    body?: never;
+    path: {
+        /**
+         * Label id
+         */
+        id: number;
+    };
+    query?: {
+        /**
+         * feedback type
+         */
+        type?: 'PRAISE' | 'PROPOSAL' | 'COMPLAINT';
+        /**
+         * Only count, only fetch, or return both values (if null)
+         */
+        requestType?: 'COUNT' | 'FETCH';
+        /**
+         * Number of records to return. Min: 1, default: 100
+         */
+        limit?: number;
+        /**
+         * Number of records to skip before returning. Default: 0, min: 0
+         */
+        offset?: number;
+        /**
+         * Column name to be sorted by, varies for each endpoint, default is id
+         */
+        sortBy?: string;
+        /**
+         * Direction of sorting (ASC or DESC). Default DESC.
+         */
+        sort?: 'ASC' | 'DESC';
+    };
+    url: '/api/product/label/{id}/feedback/list';
+};
+
+export type ListProductLabelFeedbacksForLabelResponses = {
+    /**
+     * OK
+     */
+    200: ApiPaginatedResponseApiProductLabelFeedback;
+};
+
+export type ListProductLabelFeedbacksForLabelResponse = ListProductLabelFeedbacksForLabelResponses[keyof ListProductLabelFeedbacksForLabelResponses];
 
 export type GetProductLabelBatchesData = {
     body?: never;

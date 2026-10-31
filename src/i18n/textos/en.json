@@ -1001,7 +1001,7 @@
   },
   "productos": {
     "titulo": "Products",
-    "descripcion": "Your companies' products: details, showcase, the chain's companies, final products and labels. Batches, feedback and statistics remain in the current version for now.",
+    "descripcion": "Your companies' products: details, showcase, the chain's companies, final products and labels with their batches, feedback and statistics. The knowledge base remains in the current version for now.",
     "nuevo": "New product",
     "buscar": "Search",
     "buscar_placeholder": "Product name",
@@ -1236,12 +1236,6 @@
       "retirar": "Unpublish",
       "borrar": "Delete label",
       "guarda_antes": "Save your changes before publishing or unpublishing the label.",
-      "en_actual": "In the current version",
-      "anterior": {
-        "batches": "Batches",
-        "feedback": "Feedback",
-        "statistics": "Statistics"
-      },
       "editor_ayuda": "Changes here apply only to this label. Mark on each field whether it is shown in the showcase; the preview opens the showcase with your changes, even unsaved.",
       "secciones": {
         "empresa": "Company",
@@ -1283,7 +1277,97 @@
         "MEET_THE_FARMER": "Meet the farmers",
         "PRODUCTION_RECORD": "Production records",
         "abrir": "Open {{nombre}}"
+      },
+      "partes": {
+        "titulo": "Label parts",
+        "contenido": "Content",
+        "lotes": "Batches",
+        "opiniones": "Feedback",
+        "estadisticas": "Statistics"
       }
+    },
+    "lotes": {
+      "titulo": "Batches",
+      "ayuda": "Each batch carries its number next to the QR. When enabled, consumers can check authenticity (by dates) and trace the origin (by places).",
+      "nuevo": "New batch",
+      "editar": "Edit batch",
+      "buscar": "Search",
+      "buscar_placeholder": "Batch number",
+      "vacio": "No batches yet.",
+      "sin_resultados": "No batches with that number.",
+      "total_one": "{{count}} batch",
+      "total_other": "{{count}} batches",
+      "uno": "Batch {{numero}}",
+      "numero": "Batch number",
+      "foto": "Batch photo",
+      "foto_ayuda": "PNG or JPG.",
+      "producido": "Produced on {{fecha}}",
+      "vence": "expires on {{fecha}}",
+      "sin_fechas": "No dates",
+      "autenticidad": "Check authenticity",
+      "autenticidad_ayuda": "Consumers confirm the batch with the printed production or expiry date.",
+      "produccion": "Production date",
+      "vencimiento": "Expiry date",
+      "origen": "Trace origin",
+      "origen_ayuda": "Consumers see where this batch comes from.",
+      "origen_n_one": "Origin: {{count}} place",
+      "origen_n_other": "Origin: {{count}} places",
+      "usar_producto": "Use the product's places",
+      "reemplazar_lugares": "Replace the batch's places with the product's?",
+      "mapa": "Map of the batch places",
+      "guardado": "Batch {{numero}} was saved.",
+      "borrar": "Delete batch {{numero}}",
+      "borrar_pregunta": "Delete batch {{numero}}?",
+      "borrado": "Batch {{numero}} was deleted.",
+      "paginas": "Pages",
+      "anterior": "Previous page",
+      "siguiente": "Next page",
+      "errores": {
+        "una_fecha": "Enter at least one of the two dates.",
+        "vence_antes": "The expiry date cannot be before the production date.",
+        "sin_lugares": "Add at least one place on the map.",
+        "alfanumerico": "Only unaccented letters and numbers, without spaces or hyphens."
+      },
+      "numero_ayuda": "Only unaccented letters and numbers."
+    },
+    "opiniones": {
+      "titulo": "Feedback",
+      "ayuda": "What consumers left in this label's showcase. E-mails and answers are only visible to the product's companies.",
+      "exportar": "Export e-mails",
+      "exportar_ayuda": "CSV with the e-mails of those who accepted the processing of their data.",
+      "filtro": "Feedback type",
+      "todas": "All",
+      "tipos": {
+        "PRAISE": "Praise",
+        "PROPOSAL": "Proposal",
+        "COMPLAINT": "Complaint"
+      },
+      "vacio": "No feedback yet.",
+      "total_one": "{{count}} item",
+      "total_other": "{{count}} items",
+      "una": "Feedback {{n}}",
+      "edad": "{{edad}} years old",
+      "sabor": "Taste: {{sabor}}",
+      "con_consentimiento": "Consent given",
+      "sin_consentimiento": "No consent",
+      "borrar": "Delete feedback",
+      "borrar_pregunta": "Delete this feedback? This cannot be undone.",
+      "borrada": "The feedback was deleted."
+    },
+    "estadisticas": {
+      "visitas": "QR visits",
+      "visitas_ayuda": "Each scan of a QR code of this label. Updated every minute.",
+      "visitas_total": "{{n}} visits",
+      "por_pais": "Visits by country",
+      "mapa": "Map of visits",
+      "sin_visitas": "No visits recorded yet.",
+      "autenticidad": "Authenticity checks",
+      "autenticidad_ayuda": "Consumer checks that confirmed a batch by its date.",
+      "origen": "Origin tracing",
+      "origen_ayuda": "Consumer queries for the origin of a batch.",
+      "total": "Total",
+      "correctas": "Successful",
+      "fallidas": "Failed"
     }
   }
 }

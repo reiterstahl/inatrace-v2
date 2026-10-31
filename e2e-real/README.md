@@ -24,6 +24,6 @@ corrida deja un registro "E2E-MASIVO" sin pagos.
 pedido), `beyco.spec.ts` necesita `scripts/sembrar-beyco.mjs` (Beyco habilitado en la empresa demo)
 y `productos.spec.ts` y `productos-partes.spec.ts` necesitan `scripts/sembrar-productos.mjs` (cadena de
 valor en la empresa demo; la segunda usa la cuenta de administración del sistema), igual que
-`etiquetas.spec.ts`.
+`etiquetas.spec.ts` y `etiqueta-partes.spec.ts` (esta última necesita el backend con H24).
 Los tres scripts son solo para copias aisladas. `beyco.spec.ts` no usa Beyco de verdad: intercepta la
 salida hacia Beyco y simula su vuelta.

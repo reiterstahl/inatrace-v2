@@ -1001,7 +1001,7 @@
   },
   "productos": {
     "titulo": "Productos",
-    "descripcion": "Los productos de tus empresas: su ficha, la vitrina, las empresas de la cadena, los productos finales y las etiquetas. Los lotes, las opiniones y las estadísticas siguen, por ahora, en la versión actual.",
+    "descripcion": "Los productos de tus empresas: su ficha, la vitrina, las empresas de la cadena, los productos finales y las etiquetas con sus lotes, opiniones y estadísticas. La base de conocimiento sigue, por ahora, en la versión actual.",
     "nuevo": "Nuevo producto",
     "buscar": "Buscar",
     "buscar_placeholder": "Nombre del producto",
@@ -1236,12 +1236,6 @@
       "retirar": "Retirar de la vitrina",
       "borrar": "Borrar etiqueta",
       "guarda_antes": "Guarda los cambios antes de publicar o retirar la etiqueta.",
-      "en_actual": "En la versión actual",
-      "anterior": {
-        "batches": "Lotes",
-        "feedback": "Opiniones",
-        "statistics": "Estadísticas"
-      },
       "editor_ayuda": "Lo que cambies aquí vale solo para esta etiqueta. Marca en cada campo si se muestra en la vitrina; la vista previa abre la vitrina con los cambios, aunque no estén guardados.",
       "secciones": {
         "empresa": "Empresa",
@@ -1283,7 +1277,97 @@
         "MEET_THE_FARMER": "Conoce a los productores",
         "PRODUCTION_RECORD": "Registros de producción",
         "abrir": "Abrir {{nombre}}"
+      },
+      "partes": {
+        "titulo": "Partes de la etiqueta",
+        "contenido": "Contenido",
+        "lotes": "Lotes",
+        "opiniones": "Opiniones",
+        "estadisticas": "Estadísticas"
       }
+    },
+    "lotes": {
+      "titulo": "Lotes",
+      "ayuda": "Cada lote lleva su número junto al QR. Si se activan, el consumidor puede verificar la autenticidad (por fechas) y rastrear el origen (por lugares).",
+      "nuevo": "Nuevo lote",
+      "editar": "Editar lote",
+      "buscar": "Buscar",
+      "buscar_placeholder": "Número de lote",
+      "vacio": "Todavía no hay lotes.",
+      "sin_resultados": "No hay lotes con ese número.",
+      "total_one": "{{count}} lote",
+      "total_other": "{{count}} lotes",
+      "uno": "Lote {{numero}}",
+      "numero": "Número de lote",
+      "foto": "Foto del lote",
+      "foto_ayuda": "PNG o JPG.",
+      "producido": "Producido el {{fecha}}",
+      "vence": "vence el {{fecha}}",
+      "sin_fechas": "Sin fechas",
+      "autenticidad": "Verificar autenticidad",
+      "autenticidad_ayuda": "El consumidor confirma el lote con la fecha de producción o de vencimiento impresa.",
+      "produccion": "Fecha de producción",
+      "vencimiento": "Fecha de vencimiento",
+      "origen": "Rastrear origen",
+      "origen_ayuda": "El consumidor ve de dónde viene este lote.",
+      "origen_n_one": "Origen: {{count}} lugar",
+      "origen_n_other": "Origen: {{count}} lugares",
+      "usar_producto": "Usar los lugares del producto",
+      "reemplazar_lugares": "¿Reemplazar los lugares del lote por los del producto?",
+      "mapa": "Mapa de los lugares del lote",
+      "guardado": "Se guardó el lote {{numero}}.",
+      "borrar": "Borrar el lote {{numero}}",
+      "borrar_pregunta": "¿Borrar el lote {{numero}}?",
+      "borrado": "Se borró el lote {{numero}}.",
+      "paginas": "Páginas",
+      "anterior": "Página anterior",
+      "siguiente": "Página siguiente",
+      "errores": {
+        "una_fecha": "Indica al menos una de las dos fechas.",
+        "vence_antes": "El vencimiento no puede ser anterior a la producción.",
+        "sin_lugares": "Agrega al menos un lugar en el mapa.",
+        "alfanumerico": "Solo letras sin tilde ni ñ y números, sin espacios ni guiones."
+      },
+      "numero_ayuda": "Solo letras sin tilde ni ñ y números."
+    },
+    "opiniones": {
+      "titulo": "Opiniones",
+      "ayuda": "Lo que dejaron los consumidores en la vitrina de esta etiqueta. El correo y las respuestas solo los ven las empresas del producto.",
+      "exportar": "Exportar correos",
+      "exportar_ayuda": "CSV con los correos de quienes aceptaron el tratamiento de sus datos.",
+      "filtro": "Tipo de opinión",
+      "todas": "Todas",
+      "tipos": {
+        "PRAISE": "Felicitación",
+        "PROPOSAL": "Propuesta",
+        "COMPLAINT": "Queja"
+      },
+      "vacio": "Todavía no hay opiniones.",
+      "total_one": "{{count}} opinión",
+      "total_other": "{{count}} opiniones",
+      "una": "Opinión {{n}}",
+      "edad": "{{edad}} años",
+      "sabor": "Sabor: {{sabor}}",
+      "con_consentimiento": "Con consentimiento",
+      "sin_consentimiento": "Sin consentimiento",
+      "borrar": "Borrar la opinión",
+      "borrar_pregunta": "¿Borrar esta opinión? No se puede deshacer.",
+      "borrada": "Se borró la opinión."
+    },
+    "estadisticas": {
+      "visitas": "Visitas desde los QR",
+      "visitas_ayuda": "Cada escaneo de un QR de esta etiqueta. Se actualizan cada minuto.",
+      "visitas_total": "{{n}} visitas",
+      "por_pais": "Visitas por país",
+      "mapa": "Mapa de las visitas",
+      "sin_visitas": "Todavía no hay visitas registradas.",
+      "autenticidad": "Verificación de autenticidad",
+      "autenticidad_ayuda": "Consultas de consumidores que confirmaron un lote por su fecha.",
+      "origen": "Rastreo de origen",
+      "origen_ayuda": "Consultas de consumidores por el origen de un lote.",
+      "total": "Total",
+      "correctas": "Correctas",
+      "fallidas": "Fallidas"
     }
   }
 }

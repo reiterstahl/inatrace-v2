@@ -10,7 +10,6 @@ import { Boton, clasesBoton } from '@/componentes/ui/Boton';
 import { Campo, Selector } from '@/componentes/ui/Campo';
 import { Aviso, Cargando, EstadoError } from '@/componentes/ui/Estados';
 import { Icono } from '@/componentes/ui/Icono';
-import { enAnterior } from '@/util/entorno';
 import {
   CAMPOS_ETIQUETA, MEDIOS, armarCampos, armarVistaPrevia, guardarVistaPrevia, idVistaPrevia, validarMedios, visiblesDesde,
   type CategoriaMedio, type Visibles,
@@ -25,7 +24,7 @@ import { EditorVitrina } from './Vitrina';
 type Idioma = NonNullable<ApiProductLabel['language']>;
 const rutaEditor = getRouteApi('/portal/productos/$id/etiquetas/$etiqueta');
 
-function Estado({ publicada }: { publicada: boolean }) {
+export function Estado({ publicada }: { publicada: boolean }) {
   const { t } = useTranslation();
   return (
     <span className={clsx('inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold', publicada ? 'bg-ok-suave text-ok' : 'bg-superficie-2 text-tinta-2')}>
@@ -121,7 +120,6 @@ export function EtiquetasProducto() {
 
 /** Editor de una etiqueta. */
 export function EditorEtiqueta() {
-  const { t } = useTranslation();
   const id = Number(rutaEditor.useParams().etiqueta);
   const etiqueta = useQuery(etiquetas.etiqueta(id));
   const contenido = useQuery(etiquetas.contenido(id));
@@ -130,12 +128,12 @@ export function EditorEtiqueta() {
   const fallida = consultas.find((c) => c.isError);
   if (fallida) return <EstadoError texto={fallida.error!.message} reintentar={() => consultas.forEach((c) => void c.refetch())} />;
   if (!etiqueta.data || !contenido.data || !medios.data) return <Cargando />;
-  return <FormEtiqueta key={id} etiqueta={etiqueta.data} contenido={contenido.data} medios={medios.data} volverTexto={t('productos.etiquetas.titulo')} />;
+  return <FormEtiqueta key={id} etiqueta={etiqueta.data} contenido={contenido.data} medios={medios.data} />;
 }
 
 const SECCIONES_EXTRA = ['empresa', 'apariencia', 'pestanas', 'precios', 'recorrido', 'medios'] as const;
 
-function FormEtiqueta({ etiqueta, contenido, medios: mediosIniciales, volverTexto }: { etiqueta: ApiProductLabel; contenido: ApiProductLabelContent; medios: ApiProductLabelCompanyDocument[]; volverTexto: string }) {
+function FormEtiqueta({ etiqueta, contenido, medios: mediosIniciales }: { etiqueta: ApiProductLabel; contenido: ApiProductLabelContent; medios: ApiProductLabelCompanyDocument[] }) {
   const { t } = useTranslation();
   const { producto, editable } = useProducto();
   const navegar = useNavigate();
@@ -215,19 +213,9 @@ function FormEtiqueta({ etiqueta, contenido, medios: mediosIniciales, volverText
     document.title = `${nombre} · ${producto.name} · INATrace v2`;
   }, [nombre, producto.name]);
 
-  const anterior = (resto: string) => enAnterior(`/product-labels/${producto.id}/labels/${etiqueta.id}/${resto}`);
-
   return (
     <div className="grid gap-6">
-      <Link to="/productos/$id/etiquetas" params={{ id: String(producto.id) }} className="inline-flex items-center gap-1.5 justify-self-start text-sm font-medium text-marca hover:underline">
-        <Icono nombre="volver" className="size-4" /> {volverTexto}
-      </Link>
-
       <section aria-label={t('productos.etiquetas.cabecera')} className="grid gap-4 rounded-caja border border-linea bg-superficie p-5 shadow-suave sm:p-6">
-        <div className="flex flex-wrap items-center gap-3">
-          <Estado publicada={publicada} />
-          <span className="text-sm text-tinta-2">{etiqueta.language ? t(`productos.idiomas.${etiqueta.language}`) : ''}</span>
-        </div>
         <Campo etiqueta={t('productos.etiquetas.nombre')} value={titulo} onChange={(e) => { setTitulo(e.target.value); tocar(); }} disabled={!editable} error={errores.titulo && t('stock.errores.requerido')} className="sm:max-w-lg" />
         <div className="flex flex-wrap gap-2">
           <Boton chico variante="secundario" onClick={vistaPrevia}>
@@ -250,14 +238,6 @@ function FormEtiqueta({ etiqueta, contenido, medios: mediosIniciales, volverText
           )}
         </div>
         {editable && tocado && <p className="text-sm text-tinta-3">{t('productos.etiquetas.guarda_antes')}</p>}
-        {/* Lotes, opiniones y estadísticas siguen en la versión actual (fase 5c). */}
-        <nav aria-label={t('productos.etiquetas.en_actual')} className="flex flex-wrap gap-x-4 gap-y-1 border-t border-linea pt-3 text-sm">
-          {(['batches', 'feedback', 'statistics'] as const).map((x) => (
-            <a key={x} href={anterior(x)} className="inline-flex items-center gap-1 font-medium text-tinta-2 hover:text-marca" title={t('portal.en_actual')}>
-              {t(`productos.etiquetas.anterior.${x}`)} <Icono nombre="externo" className="size-3.5" />
-            </a>
-          ))}
-        </nav>
       </section>
 
       {aviso && <Aviso tono={aviso.tono}>{aviso.texto}</Aviso>}
