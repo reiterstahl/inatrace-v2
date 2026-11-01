@@ -1,4 +1,4 @@
-import type { ApiFinalProduct, ApiMeasureUnitType, ApiProduct, ApiProductLabel, ApiProductLabelAnalytics, ApiProductLabelBatch, ApiProductLabelCompanyDocument, ApiProductLabelContent, ApiProductLabelFeedback } from '@/api/gen/types.gen';
+import type { ApiFinalProduct, ApiKnowledgeBlog, ApiMeasureUnitType, ApiProduct, ApiProductLabel, ApiProductLabelAnalytics, ApiProductLabelBatch, ApiProductLabelCompanyDocument, ApiProductLabelContent, ApiProductLabelFeedback } from '@/api/gen/types.gen';
 import { camposIniciales } from '@/util/etiqueta';
 import { EMPRESA_DEMO } from './productores';
 
@@ -104,3 +104,10 @@ export const estadisticasDemo: ApiProductLabelAnalytics = {
   originTrue: 5,
   originFalse: 0,
 };
+
+/** Base de conocimiento: el producto 1 tiene una entrada de cada tema; el contenido llega como HTML. */
+export const conocimientoIniciales: (ApiKnowledgeBlog & { productId: number })[] = [
+  { id: 51, productId: 1, type: 'FAIRNESS', title: 'Precio justo para las familias', date: '2026-08-14', summary: '<p>Cómo se reparte el precio de cada bolsa.</p>', content: '<p>La cooperativa paga un <strong>sobreprecio</strong> por calidad.</p>', documents: [{ id: 501, storageKey: 'doc-precios', name: 'precios-2026.pdf', contentType: 'application/pdf' }] },
+  { id: 52, productId: 1, type: 'QUALITY', title: 'Catación de la cosecha 2026', date: '2026-09-02', summary: 'Notas de chocolate y frutos rojos.', content: '', youtubeUrl: 'https://youtu.be/demo-catacion', documents: [] },
+  { id: 53, productId: 1, type: 'PROVENANCE', title: 'De Todos Santos a tu taza', documents: [] },
+];

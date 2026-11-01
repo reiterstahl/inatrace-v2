@@ -91,3 +91,56 @@ test('producto: vitrina y recorrido, empresas, acuerdos y productos finales cont
     await page.request.delete(`/api/product/${id}`);
   }
 });
+
+test('producto: base de conocimiento contra el backend', async ({ page }) => {
+  test.setTimeout(90_000);
+  await ingresar(page);
+  // El backend no permite borrar entradas y un producto con entradas no se puede borrar (H25): la
+  // prueba reutiliza siempre el mismo producto y cada corrida le deja una entrada.
+  const PRODUCTO = 'Conocimiento E2E';
+  let id = ((await api(page, 'get', `/api/product/list?name=${encodeURIComponent(PRODUCTO)}&limit=10`)).data.items as { id: number; name: string }[]).find((p) => p.name === PRODUCTO)?.id;
+  if (!id) {
+    const creado = await api(page, 'post', '/api/product/create', {
+      name: PRODUCTO, description: 'Prueba de la v2.', company: { id: 1 }, valueChain: { id: 1 }, dataSharingAgreements: [],
+      origin: { text: 'Huehuetenango.', locations: [{ latitude: 15.5, longitude: -91.6, pinName: 'Finca' }] },
+      process: { production: 'Lavado.' }, responsibility: { laborPolicies: 'Pago justo.' }, sustainability: { production: 'Bajo sombra.' }, settings: { language: 'ES' },
+    });
+    expect(creado.status).toBe('OK');
+    id = creado.data.id as number;
+  }
+  const titulo = 'Catación ' + Date.now().toString().slice(-6);
+  const entradas = async () => (await api(page, 'get', `/api/product/knowledgeBlog/list/${id}?limit=200`)).data.items as { id: number; title: string; type: string }[];
+
+  await page.goto(`/v2/productos/${id}/conocimiento`);
+  await page.getByRole('button', { name: 'Nueva entrada' }).click();
+  const form = page.getByRole('group', { name: 'Nueva entrada' });
+  await form.getByRole('combobox', { name: 'Tema' }).selectOption({ label: 'Calidad' });
+  await form.getByRole('textbox', { name: 'Título' }).fill(titulo);
+  await form.getByLabel('Fecha', { exact: true }).fill('2026-10-20');
+  await form.getByRole('textbox', { name: 'Resumen' }).fill('<p>Notas de <strong>chocolate</strong>.</p>');
+  await form.getByRole('textbox', { name: 'Video' }).fill('youtu.be/catacion');
+  await form.getByLabel('Documentos', { exact: true }).setInputFiles({ name: 'catacion.pdf', mimeType: 'application/pdf', buffer: Buffer.from('%PDF-1.4\n%%EOF\n') });
+  await expect(form.getByRole('link', { name: 'catacion.pdf' })).toBeVisible();
+  await form.getByRole('button', { name: 'Guardar' }).click();
+  await expect(page.getByText(`Se guardó «${titulo}».`)).toBeVisible();
+
+  const e = (await entradas()).find((x) => x.title === titulo)!;
+  expect(e).toMatchObject({ type: 'QUALITY' });
+  const guardada = (await api(page, 'get', `/api/product/knowledgeBlog/${e.id}`)).data;
+  expect(guardada).toMatchObject({ date: '2026-10-20', summary: '<p>Notas de <strong>chocolate</strong>.</p>', youtubeUrl: 'https://youtu.be/catacion' });
+  expect(guardada.documents.map((d: { name: string }) => d.name)).toEqual(['catacion.pdf']);
+
+  // Editar conserva el tema y los documentos.
+  await page.getByRole('listitem', { name: titulo, exact: true }).getByRole('button', { name: 'Editar' }).click();
+  const edicion = page.getByRole('group', { name: 'Editar entrada' });
+  await expect(edicion.getByRole('link', { name: 'catacion.pdf' })).toBeVisible();
+  await edicion.getByRole('textbox', { name: 'Título' }).fill(titulo + ' (editada)');
+  await edicion.getByRole('button', { name: 'Guardar' }).click();
+  await expect(page.getByRole('listitem', { name: titulo + ' (editada)' })).toContainText('Calidad');
+  const editada = (await api(page, 'get', `/api/product/knowledgeBlog/${e.id}`)).data;
+  expect(editada).toMatchObject({ title: titulo + ' (editada)', type: 'QUALITY', youtubeUrl: 'https://youtu.be/catacion' });
+  expect(editada.documents).toHaveLength(1);
+
+  await page.getByRole('group', { name: 'Filtrar por tema' }).getByRole('button', { name: 'Equidad' }).click();
+  await expect(page.getByText('No hay entradas de este tema.')).toBeVisible();
+});

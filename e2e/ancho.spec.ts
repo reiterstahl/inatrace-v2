@@ -5,7 +5,7 @@ import { test, expect } from './ayudas';
  * la página entera. Pasó con tablas anchas cuyos textos ocultos (sr-only, posición absoluta) se salían
  * del contenedor con scroll horizontal.
  */
-const PANTALLAS = ['', 'productores', 'stock/entregas', 'stock/todo?inst=11', 'stock/procesamiento', 'stock/procesamiento/nueva?accion=21&inst=11', 'stock/pagos', 'stock/pagos?vista=masivos', 'stock/trazabilidad/310', 'stock/ordenes', 'stock/ordenes?vista=recibidas', 'stock/ordenes/cliente', 'stock/ordenes/812/aprobar', 'stock/pagos/nuevo?orden=812', 'stock/beyco/oferta?lotes=310', 'productos', 'productos/1', 'productos/2', 'productos/nuevo', 'productos/1/vitrina', 'productos/1/empresas', 'productos/1/finales', 'productos/1/etiquetas', 'productos/1/etiquetas/11', 'productos/1/etiquetas/11/lotes', 'productos/1/etiquetas/11/opiniones', 'productos/1/etiquetas/11/estadisticas'];
+const PANTALLAS = ['', 'productores', 'stock/entregas', 'stock/todo?inst=11', 'stock/procesamiento', 'stock/procesamiento/nueva?accion=21&inst=11', 'stock/pagos', 'stock/pagos?vista=masivos', 'stock/trazabilidad/310', 'stock/ordenes', 'stock/ordenes?vista=recibidas', 'stock/ordenes/cliente', 'stock/ordenes/812/aprobar', 'stock/pagos/nuevo?orden=812', 'stock/beyco/oferta?lotes=310', 'productos', 'productos/1', 'productos/2', 'productos/nuevo', 'productos/1/vitrina', 'productos/1/empresas', 'productos/1/finales', 'productos/1/conocimiento', 'productos/1/etiquetas', 'productos/1/etiquetas/11', 'productos/1/etiquetas/11/lotes', 'productos/1/etiquetas/11/opiniones', 'productos/1/etiquetas/11/estadisticas'];
 
 test('ninguna pantalla es más ancha que la ventana', async ({ page }) => {
   test.setTimeout(PANTALLAS.length * 6_000); // recorre todas las pantallas en una sola prueba

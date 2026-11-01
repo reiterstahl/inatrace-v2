@@ -527,6 +527,48 @@ celular) y una nueva contra el backend real (`e2e-real/etiqueta-partes.spec.ts`:
 verificación pública, opinión cuyo correo no sale por la ruta pública y sí en la de la empresa,
 estadísticas y limpieza).
 
+## Fase 5d (base de conocimiento) — ✅ cerrada el 01.11.2026 (rama `fase-5`)
+
+Con esto **la fase 5 («Productos y etiquetas») queda completa**: el producto ya no tiene pestañas que
+abran la versión actual.
+
+- **Base de conocimiento** (`/productos/$id/conocimiento`): lista con filtro por tema (equidad,
+  calidad, origen) y páginas, las más nuevas primero (el backend solo ordena por id o tema; la
+  versión actual ofrecía ordenar por título y fecha, pero el backend lo ignoraba). Alta y edición en
+  línea: tema, título, fecha, resumen, contenido, video y documentos (PDF o imagen, varios a la vez).
+  **El tema no se puede cambiar** después de crear la entrada (el backend no lo actualiza); la v2 lo
+  muestra fijo en vez de dejar que parezca editable.
+- Resumen y contenido llegan como HTML (la versión actual usaba un editor enriquecido); se editan como
+  texto, con contador de caracteres hasta los límites del backend (3000 y 5000), y la **vista previa**
+  los muestra saneados con `HtmlSeguro`. El video se guarda con `https://` si se escribió sin
+  protocolo y solo se enlazan direcciones http(s).
+- Título obligatorio (la versión actual dejaba guardar entradas sin título, que se veían vacías en la
+  lista).
+- La administra la empresa dueña o la administración del sistema (`checkProductPermissionAssoc` mira
+  la empresa del producto); las demás ven un aviso.
+- **Lo que no tiene arreglo en la v2:** la vitrina pública no muestra estas entradas (la versión
+  actual tampoco: su página `/blog/…` usa la ruta con sesión y nada enlaza a ella) y no se pueden
+  borrar (ver H25).
+
+### H25 🟡 — un producto con entradas en la base de conocimiento no se puede borrar (backend)
+
+`DELETE /api/product/{id}` borra las etiquetas y sus lotes, pero no las entradas de
+`KnowledgeBlog`: la clave foránea hace fallar el borrado con 500 («Cannot delete or update a parent
+row»). Y no existe una ruta para borrar entradas, así que **un producto con una sola entrada ya no se
+puede borrar** desde ninguna interfaz. Encontrado al limpiar la prueba real. Está igual en el original.
+No es de seguridad: si Rolo lo aprueba, va como PR (borrar las entradas y sus documentos con el
+producto, y una ruta para borrar una entrada).
+
+**En la v2:** antes de borrar un producto se consulta su base de conocimiento; si tiene entradas,
+avisa y no intenta borrarlo. La prueba real reutiliza un producto fijo («Conocimiento E2E») y cada
+corrida le deja una entrada.
+
+**Pruebas:** 118 unitarias (3 nuevas), 116 de punta a punta simuladas (2 nuevas en escritorio y
+celular, más la página en la prueba de ancho) y una nueva contra el backend real
+(`e2e-real/productos-partes.spec.ts`: alta con documento y video, lectura por la API, edición que
+conserva tema y documentos, filtro). Suite real: 24 de 25 (la de QR de convivencia falla en el
+servidor de desarrollo, como siempre).
+
 ## Fase 1b (activar la vitrina en una instalación) — pendiente, acordada el 19.10.2026
 
 Pasos, en orden:
@@ -552,8 +594,9 @@ confirmar el uso del video de Anacafé o cambiarlo.**
 2. Revisión de alemán y kinyarwanda por alguien que los hable.
 3. Demo pública: más adelante.
 4. **Fase 3 cerrada** (3a–3e.3). Queda probar Beyco de verdad cuando haya una cuenta de pruebas.
-5. En curso: «Productos y etiquetas» (fase 5): falta 5d (base de conocimiento). Después,
-   «Empresa y administración».
+5. **Fase 5 cerrada** (5a.1–5d). Sigue «Empresa y administración».
 6. H23: esperar la revisión del PR #116 en AgStack (junto con #112 y #113).
 7. H24: Rolo envía el correo privado a AgStack (`upstream/seguridad/EMAIL-feedback.md`).
+8. H25: decidir si va como PR al original (borrar entradas con el producto y una ruta para borrar
+   una entrada).
    Criterio de salida de la fase: ciclo entrega → procesamiento → pago completo en la v2.

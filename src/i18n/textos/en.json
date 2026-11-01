@@ -1063,6 +1063,8 @@
     "cadena_de": "Chain: {{cadena}}",
     "borrar": "Delete product",
     "borrar_pregunta": "Delete the product \"{{nombre}}\" with its labels? This cannot be undone.",
+    "borrar_con_conocimiento_one": "This product has {{count}} knowledge base entry, and the backend does not allow deleting it while it has entries (nor does it allow deleting entries).",
+    "borrar_con_conocimiento_other": "This product has {{count}} knowledge base entries, and the backend does not allow deleting it while it has entries (nor does it allow deleting entries).",
     "guardado": "Product saved.",
     "nuevo_ayuda": "Fill in the profile and save to create the product.",
     "solo_lectura_titulo": "Read only",
@@ -1368,6 +1370,47 @@
       "total": "Total",
       "correctas": "Successful",
       "fallidas": "Failed"
+    },
+    "conocimiento": {
+      "titulo": "Knowledge base",
+      "ayuda": "Entries about the fairness, quality and provenance of the product, with documents and a video. The public showcase does not show them yet (neither does the current version), and the backend does not allow deleting them.",
+      "sin_permiso": "The knowledge base is managed by the company that owns the product.",
+      "nueva": "New entry",
+      "editar": "Edit entry",
+      "filtro": "Filter by topic",
+      "todas": "All",
+      "temas": {
+        "FAIRNESS": "Fairness",
+        "QUALITY": "Quality",
+        "PROVENANCE": "Provenance"
+      },
+      "vacio": "No entries yet.",
+      "sin_resultados": "No entries on this topic.",
+      "total_one": "{{count}} entry",
+      "total_other": "{{count}} entries",
+      "sin_titulo": "Untitled",
+      "con_video": "With video",
+      "tema": "Topic",
+      "tema_fijo": "The topic cannot be changed after the entry is created.",
+      "titulo_entrada": "Title",
+      "fecha": "Date",
+      "resumen": "Summary",
+      "contenido": "Content",
+      "html": "basic HTML allowed (paragraphs, bold, links)",
+      "video": "Video",
+      "video_ayuda": "YouTube or other link. https:// is added if missing.",
+      "documentos": "Documents",
+      "documentos_ayuda": "PDF, PNG or JPG; several can be uploaded at once.",
+      "agregar_documento": "Add documents",
+      "ver_previa": "Preview",
+      "ocultar_previa": "Hide preview",
+      "previa": "Entry preview",
+      "ver_video": "Watch the video",
+      "guardada": "“{{titulo}}” was saved.",
+      "errores": {
+        "largo": "At most {{max}} characters.",
+        "enlace": "Enter a valid link (https://…)."
+      }
     }
   }
 }

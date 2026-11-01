@@ -1,11 +1,11 @@
 import { http, HttpResponse, delay } from 'msw';
-import type { ApiFinalProduct, ApiProduct, ApiProductLabel, ApiProductLabelBatch, ApiProductLabelCompanyDocument, ApiProductLabelContent, ApiProductLabelFeedback, ApiUserGet } from '@/api/gen/types.gen';
+import type { ApiFinalProduct, ApiKnowledgeBlog, ApiProduct, ApiProductLabel, ApiProductLabelBatch, ApiProductLabelCompanyDocument, ApiProductLabelContent, ApiProductLabelFeedback, ApiUserGet } from '@/api/gen/types.gen';
 import { ETIQUETA_DEMO, QR_DEMO, etiqueta, qr } from './datos/vitrina';
 import type { ApiUserCustomer } from '@/api/gen/types.gen';
 import { accionesProcesamiento, clientes, instalacionVecina, pagosIniciales, procesosIniciales, productoFinalQr, acopiadores, agrupar, entregasIniciales, historiaDe, instalaciones, loteProcesado, recalcular, semiproductos, tiposEvidencia, usuariosEmpresa } from './datos/stock';
 import type { ApiBulkPayment, ApiPayment, ApiProcessingOrder, ApiPurchaseOrder, ApiStockOrder } from '@/api/gen/types.gen';
 import { EMPRESA_DEMO, capasMapa, paises, parcelasDe, productoresIniciales, tiposCertificacion, tiposProducto } from './datos/productores';
-import { contenidoDe, empresasInstancia, estadisticasDemo, etiquetasIniciales, finalesIniciales, lotesIniciales, mediosEmpresa, opinionesIniciales, productosIniciales, unidadesMedida, type EtiquetaSimulada } from './datos/productos';
+import { conocimientoIniciales, contenidoDe, empresasInstancia, estadisticasDemo, etiquetasIniciales, finalesIniciales, lotesIniciales, mediosEmpresa, opinionesIniciales, productosIniciales, unidadesMedida, type EtiquetaSimulada } from './datos/productos';
 
 /**
  * Respuestas simuladas con la misma forma que el backend ({ status, data }).
@@ -77,6 +77,10 @@ const etiquetasDe = (producto?: number) => leerEtiquetas().filter((x) => x.etiqu
 const CLAVE_LOTES = 'simulado.lotes';
 const leerLotes = (): ApiProductLabelBatch[] => JSON.parse(sessionStorage.getItem(CLAVE_LOTES) ?? 'null') ?? lotesIniciales;
 const guardarLotes = (l: ApiProductLabelBatch[]) => sessionStorage.setItem(CLAVE_LOTES, JSON.stringify(l));
+const CLAVE_CONOCIMIENTO = 'simulado.conocimiento';
+type EntradaSimulada = ApiKnowledgeBlog & { productId: number };
+const leerConocimiento = (): EntradaSimulada[] => JSON.parse(sessionStorage.getItem(CLAVE_CONOCIMIENTO) ?? 'null') ?? conocimientoIniciales;
+const guardarConocimiento = (l: EntradaSimulada[]) => sessionStorage.setItem(CLAVE_CONOCIMIENTO, JSON.stringify(l));
 const CLAVE_OPINIONES = 'simulado.opiniones';
 const leerOpiniones = (): ApiProductLabelFeedback[] => JSON.parse(sessionStorage.getItem(CLAVE_OPINIONES) ?? 'null') ?? opinionesIniciales;
 /** Página de una lista según limit/offset, como el backend. */
@@ -436,6 +440,34 @@ export const manejadores = [
     guardarEtiquetas(leerEtiquetas().filter((x) => x.etiqueta.id !== Number(params.id)));
     return ok();
   }),
+  // ---------- Base de conocimiento ----------
+  http.get('/api/product/knowledgeBlog/list/:productId', ({ request, params }) => {
+    if (!conSesion()) return sinSesion();
+    const u = new URL(request.url);
+    const tipo = u.searchParams.get('type');
+    const base = ({ id, type, title, date, youtubeUrl }: EntradaSimulada) => ({ id, type, title, date, youtubeUrl });
+    return pagina(leerConocimiento().filter((e) => e.productId === Number(params.productId) && (!tipo || e.type === tipo)).sort((a, b) => b.id! - a.id!).map(base), u);
+  }),
+  http.get('/api/product/knowledgeBlog/:id', ({ params }) => {
+    if (!conSesion()) return sinSesion();
+    const e = leerConocimiento().find((x) => x.id === Number(params.id));
+    if (!e) return error(400, 'INVALID_REQUEST', 'Invalid id');
+    const { productId: _, ...entrada } = e;
+    return ok(entrada);
+  }),
+  http.post('/api/product/knowledgeBlog/:productId', async ({ request, params }) => {
+    if (!conSesion()) return sinSesion();
+    const e = (await request.json()) as ApiKnowledgeBlog;
+    guardarConocimiento([...leerConocimiento(), { ...e, documents: e.documents ?? [], id: siguienteId++, productId: Number(params.productId) }]);
+    return ok();
+  }),
+  // Como el backend: el tema no cambia y los documentos se reemplazan solo si llegan.
+  http.put('/api/product/knowledgeBlog', async ({ request }) => {
+    if (!conSesion()) return sinSesion();
+    const e = (await request.json()) as ApiKnowledgeBlog;
+    guardarConocimiento(leerConocimiento().map((x) => (x.id === e.id ? { ...x, title: e.title, summary: e.summary, content: e.content, date: e.date, youtubeUrl: e.youtubeUrl, documents: e.documents ?? x.documents } : x)));
+    return ok();
+  }),
   // ---------- Lotes, opiniones y estadísticas de una etiqueta ----------
   http.get('/api/product/label/:id/batches', ({ request, params }) => {
     if (!conSesion()) return sinSesion();
@@ -567,7 +599,11 @@ export const manejadores = [
     guardarProcesos(leerProcesos().filter((x) => x.id !== p.id));
     return ok();
   }),
-  http.post('/api/common/document', () => ok({ id: siguienteId++, storageKey: 'doc-' + siguienteId, name: 'documento.pdf', contentType: 'application/pdf', size: 1024 })),
+  http.post('/api/common/document', async ({ request }) => {
+    const archivo = (await request.formData()).get('file');
+    const nombre = archivo instanceof File ? archivo.name : 'documento.pdf';
+    return ok({ id: siguienteId++, storageKey: 'doc-' + siguienteId, name: nombre, contentType: archivo instanceof File ? archivo.type : 'application/pdf', size: 1024 });
+  }),
 
   // ---------- Stock: órdenes entre empresas ----------
   http.get('/api/chain/stock-order/list/company/:companyId/orders-for-customers', ({ request }) => {

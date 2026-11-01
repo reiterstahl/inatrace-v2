@@ -1,7 +1,8 @@
 import { useEffect } from 'react';
 import { Link, Outlet, getRouteApi, useNavigate } from '@tanstack/react-router';
-import { useQuery, useSuspenseQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
+import { conocimiento } from '@/api/conocimiento';
 import { consultas } from '@/api/consultas';
 import { productos, useBorrarProducto } from '@/api/productos';
 import type { ApiProduct } from '@/api/gen/types.gen';
@@ -9,22 +10,18 @@ import { Boton } from '@/componentes/ui/Boton';
 import { Aviso, Cargando, EstadoError } from '@/componentes/ui/Estados';
 import { Icono, type NombreIcono } from '@/componentes/ui/Icono';
 import { useEmpresaActual } from '@/util/empresa';
-import { enAnterior } from '@/util/entorno';
 import { esDuena } from '@/util/producto';
 
 const ruta = getRouteApi('/portal/productos/$id');
 
-type Destino = '/productos/$id' | '/productos/$id/vitrina' | '/productos/$id/empresas' | '/productos/$id/finales' | '/productos/$id/etiquetas';
+type Destino = '/productos/$id' | '/productos/$id/vitrina' | '/productos/$id/empresas' | '/productos/$id/finales' | '/productos/$id/etiquetas' | '/productos/$id/conocimiento';
 const PESTANAS: { to: Destino; clave: string; icono: NombreIcono; exacta?: boolean }[] = [
   { to: '/productos/$id', clave: 'productos.pestanas.ficha', icono: 'lista', exacta: true },
   { to: '/productos/$id/vitrina', clave: 'productos.pestanas.vitrina', icono: 'ruta' },
   { to: '/productos/$id/empresas', clave: 'productos.pestanas.empresas', icono: 'personas' },
   { to: '/productos/$id/finales', clave: 'productos.pestanas.finales', icono: 'taza' },
   { to: '/productos/$id/etiquetas', clave: 'productos.pestanas.etiquetas', icono: 'qr' },
-];
-/** Lo que sigue en la versión actual (se migra en 5d). */
-const PENDIENTES: { clave: string; anterior: (id: string) => string }[] = [
-  { clave: 'productos.pestanas.conocimiento', anterior: (id) => `/product-labels/${id}/knowledge-blog` },
+  { to: '/productos/$id/conocimiento', clave: 'productos.pestanas.conocimiento', icono: 'certificado' },
 ];
 
 const PESTANA = 'inline-flex h-11 shrink-0 items-center gap-2 rounded-t-lg border-b-2 border-transparent px-4 text-sm font-semibold text-tinta-2 hover:text-tinta';
@@ -49,6 +46,7 @@ export function MarcoProducto() {
   const empresa = useEmpresaActual();
   const navegar = useNavigate();
   const borrar = useBorrarProducto();
+  const qc = useQueryClient();
   const consulta = useQuery(productos.producto(Number(id)));
   const p = consulta.data;
   const nombre = p?.name?.trim() || `#${id}`;
@@ -64,8 +62,14 @@ export function MarcoProducto() {
   const duena = producto.associatedCompanies?.find((a) => a.type === 'OWNER')?.company?.name ?? producto.company?.name;
 
   async function eliminar() {
-    if (!window.confirm(t('productos.borrar_pregunta', { nombre }))) return;
     try {
+      // El backend no borra un producto con entradas en la base de conocimiento (H25): falla con 500.
+      const { count } = await qc.fetchQuery(conocimiento.lista(producto.id!, { pagina: 1 }));
+      if (count) {
+        window.alert(t('productos.borrar_con_conocimiento', { count }));
+        return;
+      }
+      if (!window.confirm(t('productos.borrar_pregunta', { nombre }))) return;
       await borrar.mutateAsync(producto.id!);
       await navegar({ to: '/productos' });
     } catch (x) {
@@ -99,11 +103,6 @@ export function MarcoProducto() {
           <Link key={x.to} to={x.to} params={{ id }} activeOptions={{ exact: !!x.exacta }} className={PESTANA} activeProps={{ className: '!border-marca !text-marca', 'aria-current': 'page' }}>
             <Icono nombre={x.icono} className="size-4" /> {t(x.clave)}
           </Link>
-        ))}
-        {PENDIENTES.map((x) => (
-          <a key={x.clave} href={enAnterior(x.anterior(id))} className={PESTANA + ' font-medium text-tinta-3'} title={t('portal.en_actual')}>
-            {t(x.clave)} <Icono nombre="externo" className="size-3.5" />
-          </a>
         ))}
       </nav>
       <Outlet />

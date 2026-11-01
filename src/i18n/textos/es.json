@@ -1063,6 +1063,8 @@
     "cadena_de": "Cadena: {{cadena}}",
     "borrar": "Borrar producto",
     "borrar_pregunta": "¿Borrar el producto «{{nombre}}» con sus etiquetas? No se puede deshacer.",
+    "borrar_con_conocimiento_one": "Este producto tiene {{count}} entrada en la base de conocimiento y el backend no permite borrarlo mientras tenga entradas (tampoco permite borrar las entradas).",
+    "borrar_con_conocimiento_other": "Este producto tiene {{count}} entradas en la base de conocimiento y el backend no permite borrarlo mientras tenga entradas (tampoco permite borrar las entradas).",
     "guardado": "Producto guardado.",
     "nuevo_ayuda": "Completa la ficha y guarda para crear el producto.",
     "solo_lectura_titulo": "Solo lectura",
@@ -1368,6 +1370,47 @@
       "total": "Total",
       "correctas": "Correctas",
       "fallidas": "Fallidas"
+    },
+    "conocimiento": {
+      "titulo": "Base de conocimiento",
+      "ayuda": "Entradas sobre la equidad, la calidad y el origen del producto, con documentos y un video. Por ahora la vitrina pública no las muestra (tampoco la versión actual) y el backend no permite borrarlas.",
+      "sin_permiso": "La base de conocimiento la administra la empresa dueña del producto.",
+      "nueva": "Nueva entrada",
+      "editar": "Editar entrada",
+      "filtro": "Filtrar por tema",
+      "todas": "Todas",
+      "temas": {
+        "FAIRNESS": "Equidad",
+        "QUALITY": "Calidad",
+        "PROVENANCE": "Origen"
+      },
+      "vacio": "Todavía no hay entradas.",
+      "sin_resultados": "No hay entradas de este tema.",
+      "total_one": "{{count}} entrada",
+      "total_other": "{{count}} entradas",
+      "sin_titulo": "Sin título",
+      "con_video": "Con video",
+      "tema": "Tema",
+      "tema_fijo": "El tema no se puede cambiar después de crear la entrada.",
+      "titulo_entrada": "Título",
+      "fecha": "Fecha",
+      "resumen": "Resumen",
+      "contenido": "Contenido",
+      "html": "admite HTML básico (párrafos, negritas, enlaces)",
+      "video": "Video",
+      "video_ayuda": "Enlace de YouTube u otro sitio. Si no lleva https://, se agrega.",
+      "documentos": "Documentos",
+      "documentos_ayuda": "PDF, PNG o JPG; se pueden subir varios a la vez.",
+      "agregar_documento": "Agregar documentos",
+      "ver_previa": "Vista previa",
+      "ocultar_previa": "Ocultar vista previa",
+      "previa": "Vista previa de la entrada",
+      "ver_video": "Ver el video",
+      "guardada": "Se guardó «{{titulo}}».",
+      "errores": {
+        "largo": "Máximo {{max}} caracteres.",
+        "enlace": "Escribe un enlace válido (https://…)."
+      }
     }
   }
 }

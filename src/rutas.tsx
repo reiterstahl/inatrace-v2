@@ -107,6 +107,7 @@ const productoFicha = createRoute({ getParentRoute: () => productoRaiz, path: '/
 const productoVitrina = createRoute({ getParentRoute: () => productoRaiz, path: 'vitrina', component: lazyRouteComponent(() => import('@/paginas/productos/Vitrina'), 'VitrinaProducto') });
 const productoEmpresas = createRoute({ getParentRoute: () => productoRaiz, path: 'empresas', component: lazyRouteComponent(() => import('@/paginas/productos/Empresas'), 'EmpresasProducto') });
 const productoFinales = createRoute({ getParentRoute: () => productoRaiz, path: 'finales', component: lazyRouteComponent(() => import('@/paginas/productos/Finales'), 'FinalesProducto') });
+const productoConocimiento = createRoute({ getParentRoute: () => productoRaiz, path: 'conocimiento', component: lazyRouteComponent(() => import('@/paginas/productos/Conocimiento'), 'ConocimientoProducto') });
 const etiquetasRaiz = createRoute({ getParentRoute: () => productoRaiz, path: 'etiquetas' });
 const etiquetasLista = createRoute({ getParentRoute: () => etiquetasRaiz, path: '/', component: lazyRouteComponent(() => import('@/paginas/productos/Etiquetas'), 'EtiquetasProducto') });
 const etiquetaRaiz = createRoute({ getParentRoute: () => etiquetasRaiz, path: '$etiqueta', component: lazyRouteComponent(() => import('@/paginas/productos/etiqueta/Marco'), 'MarcoEtiqueta') });
@@ -336,7 +337,7 @@ const arbol = raiz.addChildren([
   ingreso,
   entradaQr,
   entradaEtiqueta,
-  portal.addChildren([inicio, perfil, productoresRaiz.addChildren([productoresLista, productorNuevo, productoresImportar, productorFicha]), productosRaiz.addChildren([productosLista, productoNuevo, productoRaiz.addChildren([productoFicha, productoVitrina, productoEmpresas, productoFinales, etiquetasRaiz.addChildren([etiquetasLista, etiquetaRaiz.addChildren([etiquetaEditor, etiquetaLotes, etiquetaOpiniones, etiquetaEstadisticas])])])]),
+  portal.addChildren([inicio, perfil, productoresRaiz.addChildren([productoresLista, productorNuevo, productoresImportar, productorFicha]), productosRaiz.addChildren([productosLista, productoNuevo, productoRaiz.addChildren([productoFicha, productoVitrina, productoEmpresas, productoFinales, etiquetasRaiz.addChildren([etiquetasLista, etiquetaRaiz.addChildren([etiquetaEditor, etiquetaLotes, etiquetaOpiniones, etiquetaEstadisticas])]), productoConocimiento])]),
     stockRaiz.addChildren([stockInicio, entregasRaiz.addChildren([entregasLista, entregaNueva, entregaMasiva, entregaFicha]), stockTodo, procesamientoRaiz.addChildren([procesamientoInicio, procesamientoNuevo, procesamientoEditar]), pagosRaiz.addChildren([pagosLista, pagoNuevo, pagoMasivoNuevo, pagoMasivoVer, pagoVer]), ordenesRaiz.addChildren([ordenesLista, ordenNueva, pedidoCliente, ordenAprobar]), beycoVuelta, beycoOferta, stockTrazabilidad]),
   ]),
   vitrina.addChildren([vPortada, vRecorrido, vPrecios, vProductores, vCalidad, vOpinion, vTerminos, vPrivacidad]),
