@@ -1,5 +1,5 @@
 import { keepPreviousData, queryOptions, useMutation, useQueryClient } from '@tanstack/react-query';
-import { addProductKnowledgeBlog, getProductKnowledgeBlog, getProductKnowledgeBlogs, updateProductKnowledgeBlog } from './gen/sdk.gen';
+import { addProductKnowledgeBlog, deleteProductKnowledgeBlog, getProductKnowledgeBlog, getProductKnowledgeBlogs, updateProductKnowledgeBlog } from './gen/sdk.gen';
 import type { ApiKnowledgeBlog } from './gen/types.gen';
 import type { Tema } from '@/util/conocimiento';
 import { desenvolver } from './respuesta';
@@ -37,6 +37,15 @@ export function useGuardarEntrada(producto: number) {
       if (e.id) await desenvolver(updateProductKnowledgeBlog({ body: e }));
       else await desenvolver(addProductKnowledgeBlog({ path: { productId: producto }, body: e }));
     },
+    onSuccess: () => void qc.invalidateQueries({ queryKey: ['conocimiento'] }),
+  });
+}
+
+/** Borra una entrada (ruta agregada en el backend del contrato con H25). */
+export function useBorrarEntrada() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: number) => desenvolver(deleteProductKnowledgeBlog({ path: { id } })),
     onSuccess: () => void qc.invalidateQueries({ queryKey: ['conocimiento'] }),
   });
 }

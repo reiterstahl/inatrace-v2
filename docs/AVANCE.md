@@ -546,22 +546,23 @@ abran la versión actual.
   lista).
 - La administra la empresa dueña o la administración del sistema (`checkProductPermissionAssoc` mira
   la empresa del producto); las demás ven un aviso.
+- **Borrar** una entrada usa la ruta nueva del backend del contrato (H25, abajo).
 - **Lo que no tiene arreglo en la v2:** la vitrina pública no muestra estas entradas (la versión
-  actual tampoco: su página `/blog/…` usa la ruta con sesión y nada enlaza a ella) y no se pueden
-  borrar (ver H25).
+  actual tampoco: su página `/blog/…` usa la ruta con sesión y nada enlaza a ella).
 
-### H25 🟡 — un producto con entradas en la base de conocimiento no se puede borrar (backend)
+### H25 🟡 — un producto con entradas en la base de conocimiento no se podía borrar (backend; corregido)
 
 `DELETE /api/product/{id}` borra las etiquetas y sus lotes, pero no las entradas de
 `KnowledgeBlog`: la clave foránea hace fallar el borrado con 500 («Cannot delete or update a parent
 row»). Y no existe una ruta para borrar entradas, así que **un producto con una sola entrada ya no se
 puede borrar** desde ninguna interfaz. Encontrado al limpiar la prueba real. Está igual en el original.
-No es de seguridad: si Rolo lo aprueba, va como PR (borrar las entradas y sus documentos con el
-producto, y una ruta para borrar una entrada).
-
-**En la v2:** antes de borrar un producto se consulta su base de conocimiento; si tiene entradas,
-avisa y no intenta borrarlo. La prueba real reutiliza un producto fijo («Conocimiento E2E») y cada
-corrida le deja una entrada.
+**Corregido en el backend del contrato** (`9baaa5b`): el producto se borra con sus entradas y la
+nueva ruta `DELETE /api/product/knowledgeBlog/{id}` borra una entrada; prueba
+`KnowledgeBlogDeletionTest`, 382 pruebas en verde. Al original como PR
+[#117](https://github.com/agstack/inatrace-backend/pull/117) (01.11.2026). La copia aislada corre
+`inatrace-backend:dev-h25` (respaldo previo `v2demo-antes-h25.sql`). La v2 regeneró el SDK, agrega
+el botón de borrar y ya no necesita avisar antes de borrar un producto (lo hizo mientras tanto).
+La prueba real borra una entrada desde la pantalla y después el producto con otra entrada.
 
 **Pruebas:** 118 unitarias (3 nuevas), 116 de punta a punta simuladas (2 nuevas en escritorio y
 celular, más la página en la prueba de ancho) y una nueva contra el backend real
@@ -597,6 +598,5 @@ confirmar el uso del video de Anacafé o cambiarlo.**
 5. **Fase 5 cerrada** (5a.1–5d). Sigue «Empresa y administración».
 6. H23: esperar la revisión del PR #116 en AgStack (junto con #112 y #113).
 7. H24: Rolo envía el correo privado a AgStack (`upstream/seguridad/EMAIL-feedback.md`).
-8. H25: decidir si va como PR al original (borrar entradas con el producto y una ruta para borrar
-   una entrada).
+8. H25: esperar la revisión del PR #117 en AgStack.
    Criterio de salida de la fase: ciclo entrega → procesamiento → pago completo en la v2.

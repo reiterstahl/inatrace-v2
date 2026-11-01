@@ -4491,6 +4491,37 @@
       }
      }
     }
+   },
+   "delete": {
+    "tags": [
+     "product-controller"
+    ],
+    "summary": "Delete knowledge blog",
+    "operationId": "deleteProductKnowledgeBlog",
+    "parameters": [
+     {
+      "name": "id",
+      "in": "path",
+      "description": "id",
+      "required": true,
+      "schema": {
+       "type": "integer",
+       "format": "int64"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "OK",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ApiDefaultResponse"
+        }
+       }
+      }
+     }
+    }
    }
   },
   "/api/product/knowledgeBlog/list/{productId}": {

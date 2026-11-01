@@ -381,6 +381,8 @@ export const manejadores = [
   http.delete('/api/product/:id', ({ params }) => {
     if (!conSesion()) return sinSesion();
     guardarProductos(leerProductos().filter((x) => x.id !== Number(params.id)));
+    // Como el backend con H25: las entradas de la base de conocimiento se borran con el producto.
+    guardarConocimiento(leerConocimiento().filter((x) => x.productId !== Number(params.id)));
     return ok();
   }),
   // ---------- Etiquetas ----------
@@ -466,6 +468,11 @@ export const manejadores = [
     if (!conSesion()) return sinSesion();
     const e = (await request.json()) as ApiKnowledgeBlog;
     guardarConocimiento(leerConocimiento().map((x) => (x.id === e.id ? { ...x, title: e.title, summary: e.summary, content: e.content, date: e.date, youtubeUrl: e.youtubeUrl, documents: e.documents ?? x.documents } : x)));
+    return ok();
+  }),
+  http.delete('/api/product/knowledgeBlog/:id', ({ params }) => {
+    if (!conSesion()) return sinSesion();
+    guardarConocimiento(leerConocimiento().filter((x) => x.id !== Number(params.id)));
     return ok();
   }),
   // ---------- Lotes, opiniones y estadísticas de una etiqueta ----------

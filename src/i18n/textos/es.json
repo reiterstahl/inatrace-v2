@@ -1063,8 +1063,6 @@
     "cadena_de": "Cadena: {{cadena}}",
     "borrar": "Borrar producto",
     "borrar_pregunta": "¿Borrar el producto «{{nombre}}» con sus etiquetas? No se puede deshacer.",
-    "borrar_con_conocimiento_one": "Este producto tiene {{count}} entrada en la base de conocimiento y el backend no permite borrarlo mientras tenga entradas (tampoco permite borrar las entradas).",
-    "borrar_con_conocimiento_other": "Este producto tiene {{count}} entradas en la base de conocimiento y el backend no permite borrarlo mientras tenga entradas (tampoco permite borrar las entradas).",
     "guardado": "Producto guardado.",
     "nuevo_ayuda": "Completa la ficha y guarda para crear el producto.",
     "solo_lectura_titulo": "Solo lectura",
@@ -1373,7 +1371,7 @@
     },
     "conocimiento": {
       "titulo": "Base de conocimiento",
-      "ayuda": "Entradas sobre la equidad, la calidad y el origen del producto, con documentos y un video. Por ahora la vitrina pública no las muestra (tampoco la versión actual) y el backend no permite borrarlas.",
+      "ayuda": "Entradas sobre la equidad, la calidad y el origen del producto, con documentos y un video. Por ahora la vitrina pública no las muestra (tampoco la versión actual).",
       "sin_permiso": "La base de conocimiento la administra la empresa dueña del producto.",
       "nueva": "Nueva entrada",
       "editar": "Editar entrada",
@@ -1407,6 +1405,9 @@
       "previa": "Vista previa de la entrada",
       "ver_video": "Ver el video",
       "guardada": "Se guardó «{{titulo}}».",
+      "borrar": "Borrar «{{titulo}}»",
+      "borrar_pregunta": "¿Borrar la entrada «{{titulo}}»?",
+      "borrada": "Se borró «{{titulo}}».",
       "errores": {
         "largo": "Máximo {{max}} caracteres.",
         "enlace": "Escribe un enlace válido (https://…)."

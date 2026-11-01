@@ -1063,8 +1063,6 @@
     "cadena_de": "Chain: {{cadena}}",
     "borrar": "Delete product",
     "borrar_pregunta": "Delete the product \"{{nombre}}\" with its labels? This cannot be undone.",
-    "borrar_con_conocimiento_one": "This product has {{count}} knowledge base entry, and the backend does not allow deleting it while it has entries (nor does it allow deleting entries).",
-    "borrar_con_conocimiento_other": "This product has {{count}} knowledge base entries, and the backend does not allow deleting it while it has entries (nor does it allow deleting entries).",
     "guardado": "Product saved.",
     "nuevo_ayuda": "Fill in the profile and save to create the product.",
     "solo_lectura_titulo": "Read only",
@@ -1373,7 +1371,7 @@
     },
     "conocimiento": {
       "titulo": "Knowledge base",
-      "ayuda": "Entries about the fairness, quality and provenance of the product, with documents and a video. The public showcase does not show them yet (neither does the current version), and the backend does not allow deleting them.",
+      "ayuda": "Entries about the fairness, quality and provenance of the product, with documents and a video. The public showcase does not show them yet (neither does the current version).",
       "sin_permiso": "The knowledge base is managed by the company that owns the product.",
       "nueva": "New entry",
       "editar": "Edit entry",
@@ -1407,6 +1405,9 @@
       "previa": "Entry preview",
       "ver_video": "Watch the video",
       "guardada": "“{{titulo}}” was saved.",
+      "borrar": "Delete “{{titulo}}”",
+      "borrar_pregunta": "Delete the entry “{{titulo}}”?",
+      "borrada": "“{{titulo}}” was deleted.",
       "errores": {
         "largo": "At most {{max}} characters.",
         "enlace": "Enter a valid link (https://…)."

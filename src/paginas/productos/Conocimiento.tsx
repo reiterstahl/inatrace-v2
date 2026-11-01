@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { clsx } from 'clsx';
-import { POR_PAGINA_CONOCIMIENTO, conocimiento, useGuardarEntrada } from '@/api/conocimiento';
+import { POR_PAGINA_CONOCIMIENTO, conocimiento, useBorrarEntrada, useGuardarEntrada } from '@/api/conocimiento';
 import { subirDocumento } from '@/api/productores';
 import { urlDocumento } from '@/api/respuesta';
 import { Boton } from '@/componentes/ui/Boton';
@@ -29,6 +29,7 @@ export function ConocimientoProducto() {
   const [tema, setTema] = useState<Tema | undefined>();
   const [pagina, setPagina] = useState(1);
   const lista = useQuery({ ...conocimiento.lista(producto.id!, { tema, pagina }), enabled: puede });
+  const borrar = useBorrarEntrada();
   const [editando, setEditando] = useState<FormEntrada | null>(null);
   const [abriendo, setAbriendo] = useState<number | null>(null);
   const [aviso, setAviso] = useState<{ tono: 'mal' | 'ok'; texto: string } | null>(null);
@@ -46,6 +47,17 @@ export function ConocimientoProducto() {
       setAviso({ tono: 'mal', texto: (x as Error).message });
     } finally {
       setAbriendo(null);
+    }
+  }
+
+  async function eliminar(id: number, titulo: string) {
+    if (!window.confirm(t('productos.conocimiento.borrar_pregunta', { titulo }))) return;
+    setAviso(null);
+    try {
+      await borrar.mutateAsync(id);
+      setAviso({ tono: 'ok', texto: t('productos.conocimiento.borrada', { titulo }) });
+    } catch (x) {
+      setAviso({ tono: 'mal', texto: (x as Error).message });
     }
   }
 
@@ -104,9 +116,14 @@ export function ConocimientoProducto() {
                       </p>
                     </div>
                     {!editando && (
-                      <Boton chico variante="fantasma" onClick={() => void abrir(e.id!)} disabled={abriendo !== null}>
-                        <Icono nombre="editar" className="size-4" /> {abriendo === e.id ? t('comun.cargando') : t('comun.editar')}
-                      </Boton>
+                      <div className="flex gap-1">
+                        <Boton chico variante="fantasma" onClick={() => void abrir(e.id!)} disabled={abriendo !== null}>
+                          <Icono nombre="editar" className="size-4" /> {abriendo === e.id ? t('comun.cargando') : t('comun.editar')}
+                        </Boton>
+                        <Boton chico variante="fantasma" onClick={() => void eliminar(e.id!, e.title || `#${e.id}`)} disabled={borrar.isPending} aria-label={t('productos.conocimiento.borrar', { titulo: e.title || `#${e.id}` })}>
+                          <Icono nombre="borrar" className="size-4" />
+                        </Boton>
+                      </div>
                     )}
                   </li>
                 ),

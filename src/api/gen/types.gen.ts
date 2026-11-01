@@ -8281,6 +8281,27 @@ export type GetProductLabelAnalyticsResponses = {
 
 export type GetProductLabelAnalyticsResponse = GetProductLabelAnalyticsResponses[keyof GetProductLabelAnalyticsResponses];
 
+export type DeleteProductKnowledgeBlogData = {
+    body?: never;
+    path: {
+        /**
+         * id
+         */
+        id: number;
+    };
+    query?: never;
+    url: '/api/product/knowledgeBlog/{id}';
+};
+
+export type DeleteProductKnowledgeBlogResponses = {
+    /**
+     * OK
+     */
+    200: ApiDefaultResponse;
+};
+
+export type DeleteProductKnowledgeBlogResponse = DeleteProductKnowledgeBlogResponses[keyof DeleteProductKnowledgeBlogResponses];
+
 export type GetProductKnowledgeBlogData = {
     body?: never;
     path: {

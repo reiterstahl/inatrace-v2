@@ -1,8 +1,7 @@
 import { useEffect } from 'react';
 import { Link, Outlet, getRouteApi, useNavigate } from '@tanstack/react-router';
-import { useQuery, useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
+import { useQuery, useSuspenseQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import { conocimiento } from '@/api/conocimiento';
 import { consultas } from '@/api/consultas';
 import { productos, useBorrarProducto } from '@/api/productos';
 import type { ApiProduct } from '@/api/gen/types.gen';
@@ -46,7 +45,6 @@ export function MarcoProducto() {
   const empresa = useEmpresaActual();
   const navegar = useNavigate();
   const borrar = useBorrarProducto();
-  const qc = useQueryClient();
   const consulta = useQuery(productos.producto(Number(id)));
   const p = consulta.data;
   const nombre = p?.name?.trim() || `#${id}`;
@@ -62,14 +60,8 @@ export function MarcoProducto() {
   const duena = producto.associatedCompanies?.find((a) => a.type === 'OWNER')?.company?.name ?? producto.company?.name;
 
   async function eliminar() {
+    if (!window.confirm(t('productos.borrar_pregunta', { nombre }))) return;
     try {
-      // El backend no borra un producto con entradas en la base de conocimiento (H25): falla con 500.
-      const { count } = await qc.fetchQuery(conocimiento.lista(producto.id!, { pagina: 1 }));
-      if (count) {
-        window.alert(t('productos.borrar_con_conocimiento', { count }));
-        return;
-      }
-      if (!window.confirm(t('productos.borrar_pregunta', { nombre }))) return;
       await borrar.mutateAsync(producto.id!);
       await navegar({ to: '/productos' });
     } catch (x) {

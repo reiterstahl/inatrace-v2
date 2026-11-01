@@ -165,11 +165,9 @@ test.describe('partes del producto (modo simulado)', () => {
     await edicion.getByRole('button', { name: 'Guardar' }).click();
     await expect(page.getByRole('listitem', { name: 'La finca El Mirador, Todos Santos' })).toContainText('Origen');
 
-    // El backend no borra un producto con entradas (H25): la v2 avisa antes de intentarlo.
-    let mensaje = '';
-    page.once('dialog', (d) => { mensaje = d.message(); void d.accept(); });
-    await page.getByRole('button', { name: 'Borrar producto' }).click();
-    await expect.poll(() => mensaje).toContain('tiene 4 entradas en la base de conocimiento');
-    await expect(page.getByRole('heading', { level: 1, name: 'Café Flor de la Sierra' })).toBeVisible();
+    page.once('dialog', (d) => void d.accept());
+    await page.getByRole('button', { name: 'Borrar «La finca El Mirador, Todos Santos»' }).click();
+    await expect(page.getByText('Se borró «La finca El Mirador, Todos Santos».')).toBeVisible();
+    await expect(page.getByText('3 entradas')).toBeVisible();
   });
 });
