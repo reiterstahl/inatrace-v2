@@ -506,7 +506,7 @@ Cada etiqueta tiene ahora subpestañas: **Contenido · Lotes · Opiniones · Est
 - **Estadísticas:** visitas desde los QR con su reparto por país y un mapa de puntos proporcionales,
   y las verificaciones de autenticidad y de origen (el backend las agrega cada minuto).
 
-### H24 🔴 — la lista pública de opiniones exponía datos de los consumidores (backend; corregido)
+### H24 🟠 — la lista pública de opiniones exponía datos de los consumidores (backend; corregido)
 
 Al migrar la página de opiniones: `GET /api/public/product/label/feedback/list/{labelUid}` no pide
 sesión y entregaba correo, edad, género y consentimientos de cada opinión. El identificador de la
@@ -517,8 +517,9 @@ usaba esa ruta pública para su página de opiniones. Está igual en el original
 pública conserva tipo y texto; la nueva ruta con sesión `GET /api/product/label/{id}/feedback/list`
 entrega todo a las empresas del producto, y la interfaz actual pasa a usarla. Prueba
 `ProductLabelFeedbackPrivacyTest`; 380 pruebas del backend y compilación de Angular en verde. La
-v2 usa la ruta nueva (SDK regenerado). **Al original va por correo privado** (es de seguridad):
-parches y texto en `upstream/seguridad/` del repo del contrato; lo envía Rolo. La copia aislada
+v2 usa la ruta nueva (SDK regenerado). **Al original va por correo privado, como consulta**: que la ruta sea pública es intencional (su
+issue #37); lo dudoso es que entregue los datos personales. Parches y texto en `upstream/seguridad/`
+del repo del contrato; lo envía Rolo. La copia aislada
 corre `inatrace-backend:dev-h24` y `inatrace-frontend:dev-h24`.
 
 **Pruebas:** 115 unitarias (5 nuevas), 114 de punta a punta simuladas (6 nuevas en escritorio y
