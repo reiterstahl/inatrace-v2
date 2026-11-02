@@ -153,4 +153,75 @@ test.describe('mi empresa (modo simulado)', () => {
     await page.getByRole('button', { name: 'Borrar Bodega Norte' }).click();
     await expect(page.getByText('Se borró «Bodega Norte».')).toBeVisible();
   });
+
+  test('acciones: lista con tipo y recorrido, búsqueda, y no se borra una con procesos', async ({ page }) => {
+    await ingresar(page, 'empresa/acciones');
+    await expect(page.getByRole('link', { name: 'Acciones de procesamiento' })).toHaveAttribute('aria-current', 'page');
+    const despulpado = page.getByRole('listitem', { name: 'Despulpado y secado' });
+    await expect(despulpado).toContainText('Procesamiento');
+    await expect(despulpado).toContainText('→');
+    await page.getByRole('searchbox', { name: 'Buscar' }).fill('qr');
+    await expect(page.getByRole('listitem')).toHaveCount(1);
+    await page.getByRole('searchbox', { name: 'Buscar' }).fill('');
+    const pedido = page.getByRole('listitem').filter({ hasText: 'Pedido' }).first();
+    const nombre = (await pedido.getAttribute('aria-label'))!;
+    page.once('dialog', (d) => void d.accept());
+    await page.getByRole('button', { name: `Borrar ${nombre}` }).click();
+    await expect(page.getByText('el backend no permite borrarla', { exact: false })).toBeVisible();
+  });
+
+  test('acciones: crear un procesamiento con salidas, campos y documentos; editar el tipo y borrar', async ({ page }) => {
+    await ingresar(page, 'empresa/acciones');
+    await page.getByRole('link', { name: 'Nueva acción' }).click();
+    await page.getByRole('button', { name: 'Guardar' }).click();
+    await expect(page.getByText('Revisa los campos marcados.')).toBeVisible();
+    await expect(page.getByText('Escribe el nombre al menos en un idioma.')).toBeVisible();
+
+    await page.getByRole('combobox', { name: 'Tipo de acción' }).selectOption({ label: 'Procesamiento' });
+    await expect(page.getByText('Transforma un semiproducto en uno o más', { exact: false })).toBeVisible();
+    await page.getByRole('button', { name: 'Guardar' }).click();
+    await expect(page.getByText('Agrega al menos un semiproducto de salida.')).toBeVisible();
+    await page.getByRole('combobox', { name: 'Semiproducto de entrada' }).selectOption({ index: 1 });
+    await page.getByRole('combobox', { name: 'Agregar a semiproductos de salida' }).selectOption({ index: 1 });
+    await page.getByRole('button', { name: 'Agregar a semiproductos de salida' }).click();
+    const salida = page.getByRole('list', { name: 'Semiproductos de salida' }).getByRole('listitem').first();
+    await salida.getByRole('checkbox', { name: 'Se reempaca' }).check();
+    await page.getByRole('textbox', { name: 'Prefijo de los lotes' }).fill('FER');
+    await page.getByRole('textbox', { name: 'Nombre en Español' }).fill('Fermentado');
+    await page.getByRole('textbox', { name: 'Descripción en Español' }).fill('En tanques, 24 horas');
+    await page.getByRole('button', { name: 'Guardar' }).click();
+    await expect(salida.getByText('Este campo es obligatorio.')).toBeVisible();
+    await salida.getByRole('textbox', { name: /^Máximo por envase/ }).fill('46');
+
+    await page.getByRole('combobox', { name: 'Agregar a campos' }).selectOption({ label: 'Variedad' });
+    await page.getByRole('button', { name: 'Agregar a campos' }).click();
+    await page.getByRole('listitem', { name: 'Variedad' }).getByRole('checkbox', { name: 'Obligatorio', exact: true }).check();
+    await page.getByRole('combobox', { name: 'Agregar a documentos' }).selectOption({ label: 'Recibo' });
+    await page.getByRole('button', { name: 'Agregar a documentos' }).click();
+    const recibo = page.getByRole('listitem', { name: 'Recibo' });
+    await recibo.getByRole('checkbox', { name: 'Uno de un grupo en el pedido' }).check();
+    await expect(recibo.getByRole('textbox', { name: 'Grupo de Recibo' })).toHaveValue('1');
+    await recibo.getByRole('checkbox', { name: 'Obligatorio en el pedido' }).check();
+    await expect(recibo.getByRole('textbox', { name: 'Grupo de Recibo' })).toHaveCount(0);
+    await page.getByRole('button', { name: 'Guardar' }).click();
+    await expect(page.getByText('Se guardó «Fermentado».')).toBeVisible();
+    const fermentado = page.getByRole('listitem', { name: 'Fermentado' });
+    await expect(fermentado).toContainText('FER');
+
+    await fermentado.getByRole('link', { name: 'Editar' }).click();
+    // El inglés (que exige el backend) tomó el nombre escrito.
+    await expect(page.getByRole('textbox', { name: 'Nombre en Inglés' })).toHaveValue('Fermentado');
+    await expect(page.getByRole('listitem', { name: 'Variedad' }).getByRole('checkbox', { name: 'Obligatorio', exact: true })).toBeChecked();
+    await page.getByRole('combobox', { name: 'Tipo de acción' }).selectOption({ label: 'Traslado' });
+    await page.getByRole('button', { name: 'Guardar' }).click();
+    await expect(page.getByRole('group', { name: /^¿Mueve productos finales\?/ }).getByRole('alert')).toBeVisible();
+    await page.getByRole('group', { name: /^¿Mueve productos finales\?/ }).getByLabel('Sí').check();
+    await page.getByRole('combobox', { name: 'Producto final de entrada' }).selectOption({ index: 1 });
+    await page.getByRole('button', { name: 'Guardar' }).click();
+    await expect(page.getByRole('listitem', { name: 'Fermentado' })).toContainText('Traslado');
+
+    page.once('dialog', (d) => void d.accept());
+    await page.getByRole('button', { name: 'Borrar Fermentado' }).click();
+    await expect(page.getByText('Se borró «Fermentado».')).toBeVisible();
+  });
 });

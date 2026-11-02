@@ -119,3 +119,58 @@ test('instalaciones: crear, ver lo guardado, desactivar, activar y borrar contra
     if (id) await page.request.delete(`/api/chain/facility/${id}`);
   }
 });
+
+test('acciones: crear un procesamiento, ver lo guardado, cambiar el tipo y borrar contra el backend', async ({ page }) => {
+  test.setTimeout(90_000);
+  await ingresar(page);
+  const nombre = 'Fermentado E2E ' + Date.now().toString().slice(-6);
+  const todas = async () => (await (await page.request.get('/api/chain/processing-action/list/company/1?limit=500')).json()).data.items as { id: number; name: string }[];
+  let id: number | undefined;
+  try {
+    await page.goto('/v2/empresa/acciones/nueva');
+    await page.getByRole('combobox', { name: 'Tipo de acción' }).selectOption({ label: 'Procesamiento' });
+    if ((await page.getByRole('list', { name: /^Cadenas de valor/ }).count()) === 0) {
+      await page.getByRole('combobox', { name: 'Agregar a cadenas de valor' }).selectOption({ index: 1 });
+      await page.getByRole('button', { name: 'Agregar a cadenas de valor' }).click();
+    }
+    await page.getByRole('combobox', { name: 'Semiproducto de entrada' }).selectOption({ index: 1 });
+    await page.getByRole('combobox', { name: 'Agregar a semiproductos de salida' }).selectOption({ index: 2 });
+    await page.getByRole('button', { name: 'Agregar a semiproductos de salida' }).click();
+    const salida = page.getByRole('list', { name: 'Semiproductos de salida' }).getByRole('listitem').first();
+    await salida.getByRole('checkbox', { name: 'Se reempaca' }).check();
+    await salida.getByRole('textbox', { name: /^Máximo por envase/ }).fill('46');
+    await page.getByRole('textbox', { name: /^Rendimiento estimado/ }).fill('0,8');
+    await page.getByRole('textbox', { name: 'Prefijo de los lotes' }).fill('FER');
+    await page.getByRole('textbox', { name: 'Nombre en Español' }).fill(nombre);
+    await page.getByRole('textbox', { name: 'Descripción en Español' }).fill('En tanques');
+    await page.getByRole('button', { name: 'Guardar' }).click();
+    await expect(page.getByText(`Se guardó «${nombre}».`)).toBeVisible();
+
+    id = (await todas()).find((a) => a.name === nombre)?.id;
+    expect(id).toBeTruthy();
+    const d = (await (await page.request.get(`/api/chain/processing-action/${id}/detail`)).json()).data;
+    expect(d).toMatchObject({ type: 'PROCESSING', prefix: 'FER', estimatedOutputQuantityPerUnit: 0.8, finalProductAction: false });
+    expect(d.inputSemiProduct.id).toBeTruthy();
+    expect(d.outputSemiProducts).toHaveLength(1);
+    expect(d.outputSemiProducts[0]).toMatchObject({ repackedOutput: true, maxOutputWeight: 46 });
+    // El inglés que exige el backend tomó el nombre escrito en español.
+    expect(d.translations.find((t: { language: string }) => t.language === 'EN')).toMatchObject({ name: nombre, description: 'En tanques' });
+
+    // Cambiar a traslado de semiproductos: el backend deja de guardar las salidas.
+    await page.getByRole('listitem', { name: nombre }).getByRole('link', { name: 'Editar' }).click();
+    await page.getByRole('combobox', { name: 'Tipo de acción' }).selectOption({ label: 'Traslado' });
+    await page.getByRole('group', { name: /^¿Mueve productos finales\?/ }).getByLabel('No').check();
+    await page.getByRole('button', { name: 'Guardar' }).click();
+    await expect(page.getByRole('listitem', { name: nombre })).toContainText('Traslado');
+    const t = (await (await page.request.get(`/api/chain/processing-action/${id}/detail`)).json()).data;
+    expect(t).toMatchObject({ type: 'TRANSFER', finalProductAction: false });
+
+    page.once('dialog', (x) => void x.accept());
+    await page.getByRole('button', { name: `Borrar ${nombre}` }).click();
+    await expect(page.getByText(`Se borró «${nombre}».`)).toBeVisible();
+    expect((await todas()).some((a) => a.id === id)).toBe(false);
+    id = undefined;
+  } finally {
+    if (id) await page.request.delete(`/api/chain/processing-action/${id}`);
+  }
+});

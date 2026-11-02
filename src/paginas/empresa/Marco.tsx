@@ -9,17 +9,13 @@ import { urlImagen } from '@/api/respuesta';
 import { Aviso, Cargando, EstadoError } from '@/componentes/ui/Estados';
 import { Icono, type NombreIcono } from '@/componentes/ui/Icono';
 import { useEmpresaActual } from '@/util/empresa';
-import { enAnterior } from '@/util/entorno';
 
-type Destino = '/empresa' | '/empresa/usuarios' | '/empresa/instalaciones';
+type Destino = '/empresa' | '/empresa/usuarios' | '/empresa/instalaciones' | '/empresa/acciones';
 const PESTANAS: { to: Destino; clave: string; icono: NombreIcono; exacta?: boolean }[] = [
   { to: '/empresa', clave: 'empresa.pestanas.ficha', icono: 'lista', exacta: true },
   { to: '/empresa/usuarios', clave: 'empresa.pestanas.usuarios', icono: 'personas' },
   { to: '/empresa/instalaciones', clave: 'empresa.pestanas.instalaciones', icono: 'bodega' },
-];
-/** Lo que sigue en la versión actual (se migra en 4a.3). */
-const PENDIENTES: { clave: string; anterior: (id: number) => string }[] = [
-  { clave: 'empresa.pestanas.acciones', anterior: (id) => `/companies/${id}/processingActions` },
+  { to: '/empresa/acciones', clave: 'empresa.pestanas.acciones', icono: 'ruta' },
 ];
 
 const PESTANA = 'inline-flex h-11 shrink-0 items-center gap-2 rounded-t-lg border-b-2 border-transparent px-4 text-sm font-semibold text-tinta-2 hover:text-tinta';
@@ -72,11 +68,6 @@ export function MarcoEmpresa() {
           <Link key={x.to} to={x.to} activeOptions={{ exact: !!x.exacta }} className={PESTANA} activeProps={{ className: '!border-marca !text-marca', 'aria-current': 'page' }}>
             <Icono nombre={x.icono} className="size-4" /> {t(x.clave)}
           </Link>
-        ))}
-        {PENDIENTES.map((x) => (
-          <a key={x.clave} href={enAnterior(x.anterior(actual.id))} className={PESTANA + ' font-medium text-tinta-3'} title={t('portal.en_actual')}>
-            {t(x.clave)} <Icono nombre="externo" className="size-3.5" />
-          </a>
         ))}
       </nav>
       <Outlet />

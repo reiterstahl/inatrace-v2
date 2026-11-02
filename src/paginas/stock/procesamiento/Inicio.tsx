@@ -6,7 +6,6 @@ import { stock } from '@/api/stock';
 import { Aviso, Cargando, EstadoError } from '@/componentes/ui/Estados';
 import { Icono, type NombreIcono } from '@/componentes/ui/Icono';
 import { useEmpresaActual } from '@/util/empresa';
-import { enAnterior } from '@/util/entorno';
 import { nombreInstalacion } from '@/util/formato';
 import { accionesDeInstalacion } from '@/util/procesamiento';
 
@@ -40,7 +39,7 @@ function Contenido({ empresa }: { empresa: number }) {
       {ninguna && (
         <Aviso tono="info" titulo={t('stock.proc.sin_acciones')}>
           {t('stock.proc.sin_acciones_texto')}{' '}
-          <a href={enAnterior(`/companies/${empresa}/processingActions`)} className="font-semibold underline">{t('portal.version_actual')}</a>
+          <Link to="/empresa/acciones" className="font-semibold underline">{t('empresa.acciones.ir')}</Link>
         </Aviso>
       )}
 

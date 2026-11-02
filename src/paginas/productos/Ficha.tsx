@@ -13,7 +13,6 @@ import { Aviso, Cargando, EstadoError } from '@/componentes/ui/Estados';
 import { Icono } from '@/componentes/ui/Icono';
 import { useEmpresaActual } from '@/util/empresa';
 import type { Visibles } from '@/util/etiqueta';
-import { enAnterior } from '@/util/entorno';
 import {
   IDIOMAS, SECCIONES, armarProducto, esDuena, formDesdeProducto, puntoNuevo, seccionesConError, sinErroresProducto, validarProducto,
   type ErroresProducto, type FormProducto, type PuntoOrigen, type Seccion,
@@ -132,7 +131,7 @@ function Formulario({ empresa, original, cadenas }: { empresa: number; original:
               {!original && cadenas.length === 0 && (
                 <Aviso tono="aviso" titulo={t('productos.sin_cadenas_titulo')}>
                   {t('productos.sin_cadenas')}{' '}
-                  <a href={enAnterior(`/companies/${empresa}`)} className="font-semibold underline">{t('portal.version_actual')}</a>
+                  <Link to="/empresa" hash="operacion" className="font-semibold underline">{t('empresa.ir_cadenas')}</Link>
                 </Aviso>
               )}
               {!original && cadenas.length > 0 && (

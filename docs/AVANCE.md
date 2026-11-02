@@ -642,6 +642,41 @@ celular, más tres páginas en la prueba de ancho) y una nueva contra el backend
 pantalla, comprobar por la API nombres, ubicación, opciones, cadenas y semiproductos, desactivar,
 activar y borrar). Suite real: 26 de 27 (la de QR de convivencia, como siempre).
 
+## Fase 4a.3 (acciones de procesamiento) — ✅ cerrada el 02.11.2026 (rama `fase-5`)
+
+Nueva pestaña **Acciones de procesamiento** de la empresa (`/empresa/acciones`), con alta y edición en su
+propia página. Con esto **la empresa propia (4a) queda completa**: ninguna pestaña de la empresa abre la
+versión actual, y los avisos de stock y productos que mandaban a la versión actual para crear acciones o
+asignar cadenas ahora llevan a la v2.
+
+- **Lista:** nombre, tipo, prefijo y recorrido (lo que entra → lo que sale), con búsqueda.
+- **Formulario según el tipo** (mismas reglas que la versión actual y el backend): procesamiento
+  (entrada y al menos una salida, cada una reempacable con su máximo, y rendimiento estimado),
+  procesamiento final (entrada y producto final, reempaque opcional), pedido y traslado (de
+  semiproductos o de productos finales), generar QR (entrada y producto final del QR). Prefijo de los
+  lotes, orden, instalaciones donde empieza, nombre y descripción por idioma, etiqueta en la
+  trazabilidad pública, y campos y documentos que se piden al registrarla (obligatorio, obligatorio en
+  el pedido o uno de un grupo, que se excluyen como en la versión actual).
+- **El backend exige la traducción al inglés** con nombre y descripción: la v2 pide el nombre en al
+  menos un idioma y completa los vacíos con el primero escrito. Al guardar se mandan solo los productos
+  del tipo elegido. Al quitar una cadena se vacía lo que depende de ella, como en la versión actual.
+- Después de un intento de guardar, los errores se recalculan a medida que se corrigen.
+- `SiNo` y `Fichas` pasan a `paginas/empresa/piezas.tsx` (los usan instalaciones y acciones).
+
+### H27 🟡 — borrar una acción con procesos responde 500 (backend)
+
+`DELETE /api/chain/processing-action/{id}` borra sin revisar si hay procesos hechos con la acción; la
+clave foránea de `ProcessingOrder` hace fallar el borrado con 500 («Cannot delete or update a parent
+row») y se revierte, así que no se pierde nada, pero no se explica por qué. Está igual en el original.
+Las instalaciones sí tienen esa revisión (`assertFacilityHasNoBusinessHistory`). La v2 muestra que si
+ya se registraron procesos con la acción, el backend no permite borrarla. Candidato a PR (responder un
+error de validación claro).
+
+**Pruebas:** 130 unitarias (4 nuevas), 130 de punta a punta simuladas (4 nuevas en escritorio y
+celular, más tres páginas en la prueba de ancho) y una nueva contra el backend real (crear un
+procesamiento con salida reempacada, comprobar por la API tipo, productos, rendimiento y la traducción
+al inglés completada, cambiarlo a traslado y borrarlo). Suite real: 27 de 28 (la de QR de convivencia).
+
 ## Fase 1b (activar la vitrina en una instalación) — pendiente, acordada el 19.10.2026
 
 Pasos, en orden:
@@ -667,11 +702,13 @@ confirmar el uso del video de Anacafé o cambiarlo.**
 2. Revisión de alemán y kinyarwanda por alguien que los hable.
 3. Demo pública: más adelante.
 4. **Fase 3 cerrada** (3a–3e.3). Queda probar Beyco de verdad cuando haya una cuenta de pruebas.
-5. **Fase 5 cerrada** (5a.1–5d). En curso: fase 4 («Empresa y administración»): 4a.1 y 4a.2
-   cerradas; sigue 4a.3 (acciones de procesamiento).
+5. **Fase 5 cerrada** (5a.1–5d). En curso: fase 4 («Empresa y administración»): **4a cerrada**
+   (ficha, usuarios, instalaciones y acciones); siguen 4b (recolectores, clientes y tablero), 4c
+   (administración del sistema), 4d (catálogos y ajustes) y 4e (cuenta).
 6. H23: esperar la revisión del PR #116 en AgStack (junto con #112 y #113).
 7. H24: AgStack pidió enviarlo por PR (ver punto 9).
 8. H25: esperar la revisión del PR #117 en AgStack.
 9. H26: esperar la revisión del PR #118. H24 va por PR a pedido de AgStack: backend #119 y
    frontend agstack/inatrace-frontend#33.
+10. H27: decidir si va como PR al original (error claro al borrar una acción con procesos).
    Criterio de salida de la fase: ciclo entrega → procesamiento → pago completo en la v2.

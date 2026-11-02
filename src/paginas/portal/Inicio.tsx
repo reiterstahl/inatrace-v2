@@ -11,7 +11,7 @@ const MODULOS: { clave: string; icono: NombreIcono; enV2: boolean; anterior?: st
   { clave: 'productores', icono: 'personas', enV2: true, v2: '/productores' },
   { clave: 'stock', icono: 'bodega', enV2: true, v2: '/stock' },
   { clave: 'productos', icono: 'certificado', enV2: true, v2: '/productos' },
-  // Ficha, usuarios e instalaciones ya están en la v2; acciones y la administración, no.
+  // La empresa propia ya está en la v2; recolectores, clientes y la administración del sistema, no.
   { clave: 'empresa', icono: 'web', enV2: true, parcial: true, v2: '/empresa', anterior: '/home' },
 ];
 

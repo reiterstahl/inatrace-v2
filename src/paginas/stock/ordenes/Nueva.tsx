@@ -8,7 +8,6 @@ import { Boton } from '@/componentes/ui/Boton';
 import { Aviso, Cargando } from '@/componentes/ui/Estados';
 import { Icono } from '@/componentes/ui/Icono';
 import { useEmpresaActual } from '@/util/empresa';
-import { enAnterior } from '@/util/entorno';
 import { nombreInstalacion } from '@/util/formato';
 import { CONTROL } from '../entregas/campos';
 
@@ -46,7 +45,7 @@ export function OrdenNueva() {
       {(acciones.data ?? []).length === 0 ? (
         <Aviso tono="info" titulo={t('stock.ord.sin_acciones')}>
           {t('stock.ord.sin_acciones_texto')}{' '}
-          <a href={enAnterior(`/companies/${empresa.id}/processingActions`)} className="font-semibold underline">{t('portal.version_actual')}</a>
+          <Link to="/empresa/acciones" className="font-semibold underline">{t('empresa.acciones.ir')}</Link>
         </Aviso>
       ) : (
         <section className="grid gap-5 rounded-caja border border-linea bg-superficie p-5 shadow-suave sm:p-6">

@@ -1,5 +1,5 @@
 import { http, HttpResponse, delay } from 'msw';
-import type { ApiFacility, ApiCompanyActionRequest, ApiCompanyGet, ApiCompanyUpdate, ApiCompanyUser, ApiFinalProduct, ApiKnowledgeBlog, ApiProduct, ApiProductLabel, ApiProductLabelBatch, ApiProductLabelCompanyDocument, ApiProductLabelContent, ApiProductLabelFeedback, ApiUserGet } from '@/api/gen/types.gen';
+import type { ApiProcessingAction, ApiFacility, ApiCompanyActionRequest, ApiCompanyGet, ApiCompanyUpdate, ApiCompanyUser, ApiFinalProduct, ApiKnowledgeBlog, ApiProduct, ApiProductLabel, ApiProductLabelBatch, ApiProductLabelCompanyDocument, ApiProductLabelContent, ApiProductLabelFeedback, ApiUserGet } from '@/api/gen/types.gen';
 import { ETIQUETA_DEMO, QR_DEMO, etiqueta, qr } from './datos/vitrina';
 import type { ApiUserCustomer } from '@/api/gen/types.gen';
 import { accionesProcesamiento, clientes, instalacionVecina, pagosIniciales, procesosIniciales, productoFinalQr, acopiadores, agrupar, entregasIniciales, historiaDe, instalaciones, loteProcesado, recalcular, semiproductos, tiposEvidencia, usuariosEmpresa } from './datos/stock';
@@ -69,6 +69,12 @@ const CLAVE_PRODUCTOS = 'simulado.productos';
 const leerProductos = (): ApiProduct[] => JSON.parse(sessionStorage.getItem(CLAVE_PRODUCTOS) ?? 'null') ?? productosIniciales;
 const guardarProductos = (l: ApiProduct[]) => sessionStorage.setItem(CLAVE_PRODUCTOS, JSON.stringify(l));
 const CLAVE_ROL = 'simulado.rol';
+const CLAVE_ACCIONES = 'simulado.acciones';
+// Con traducciones (la pestaña de acciones edita el nombre por idioma).
+const leerAcciones = (): ApiProcessingAction[] =>
+  JSON.parse(sessionStorage.getItem(CLAVE_ACCIONES) ?? 'null') ??
+  accionesProcesamiento.map((a) => ({ ...a, translations: a.translations ?? (['ES', 'EN', 'DE', 'RW'] as const).map((language) => ({ language, name: a.name, description: '' })) }));
+const guardarAcciones = (l: ApiProcessingAction[]) => sessionStorage.setItem(CLAVE_ACCIONES, JSON.stringify(l));
 const CLAVE_INSTALACIONES = 'simulado.instalaciones';
 const leerInstalaciones = (): ApiFacility[] => JSON.parse(sessionStorage.getItem(CLAVE_INSTALACIONES) ?? 'null') ?? instalacionesEmpresa;
 const guardarInstalaciones = (l: ApiFacility[]) => sessionStorage.setItem(CLAVE_INSTALACIONES, JSON.stringify(l));
@@ -414,12 +420,42 @@ export const manejadores = [
     const u = new URL(request.url);
     const tipo = u.searchParams.get('actionType');
     const soloFinales = u.searchParams.get('onlyFinalProducts') === 'true';
-    return paginado(accionesProcesamiento.filter((a) => (!tipo || a.type === tipo) && (!soloFinales || (a.inputFinalProduct && a.outputFinalProduct))));
+    return paginado(leerAcciones().filter((a) => (!tipo || a.type === tipo) && (!soloFinales || (a.inputFinalProduct && a.outputFinalProduct))));
   }),
-  http.get('/api/chain/processing-action/:id', ({ params }) => {
-    const a = accionesProcesamiento.find((x) => x.id === Number(params.id));
+  http.get('/api/chain/processing-action/:id/detail', ({ params }) => {
+    const a = leerAcciones().find((x) => x.id === Number(params.id));
     return a ? ok(a) : error(404, 'NOT_FOUND', 'Not found');
   }),
+  http.get('/api/chain/processing-action/:id', ({ params }) => {
+    const a = leerAcciones().find((x) => x.id === Number(params.id));
+    return a ? ok(a) : error(404, 'NOT_FOUND', 'Not found');
+  }),
+  // Como el backend: exige la traducción al inglés y el nombre visible es el del idioma pedido.
+  http.put('/api/chain/processing-action', async ({ request }) => {
+    if (!conSesion()) return sinSesion();
+    const a = (await request.json()) as ApiProcessingAction;
+    if (!a.translations?.some((t) => t.language === 'EN' && t.name != null && t.description != null)) return error(400, 'INVALID_REQUEST', 'English translation is required!');
+    const idioma = request.headers.get('language') ?? 'EN';
+    const t = a.translations.find((x) => x.language === idioma);
+    const id = a.id ?? siguienteId++;
+    const nueva = { ...a, id, name: t?.name ?? '', description: t?.description ?? '' };
+    const lista = leerAcciones();
+    guardarAcciones(a.id ? lista.map((x) => (x.id === a.id ? nueva : x)) : [...lista, nueva]);
+    return ok({ id });
+  }),
+  // La plantilla de pedido (24) ya tiene órdenes: como el backend, no se puede borrar (falla con 500).
+  http.delete('/api/chain/processing-action/:id', ({ params }) => {
+    if (!conSesion()) return sinSesion();
+    if (Number(params.id) === 24) return error(500, 'ERROR', 'Unexpected API error');
+    guardarAcciones(leerAcciones().filter((x) => x.id !== Number(params.id)));
+    return ok();
+  }),
+  http.get('/api/chain/processing-evidence-field/list/by-value-chains', () =>
+    paginado([
+      { id: 31, fieldName: 'humedad', label: 'Humedad (%)', type: 'NUMBER' },
+      { id: 32, fieldName: 'variedad', label: 'Variedad', type: 'STRING' },
+    ]),
+  ),
   // ---------- Productos ----------
   http.get('/api/product/list', ({ request }) => {
     if (!conSesion()) return sinSesion();
@@ -645,7 +681,7 @@ export const manejadores = [
   http.put('/api/chain/processing-order', async ({ request }) => {
     if (!conSesion()) return sinSesion();
     const p = (await request.json()) as ApiProcessingOrder;
-    const accion = accionesProcesamiento.find((a) => a.id === p.processingAction?.id);
+    const accion = leerAcciones().find((a) => a.id === p.processingAction?.id);
     const esPedido = accion?.type === 'SHIPMENT';
     // Un pedido nace sin entradas: las pone el proveedor después.
     if (!esPedido && !(p.inputTransactions ?? []).length) return error(400, 'INVALID_REQUEST', 'At least one input Transaction has to be provided!');
@@ -722,7 +758,7 @@ export const manejadores = [
     if (!(p.items ?? []).length) return error(400, 'VALIDATION_ERROR', 'At least one Stock order is requried');
     const cliente = clientes.find((c) => c.id === p.customer!.id);
     const nuevos = (p.items ?? []).map((o): ApiProcessingOrder => {
-      const accion = accionesProcesamiento.find((a) => a.id === o.processingOrder?.processingAction?.id);
+      const accion = leerAcciones().find((a) => a.id === o.processingOrder?.processingAction?.id);
       const quote = [instalacionVecina].find((f) => f.id === o.quoteFacility?.id);
       return {
         id: siguienteId++,

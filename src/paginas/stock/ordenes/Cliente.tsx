@@ -59,7 +59,11 @@ export function PedidoClienteNuevo() {
       {faltan ? (
         <Aviso tono="info" titulo={t(`stock.ord.cli.sin_${faltan}`)}>
           {t(`stock.ord.cli.sin_${faltan}_texto`)}{' '}
-          <a href={enAnterior(faltan === 'acciones' ? `/companies/${empresa.id}/processingActions` : `/my-customers`)} className="font-semibold underline">{t('portal.version_actual')}</a>
+          {faltan === 'acciones' ? (
+            <Link to="/empresa/acciones" className="font-semibold underline">{t('empresa.acciones.ir')}</Link>
+          ) : (
+            <a href={enAnterior('/my-customers')} className="font-semibold underline">{t('portal.version_actual')}</a>
+          )}
         </Aviso>
       ) : (
         <Formulario empresa={empresa.id} instalaciones={instalaciones.data ?? []} acciones={acciones.data ?? []} clientes={clientes.data ?? []} />
