@@ -663,14 +663,15 @@ asignar cadenas ahora llevan a la v2.
 - Después de un intento de guardar, los errores se recalculan a medida que se corrigen.
 - `SiNo` y `Fichas` pasan a `paginas/empresa/piezas.tsx` (los usan instalaciones y acciones).
 
-### H27 🟡 — borrar una acción con procesos responde 500 (backend)
+### H27 🟡 — borrar una acción con procesos respondía 500 (backend; corregido)
 
 `DELETE /api/chain/processing-action/{id}` borra sin revisar si hay procesos hechos con la acción; la
 clave foránea de `ProcessingOrder` hace fallar el borrado con 500 («Cannot delete or update a parent
 row») y se revierte, así que no se pierde nada, pero no se explica por qué. Está igual en el original.
 Las instalaciones sí tienen esa revisión (`assertFacilityHasNoBusinessHistory`). La v2 muestra que si
-ya se registraron procesos con la acción, el backend no permite borrarla. Candidato a PR (responder un
-error de validación claro).
+ya se registraron procesos con la acción, el backend no permite borrarla. **Corregido en el backend del
+contrato** (respuesta 400 con un mensaje claro) y propuesto al original como PR
+[#122](https://github.com/agstack/inatrace-backend/pull/122) (02.11.2026).
 
 **Pruebas:** 130 unitarias (4 nuevas), 130 de punta a punta simuladas (4 nuevas en escritorio y
 celular, más tres páginas en la prueba de ancho) y una nueva contra el backend real (crear un
@@ -710,5 +711,5 @@ confirmar el uso del video de Anacafé o cambiarlo.**
 8. H25: esperar la revisión del PR #117 en AgStack.
 9. H26: esperar la revisión del PR #118. H24 va por PR a pedido de AgStack: backend #119 y
    frontend agstack/inatrace-frontend#33.
-10. H27: decidir si va como PR al original (error claro al borrar una acción con procesos).
+10. H27: esperar la revisión del PR #122.
    Criterio de salida de la fase: ciclo entrega → procesamiento → pago completo en la v2.
