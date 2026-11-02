@@ -1453,7 +1453,6 @@
     "pais": "Country",
     "acerca": "About the company",
     "gerente": "Manager",
-    "gerente_ayuda": "The backend does not save this field yet; it will be enabled when it does.",
     "correo": "Contact e-mail",
     "telefono": "Contact phone",
     "web": "Website",

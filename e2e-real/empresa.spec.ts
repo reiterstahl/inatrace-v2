@@ -25,8 +25,8 @@ test('empresa: la ficha guarda sobre lo que ya tenía y los usuarios no quedan s
     await expect(page.getByRole('heading', { level: 1, name: 'Empresa Demo GIZ' })).toBeVisible();
     const entrevista = 'Entrevista E2E ' + Date.now().toString().slice(-6);
     await page.getByRole('textbox', { name: 'Entrevista' }).fill(entrevista);
-    // El backend no guarda la gerencia (H26): la v2 la muestra sin dejar editarla.
-    await expect(page.getByRole('textbox', { name: 'Gerencia' })).toHaveAttribute('readonly', '');
+    // Con H26 el backend guarda la gerencia.
+    await page.getByRole('textbox', { name: 'Gerencia' }).fill('Gerencia E2E');
     // La demo no tiene logo, teléfono ni moneda, que la ficha exige.
     if (!original.phone) await page.getByRole('textbox', { name: /^Teléfono de contacto/ }).fill('+506 2222 0000');
     if (!original.currency) await page.getByRole('combobox', { name: /^Moneda base/ }).selectOption({ index: 1 });
@@ -37,6 +37,7 @@ test('empresa: la ficha guarda sobre lo que ya tenía y los usuarios no quedan s
 
     const guardada = await ficha();
     expect(guardada.interview).toBe(entrevista);
+    expect(guardada.manager).toBe('Gerencia E2E');
     // Lo que la ficha no tocó sigue igual (el backend reemplaza todo lo que recibe).
     expect(guardada.name).toBe(original.name);
     expect(guardada.headquarters).toEqual(original.headquarters);

@@ -158,8 +158,7 @@ function Formulario() {
           <Seccion id="descripcion">
             <div className="grid gap-5 sm:grid-cols-2 [&>*]:min-w-0">
               <Area etiqueta={req(t('empresa.acerca'))} rows={5} value={f.acerca} onChange={(e) => cambiar({ acerca: e.target.value })} error={err('acerca')} ayuda={contador(f.acerca, 2000)} className="sm:col-span-2" />
-              {/* El backend lee este campo pero no lo guarda (H26): se muestra sin dejar editarlo. */}
-              <Campo etiqueta={t('empresa.gerente')} value={f.gerente} readOnly ayuda={t('empresa.gerente_ayuda')} />
+              <Campo etiqueta={t('empresa.gerente')} value={f.gerente} onChange={(e) => cambiar({ gerente: e.target.value })} />
               <Campo etiqueta={req(t('empresa.correo'))} type="email" value={f.correo} onChange={(e) => cambiar({ correo: e.target.value })} error={err('correo')} />
               <Campo etiqueta={req(t('empresa.telefono'))} type="tel" value={f.telefono} onChange={(e) => cambiar({ telefono: e.target.value })} error={err('telefono')} />
               <Campo etiqueta={t('empresa.web')} type="url" placeholder="https://…" value={f.web} onChange={(e) => cambiar({ web: e.target.value })} />

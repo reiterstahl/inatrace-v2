@@ -597,12 +597,14 @@ siguen abriendo la versión actual (4a.2 y 4a.3).
   demo no tiene, así que la tabla estaba vacía y ninguna empresa podía elegir moneda (tampoco en la
   versión actual). `scripts/sembrar-monedas.sql` carga seis, solo para copias aisladas.
 
-### H26 🟡 — la «gerencia» de la empresa nunca se guarda (backend)
+### H26 🟡 — la «gerencia» de la empresa nunca se guardaba (backend; corregido)
 
 `Company.manager` se devuelve al leer la ficha, pero ninguna actualización lo escribe
 (`setManager` no se llama en ningún lado). La versión actual lo muestra editable y lo pierde sin
-avisar. Está igual en el original (19d0ea3). En la v2 se muestra de solo lectura con una nota hasta que
-se corrija. No es de seguridad: candidato a PR.
+avisar. Está igual en el original (19d0ea3). **Corregido en el backend del contrato** (`cd831d5`) y
+propuesto al original como PR [#118](https://github.com/agstack/inatrace-backend/pull/118)
+(02.11.2026). La copia aislada corre `inatrace-backend:dev-h26` (respaldo previo
+`v2demo-antes-h26.sql`) y la v2 deja editar el campo; la prueba real comprueba que se guarda.
 
 **Pruebas:** 121 unitarias (3 nuevas), 122 de punta a punta simuladas (3 nuevas en escritorio y
 celular, más las dos páginas en la prueba de ancho) y una nueva contra el backend real
@@ -639,7 +641,8 @@ confirmar el uso del video de Anacafé o cambiarlo.**
 5. **Fase 5 cerrada** (5a.1–5d). En curso: fase 4 («Empresa y administración»): 4a.1 cerrada;
    siguen 4a.2 (instalaciones) y 4a.3 (acciones de procesamiento).
 6. H23: esperar la revisión del PR #116 en AgStack (junto con #112 y #113).
-7. H24: Rolo envía el correo privado a AgStack (`upstream/seguridad/EMAIL-feedback.md`).
+7. H24: AgStack pidió enviarlo por PR (ver punto 9).
 8. H25: esperar la revisión del PR #117 en AgStack.
-9. H26: decidir si va como PR al original (guardar `manager` al actualizar la empresa).
+9. H26: esperar la revisión del PR #118. H24 va por PR a pedido de AgStack: backend #119 y
+   frontend agstack/inatrace-frontend#33.
    Criterio de salida de la fase: ciclo entrega → procesamiento → pago completo en la v2.
