@@ -425,7 +425,8 @@
       "stock": "Stock",
       "procesamiento": "Processing",
       "pagos": "Payments",
-      "ordenes": "Orders"
+      "ordenes": "Orders",
+      "tablero": "Dashboard"
     },
     "forma_pago": {
       "CASH": "Cash",
@@ -1720,5 +1721,56 @@
     "borrar_confirmar": "Delete {{nombre}}? This cannot be undone.",
     "borrado": "{{nombre}} was deleted.",
     "miembro": "Collects for {{empresa}}"
+  },
+  "tablero": {
+    "entregas": "Deliveries",
+    "entregas_ayuda": "How much was received from farmers in each period, in kg.",
+    "entregas_grafico": "Deliveries per period (kg)",
+    "sin_acopio": "The company has no collection facilities.",
+    "instalacion": "Facility",
+    "todas_acopio": "All collection facilities",
+    "todas": "All",
+    "semiproducto": "Semi-product",
+    "todos": "All",
+    "productor": "Farmer",
+    "recolector": "Collector",
+    "solo_organico": "Organic only",
+    "solo_mujeres": "Women's coffee only",
+    "precio_despues": "Only with price determined later",
+    "total_kg": "Total: {{total}} kg",
+    "cantidad_kg": "Quantity (kg)",
+    "agrupado": {
+      "DAY": "per day",
+      "WEEK": "per week",
+      "MONTH": "per month",
+      "YEAR": "per year"
+    },
+    "semana": "wk",
+    "recortado": "The chart shows the first {{n}} of {{total}} periods; the table shows all.",
+    "rendimiento": "Processing performance",
+    "rendimiento_ayuda": "What went into and came out of a process in each period, and their ratio.",
+    "sin_procesos": "The company has no processing actions.",
+    "proceso": "Process",
+    "cantidades_grafico": "Input and output per period ({{unidad}})",
+    "entrada": "Input ({{unidad}})",
+    "salida": "Output ({{unidad}})",
+    "relacion": "Yield (output over input)",
+    "relacion_serie": "Yield (%)",
+    "desde": "From",
+    "hasta": "To",
+    "exportar": "Export",
+    "exportar_en": "Export as {{formato}}",
+    "formatos": {
+      "EXCEL": "Excel",
+      "CSV": "CSV",
+      "PDF": "PDF"
+    },
+    "sin_datos": "No data for these filters.",
+    "leyenda": "Legend",
+    "ver_tabla": "View as table",
+    "ver_grafico": "View chart",
+    "periodo": "Period",
+    "titulo": "Dashboard",
+    "descripcion": "Deliveries and processing performance of {{empresa}}."
   }
 }

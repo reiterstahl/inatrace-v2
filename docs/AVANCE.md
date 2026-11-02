@@ -707,6 +707,30 @@ celular, más tres páginas en la prueba de ancho) y una nueva contra el backend
 guardado como `COLLECTOR` y fuera de la lista de productores; cliente con su dirección; ambos se
 borran). Suite real: 28 de 29 (la de QR de convivencia).
 
+## Fase 4b.2 (tablero) — ✅ cerrada el 02.11.2026 (rama `fase-5`)
+
+Nueva pestaña **Tablero** en Stock (`/stock/tablero`), portada de company-dashboard:
+
+- **Entregas por período (kg):** fechas, centro de acopio, semiproducto (arranca con el primero, como
+  la versión actual), productor, recolector y solo orgánico, solo café de mujeres o solo con precio
+  a definir después; total del rango y exportación a Excel, CSV o PDF.
+- **Rendimiento del procesamiento:** proceso (de procesamiento o procesamiento final), instalación,
+  fechas y los campos de evidencia del proceso como filtros; entrada y salida en un gráfico y el
+  rendimiento (%) en otro (**nunca dos ejes**, como pide la guía de gráficos); exportación.
+- La agrupación (día, semana, mes, año) sale del largo del rango, con los mismos umbrales que la
+  versión actual; el gráfico muestra hasta 24 períodos y la tabla, todos.
+- **Gráficos propios en SVG** (`componentes/graficos/Barras.tsx`, sin librería nueva): barras finas
+  con el extremo redondeado, cuadrícula discreta, tooltip con todas las series al pasar o con el
+  teclado, leyenda desde dos series, vista de tabla y dibujo al ancho real del contenedor
+  (desplazamiento horizontal si no entra). Colores `--serie-1/--serie-2` (azul y naranja) **validados**
+  con el script de la guía en claro y oscuro (separación para daltonismo ΔE ≥ 24, contraste ≥ 3:1);
+  el par marca/acento no pasaba. Revisado en capturas de escritorio y celular, claro y oscuro.
+
+**Pruebas:** 136 unitarias (3 nuevas), 138 de punta a punta simuladas (2 nuevas en escritorio y
+celular, más la página en la prueba de ancho) y una nueva contra el backend real (filtros de entregas
+con agrupación por día, rendimiento sin errores con o sin datos, exportaciones). Suite real: 29 de 30
+(la de QR de convivencia).
+
 ## Fase 1b (activar la vitrina en una instalación) — pendiente, acordada el 19.10.2026
 
 Pasos, en orden:
@@ -733,8 +757,8 @@ confirmar el uso del video de Anacafé o cambiarlo.**
 3. Demo pública: más adelante.
 4. **Fase 3 cerrada** (3a–3e.3). Queda probar Beyco de verdad cuando haya una cuenta de pruebas.
 5. **Fase 5 cerrada** (5a.1–5d). En curso: fase 4 («Empresa y administración»): **4a cerrada**
-   (ficha, usuarios, instalaciones y acciones) y 4b.1 (recolectores y clientes); siguen 4b.2 (tablero
-   de la empresa), 4c (administración del sistema), 4d (catálogos y ajustes) y 4e (cuenta).
+   (ficha, usuarios, instalaciones y acciones) y **4b cerrada** (recolectores, clientes y tablero);
+   siguen 4c (administración del sistema), 4d (catálogos y ajustes) y 4e (cuenta).
 6. H23: esperar la revisión del PR #116 en AgStack (junto con #112 y #113).
 7. H24: AgStack pidió enviarlo por PR (ver punto 9).
 8. H25: esperar la revisión del PR #117 en AgStack.

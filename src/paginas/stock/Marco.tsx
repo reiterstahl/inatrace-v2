@@ -7,12 +7,13 @@ import { enAnterior } from '@/util/entorno';
  * Pestañas del módulo de stock. Las que ya están en la v2 son enlaces internos; las que no,
  * abren la versión actual con la misma sesión. Se van migrando a lo largo de la fase 3.
  */
-const EN_V2: { to: '/stock/entregas' | '/stock/todo' | '/stock/procesamiento' | '/stock/pagos' | '/stock/ordenes'; clave: string; icono: NombreIcono }[] = [
+const EN_V2: { to: '/stock/entregas' | '/stock/todo' | '/stock/procesamiento' | '/stock/pagos' | '/stock/ordenes' | '/stock/tablero'; clave: string; icono: NombreIcono }[] = [
   { to: '/stock/entregas', clave: 'stock.pestanas.entregas', icono: 'bodega' },
   { to: '/stock/todo', clave: 'stock.pestanas.stock', icono: 'lista' },
   { to: '/stock/procesamiento', clave: 'stock.pestanas.procesamiento', icono: 'hoja' },
   { to: '/stock/pagos', clave: 'stock.pestanas.pagos', icono: 'precio' },
   { to: '/stock/ordenes', clave: 'stock.pestanas.ordenes', icono: 'barco' },
+  { to: '/stock/tablero', clave: 'stock.pestanas.tablero', icono: 'grafico' },
 ];
 const PENDIENTES: { clave: string; anterior: string }[] = [];
 

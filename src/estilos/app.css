@@ -41,6 +41,9 @@
   --info-suave: #e3eef7;
 
   --foco: #2f7d5d;
+  /* Series de los gráficos (paleta categórica validada para daltonismo, contraste y lectura normal). */
+  --serie-1: #2a78d6;
+  --serie-2: #eb6834;
   color-scheme: light;
 }
 
@@ -63,6 +66,8 @@
 
   --ok: #5cc28f;
   --ok-suave: #173326;
+  --serie-1: #3987e5;
+  --serie-2: #d95926;
   --aviso: #e5b25c;
   --aviso-suave: #3a2c12;
   --mal: #f08a80;
@@ -90,6 +95,8 @@
   --color-acento: var(--acento);
   --color-acento-suave: var(--acento-suave);
   --color-ok: var(--ok);
+  --color-serie-1: var(--serie-1);
+  --color-serie-2: var(--serie-2);
   --color-ok-suave: var(--ok-suave);
   --color-aviso: var(--aviso);
   --color-aviso-suave: var(--aviso-suave);

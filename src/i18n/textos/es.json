@@ -425,7 +425,8 @@
       "stock": "Stock",
       "procesamiento": "Procesamiento",
       "pagos": "Pagos",
-      "ordenes": "Órdenes"
+      "ordenes": "Órdenes",
+      "tablero": "Tablero"
     },
     "forma_pago": {
       "CASH": "Efectivo",
@@ -1720,5 +1721,56 @@
     "borrar_confirmar": "¿Eliminar a {{nombre}}? Esta acción no se puede deshacer.",
     "borrado": "Se eliminó a {{nombre}}.",
     "miembro": "Recolecta para {{empresa}}"
+  },
+  "tablero": {
+    "entregas": "Entregas",
+    "entregas_ayuda": "Cuánto se recibió de los productores en cada período, en kg.",
+    "entregas_grafico": "Entregas por período (kg)",
+    "sin_acopio": "La empresa no tiene centros de acopio.",
+    "instalacion": "Instalación",
+    "todas_acopio": "Todos los centros de acopio",
+    "todas": "Todas",
+    "semiproducto": "Semiproducto",
+    "todos": "Todos",
+    "productor": "Productor",
+    "recolector": "Recolector",
+    "solo_organico": "Solo orgánico",
+    "solo_mujeres": "Solo café de mujeres",
+    "precio_despues": "Solo con precio a definir después",
+    "total_kg": "Total: {{total}} kg",
+    "cantidad_kg": "Cantidad (kg)",
+    "agrupado": {
+      "DAY": "por día",
+      "WEEK": "por semana",
+      "MONTH": "por mes",
+      "YEAR": "por año"
+    },
+    "semana": "sem.",
+    "recortado": "El gráfico muestra los primeros {{n}} de {{total}} períodos; la tabla, todos.",
+    "rendimiento": "Rendimiento del procesamiento",
+    "rendimiento_ayuda": "Lo que entró y salió de un proceso en cada período, y su relación.",
+    "sin_procesos": "La empresa no tiene acciones de procesamiento.",
+    "proceso": "Proceso",
+    "cantidades_grafico": "Entrada y salida por período ({{unidad}})",
+    "entrada": "Entrada ({{unidad}})",
+    "salida": "Salida ({{unidad}})",
+    "relacion": "Rendimiento (salida sobre entrada)",
+    "relacion_serie": "Rendimiento (%)",
+    "desde": "Desde",
+    "hasta": "Hasta",
+    "exportar": "Exportar",
+    "exportar_en": "Exportar en {{formato}}",
+    "formatos": {
+      "EXCEL": "Excel",
+      "CSV": "CSV",
+      "PDF": "PDF"
+    },
+    "sin_datos": "No hay datos para estos filtros.",
+    "leyenda": "Leyenda",
+    "ver_tabla": "Ver como tabla",
+    "ver_grafico": "Ver gráfico",
+    "periodo": "Período",
+    "titulo": "Tablero",
+    "descripcion": "Entregas y rendimiento de los procesos de {{empresa}}."
   }
 }

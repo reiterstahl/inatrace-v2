@@ -212,6 +212,7 @@ const stockTodo = createRoute({
   component: lazyRouteComponent(() => import('@/paginas/stock/todo/Lista'), 'ListaStock'),
 });
 // ---------- Stock: procesamiento (fase 3c) ----------
+const stockTablero = createRoute({ getParentRoute: () => stockRaiz, path: 'tablero', component: lazyRouteComponent(() => import('@/paginas/stock/Tablero'), 'TableroStock') });
 const procesamientoRaiz = createRoute({ getParentRoute: () => stockRaiz, path: 'procesamiento' });
 const procesamientoInicio = createRoute({ getParentRoute: () => procesamientoRaiz, path: '/', component: lazyRouteComponent(() => import('@/paginas/stock/procesamiento/Inicio'), 'InicioProcesamiento') });
 const procesamientoNuevo = createRoute({
@@ -367,7 +368,7 @@ const arbol = raiz.addChildren([
   entradaQr,
   entradaEtiqueta,
   portal.addChildren([inicio, perfil, empresaRaiz.addChildren([empresaFicha, empresaUsuarios, instalacionesRaiz.addChildren([instalacionesLista, instalacionNueva, instalacionEditar]), accionesRaiz.addChildren([accionesLista, accionNueva, accionEditar]), empresaClientes]), productoresRaiz.addChildren([productoresLista, productorNuevo, productoresImportar, productorFicha, recolectoresRaiz.addChildren([recolectoresLista, recolectorNuevo, recolectorFicha])]), productosRaiz.addChildren([productosLista, productoNuevo, productoRaiz.addChildren([productoFicha, productoVitrina, productoEmpresas, productoFinales, etiquetasRaiz.addChildren([etiquetasLista, etiquetaRaiz.addChildren([etiquetaEditor, etiquetaLotes, etiquetaOpiniones, etiquetaEstadisticas])]), productoConocimiento])]),
-    stockRaiz.addChildren([stockInicio, entregasRaiz.addChildren([entregasLista, entregaNueva, entregaMasiva, entregaFicha]), stockTodo, procesamientoRaiz.addChildren([procesamientoInicio, procesamientoNuevo, procesamientoEditar]), pagosRaiz.addChildren([pagosLista, pagoNuevo, pagoMasivoNuevo, pagoMasivoVer, pagoVer]), ordenesRaiz.addChildren([ordenesLista, ordenNueva, pedidoCliente, ordenAprobar]), beycoVuelta, beycoOferta, stockTrazabilidad]),
+    stockRaiz.addChildren([stockInicio, stockTablero, entregasRaiz.addChildren([entregasLista, entregaNueva, entregaMasiva, entregaFicha]), stockTodo, procesamientoRaiz.addChildren([procesamientoInicio, procesamientoNuevo, procesamientoEditar]), pagosRaiz.addChildren([pagosLista, pagoNuevo, pagoMasivoNuevo, pagoMasivoVer, pagoVer]), ordenesRaiz.addChildren([ordenesLista, ordenNueva, pedidoCliente, ordenAprobar]), beycoVuelta, beycoOferta, stockTrazabilidad]),
   ]),
   vitrina.addChildren([vPortada, vRecorrido, vPrecios, vProductores, vCalidad, vOpinion, vTerminos, vPrivacidad]),
 ]);

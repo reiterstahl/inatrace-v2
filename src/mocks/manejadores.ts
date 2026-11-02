@@ -155,6 +155,11 @@ function listaEntregas(request: Request, filtro: (o: ApiStockOrder) => boolean, 
 
 const paginado = <T,>(items: T[]) => ok({ items, count: items.length, offset: 0, limit: items.length });
 const sinSesion = () => error(401, 'UNAUTHORIZED', 'Unauthorized');
+/** Doce períodos seguidos del tipo pedido (para el tablero simulado). */
+const periodosSimulados = (tipo: 'DAY' | 'WEEK' | 'MONTH' | 'YEAR'): [string, number][] =>
+  Array.from({ length: tipo === 'YEAR' ? 3 : 12 }, (_, i) =>
+    tipo === 'YEAR' ? [String(2024 + i), 2024 + i] : tipo === 'MONTH' ? [String(((10 + i) % 12) + 1), 2025 + Math.floor((10 + i) / 12)] : tipo === 'WEEK' ? [String(30 + i), 2026] : [`2026-10-${String(10 + i).padStart(2, '0')}`, 2026],
+  );
 
 // Imagen de relleno generada al vuelo: así el modo simulado no depende de internet.
 function imagen(clave: string) {
@@ -886,6 +891,29 @@ export const manejadores = [
     const m = leerMasivos().find((x) => x.id === Number(params.id));
     return m ? ok({ ...m, payments: leerPagos().filter((p) => (m.payments ?? []).some((x) => x.id === p.id)) }) : error(404, 'NOT_FOUND', 'Not found');
   }),
+  // ---------- Tablero (fase 4b) ----------
+  // Datos inventados y deterministas: por mes (o el período pedido) a partir del rango.
+  http.get('/api/dashboard/deliveries-aggregated-data', ({ request }) => {
+    if (!conSesion()) return sinSesion();
+    const u = new URL(request.url);
+    const tipo = (u.searchParams.get('aggregationType') ?? 'MONTH') as 'DAY' | 'WEEK' | 'MONTH' | 'YEAR';
+    const factor = u.searchParams.get('organicOnly') === 'true' ? 0.4 : 1;
+    const totals = periodosSimulados(tipo).map(([unit, year], i) => ({ unit, year, totalQuantity: Math.round((800 + ((i * 37) % 9) * 140) * factor) }));
+    return ok({ unitType: tipo, totals });
+  }),
+  http.post('/api/dashboard/processing-performance-data', async ({ request }) => {
+    if (!conSesion()) return sinSesion();
+    const r = (await request.json()) as { aggregationType?: 'DAY' | 'WEEK' | 'MONTH' | 'YEAR' };
+    const tipo = r.aggregationType ?? 'MONTH';
+    const totals = periodosSimulados(tipo).map(([unit, year], i) => {
+      const entrada = 500 + ((i * 53) % 7) * 90;
+      const salida = Math.round(entrada * (0.18 + (i % 4) * 0.01));
+      return { unit, year, inputQuantity: entrada, outputQuantity: salida, ratio: Math.round((salida / entrada) * 1000) / 10 };
+    });
+    return ok({ unitType: tipo, measureUnitType: { id: 1, code: 'KGM', label: 'kg' }, totals });
+  }),
+  http.get('/api/dashboard/deliveries-aggregated-data/export', () => new HttpResponse(new Blob(['simulado']), { headers: { 'Content-Type': 'application/octet-stream' } })),
+  http.post('/api/dashboard/processing-performance-data/export', () => new HttpResponse(new Blob(['simulado']), { headers: { 'Content-Type': 'application/octet-stream' } })),
   http.get('/api/chain/payment/export/company/:id', () => new HttpResponse(new Blob(['simulado']), { headers: { 'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' } })),
   http.get('/api/chain/payment/export/bulk-payment/company/:id', () => new HttpResponse(new Blob(['simulado']), { headers: { 'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' } })),
   http.get('/api/chain/payment/:id', ({ params }) => {
