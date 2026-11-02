@@ -1,10 +1,11 @@
 import { http, HttpResponse, delay } from 'msw';
-import type { ApiFinalProduct, ApiKnowledgeBlog, ApiProduct, ApiProductLabel, ApiProductLabelBatch, ApiProductLabelCompanyDocument, ApiProductLabelContent, ApiProductLabelFeedback, ApiUserGet } from '@/api/gen/types.gen';
+import type { ApiCompanyActionRequest, ApiCompanyGet, ApiCompanyUpdate, ApiCompanyUser, ApiFinalProduct, ApiKnowledgeBlog, ApiProduct, ApiProductLabel, ApiProductLabelBatch, ApiProductLabelCompanyDocument, ApiProductLabelContent, ApiProductLabelFeedback, ApiUserGet } from '@/api/gen/types.gen';
 import { ETIQUETA_DEMO, QR_DEMO, etiqueta, qr } from './datos/vitrina';
 import type { ApiUserCustomer } from '@/api/gen/types.gen';
 import { accionesProcesamiento, clientes, instalacionVecina, pagosIniciales, procesosIniciales, productoFinalQr, acopiadores, agrupar, entregasIniciales, historiaDe, instalaciones, loteProcesado, recalcular, semiproductos, tiposEvidencia, usuariosEmpresa } from './datos/stock';
 import type { ApiBulkPayment, ApiPayment, ApiProcessingOrder, ApiPurchaseOrder, ApiStockOrder } from '@/api/gen/types.gen';
 import { EMPRESA_DEMO, capasMapa, paises, parcelasDe, productoresIniciales, tiposCertificacion, tiposProducto } from './datos/productores';
+import { cadenasActivas, cuentasInstancia, fichaEmpresaDemo, monedas } from './datos/empresa';
 import { conocimientoIniciales, contenidoDe, empresasInstancia, estadisticasDemo, etiquetasIniciales, finalesIniciales, lotesIniciales, mediosEmpresa, opinionesIniciales, productosIniciales, unidadesMedida, type EtiquetaSimulada } from './datos/productos';
 
 /**
@@ -68,6 +69,11 @@ const CLAVE_PRODUCTOS = 'simulado.productos';
 const leerProductos = (): ApiProduct[] => JSON.parse(sessionStorage.getItem(CLAVE_PRODUCTOS) ?? 'null') ?? productosIniciales;
 const guardarProductos = (l: ApiProduct[]) => sessionStorage.setItem(CLAVE_PRODUCTOS, JSON.stringify(l));
 const CLAVE_ROL = 'simulado.rol';
+const CLAVE_EMPRESA = 'simulado.empresa';
+const leerEmpresa = (): ApiCompanyGet => JSON.parse(sessionStorage.getItem(CLAVE_EMPRESA) ?? 'null') ?? fichaEmpresaDemo;
+const CLAVE_USUARIOS = 'simulado.usuarios-empresa';
+const leerUsuarios = (): ApiCompanyUser[] => JSON.parse(sessionStorage.getItem(CLAVE_USUARIOS) ?? 'null') ?? usuariosEmpresa;
+const guardarUsuarios = (l: ApiCompanyUser[]) => sessionStorage.setItem(CLAVE_USUARIOS, JSON.stringify(l));
 const esAdministracion = () => ['SYSTEM_ADMIN', 'REGIONAL_ADMIN'].includes(sessionStorage.getItem(CLAVE_ROL) ?? '');
 const CLAVE_ETIQUETAS = 'simulado.etiquetas';
 const leerEtiquetas = (): EtiquetaSimulada[] => JSON.parse(sessionStorage.getItem(CLAVE_ETIQUETAS) ?? 'null') ?? etiquetasIniciales;
@@ -190,8 +196,40 @@ export const manejadores = [
   http.get('/api/user/profile', () => (conSesion() ? ok({ ...usuario, role: (sessionStorage.getItem(CLAVE_ROL) as ApiUserGet['role']) ?? usuario.role }) : error(401, 'UNAUTHORIZED', 'Unauthorized'))),
   // ---------- Empresa y catálogos ----------
   http.get('/api/company/profile/:id/name', () => (conSesion() ? ok(EMPRESA_DEMO) : sinSesion())),
-  http.get('/api/company/profile/:id', () => (conSesion() ? ok({ ...EMPRESA_DEMO, allowBeycoIntegration: true, valueChains: [{ id: 1, name: 'Café' }], headquarters: { country: paises[0] }, currency: { code: 'USD', label: 'US dollar' } }) : sinSesion())),
-  http.get('/api/company/profile/:id/users', () => (conSesion() ? ok(usuariosEmpresa) : sinSesion())),
+  http.get('/api/company/profile/:id', () => (conSesion() ? ok({ ...leerEmpresa(), users: leerUsuarios() }) : sinSesion())),
+  http.get('/api/company/profile/:id/users', () => (conSesion() ? ok(leerUsuarios()) : sinSesion())),
+  // Como el backend: reemplaza los campos de la ficha; las cadenas solo si llegan; los usuarios van aparte.
+  http.put('/api/company/profile', async ({ request }) => {
+    if (!conSesion()) return sinSesion();
+    const { users: _, language: __, ...e } = (await request.json()) as ApiCompanyUpdate;
+    const antes = leerEmpresa();
+    const valueChains = e.valueChains ? e.valueChains.map((c) => cadenasActivas.find((x) => x.id === c.id) ?? c) : antes.valueChains;
+    const currency = monedas.find((m) => m.id === e.currency?.id);
+    sessionStorage.setItem(CLAVE_EMPRESA, JSON.stringify({ ...e, id: antes.id, valueChains, currency, documents: (e.documents ?? []).map((d) => ({ ...d, id: d.id ?? siguienteId++ })) }));
+    return ok();
+  }),
+  http.post('/api/company/execute/:accion', async ({ request, params }) => {
+    if (!conSesion()) return sinSesion();
+    if (!esAdministracion()) return error(401, 'UNAUTHORIZED', "User doesn't have required permission!");
+    const a = (await request.json()) as ApiCompanyActionRequest;
+    const lista = leerUsuarios();
+    if (params.accion === 'ADD_USER_TO_COMPANY') {
+      if (lista.some((u) => u.id === a.userId)) return error(400, 'INVALID_REQUEST', 'User already exists');
+      const c = cuentasInstancia.find((u) => u.id === a.userId)!;
+      guardarUsuarios([...lista, { ...c, companyRole: a.companyUserRole }]);
+    } else if (params.accion === 'SET_USER_COMPANY_ROLE') {
+      guardarUsuarios(lista.map((u) => (u.id === a.userId ? { ...u, companyRole: a.companyUserRole } : u)));
+    } else if (params.accion === 'REMOVE_USER_FROM_COMPANY') {
+      guardarUsuarios(lista.filter((u) => u.id !== a.userId));
+    }
+    return ok();
+  }),
+  http.get('/api/chain/currency-type/list/enabled', () => paginado(monedas)),
+  http.get('/api/chain/value-chain/list', () => paginado(cadenasActivas)),
+  http.get('/api/user/admin/list', ({ request }) => {
+    const q = (new URL(request.url).searchParams.get('query') ?? '').toLowerCase();
+    return paginado(cuentasInstancia.filter((u) => `${u.name} ${u.surname} ${u.email}`.toLowerCase().includes(q)));
+  }),
   http.get('/api/company/:id/product-types', () => paginado(tiposProducto)),
   http.get('/api/company/associations/:id', () => paginado([{ id: 7, name: 'Asociación de Caficultores del Norte' }])),
   http.get('/api/common/countries', () => paginado(paises)),

@@ -7,11 +7,12 @@ import { InterruptorTema, Logo, SelectorIdioma } from '@/componentes/ui/Preferen
 import { enAnterior } from '@/util/entorno';
 import { SelectorEmpresa } from '@/componentes/SelectorEmpresa';
 
-const NAV: { to: '/' | '/productores' | '/stock' | '/productos'; clave: string; icono: NombreIcono; exacto?: boolean }[] = [
+const NAV: { to: '/' | '/productores' | '/stock' | '/productos' | '/empresa'; clave: string; icono: NombreIcono; exacto?: boolean }[] = [
   { to: '/', clave: 'portal.inicio', icono: 'inicio', exacto: true },
   { to: '/productores', clave: 'portal.productores', icono: 'personas' },
   { to: '/stock', clave: 'portal.stock', icono: 'bodega' },
   { to: '/productos', clave: 'portal.productos', icono: 'certificado' },
+  { to: '/empresa', clave: 'portal.empresa', icono: 'web' },
 ];
 
 export function Marco() {
@@ -50,7 +51,7 @@ export function Marco() {
             ))}
             <a href={enAnterior('/home')} aria-label={t('portal.version_actual')} className="inline-flex h-9 items-center gap-2 rounded-lg px-2.5 text-sm font-medium text-tinta-3 hover:bg-superficie-2 hover:text-tinta sm:px-3">
               <Icono nombre="externo" className="size-4" />
-              <span className="hidden whitespace-nowrap xl:inline">{t('portal.version_actual')}</span>
+              <span className="hidden whitespace-nowrap 2xl:inline">{t('portal.version_actual')}</span>
             </a>
           </nav>
           <div className="ml-auto flex items-center gap-1">

@@ -570,6 +570,47 @@ celular, más la página en la prueba de ancho) y una nueva contra el backend re
 conserva tema y documentos, filtro). Suite real: 24 de 25 (la de QR de convivencia falla en el
 servidor de desarrollo, como siempre).
 
+## Fase 4a.1 (ficha y usuarios de la empresa) — ✅ cerrada el 02.11.2026 (rama `fase-5`)
+
+Arranca la fase 4 («Empresa y administración»), dividida en 4a (empresa propia: ficha, usuarios,
+instalaciones y acciones de procesamiento), 4b (recolectores, clientes y tablero), 4c (administración
+del sistema), 4d (catálogos y ajustes) y 4e (cuenta). Nueva entrada **Empresa** en la barra
+(`/empresa`, la empresa elegida arriba) con pestañas **Ficha · Usuarios**; instalaciones y acciones
+siguen abriendo la versión actual (4a.2 y 4a.3).
+
+- **Ficha:** datos básicos y logo, sede, descripción y contacto, cadenas de valor (al quitar una avisa
+  que el procesamiento en esa cadena deja de funcionar), moneda base, Beyco, certificaciones, videos,
+  registros de producción, «Conoce a los productores» y redes sociales. Mismas reglas que la versión
+  actual (nombre, logo, dirección, descripción, correo, teléfono, moneda y una cadena obligatorios;
+  abreviatura de 3 a 6). La edita la administración de la empresa o del sistema, como el backend.
+- **El backend reemplaza todos los campos** de la ficha con lo que recibe: la v2 guarda siempre sobre
+  la empresa tal como llegó y no manda los usuarios (se administran aparte). Los documentos conservan
+  su id, así se actualizan en vez de recrearse.
+- **Detalles encontrados:** el backend valida la moneda completa (código y nombre), no solo el id
+  («Invalid field(s) in request»); la frase de «Conoce a los productores» queda opcional porque hay
+  fichas cargadas sin ella y el backend no la exige (la versión actual solo la pedía al editar ese
+  elemento).
+- **Usuarios:** lista con rol y estado. Cambiar de rol, sumar (buscando entre las cuentas de la
+  instancia) y quitar lo hace la administración del sistema o regional, como en la versión actual.
+  **La v2 no deja a la empresa sin nadie con rol de administración** (el backend no lo impide).
+- **Monedas en la copia aislada:** el backend las trae de exchangeratesapi.io con una llave que la
+  demo no tiene, así que la tabla estaba vacía y ninguna empresa podía elegir moneda (tampoco en la
+  versión actual). `scripts/sembrar-monedas.sql` carga seis, solo para copias aisladas.
+
+### H26 🟡 — la «gerencia» de la empresa nunca se guarda (backend)
+
+`Company.manager` se devuelve al leer la ficha, pero ninguna actualización lo escribe
+(`setManager` no se llama en ningún lado). La versión actual lo muestra editable y lo pierde sin
+avisar. Está igual en el original (19d0ea3). En la v2 se muestra de solo lectura con una nota hasta que
+se corrija. No es de seguridad: candidato a PR.
+
+**Pruebas:** 121 unitarias (3 nuevas), 122 de punta a punta simuladas (3 nuevas en escritorio y
+celular, más las dos páginas en la prueba de ancho) y una nueva contra el backend real
+(`e2e-real/empresa.spec.ts`: guarda la ficha completando logo, teléfono y moneda, comprueba que lo
+demás no cambió, que la única administración no pierde el rol y deja la ficha como estaba). Suite
+real: 25 de 26 (la de QR de convivencia, como siempre). En escritorio, el texto «Versión actual» de la
+barra se muestra desde 2xl para que la entrada nueva quepa.
+
 ## Fase 1b (activar la vitrina en una instalación) — pendiente, acordada el 19.10.2026
 
 Pasos, en orden:
@@ -595,8 +636,10 @@ confirmar el uso del video de Anacafé o cambiarlo.**
 2. Revisión de alemán y kinyarwanda por alguien que los hable.
 3. Demo pública: más adelante.
 4. **Fase 3 cerrada** (3a–3e.3). Queda probar Beyco de verdad cuando haya una cuenta de pruebas.
-5. **Fase 5 cerrada** (5a.1–5d). Sigue «Empresa y administración».
+5. **Fase 5 cerrada** (5a.1–5d). En curso: fase 4 («Empresa y administración»): 4a.1 cerrada;
+   siguen 4a.2 (instalaciones) y 4a.3 (acciones de procesamiento).
 6. H23: esperar la revisión del PR #116 en AgStack (junto con #112 y #113).
 7. H24: Rolo envía el correo privado a AgStack (`upstream/seguridad/EMAIL-feedback.md`).
 8. H25: esperar la revisión del PR #117 en AgStack.
+9. H26: decidir si va como PR al original (guardar `manager` al actualizar la empresa).
    Criterio de salida de la fase: ciclo entrega → procesamiento → pago completo en la v2.
