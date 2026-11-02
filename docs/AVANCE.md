@@ -694,13 +694,15 @@ al inglés completada, cambiarlo a traslado y borrarlo). Suite real: 27 de 28 (l
 - En el modo simulado, productores y recolectores están en la misma lista (como en el backend) y se
   separan por tipo.
 
-### H28 🟡 — borrar un cliente con pedidos (o inexistente) responde 500 (backend)
+### H28 🟡 — borrar un cliente con pedidos (o inexistente) respondía 500 (backend; corregido)
 
 `DELETE /api/company/companyCustomers/{id}` hace `em.remove` sin revisar los pedidos del cliente
 (`ProductOrder.customer`, `StockOrder.consumerCompanyCustomer`): con pedidos falla la clave foránea con
 500 y se revierte. Si el id no existe, `em.find` devuelve `null` y responde 500 por un
 NullPointerException. Comprobado en la copia aislada (cliente con 13 pedidos; id inexistente). Está
-igual en el original. La v2 explica la causa probable. Candidato a PR (validación y 400/404 claros).
+igual en el original. La v2 explica la causa probable. **Corregido en el backend del contrato** (400
+claros) y propuesto al original como PR [#123](https://github.com/agstack/inatrace-backend/pull/123)
+(02.11.2026).
 
 **Pruebas:** 133 unitarias (3 nuevas), 134 de punta a punta simuladas (2 nuevas en escritorio y
 celular, más tres páginas en la prueba de ancho) y una nueva contra el backend real (recolector
@@ -759,11 +761,12 @@ confirmar el uso del video de Anacafé o cambiarlo.**
 5. **Fase 5 cerrada** (5a.1–5d). En curso: fase 4 («Empresa y administración»): **4a cerrada**
    (ficha, usuarios, instalaciones y acciones) y **4b cerrada** (recolectores, clientes y tablero);
    siguen 4c (administración del sistema), 4d (catálogos y ajustes) y 4e (cuenta).
-6. H23: esperar la revisión del PR #116 en AgStack (junto con #112 y #113).
+6. H23: PR #116 **mergeado** en AgStack (02.11.2026); #113 también. Sigue abierto #112 (con los
+   cambios pedidos ya respondidos).
 7. H24: AgStack pidió enviarlo por PR (ver punto 9).
 8. H25: esperar la revisión del PR #117 en AgStack.
 9. H26: esperar la revisión del PR #118. H24 va por PR a pedido de AgStack: backend #119 y
    frontend agstack/inatrace-frontend#33.
 10. H27: esperar la revisión del PR #122.
-11. H28: decidir si va como PR al original (borrar un cliente con pedidos o inexistente).
+11. H28: esperar la revisión del PR #123.
    Criterio de salida de la fase: ciclo entrega → procesamiento → pago completo en la v2.
