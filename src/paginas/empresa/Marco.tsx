@@ -10,12 +10,13 @@ import { Aviso, Cargando, EstadoError } from '@/componentes/ui/Estados';
 import { Icono, type NombreIcono } from '@/componentes/ui/Icono';
 import { useEmpresaActual } from '@/util/empresa';
 
-type Destino = '/empresa' | '/empresa/usuarios' | '/empresa/instalaciones' | '/empresa/acciones';
+type Destino = '/empresa' | '/empresa/usuarios' | '/empresa/instalaciones' | '/empresa/acciones' | '/empresa/clientes';
 const PESTANAS: { to: Destino; clave: string; icono: NombreIcono; exacta?: boolean }[] = [
   { to: '/empresa', clave: 'empresa.pestanas.ficha', icono: 'lista', exacta: true },
   { to: '/empresa/usuarios', clave: 'empresa.pestanas.usuarios', icono: 'personas' },
   { to: '/empresa/instalaciones', clave: 'empresa.pestanas.instalaciones', icono: 'bodega' },
   { to: '/empresa/acciones', clave: 'empresa.pestanas.acciones', icono: 'ruta' },
+  { to: '/empresa/clientes', clave: 'empresa.pestanas.clientes', icono: 'barco' },
 ];
 
 const PESTANA = 'inline-flex h-11 shrink-0 items-center gap-2 rounded-t-lg border-b-2 border-transparent px-4 text-sm font-semibold text-tinta-2 hover:text-tinta';

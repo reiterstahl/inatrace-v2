@@ -174,3 +174,60 @@ test('acciones: crear un procesamiento, ver lo guardado, cambiar el tipo y borra
     if (id) await page.request.delete(`/api/chain/processing-action/${id}`);
   }
 });
+
+test('recolectores y clientes: crear, ver lo guardado y borrar contra el backend', async ({ page }) => {
+  test.setTimeout(90_000);
+  await ingresar(page);
+  const marca = Date.now().toString().slice(-6);
+  let recolector: number | undefined;
+  let cliente: number | undefined;
+  try {
+    // Recolector: misma ficha que un productor, guardado como COLLECTOR.
+    await page.goto('/v2/productores/recolectores/nuevo');
+    await page.getByRole('textbox', { name: 'Nombre', exact: true }).fill('Recolector');
+    await page.getByRole('textbox', { name: /^Apellido/ }).fill('E2E ' + marca);
+    await page.getByText('Hombre', { exact: true }).click();
+    await page.getByRole('combobox', { name: /^País/ }).selectOption({ label: 'Guatemala' });
+    await page.getByRole('textbox', { name: /^Ciudad o municipio/ }).fill('Chiantla');
+    await page.getByRole('textbox', { name: /^Departamento o estado/ }).fill('Huehuetenango');
+    await page.getByRole('button', { name: 'Guardar' }).click();
+    await expect(page).toHaveURL(/\/v2\/productores\/recolectores\/\d+$/);
+    recolector = Number(page.url().split('/').pop());
+    const r = (await (await page.request.get(`/api/company/userCustomers/${recolector}`)).json()).data;
+    expect(r).toMatchObject({ type: 'COLLECTOR', surname: 'E2E ' + marca });
+    const lista = (await (await page.request.get(`/api/company/userCustomers/1/COLLECTOR?limit=500`)).json()).data.items as { id: number }[];
+    expect(lista.some((x) => x.id === recolector)).toBe(true);
+    const deProductores = (await (await page.request.get(`/api/company/userCustomers/1/FARMER?limit=500`)).json()).data.items as { id: number }[];
+    expect(deProductores.some((x) => x.id === recolector)).toBe(false);
+
+    // Cliente.
+    await page.goto('/v2/empresa/clientes');
+    await page.getByRole('button', { name: 'Nuevo cliente' }).click();
+    const form = page.getByRole('group', { name: 'Nuevo cliente' });
+    const nombre = 'Cliente E2E ' + marca;
+    await form.getByRole('textbox', { name: /^Nombre/ }).fill(nombre);
+    await form.getByRole('textbox', { name: 'Identificación fiscal' }).fill('3-101-' + marca);
+    await form.getByRole('textbox', { name: 'Correo' }).fill('compras@cliente.example');
+    await form.getByRole('combobox', { name: /^País/ }).selectOption({ label: 'Costa Rica' });
+    await form.getByRole('textbox', { name: 'Ciudad' }).fill('Heredia');
+    await form.getByRole('button', { name: 'Guardar' }).click();
+    await expect(page.getByText(`Se guardó «${nombre}».`)).toBeVisible();
+    const clientes = (await (await page.request.get('/api/company/companyCustomers/list/1?limit=500')).json()).data.items as { id: number; name: string; vatId?: string; location?: { city?: string; country?: { code?: string } } }[];
+    const c = clientes.find((x) => x.name === nombre)!;
+    cliente = c.id;
+    expect(c).toMatchObject({ vatId: '3-101-' + marca, location: { city: 'Heredia', country: { code: 'CR' } } });
+    page.once('dialog', (d) => void d.accept());
+    await page.getByRole('button', { name: `Borrar ${nombre}` }).click();
+    await expect(page.getByText(`Se borró «${nombre}».`)).toBeVisible();
+    cliente = undefined;
+
+    await page.goto(`/v2/productores/recolectores/${recolector}`);
+    page.once('dialog', (d) => void d.accept());
+    await page.getByRole('button', { name: 'Eliminar' }).click();
+    await expect(page).toHaveURL(/\/v2\/productores\/recolectores$/);
+    recolector = undefined;
+  } finally {
+    if (cliente) await page.request.delete(`/api/company/companyCustomers/${cliente}`);
+    if (recolector) await page.request.delete(`/api/company/userCustomers/${recolector}`);
+  }
+});

@@ -856,7 +856,7 @@
         "sin_acciones": "No final product order templates",
         "sin_acciones_texto": "To order final products, the company needs a final-product order action. Create it in the company Actions tab:",
         "sin_clientes": "The company has no customers",
-        "sin_clientes_texto": "First register the customer in the current version:",
+        "sin_clientes_texto": "First register the customer in the company Customers tab:",
         "el_pedido": "The order",
         "cliente": "Customer",
         "fecha_limite": "Delivery deadline",
@@ -1421,7 +1421,8 @@
       "ficha": "Profile",
       "usuarios": "Users",
       "instalaciones": "Facilities",
-      "acciones": "Processing actions"
+      "acciones": "Processing actions",
+      "clientes": "Customers"
     },
     "secciones": {
       "datos": "Basic information",
@@ -1667,6 +1668,57 @@
       "en_grupo": "One of a group on the order",
       "grupo_de": "Group of {{documento}}",
       "quitar_cadena_pregunta": "Remove the “{{cadena}}” chain? The input semi-product, outputs, fields and documents chosen are cleared."
+    },
+    "clientes": {
+      "titulo": "Customers",
+      "ayuda": "The companies that buy from this company; they are assigned to customer orders.",
+      "ir": "go to the company's customers",
+      "nuevo": "New customer",
+      "editar": "Edit customer",
+      "buscar": "Search",
+      "buscar_placeholder": "Name or tax ID",
+      "vacio": "The company has no customers yet.",
+      "sin_resultados": "No customer matches.",
+      "guardado": "“{{nombre}}” was saved.",
+      "borrar": "Delete {{nombre}}",
+      "borrar_pregunta": "Delete the customer “{{nombre}}”?",
+      "borrado": "“{{nombre}}” was deleted.",
+      "no_se_borra": "“{{nombre}}” could not be deleted. If it already has orders, the backend does not allow deleting it.",
+      "nombre": "Name",
+      "oficial": "Official company name",
+      "nif": "Tax ID",
+      "nif_de": "Tax ID {{nif}}",
+      "contacto": "Contact person",
+      "correo": "E-mail",
+      "telefono": "Phone",
+      "dir": {
+        "address": "Address",
+        "city": "City",
+        "state": "State or region",
+        "zip": "Postal code",
+        "village": "Village",
+        "cell": "Cell",
+        "sector": "Sector",
+        "hondurasFarm": "Farm",
+        "hondurasVillage": "Village",
+        "hondurasMunicipality": "Municipality",
+        "hondurasDepartment": "Department"
+      }
     }
+  },
+  "recolectores": {
+    "titulo": "Collectors",
+    "pestanas": "Farmers and collectors",
+    "subtitulo_one": "{{count}} collector of {{empresa}}",
+    "subtitulo_other": "{{count}} collectors of {{empresa}}",
+    "nuevo": "New collector",
+    "nuevo_ayuda": "Fill in the details and save to create the collector.",
+    "buscar": "Search",
+    "buscar_placeholder": "Name",
+    "vacio": "The company has no collectors yet.",
+    "sin_resultados": "No collector matches.",
+    "borrar_confirmar": "Delete {{nombre}}? This cannot be undone.",
+    "borrado": "{{nombre}} was deleted.",
+    "miembro": "Collects for {{empresa}}"
   }
 }

@@ -10,7 +10,6 @@ import { Boton } from '@/componentes/ui/Boton';
 import { Aviso, Cargando } from '@/componentes/ui/Estados';
 import { Icono } from '@/componentes/ui/Icono';
 import { useEmpresaActual } from '@/util/empresa';
-import { enAnterior } from '@/util/entorno';
 import { nombreInstalacion } from '@/util/formato';
 import {
   accionesParaInstalacion,
@@ -62,7 +61,7 @@ export function PedidoClienteNuevo() {
           {faltan === 'acciones' ? (
             <Link to="/empresa/acciones" className="font-semibold underline">{t('empresa.acciones.ir')}</Link>
           ) : (
-            <a href={enAnterior('/my-customers')} className="font-semibold underline">{t('portal.version_actual')}</a>
+            <Link to="/empresa/clientes" className="font-semibold underline">{t('empresa.clientes.ir')}</Link>
           )}
         </Aviso>
       ) : (

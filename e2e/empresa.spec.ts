@@ -224,4 +224,39 @@ test.describe('mi empresa (modo simulado)', () => {
     await page.getByRole('button', { name: 'Borrar Fermentado' }).click();
     await expect(page.getByText('Se borró «Fermentado».')).toBeVisible();
   });
+
+  test('clientes: crear con dirección del país, editar, y no se borra uno con pedidos', async ({ page }) => {
+    await ingresar(page, 'empresa/clientes');
+    await expect(page.getByRole('listitem', { name: 'Tostaduría El Grano' })).toBeVisible();
+    page.once('dialog', (d) => void d.accept());
+    await page.getByRole('button', { name: 'Borrar Tostaduría El Grano' }).click();
+    await expect(page.getByText('Si ya tiene pedidos, el backend no permite borrarlo.', { exact: false })).toBeVisible();
+
+    await page.getByRole('button', { name: 'Nuevo cliente' }).click();
+    const form = page.getByRole('group', { name: 'Nuevo cliente' });
+    await form.getByRole('textbox', { name: 'Correo' }).fill('sin-arroba');
+    await form.getByRole('button', { name: 'Guardar' }).click();
+    await expect(form.getByText('Este campo es obligatorio.')).toHaveCount(2);
+    await expect(form.getByText('Escribe un correo válido.')).toBeVisible();
+    await form.getByRole('textbox', { name: /^Nombre/ }).fill('Kaffee Rösterei');
+    await form.getByRole('textbox', { name: 'Correo' }).fill('einkauf@roesterei.example');
+    await form.getByRole('textbox', { name: 'Identificación fiscal' }).fill('DE123456789');
+    await form.getByRole('combobox', { name: /^País/ }).selectOption({ label: 'Rwanda' });
+    await expect(form.getByRole('textbox', { name: 'Celda' })).toBeVisible();
+    await form.getByRole('combobox', { name: /^País/ }).selectOption({ label: 'Guatemala' });
+    await form.getByRole('textbox', { name: 'Ciudad' }).fill('Antigua');
+    await form.getByRole('button', { name: 'Guardar' }).click();
+    await expect(page.getByText('Se guardó «Kaffee Rösterei».')).toBeVisible();
+    const nuevo = page.getByRole('listitem', { name: 'Kaffee Rösterei' });
+    await expect(nuevo).toContainText('Id. fiscal DE123456789 · Antigua, Guatemala');
+
+    await nuevo.getByRole('button', { name: 'Editar' }).click();
+    const edicion = page.getByRole('group', { name: 'Editar cliente' });
+    await edicion.getByRole('textbox', { name: 'Persona de contacto' }).fill('Lena');
+    await edicion.getByRole('button', { name: 'Guardar' }).click();
+    await expect(page.getByRole('listitem', { name: 'Kaffee Rösterei' })).toContainText('Lena');
+    page.once('dialog', (d) => void d.accept());
+    await page.getByRole('button', { name: 'Borrar Kaffee Rösterei' }).click();
+    await expect(page.getByText('Se borró «Kaffee Rösterei».')).toBeVisible();
+  });
 });

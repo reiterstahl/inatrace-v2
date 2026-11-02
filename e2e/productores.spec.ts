@@ -85,4 +85,36 @@ test.describe('productores (modo simulado)', () => {
     await expect(page.getByRole('img', { name: 'Parcelas de la empresa' })).toBeAttached();
     await expect(page.getByText('2 parcelas con polígono.', { exact: false })).toBeVisible();
   });
+
+  test('recolectores: lista, ficha sin finca ni parcelas, crear y borrar', async ({ page }) => {
+    await ingresar(page, 'productores/recolectores');
+    await expect(page.getByRole('link', { name: 'Recolectores' })).toHaveAttribute('aria-current', 'page');
+    await expect(page.getByRole('listitem', { name: 'Julio Tzul' })).toBeVisible();
+    // Los productores no aparecen entre los recolectores.
+    await expect(page.getByText('1 recolector de', { exact: false })).toBeVisible();
+
+    await page.getByRole('link', { name: 'Nuevo recolector' }).click();
+    await expect(page.getByRole('heading', { name: 'Parcelas' })).toHaveCount(0);
+    await expect(page.getByRole('heading', { name: 'Finca' })).toHaveCount(0);
+    await expect(page.getByText('Recolecta para', { exact: false })).toBeVisible();
+    await page.getByRole('textbox', { name: 'Nombre', exact: true }).fill('Marcos');
+    await page.getByRole('textbox', { name: /^Apellido/ }).fill('Ixcoy');
+    await page.getByText('Hombre', { exact: true }).click();
+    await page.getByRole('combobox', { name: /^País/ }).selectOption({ label: 'Guatemala' });
+    await page.getByRole('textbox', { name: /^Ciudad o municipio/ }).fill('Chiantla');
+    await page.getByRole('textbox', { name: /^Departamento o estado/ }).fill('Huehuetenango');
+    await page.getByRole('button', { name: 'Guardar' }).click();
+    await expect(page).toHaveURL(/\/v2\/productores\/recolectores\/\d+$/);
+    await expect(page.getByRole('heading', { level: 1, name: 'Marcos Ixcoy' })).toBeVisible();
+
+    await page.getByRole('link', { name: 'Recolectores' }).first().click();
+    await expect(page.getByRole('listitem', { name: 'Marcos Ixcoy' })).toBeVisible();
+    // Y no se mezcla con los productores.
+    await page.getByRole('link', { name: 'Productores', exact: true }).last().click();
+    await expect(page.getByText('Marcos', { exact: true })).toHaveCount(0);
+    await page.getByRole('link', { name: 'Recolectores' }).first().click();
+    page.once('dialog', (d) => void d.accept());
+    await page.getByRole('button', { name: /^Eliminar a Marcos Ixcoy|^Borrar.*Marcos Ixcoy/ }).click();
+    await expect(page.getByText('Se eliminó a Marcos Ixcoy.')).toBeVisible();
+  });
 });

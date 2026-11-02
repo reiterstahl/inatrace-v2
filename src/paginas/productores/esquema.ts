@@ -140,7 +140,11 @@ export function aFormulario(p: ApiUserCustomer | null, empresa: number): FormPro
 export type Catalogos = { paises: ApiCountry[]; tiposProducto: ApiProductType[] };
 
 /** Arma el productor para la API a partir del original (si existe) y del formulario. */
-export function aApi(f: FormProductor, original: ApiUserCustomer | null, empresa: number, cat: Catalogos): ApiUserCustomer {
+/**
+ * `tipo`: productor o recolector. Un recolector usa la misma ficha sin finca, certificaciones ni
+ * parcelas: esas partes se mandan tal como estaban.
+ */
+export function aApi(f: FormProductor, original: ApiUserCustomer | null, empresa: number, cat: Catalogos, tipoPersona: 'FARMER' | 'COLLECTOR' = 'FARMER'): ApiUserCustomer {
   const tipo = (id: number | null) => cat.tiposProducto.find((x) => x.id === id) ?? (id ? { id } : undefined);
   // El país siempre sale del catálogo (el backend lo identifica por id; código y nombre son de lectura).
   const pais = cat.paises.find((x) => x.id === f.pais);
@@ -152,10 +156,10 @@ export function aApi(f: FormProductor, original: ApiUserCustomer | null, empresa
   const original_asoc = new Map((original?.associations ?? []).map((x) => [x.company?.id, x]));
   const original_parc = new Map((original?.plots ?? []).map((x) => [x.id, x]));
 
-  return {
+  const api: ApiUserCustomer = {
     ...(original ?? {}),
     companyId: original?.companyId ?? empresa,
-    type: 'FARMER',
+    type: tipoPersona,
     farmerCompanyInternalId: f.farmerCompanyInternalId,
     name: f.name,
     surname: f.surname,
@@ -183,7 +187,7 @@ export function aApi(f: FormProductor, original: ApiUserCustomer | null, empresa
     cooperatives: [
       ...coops,
       ...(f.miembroCooperativa
-        ? [(original?.cooperatives ?? []).find((c) => c.company?.id === empresa) ?? { company: { id: empresa }, userCustomerType: 'FARMER' as const }]
+        ? [(original?.cooperatives ?? []).find((c) => c.company?.id === empresa) ?? { company: { id: empresa }, userCustomerType: tipoPersona }]
         : []),
     ],
     associations: f.asociaciones.map((id) => original_asoc.get(id) ?? { company: { id } }),
@@ -201,4 +205,8 @@ export function aApi(f: FormProductor, original: ApiUserCustomer | null, empresa
       coordinates: x.coordenadas.map(([lng, lat]) => ({ latitude: lat, longitude: lng })),
     })),
   };
+  if (tipoPersona === 'COLLECTOR') {
+    return { ...api, farm: original?.farm, productTypes: original?.productTypes, certifications: original?.certifications, plots: original?.plots };
+  }
+  return api;
 }

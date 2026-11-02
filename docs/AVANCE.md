@@ -678,6 +678,35 @@ celular, más tres páginas en la prueba de ancho) y una nueva contra el backend
 procesamiento con salida reempacada, comprobar por la API tipo, productos, rendimiento y la traducción
 al inglés completada, cambiarlo a traslado y borrarlo). Suite real: 27 de 28 (la de QR de convivencia).
 
+## Fase 4b.1 (recolectores y clientes) — ✅ cerrada el 02.11.2026 (rama `fase-5`)
+
+- **Recolectores** (`/productores/recolectores`, pestaña junto a Productores): son el mismo modelo que
+  un productor, de tipo `COLLECTOR`, así que usan la misma ficha sin finca, certificaciones ni
+  parcelas (como la versión actual); esas partes se mandan tal como estaban. Lista con búsqueda y
+  páginas; la casilla de la empresa dice «Recolecta para…». La versión actual muestra además sus
+  compras y pagos; la ficha del productor de la v2 tampoco los muestra, queda para cuando se sume a
+  ambos.
+- **Clientes** (pestaña de la empresa, `/empresa/clientes`): alta y edición en línea, con nombre,
+  razón social, identificación fiscal, contacto, correo, teléfono y la dirección según el país (como
+  la de un productor). Se guarda sobre lo que llegó. La sección «SKU prices» de la versión actual no
+  se porta: no se carga ni se guarda. El aviso de los pedidos de clientes sin clientes lleva a esta
+  pestaña: **ya ningún aviso de stock manda a la versión actual**.
+- En el modo simulado, productores y recolectores están en la misma lista (como en el backend) y se
+  separan por tipo.
+
+### H28 🟡 — borrar un cliente con pedidos (o inexistente) responde 500 (backend)
+
+`DELETE /api/company/companyCustomers/{id}` hace `em.remove` sin revisar los pedidos del cliente
+(`ProductOrder.customer`, `StockOrder.consumerCompanyCustomer`): con pedidos falla la clave foránea con
+500 y se revierte. Si el id no existe, `em.find` devuelve `null` y responde 500 por un
+NullPointerException. Comprobado en la copia aislada (cliente con 13 pedidos; id inexistente). Está
+igual en el original. La v2 explica la causa probable. Candidato a PR (validación y 400/404 claros).
+
+**Pruebas:** 133 unitarias (3 nuevas), 134 de punta a punta simuladas (2 nuevas en escritorio y
+celular, más tres páginas en la prueba de ancho) y una nueva contra el backend real (recolector
+guardado como `COLLECTOR` y fuera de la lista de productores; cliente con su dirección; ambos se
+borran). Suite real: 28 de 29 (la de QR de convivencia).
+
 ## Fase 1b (activar la vitrina en una instalación) — pendiente, acordada el 19.10.2026
 
 Pasos, en orden:
@@ -704,12 +733,13 @@ confirmar el uso del video de Anacafé o cambiarlo.**
 3. Demo pública: más adelante.
 4. **Fase 3 cerrada** (3a–3e.3). Queda probar Beyco de verdad cuando haya una cuenta de pruebas.
 5. **Fase 5 cerrada** (5a.1–5d). En curso: fase 4 («Empresa y administración»): **4a cerrada**
-   (ficha, usuarios, instalaciones y acciones); siguen 4b (recolectores, clientes y tablero), 4c
-   (administración del sistema), 4d (catálogos y ajustes) y 4e (cuenta).
+   (ficha, usuarios, instalaciones y acciones) y 4b.1 (recolectores y clientes); siguen 4b.2 (tablero
+   de la empresa), 4c (administración del sistema), 4d (catálogos y ajustes) y 4e (cuenta).
 6. H23: esperar la revisión del PR #116 en AgStack (junto con #112 y #113).
 7. H24: AgStack pidió enviarlo por PR (ver punto 9).
 8. H25: esperar la revisión del PR #117 en AgStack.
 9. H26: esperar la revisión del PR #118. H24 va por PR a pedido de AgStack: backend #119 y
    frontend agstack/inatrace-frontend#33.
 10. H27: esperar la revisión del PR #122.
+11. H28: decidir si va como PR al original (borrar un cliente con pedidos o inexistente).
    Criterio de salida de la fase: ciclo entrega → procesamiento → pago completo en la v2.

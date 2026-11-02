@@ -1,5 +1,5 @@
 import { http, HttpResponse, delay } from 'msw';
-import type { ApiProcessingAction, ApiFacility, ApiCompanyActionRequest, ApiCompanyGet, ApiCompanyUpdate, ApiCompanyUser, ApiFinalProduct, ApiKnowledgeBlog, ApiProduct, ApiProductLabel, ApiProductLabelBatch, ApiProductLabelCompanyDocument, ApiProductLabelContent, ApiProductLabelFeedback, ApiUserGet } from '@/api/gen/types.gen';
+import type { ApiCompanyCustomer, ApiProcessingAction, ApiFacility, ApiCompanyActionRequest, ApiCompanyGet, ApiCompanyUpdate, ApiCompanyUser, ApiFinalProduct, ApiKnowledgeBlog, ApiProduct, ApiProductLabel, ApiProductLabelBatch, ApiProductLabelCompanyDocument, ApiProductLabelContent, ApiProductLabelFeedback, ApiUserGet } from '@/api/gen/types.gen';
 import { ETIQUETA_DEMO, QR_DEMO, etiqueta, qr } from './datos/vitrina';
 import type { ApiUserCustomer } from '@/api/gen/types.gen';
 import { accionesProcesamiento, clientes, instalacionVecina, pagosIniciales, procesosIniciales, productoFinalQr, acopiadores, agrupar, entregasIniciales, historiaDe, instalaciones, loteProcesado, recalcular, semiproductos, tiposEvidencia, usuariosEmpresa } from './datos/stock';
@@ -22,7 +22,9 @@ let usuario: ApiUserGet = { id: 7, email: 'demo@inatrace.local', name: 'Ana', su
 
 // Productores: se guardan en sessionStorage para que sobrevivan a una recarga (como un backend).
 const CLAVE_PRODUCTORES = 'simulado.productores';
-const leerProductores = (): ApiUserCustomer[] => JSON.parse(sessionStorage.getItem(CLAVE_PRODUCTORES) ?? 'null') ?? productoresIniciales;
+// Productores y recolectores (acopiadores) en la misma lista, como en el backend; se separan por tipo.
+const leerProductores = (): ApiUserCustomer[] => JSON.parse(sessionStorage.getItem(CLAVE_PRODUCTORES) ?? 'null') ?? [...productoresIniciales, ...acopiadores];
+const deTipo = (p: ApiUserCustomer, tipo: string) => (p.type ?? 'FARMER') === tipo;
 const guardarProductores = (l: ApiUserCustomer[]) => sessionStorage.setItem(CLAVE_PRODUCTORES, JSON.stringify(l));
 let siguienteId = 500;
 // Entregas: igual que los productores, en sessionStorage.
@@ -69,6 +71,9 @@ const CLAVE_PRODUCTOS = 'simulado.productos';
 const leerProductos = (): ApiProduct[] => JSON.parse(sessionStorage.getItem(CLAVE_PRODUCTOS) ?? 'null') ?? productosIniciales;
 const guardarProductos = (l: ApiProduct[]) => sessionStorage.setItem(CLAVE_PRODUCTOS, JSON.stringify(l));
 const CLAVE_ROL = 'simulado.rol';
+const CLAVE_CLIENTES = 'simulado.clientes';
+const leerClientes = (): ApiCompanyCustomer[] => JSON.parse(sessionStorage.getItem(CLAVE_CLIENTES) ?? 'null') ?? clientes;
+const guardarClientes = (l: ApiCompanyCustomer[]) => sessionStorage.setItem(CLAVE_CLIENTES, JSON.stringify(l));
 const CLAVE_ACCIONES = 'simulado.acciones';
 // Con traducciones (la pestaña de acciones edita el nombre por idioma).
 const leerAcciones = (): ApiProcessingAction[] =>
@@ -247,16 +252,16 @@ export const manejadores = [
   http.get('/api/chain/map-layer/active', () => ok(capasMapa)),
 
   // ---------- Productores ----------
-  http.get('/api/company/userCustomers/:companyId/plots', () => (conSesion() ? ok(parcelasDe(leerProductores())) : sinSesion())),
+  http.get('/api/company/userCustomers/:companyId/plots', () => (conSesion() ? ok(parcelasDe(leerProductores().filter((p) => deTipo(p, 'FARMER')))) : sinSesion())),
   http.get('/api/company/userCustomers/:companyId/:type', ({ request, params }) => {
     if (!conSesion()) return sinSesion();
     const u = new URL(request.url);
-    if (params.type === 'COLLECTOR') return paginado(acopiadores.filter((a) => `${a.name} ${a.surname}`.toLowerCase().includes((u.searchParams.get('query') ?? '').toLowerCase())));
     const q = (u.searchParams.get('query') ?? '').toLowerCase();
     const por = u.searchParams.get('searchBy') === 'BY_SURNAME' ? 'surname' : 'name';
     const campo = ({ BY_ID: 'id', BY_SURNAME: 'surname' } as Record<string, 'id' | 'surname'>)[u.searchParams.get('sortBy') ?? ''] ?? 'name';
     const signo = u.searchParams.get('sort') === 'DESC' ? -1 : 1;
     const todos = leerProductores()
+      .filter((p) => deTipo(p, String(params.type)))
       .filter((p) => !q || String(p[por] ?? '').toLowerCase().includes(q))
       .sort((a, b) => (String(a[campo]).localeCompare(String(b[campo]), 'es', { numeric: true })) * signo);
     const desde = Number(u.searchParams.get('offset') ?? 0), cuantos = Number(u.searchParams.get('limit') ?? 20);
@@ -748,7 +753,26 @@ export const manejadores = [
     const vende = (!semi || (instalacionVecina.facilitySemiProductList ?? []).some((x) => x.id === semi)) && (!final || (instalacionVecina.facilityFinalProducts ?? []).some((x) => x.id === final));
     return paginado(vende ? [instalacionVecina] : []);
   }),
-  http.get('/api/company/companyCustomers/list/:companyId', () => (conSesion() ? paginado(clientes) : sinSesion())),
+  http.get('/api/company/companyCustomers/list/:companyId', () => (conSesion() ? paginado(leerClientes()) : sinSesion())),
+  http.post('/api/company/companyCustomers', async ({ request }) => {
+    if (!conSesion()) return sinSesion();
+    const c = { ...((await request.json()) as ApiCompanyCustomer), id: siguienteId++ };
+    guardarClientes([...leerClientes(), c]);
+    return ok(c);
+  }),
+  http.put('/api/company/companyCustomers', async ({ request }) => {
+    if (!conSesion()) return sinSesion();
+    const c = (await request.json()) as ApiCompanyCustomer;
+    guardarClientes(leerClientes().map((x) => (x.id === c.id ? c : x)));
+    return ok(c);
+  }),
+  // El primer cliente ya tiene pedidos: como el backend, no se puede borrar (falla con 500).
+  http.delete('/api/company/companyCustomers/:id', ({ params }) => {
+    if (!conSesion()) return sinSesion();
+    if (Number(params.id) === clientes[0]?.id) return error(500, 'ERROR', 'Unexpected API error');
+    guardarClientes(leerClientes().filter((x) => x.id !== Number(params.id)));
+    return ok();
+  }),
   // Pedido de un cliente: cada ítem es un procesamiento de envío sin entradas (como el backend).
   http.post('/api/chain/product-order', async ({ request }) => {
     if (!conSesion()) return sinSesion();

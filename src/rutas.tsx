@@ -103,6 +103,7 @@ const instalacionesLista = createRoute({
 });
 const instalacionNueva = createRoute({ getParentRoute: () => instalacionesRaiz, path: 'nueva', component: lazyRouteComponent(() => import('@/paginas/empresa/Instalacion'), 'InstalacionNueva') });
 const instalacionEditar = createRoute({ getParentRoute: () => instalacionesRaiz, path: '$instalacion', component: lazyRouteComponent(() => import('@/paginas/empresa/Instalacion'), 'InstalacionExistente') });
+const empresaClientes = createRoute({ getParentRoute: () => empresaRaiz, path: 'clientes', component: lazyRouteComponent(() => import('@/paginas/empresa/Clientes'), 'ClientesEmpresa') });
 const accionesRaiz = createRoute({ getParentRoute: () => empresaRaiz, path: 'acciones' });
 const accionesLista = createRoute({
   getParentRoute: () => accionesRaiz,
@@ -140,6 +141,11 @@ const etiquetaOpiniones = createRoute({ getParentRoute: () => etiquetaRaiz, path
 const etiquetaEstadisticas = createRoute({ getParentRoute: () => etiquetaRaiz, path: 'estadisticas', component: lazyRouteComponent(() => import('@/paginas/productos/etiqueta/Estadisticas'), 'EstadisticasEtiqueta') });
 
 const productorFicha = createRoute({ getParentRoute: () => productoresRaiz, path: '$id', component: lazyRouteComponent(() => import('@/paginas/productores/Ficha'), 'FichaExistente') });
+// Recolectores (fase 4b): misma ficha que un productor, de tipo COLLECTOR.
+const recolectoresRaiz = createRoute({ getParentRoute: () => productoresRaiz, path: 'recolectores' });
+const recolectoresLista = createRoute({ getParentRoute: () => recolectoresRaiz, path: '/', component: lazyRouteComponent(() => import('@/paginas/productores/Recolectores'), 'ListaRecolectores') });
+const recolectorNuevo = createRoute({ getParentRoute: () => recolectoresRaiz, path: 'nuevo', component: lazyRouteComponent(() => import('@/paginas/productores/Ficha'), 'RecolectorNuevo') });
+const recolectorFicha = createRoute({ getParentRoute: () => recolectoresRaiz, path: '$id', component: lazyRouteComponent(() => import('@/paginas/productores/Ficha'), 'RecolectorExistente') });
 
 // ---------- Stock (fase 3) ----------
 type BusquedaEntregas = {
@@ -360,7 +366,7 @@ const arbol = raiz.addChildren([
   ingreso,
   entradaQr,
   entradaEtiqueta,
-  portal.addChildren([inicio, perfil, empresaRaiz.addChildren([empresaFicha, empresaUsuarios, instalacionesRaiz.addChildren([instalacionesLista, instalacionNueva, instalacionEditar]), accionesRaiz.addChildren([accionesLista, accionNueva, accionEditar])]), productoresRaiz.addChildren([productoresLista, productorNuevo, productoresImportar, productorFicha]), productosRaiz.addChildren([productosLista, productoNuevo, productoRaiz.addChildren([productoFicha, productoVitrina, productoEmpresas, productoFinales, etiquetasRaiz.addChildren([etiquetasLista, etiquetaRaiz.addChildren([etiquetaEditor, etiquetaLotes, etiquetaOpiniones, etiquetaEstadisticas])]), productoConocimiento])]),
+  portal.addChildren([inicio, perfil, empresaRaiz.addChildren([empresaFicha, empresaUsuarios, instalacionesRaiz.addChildren([instalacionesLista, instalacionNueva, instalacionEditar]), accionesRaiz.addChildren([accionesLista, accionNueva, accionEditar]), empresaClientes]), productoresRaiz.addChildren([productoresLista, productorNuevo, productoresImportar, productorFicha, recolectoresRaiz.addChildren([recolectoresLista, recolectorNuevo, recolectorFicha])]), productosRaiz.addChildren([productosLista, productoNuevo, productoRaiz.addChildren([productoFicha, productoVitrina, productoEmpresas, productoFinales, etiquetasRaiz.addChildren([etiquetasLista, etiquetaRaiz.addChildren([etiquetaEditor, etiquetaLotes, etiquetaOpiniones, etiquetaEstadisticas])]), productoConocimiento])]),
     stockRaiz.addChildren([stockInicio, entregasRaiz.addChildren([entregasLista, entregaNueva, entregaMasiva, entregaFicha]), stockTodo, procesamientoRaiz.addChildren([procesamientoInicio, procesamientoNuevo, procesamientoEditar]), pagosRaiz.addChildren([pagosLista, pagoNuevo, pagoMasivoNuevo, pagoMasivoVer, pagoVer]), ordenesRaiz.addChildren([ordenesLista, ordenNueva, pedidoCliente, ordenAprobar]), beycoVuelta, beycoOferta, stockTrazabilidad]),
   ]),
   vitrina.addChildren([vPortada, vRecorrido, vPrecios, vProductores, vCalidad, vOpinion, vTerminos, vPrivacidad]),

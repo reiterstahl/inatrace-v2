@@ -856,7 +856,7 @@
         "sin_acciones": "No hay plantillas de pedido de producto final",
         "sin_acciones_texto": "Para pedir productos finales, la empresa necesita una acción de pedido de producto final. Se crea en la pestaña Acciones de la empresa:",
         "sin_clientes": "La empresa no tiene clientes",
-        "sin_clientes_texto": "Primero hay que registrar al cliente en la versión actual:",
+        "sin_clientes_texto": "Primero hay que registrar al cliente en la pestaña Clientes de la empresa:",
         "el_pedido": "El pedido",
         "cliente": "Cliente",
         "fecha_limite": "Fecha límite de entrega",
@@ -1421,7 +1421,8 @@
       "ficha": "Ficha",
       "usuarios": "Usuarios",
       "instalaciones": "Instalaciones",
-      "acciones": "Acciones de procesamiento"
+      "acciones": "Acciones de procesamiento",
+      "clientes": "Clientes"
     },
     "secciones": {
       "datos": "Datos básicos",
@@ -1667,6 +1668,57 @@
       "en_grupo": "Uno de un grupo en el pedido",
       "grupo_de": "Grupo de {{documento}}",
       "quitar_cadena_pregunta": "¿Quitar la cadena «{{cadena}}»? Se vacían el semiproducto de entrada, las salidas, los campos y los documentos elegidos."
+    },
+    "clientes": {
+      "titulo": "Clientes",
+      "ayuda": "Las empresas que le compran a esta empresa; se asignan a los pedidos de clientes.",
+      "ir": "ir a los clientes de la empresa",
+      "nuevo": "Nuevo cliente",
+      "editar": "Editar cliente",
+      "buscar": "Buscar",
+      "buscar_placeholder": "Nombre o identificación fiscal",
+      "vacio": "La empresa todavía no tiene clientes.",
+      "sin_resultados": "Ningún cliente coincide.",
+      "guardado": "Se guardó «{{nombre}}».",
+      "borrar": "Borrar {{nombre}}",
+      "borrar_pregunta": "¿Borrar el cliente «{{nombre}}»?",
+      "borrado": "Se borró «{{nombre}}».",
+      "no_se_borra": "No se pudo borrar «{{nombre}}». Si ya tiene pedidos, el backend no permite borrarlo.",
+      "nombre": "Nombre",
+      "oficial": "Razón social",
+      "nif": "Identificación fiscal",
+      "nif_de": "Id. fiscal {{nif}}",
+      "contacto": "Persona de contacto",
+      "correo": "Correo",
+      "telefono": "Teléfono",
+      "dir": {
+        "address": "Dirección",
+        "city": "Ciudad",
+        "state": "Estado o departamento",
+        "zip": "Código postal",
+        "village": "Aldea",
+        "cell": "Celda",
+        "sector": "Sector",
+        "hondurasFarm": "Finca",
+        "hondurasVillage": "Aldea",
+        "hondurasMunicipality": "Municipio",
+        "hondurasDepartment": "Departamento"
+      }
     }
+  },
+  "recolectores": {
+    "titulo": "Recolectores",
+    "pestanas": "Productores y recolectores",
+    "subtitulo_one": "{{count}} recolector de {{empresa}}",
+    "subtitulo_other": "{{count}} recolectores de {{empresa}}",
+    "nuevo": "Nuevo recolector",
+    "nuevo_ayuda": "Completa los datos y guarda para crear el recolector.",
+    "buscar": "Buscar",
+    "buscar_placeholder": "Nombre",
+    "vacio": "La empresa todavía no tiene recolectores.",
+    "sin_resultados": "Ningún recolector coincide.",
+    "borrar_confirmar": "¿Eliminar a {{nombre}}? Esta acción no se puede deshacer.",
+    "borrado": "Se eliminó a {{nombre}}.",
+    "miembro": "Recolecta para {{empresa}}"
   }
 }

@@ -31,6 +31,10 @@ const SECCION_DE: Record<string, (typeof SECCIONES)[number]> = {
 };
 
 const rutaFicha = getRouteApi('/portal/productores/$id');
+const rutaRecolector = getRouteApi('/portal/productores/recolectores/$id');
+type Tipo = 'FARMER' | 'COLLECTOR';
+/** Secciones de un recolector: sin finca, certificaciones ni parcelas (como la versión actual). */
+const SECCIONES_RECOLECTOR: readonly (typeof SECCIONES)[number][] = ['personales', 'ubicacion', 'organizaciones', 'banco'];
 
 export function FichaExistente() {
   const { id } = rutaFicha.useParams();
@@ -38,7 +42,13 @@ export function FichaExistente() {
 }
 export const FichaNueva = () => <Ficha />;
 
-function Ficha({ id }: { id?: number }) {
+export function RecolectorExistente() {
+  const { id } = rutaRecolector.useParams();
+  return <Ficha id={Number(id)} tipo="COLLECTOR" />;
+}
+export const RecolectorNuevo = () => <Ficha tipo="COLLECTOR" />;
+
+function Ficha({ id, tipo = 'FARMER' }: { id?: number; tipo?: Tipo }) {
   const { t } = useTranslation();
   const empresa = useEmpresaActual();
   const ficha = useQuery({ ...productores.ficha(id ?? 0), enabled: !!id });
@@ -59,6 +69,7 @@ function Ficha({ id }: { id?: number }) {
       // Al guardar, el productor cambia de id (nuevo → guardado): se rearma el formulario.
       key={ficha.data?.id ?? 'nuevo'}
       original={id ? ficha.data! : null}
+      tipo={tipo}
       empresa={empresa}
       catalogos={{ paises: paises.data!, tiposProducto: cultivosDisponibles(tipos.data!, id ? ficha.data! : null) }}
       sinCatalogoCultivos={tipos.data!.length === 0}
@@ -83,6 +94,7 @@ function cultivosDisponibles(deEmpresa: ApiProductType[], p: ApiUserCustomer | n
 
 function Formulario({
   original,
+  tipo,
   empresa,
   catalogos,
   asociaciones,
@@ -92,6 +104,7 @@ function Formulario({
 }: {
   sinCatalogoCultivos: boolean;
   original: ApiUserCustomer | null;
+  tipo: Tipo;
   empresa: Empresa;
   catalogos: Catalogos;
   asociaciones: Parameters<typeof Organizaciones>[0]['asociaciones'];
@@ -124,15 +137,20 @@ function Formulario({
   // No perder cambios sin guardar al salir de la ficha.
   useBlocker({ shouldBlockFn: () => formState.isDirty && !guardar.isPending && !window.confirm(t('productores.ficha.salir_sin_guardar')), enableBeforeUnload: () => formState.isDirty });
 
+  const recolector = tipo === 'COLLECTOR';
+  const secciones = recolector ? SECCIONES_RECOLECTOR : SECCIONES;
   const seccionesConError = new Set(Object.keys(formState.errors).map((k) => SECCION_DE[k]).filter(Boolean));
 
   async function alGuardar(f: FormProductor) {
     setAviso(null);
     try {
-      const guardado = await guardar.mutateAsync(aApi(f, original, empresa.id, catalogos));
+      const guardado = await guardar.mutateAsync(aApi(f, original, empresa.id, catalogos, tipo));
       reset(aFormulario(guardado, empresa.id));
       setAviso({ tono: 'ok', texto: t('productores.ficha.guardado') });
-      if (!original && guardado.id) await navegar({ to: '/productores/$id', params: { id: String(guardado.id) }, replace: true });
+      if (!original && guardado.id) {
+        const params = { id: String(guardado.id) };
+        await (recolector ? navegar({ to: '/productores/recolectores/$id', params, replace: true }) : navegar({ to: '/productores/$id', params, replace: true }));
+      }
     } catch (e) {
       setAviso({ tono: 'mal', texto: (e as Error).message });
     }
@@ -140,17 +158,17 @@ function Formulario({
 
   function alFallar(errores: FieldErrors<FormProductor>) {
     // Lleva a la primera sección con problemas, en el orden de la ficha.
-    const primera = SECCIONES.find((s) => Object.keys(errores).some((k) => SECCION_DE[k] === s));
+    const primera = secciones.find((s) => Object.keys(errores).some((k) => SECCION_DE[k] === s));
     if (primera) document.getElementById(primera)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     setAviso({ tono: 'mal', texto: t('productores.ficha.revisar') });
   }
 
   async function eliminar() {
-    if (!original?.id || !window.confirm(t('productores.borrar_confirmar', { nombre: nombreCompleto(original) }))) return;
+    if (!original?.id || !window.confirm(t(recolector ? 'recolectores.borrar_confirmar' : 'productores.borrar_confirmar', { nombre: nombreCompleto(original) }))) return;
     try {
       await borrar.mutateAsync(original.id);
       reset(form.getValues()); // sin cambios pendientes: que el bloqueo no pregunte
-      await navegar({ to: '/productores' });
+      await (recolector ? navegar({ to: '/productores/recolectores' }) : navegar({ to: '/productores' }));
     } catch (e) {
       setAviso({ tono: 'mal', texto: (e as Error).message });
     }
@@ -173,7 +191,7 @@ function Formulario({
     }
   }
 
-  const nombre = original ? nombreCompleto(original) : t('productores.nuevo');
+  const nombre = original ? nombreCompleto(original) : t(recolector ? 'recolectores.nuevo' : 'productores.nuevo');
   useEffect(() => {
     document.title = `${nombre} · INATrace v2`;
   }, [nombre]);
@@ -183,8 +201,8 @@ function Formulario({
       <form onSubmit={handleSubmit(alGuardar, alFallar)} noValidate className="grid gap-6 pb-24">
         <header className="flex flex-wrap items-end justify-between gap-4">
           <div>
-            <Link to="/productores" className="inline-flex items-center gap-1.5 text-sm font-medium text-marca hover:underline">
-              <Icono nombre="volver" className="size-4" /> {t('productores.titulo')}
+            <Link to={recolector ? '/productores/recolectores' : '/productores'} className="inline-flex items-center gap-1.5 text-sm font-medium text-marca hover:underline">
+              <Icono nombre="volver" className="size-4" /> {t(recolector ? 'recolectores.titulo' : 'productores.titulo')}
             </Link>
             <h1 className="mt-2 font-titulo text-3xl font-semibold tracking-tight">{nombre}</h1>
             {original && <p className="mt-1 text-sm text-tinta-2">{t('productores.ficha.id', { id: original.farmerCompanyInternalId || original.id })}</p>}
@@ -198,12 +216,12 @@ function Formulario({
 
         {aviso && <Aviso tono={aviso.tono}>{aviso.texto}</Aviso>}
 
-        {original?.id && <Tarjeta productor={original} empresa={empresa.nombre} />}
+        {original?.id && !recolector && <Tarjeta productor={original} empresa={empresa.nombre} />}
 
         <div className="grid gap-6 lg:grid-cols-[13rem_1fr]">
           <nav aria-label={t('productores.ficha.indice')} className="hidden lg:block">
             <ul className="sticky top-24 grid gap-0.5 text-sm">
-              {SECCIONES.map((s) => (
+              {secciones.map((s) => (
                 <li key={s}>
                   <a href={`#${s}`} className="flex items-center justify-between rounded-lg px-3 py-2 text-tinta-2 hover:bg-superficie-2 hover:text-tinta">
                     {t(`productores.secciones.${s}`)}
@@ -216,18 +234,18 @@ function Formulario({
           <div className="grid min-w-0 gap-6">
             <Personales />
             <Ubicacion paises={catalogos.paises} />
-            <Finca tiposProducto={catalogos.tiposProducto} />
-            <Organizaciones empresa={empresa.nombre} asociaciones={asociaciones} />
+            {!recolector && <Finca tiposProducto={catalogos.tiposProducto} />}
+            <Organizaciones empresa={empresa.nombre} asociaciones={asociaciones} miembro={recolector ? 'recolectores.miembro' : undefined} />
             <Banco />
-            <Certificaciones tipos={tiposCertificacion} />
-            <Parcelas
+            {!recolector && <Certificaciones tipos={tiposCertificacion} />}
+            {!recolector && <Parcelas
               tiposProducto={catalogos.tiposProducto}
               capas={capas}
               ocupado={ocupado}
               sinCatalogo={sinCatalogoCultivos}
               alSubirGeo={original?.id ? subirGeo : undefined}
               alExportarGeo={original?.id ? () => void exportarGeoDatos(original.id!).catch((e: Error) => setAviso({ tono: 'mal', texto: e.message })) : undefined}
-            />
+            />}
           </div>
         </div>
 
@@ -235,7 +253,7 @@ function Formulario({
         {(formState.isDirty || !original) && (
           <div className="fixed inset-x-0 bottom-0 z-30 border-t border-linea bg-superficie/95 backdrop-blur">
             <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3 sm:px-6">
-              <p className="text-sm text-tinta-2">{original ? t('productores.ficha.cambios') : t('productores.ficha.nuevo_ayuda')}</p>
+              <p className="text-sm text-tinta-2">{original ? t('productores.ficha.cambios') : t(recolector ? 'recolectores.nuevo_ayuda' : 'productores.ficha.nuevo_ayuda')}</p>
               <div className="flex gap-2">
                 {original && (
                   <Boton variante="secundario" onClick={() => reset()} disabled={guardar.isPending}>

@@ -85,6 +85,20 @@ export const productores = {
       placeholderData: keepPreviousData, // al paginar o buscar, la tabla no parpadea
     }),
 
+  /** Recolectores (acopiadores) de la empresa: el mismo modelo que los productores, de tipo COLLECTOR. */
+  recolectores: (empresa: number, f: { texto: string; pagina: number }) =>
+    queryOptions({
+      queryKey: ['productores', empresa, 'COLLECTOR', f],
+      queryFn: () =>
+        desenvolver(
+          getUserCustomersForCompanyAndType({
+            path: { companyId: empresa, type: 'COLLECTOR' },
+            query: { query: f.texto.trim() || undefined, searchBy: 'BY_NAME', sortBy: 'BY_NAME', sort: 'ASC', limit: POR_PAGINA, offset: (f.pagina - 1) * POR_PAGINA },
+          }),
+        ),
+      placeholderData: keepPreviousData,
+    }),
+
   parcelasDeEmpresa: (empresa: number) =>
     queryOptions({
       queryKey: ['parcelas', empresa],
@@ -145,7 +159,7 @@ export function limpiarProductor(p: ApiUserCustomer): ApiUserCustomer {
     }
     return o;
   };
-  return limpiar({ ...p, type: 'FARMER' }) as ApiUserCustomer;
+  return limpiar({ ...p, type: p.type ?? 'FARMER' }) as ApiUserCustomer;
 }
 
 export function useGuardarProductor(empresa: number) {

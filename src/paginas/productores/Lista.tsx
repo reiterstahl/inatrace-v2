@@ -2,6 +2,7 @@ import { lazy, Suspense, useEffect, useMemo, useState } from 'react';
 import { Link, getRouteApi, useNavigate } from '@tanstack/react-router';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
+import { PestanasPersonas } from './Recolectores';
 import { POR_PAGINA, exportarProductores, productores, useBorrarProductor } from '@/api/productores';
 import type { ApiUserCustomer } from '@/api/gen/types.gen';
 import { Boton, clasesBoton } from '@/componentes/ui/Boton';
@@ -79,6 +80,7 @@ function Contenido({ empresa, nombreEmpresa }: { empresa: number; nombreEmpresa:
           </Link>
         </div>
       </header>
+      <PestanasPersonas />
 
       {error && <Aviso tono="mal">{error}</Aviso>}
 
