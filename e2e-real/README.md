@@ -25,8 +25,9 @@ pedido), `beyco.spec.ts` necesita `scripts/sembrar-beyco.mjs` (Beyco habilitado 
 y `productos.spec.ts` y `productos-partes.spec.ts` necesitan `scripts/sembrar-productos.mjs` (cadena de
 valor en la empresa demo; la segunda usa la cuenta de administración del sistema), igual que
 `etiquetas.spec.ts` y `etiqueta-partes.spec.ts` (esta última necesita el backend con H24).
-`empresa.spec.ts` necesita el backend con H26 y monedas habilitadas (`scripts/sembrar-monedas.sql` en una copia aislada) y
-deja la ficha de la empresa demo como estaba. La prueba de base de conocimiento necesita el backend con H25 (borrar entradas y productos que las
+`empresa.spec.ts` necesita el backend con H26, monedas habilitadas (`scripts/sembrar-monedas.sql` en una copia aislada) y
+semiproductos en la cadena (`scripts/sembrar-productos.mjs`); deja la ficha de la empresa demo como estaba y borra la
+instalación que crea. La prueba de base de conocimiento necesita el backend con H25 (borrar entradas y productos que las
 tengan).
 Los tres scripts son solo para copias aisladas. `beyco.spec.ts` no usa Beyco de verdad: intercepta la
 salida hacia Beyco y simula su vuelta.

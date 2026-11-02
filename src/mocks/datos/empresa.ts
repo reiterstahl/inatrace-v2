@@ -1,5 +1,6 @@
-import type { ApiCompanyGet, ApiCurrencyType, ApiUserBase, ApiValueChain } from '@/api/gen/types.gen';
+import type { ApiCompanyGet, ApiCurrencyType, ApiFacility, ApiFacilityType, ApiUserBase, ApiValueChain } from '@/api/gen/types.gen';
 import { EMPRESA_DEMO, paises } from './productores';
+import { instalaciones } from './stock';
 
 export const monedas: ApiCurrencyType[] = [
   { id: 1, code: 'EUR', label: 'Euro', enabled: true },
@@ -39,3 +40,21 @@ export const cuentasInstancia: ApiUserBase[] = [
   { id: 9, name: 'Rosa', surname: 'Chávez', email: 'rosa@inatrace.local', status: 'ACTIVE', role: 'USER' },
   { id: 10, name: 'Pedro', surname: 'Chávez', email: 'pedro@inatrace.local', status: 'UNCONFIRMED', role: 'USER' },
 ];
+
+export const tiposInstalacion: ApiFacilityType[] = [
+  { id: 1, code: 'WASHING_STATION', label: 'Beneficio húmedo' },
+  { id: 2, code: 'COLLECTION_CENTER', label: 'Centro de acopio' },
+  { id: 3, code: 'WAREHOUSE', label: 'Bodega' },
+];
+
+/** Las instalaciones de stock con lo que pide la pestaña de la empresa (tipo, lugar, nombres, cadenas). */
+export const instalacionesEmpresa: ApiFacility[] = instalaciones.map((f, i) => ({
+  ...f,
+  company: { id: EMPRESA_DEMO.id, name: EMPRESA_DEMO.name },
+  facilityType: tiposInstalacion[i === 0 ? 0 : 1],
+  translations: [{ language: 'ES' as const, name: f.name }, { language: 'EN' as const, name: f.name }, { language: 'DE' as const, name: f.name }, { language: 'RW' as const, name: f.name }],
+  facilityLocation: { publiclyVisible: i === 0, latitude: i === 0 ? 15.32 : undefined, longitude: i === 0 ? -91.47 : undefined, address: { city: i === 0 ? 'Huehuetenango' : 'Todos Santos', country: paises[0] } },
+  isPublic: i === 0,
+  facilityValueChains: [cadenasActivas[0]!],
+  deactivated: false,
+}));

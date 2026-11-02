@@ -1,11 +1,11 @@
 import { http, HttpResponse, delay } from 'msw';
-import type { ApiCompanyActionRequest, ApiCompanyGet, ApiCompanyUpdate, ApiCompanyUser, ApiFinalProduct, ApiKnowledgeBlog, ApiProduct, ApiProductLabel, ApiProductLabelBatch, ApiProductLabelCompanyDocument, ApiProductLabelContent, ApiProductLabelFeedback, ApiUserGet } from '@/api/gen/types.gen';
+import type { ApiFacility, ApiCompanyActionRequest, ApiCompanyGet, ApiCompanyUpdate, ApiCompanyUser, ApiFinalProduct, ApiKnowledgeBlog, ApiProduct, ApiProductLabel, ApiProductLabelBatch, ApiProductLabelCompanyDocument, ApiProductLabelContent, ApiProductLabelFeedback, ApiUserGet } from '@/api/gen/types.gen';
 import { ETIQUETA_DEMO, QR_DEMO, etiqueta, qr } from './datos/vitrina';
 import type { ApiUserCustomer } from '@/api/gen/types.gen';
 import { accionesProcesamiento, clientes, instalacionVecina, pagosIniciales, procesosIniciales, productoFinalQr, acopiadores, agrupar, entregasIniciales, historiaDe, instalaciones, loteProcesado, recalcular, semiproductos, tiposEvidencia, usuariosEmpresa } from './datos/stock';
 import type { ApiBulkPayment, ApiPayment, ApiProcessingOrder, ApiPurchaseOrder, ApiStockOrder } from '@/api/gen/types.gen';
 import { EMPRESA_DEMO, capasMapa, paises, parcelasDe, productoresIniciales, tiposCertificacion, tiposProducto } from './datos/productores';
-import { cadenasActivas, cuentasInstancia, fichaEmpresaDemo, monedas } from './datos/empresa';
+import { cadenasActivas, cuentasInstancia, fichaEmpresaDemo, instalacionesEmpresa, monedas, tiposInstalacion } from './datos/empresa';
 import { conocimientoIniciales, contenidoDe, empresasInstancia, estadisticasDemo, etiquetasIniciales, finalesIniciales, lotesIniciales, mediosEmpresa, opinionesIniciales, productosIniciales, unidadesMedida, type EtiquetaSimulada } from './datos/productos';
 
 /**
@@ -69,6 +69,10 @@ const CLAVE_PRODUCTOS = 'simulado.productos';
 const leerProductos = (): ApiProduct[] => JSON.parse(sessionStorage.getItem(CLAVE_PRODUCTOS) ?? 'null') ?? productosIniciales;
 const guardarProductos = (l: ApiProduct[]) => sessionStorage.setItem(CLAVE_PRODUCTOS, JSON.stringify(l));
 const CLAVE_ROL = 'simulado.rol';
+const CLAVE_INSTALACIONES = 'simulado.instalaciones';
+const leerInstalaciones = (): ApiFacility[] => JSON.parse(sessionStorage.getItem(CLAVE_INSTALACIONES) ?? 'null') ?? instalacionesEmpresa;
+const guardarInstalaciones = (l: ApiFacility[]) => sessionStorage.setItem(CLAVE_INSTALACIONES, JSON.stringify(l));
+const activas = () => leerInstalaciones().filter((f) => !f.deactivated);
 const CLAVE_EMPRESA = 'simulado.empresa';
 const leerEmpresa = (): ApiCompanyGet => JSON.parse(sessionStorage.getItem(CLAVE_EMPRESA) ?? 'null') ?? fichaEmpresaDemo;
 const CLAVE_USUARIOS = 'simulado.usuarios-empresa';
@@ -278,16 +282,51 @@ export const manejadores = [
   }),
 
   // ---------- Stock: entregas ----------
-  http.get('/api/chain/facility/list/collecting/company/:id', () => (conSesion() ? paginado(instalaciones) : sinSesion())),
+  http.get('/api/chain/facility/list/collecting/company/:id', () => (conSesion() ? paginado(activas().filter((f) => f.isCollectionFacility)) : sinSesion())),
+  http.get('/api/chain/facility/list/company/:id/all', () => (conSesion() ? paginado(leerInstalaciones()) : sinSesion())),
   http.get('/api/chain/facility/list/company/:id', ({ request }) => {
     if (!conSesion()) return sinSesion();
     const semi = Number(new URL(request.url).searchParams.get('semiProductId')) || null;
-    return paginado(instalaciones.filter((f) => !semi || (f.facilitySemiProductList ?? []).some((s) => s.id === semi)));
+    return paginado(activas().filter((f) => !semi || (f.facilitySemiProductList ?? []).some((s) => s.id === semi)));
   }),
-  http.get('/api/chain/facility/:id', ({ params }) => {
-    const f = instalaciones.find((x) => x.id === Number(params.id));
+  http.get('/api/chain/facility/:id/detail', ({ params }) => {
+    const f = leerInstalaciones().find((x) => x.id === Number(params.id));
     return f ? ok(f) : error(404, 'NOT_FOUND', 'Not found');
   }),
+  http.get('/api/chain/facility/:id', ({ params }) => {
+    const f = leerInstalaciones().find((x) => x.id === Number(params.id));
+    return f ? ok(f) : error(404, 'NOT_FOUND', 'Not found');
+  }),
+  // Como el backend: crea o reemplaza todo; el nombre visible es el de la traducción al idioma pedido.
+  http.put('/api/chain/facility', async ({ request }) => {
+    if (!conSesion()) return sinSesion();
+    const f = (await request.json()) as ApiFacility;
+    const idioma = request.headers.get('language') ?? 'EN';
+    const nombre = f.translations?.find((t) => t.language === idioma)?.name ?? '';
+    const tipo = tiposInstalacion.find((x) => x.id === f.facilityType?.id);
+    const lista = leerInstalaciones();
+    const id = f.id ?? siguienteId++;
+    const nueva = { ...f, id, name: nombre, facilityType: tipo };
+    guardarInstalaciones(f.id ? lista.map((x) => (x.id === f.id ? nueva : x)) : [...lista, nueva]);
+    return ok({ id });
+  }),
+  http.put('/api/chain/facility/:id/:accion', ({ params }) => {
+    if (!conSesion()) return sinSesion();
+    if (params.accion !== 'activate' && params.accion !== 'deactivate') return error(404, 'NOT_FOUND', 'Not found');
+    guardarInstalaciones(leerInstalaciones().map((x) => (x.id === Number(params.id) ? { ...x, deactivated: params.accion === 'deactivate' } : x)));
+    return ok();
+  }),
+  // El beneficio (11) tiene entregas: como el backend, no se deja borrar.
+  http.delete('/api/chain/facility/:id', ({ params }) => {
+    if (!conSesion()) return sinSesion();
+    if (Number(params.id) === 11) return error(400, 'VALIDATION_ERROR', 'Cannot delete a facility that has stock orders');
+    guardarInstalaciones(leerInstalaciones().filter((x) => x.id !== Number(params.id)));
+    return ok();
+  }),
+  http.get('/api/chain/facility-type/list', () => paginado(tiposInstalacion)),
+  http.get('/api/company/:id/value-chains', () => (conSesion() ? paginado(leerEmpresa().valueChains ?? []) : sinSesion())),
+  http.get('/api/chain/semi-product/list/by-value-chains', () => (conSesion() ? paginado(semiproductos) : sinSesion())),
+  http.get('/api/final-product/company/:companyId', () => (conSesion() ? paginado(leerFinales()) : sinSesion())),
   http.get('/api/chain/semi-product/:id', ({ params }) => {
     const s = semiproductos.find((x) => x.id === Number(params.id));
     return s ? ok(s) : error(404, 'NOT_FOUND', 'Not found');

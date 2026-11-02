@@ -64,3 +64,58 @@ test('empresa: la ficha guarda sobre lo que ya tenía y los usuarios no quedan s
     expect(r.status).toBe('OK');
   }
 });
+
+test('instalaciones: crear, ver lo guardado, desactivar, activar y borrar contra el backend', async ({ page }) => {
+  test.setTimeout(90_000);
+  await ingresar(page);
+  const nombre = 'Bodega E2E ' + Date.now().toString().slice(-6);
+  const todas = async () => (await (await page.request.get('/api/chain/facility/list/company/1/all?limit=500')).json()).data.items as { id: number; name: string; deactivated?: boolean }[];
+  let id: number | undefined;
+  try {
+    await page.goto('/v2/empresa/instalaciones/nueva');
+    await page.getByRole('combobox', { name: 'Tipo de instalación' }).selectOption({ index: 1 });
+    await page.getByRole('textbox', { name: 'Nombre en Español' }).fill(nombre);
+    await page.getByRole('combobox', { name: 'País' }).selectOption({ label: 'Guatemala' });
+    await page.getByRole('textbox', { name: 'Ciudad' }).fill('Chiantla');
+    await page.getByRole('group', { name: /^¿Se muestra en el mapa público\?/ }).getByLabel('Sí').check();
+    await page.getByRole('textbox', { name: /^Latitud/ }).fill('15,35');
+    await page.getByRole('textbox', { name: /^Longitud/ }).fill('-91,45');
+    await page.getByRole('group', { name: /^¿Es un centro de acopio\?/ }).getByLabel('Sí').check();
+    await page.getByRole('group', { name: /^¿Vende semiproductos/ }).getByLabel('No').check();
+    await page.getByRole('checkbox', { name: 'Tara' }).check();
+    if ((await page.getByRole('list', { name: /^Cadenas de valor/ }).count()) === 0) {
+      await page.getByRole('combobox', { name: 'Agregar a cadenas de valor' }).selectOption({ index: 1 });
+      await page.getByRole('button', { name: 'Agregar a cadenas de valor' }).click();
+    }
+    await page.getByRole('combobox', { name: 'Agregar a semiproductos' }).selectOption({ index: 1 });
+    await page.getByRole('button', { name: 'Agregar a semiproductos' }).click();
+    await page.getByRole('button', { name: 'Guardar' }).click();
+    await expect(page.getByText(`Se guardó «${nombre}».`)).toBeVisible();
+
+    id = (await todas()).find((f) => f.name === nombre)?.id;
+    expect(id).toBeTruthy();
+    const d = (await (await page.request.get(`/api/chain/facility/${id}/detail`)).json()).data;
+    // Los cuatro idiomas con el nombre, ubicación con coordenadas y las opciones elegidas.
+    expect(d.translations.map((t: { name: string }) => t.name)).toEqual([nombre, nombre, nombre, nombre]);
+    expect(d.facilityLocation).toMatchObject({ publiclyVisible: true, latitude: 15.35, longitude: -91.45, address: { city: 'Chiantla', country: { code: 'GT' } } });
+    expect(d).toMatchObject({ isCollectionFacility: true, isPublic: false, displayTare: true, displayOrganic: false });
+    expect(d.facilityValueChains.length).toBeGreaterThan(0);
+    expect(d.facilitySemiProductList.length).toBe(1);
+
+    const fila = page.getByRole('listitem', { name: nombre });
+    page.once('dialog', (x) => void x.accept());
+    await fila.getByRole('button', { name: 'Desactivar' }).click();
+    await expect(fila).toContainText('Desactivada');
+    expect((await todas()).find((f) => f.id === id)?.deactivated).toBe(true);
+    await fila.getByRole('button', { name: 'Activar' }).click();
+    await expect(fila).not.toContainText('Desactivada');
+
+    page.once('dialog', (x) => void x.accept());
+    await page.getByRole('button', { name: `Borrar ${nombre}` }).click();
+    await expect(page.getByText(`Se borró «${nombre}».`)).toBeVisible();
+    expect((await todas()).some((f) => f.id === id)).toBe(false);
+    id = undefined;
+  } finally {
+    if (id) await page.request.delete(`/api/chain/facility/${id}`);
+  }
+});

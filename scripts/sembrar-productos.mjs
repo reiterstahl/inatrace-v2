@@ -1,11 +1,13 @@
-// Prepara la empresa demo para probar los productos (fase 5) contra el backend real: le asigna la
-// cadena de valor de café, sin la cual no se puede crear un producto (pasa igual en la versión actual).
+// Prepara la empresa demo para probar los productos (fase 5) y las instalaciones (fase 4a) contra el
+// backend real: le asigna la cadena de valor de café, sin la cual no se puede crear un producto, y
+// asocia a esa cadena los semiproductos de la instancia, sin lo cual una instalación nueva no puede
+// elegir ninguno (pasa igual en la versión actual).
 //
 // Pensado para la COPIA AISLADA de desarrollo, nunca para una instancia institucional.
 // Uso:
 //   INATRACE_API=http://127.0.0.1:8381 INATRACE_USUARIO=… INATRACE_CLAVE=… node scripts/sembrar-productos.mjs
 //
-// Si ya la tiene, no cambia nada.
+// Lo que ya esté hecho no se vuelve a cambiar.
 
 const API = process.env.INATRACE_API ?? 'http://127.0.0.1:8381';
 const EMPRESA = Number(process.env.DEMO_EMPRESA ?? 1);
@@ -40,4 +42,15 @@ if ((perfil.valueChains ?? []).some((v) => v.id === CADENA)) {
   await llamar('PUT', '/api/company/profile', { ...perfil, valueChains: [...(perfil.valueChains ?? []), { id: CADENA }] });
   const despues = await llamar('GET', `/api/company/profile/${EMPRESA}`);
   console.log(`· Cadenas de valor de "${despues.name}": ${(despues.valueChains ?? []).map((v) => v.name).join(', ')}`);
+}
+
+// Semiproductos de la cadena (el backend guarda la cadena completa: se manda tal como llegó).
+const cadena = await llamar('GET', `/api/chain/value-chain/${CADENA}`);
+const semis = (await llamar('GET', '/api/chain/semi-product/list?limit=500')).items ?? [];
+const faltan = semis.filter((s) => !(cadena.semiProducts ?? []).some((x) => x.id === s.id));
+if (!faltan.length) {
+  console.log(`· La cadena "${cadena.name}" ya tiene sus ${semis.length} semiproductos`);
+} else {
+  await llamar('PUT', '/api/chain/value-chain', { ...cadena, semiProducts: [...(cadena.semiProducts ?? []), ...faltan] });
+  console.log(`· Semiproductos asociados a "${cadena.name}": ${faltan.map((s) => s.name).join(', ')}`);
 }

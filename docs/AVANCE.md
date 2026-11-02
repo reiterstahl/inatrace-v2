@@ -613,6 +613,35 @@ demás no cambió, que la única administración no pierde el rol y deja la fich
 real: 25 de 26 (la de QR de convivencia, como siempre). En escritorio, el texto «Versión actual» de la
 barra se muestra desde 2xl para que la entrada nueva quepa.
 
+## Fase 4a.2 (instalaciones) — ✅ cerrada el 02.11.2026 (rama `fase-5`)
+
+Nueva pestaña **Instalaciones** de la empresa (`/empresa/instalaciones`), con alta y edición en su
+propia página.
+
+- **Lista:** todas, también las desactivadas, con tipo, lugar y si son de acopio o venden; mapa con
+  las que se muestran en el mapa público. Activar, desactivar (con confirmación) y **borrar**, que la
+  versión actual no ofrecía: el backend solo lo permite si la instalación no tiene movimientos
+  (entregas, transacciones, pedidos o acciones) y la v2 muestra su motivo si no.
+- **Formulario:** tipo, nombre por idioma, ubicación (país; en Ruanda aldea, celda y sector, en el
+  resto dirección; si se muestra en el mapa, el punto en el mapa o las coordenadas), si es de acopio,
+  si vende, los campos que se muestran al registrar entregas, cadenas de valor, semiproductos y
+  productos finales. Una instalación nueva arranca con la cadena si la empresa tiene una sola.
+- **Nombres por idioma:** el backend no tiene respaldo (en un idioma sin nombre la instalación aparece
+  vacía). La versión actual exigía el inglés; la v2 exige al menos uno y completa los vacíos con el
+  primero escrito.
+- **El backend reemplaza todo** (incluido si está desactivada y las traducciones que no lleguen): se
+  guarda sobre la instalación tal como llegó, con el tipo y el país completos de los catálogos.
+- **Semiproductos:** no dicen de qué cadena son, así que al quitar una cadena se vacían, como en la
+  versión actual.
+- **Copia aislada:** los semiproductos no estaban asociados a ninguna cadena, así que una instalación
+  nueva no podía elegir ninguno (tampoco en la versión actual). `scripts/sembrar-productos.mjs` ahora
+  los asocia a la cadena de café por la API (respaldo previo `v2demo-antes-semis.sql`).
+
+**Pruebas:** 126 unitarias (5 nuevas), 126 de punta a punta simuladas (4 nuevas en escritorio y
+celular, más tres páginas en la prueba de ancho) y una nueva contra el backend real (crear desde la
+pantalla, comprobar por la API nombres, ubicación, opciones, cadenas y semiproductos, desactivar,
+activar y borrar). Suite real: 26 de 27 (la de QR de convivencia, como siempre).
+
 ## Fase 1b (activar la vitrina en una instalación) — pendiente, acordada el 19.10.2026
 
 Pasos, en orden:
@@ -638,8 +667,8 @@ confirmar el uso del video de Anacafé o cambiarlo.**
 2. Revisión de alemán y kinyarwanda por alguien que los hable.
 3. Demo pública: más adelante.
 4. **Fase 3 cerrada** (3a–3e.3). Queda probar Beyco de verdad cuando haya una cuenta de pruebas.
-5. **Fase 5 cerrada** (5a.1–5d). En curso: fase 4 («Empresa y administración»): 4a.1 cerrada;
-   siguen 4a.2 (instalaciones) y 4a.3 (acciones de procesamiento).
+5. **Fase 5 cerrada** (5a.1–5d). En curso: fase 4 («Empresa y administración»): 4a.1 y 4a.2
+   cerradas; sigue 4a.3 (acciones de procesamiento).
 6. H23: esperar la revisión del PR #116 en AgStack (junto con #112 y #113).
 7. H24: AgStack pidió enviarlo por PR (ver punto 9).
 8. H25: esperar la revisión del PR #117 en AgStack.

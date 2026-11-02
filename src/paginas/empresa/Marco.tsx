@@ -11,14 +11,14 @@ import { Icono, type NombreIcono } from '@/componentes/ui/Icono';
 import { useEmpresaActual } from '@/util/empresa';
 import { enAnterior } from '@/util/entorno';
 
-type Destino = '/empresa' | '/empresa/usuarios';
+type Destino = '/empresa' | '/empresa/usuarios' | '/empresa/instalaciones';
 const PESTANAS: { to: Destino; clave: string; icono: NombreIcono; exacta?: boolean }[] = [
   { to: '/empresa', clave: 'empresa.pestanas.ficha', icono: 'lista', exacta: true },
   { to: '/empresa/usuarios', clave: 'empresa.pestanas.usuarios', icono: 'personas' },
+  { to: '/empresa/instalaciones', clave: 'empresa.pestanas.instalaciones', icono: 'bodega' },
 ];
-/** Lo que sigue en la versión actual (se migra en 4a.2 y 4a.3). */
+/** Lo que sigue en la versión actual (se migra en 4a.3). */
 const PENDIENTES: { clave: string; anterior: (id: number) => string }[] = [
-  { clave: 'empresa.pestanas.instalaciones', anterior: (id) => `/companies/${id}/facilities` },
   { clave: 'empresa.pestanas.acciones', anterior: (id) => `/companies/${id}/processingActions` },
 ];
 

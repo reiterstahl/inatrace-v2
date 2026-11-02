@@ -94,6 +94,15 @@ const productoresImportar = createRoute({ getParentRoute: () => productoresRaiz,
 const empresaRaiz = createRoute({ getParentRoute: () => portal, path: 'empresa', component: lazyRouteComponent(() => import('@/paginas/empresa/Marco'), 'MarcoEmpresa') });
 const empresaFicha = createRoute({ getParentRoute: () => empresaRaiz, path: '/', component: lazyRouteComponent(() => import('@/paginas/empresa/Ficha'), 'FichaEmpresa') });
 const empresaUsuarios = createRoute({ getParentRoute: () => empresaRaiz, path: 'usuarios', component: lazyRouteComponent(() => import('@/paginas/empresa/Usuarios'), 'UsuariosEmpresa') });
+const instalacionesRaiz = createRoute({ getParentRoute: () => empresaRaiz, path: 'instalaciones' });
+const instalacionesLista = createRoute({
+  getParentRoute: () => instalacionesRaiz,
+  path: '/',
+  validateSearch: (s: Record<string, unknown>): { guardada?: string } => ({ guardada: typeof s.guardada === 'string' ? s.guardada : undefined }),
+  component: lazyRouteComponent(() => import('@/paginas/empresa/Instalaciones'), 'InstalacionesEmpresa'),
+});
+const instalacionNueva = createRoute({ getParentRoute: () => instalacionesRaiz, path: 'nueva', component: lazyRouteComponent(() => import('@/paginas/empresa/Instalacion'), 'InstalacionNueva') });
+const instalacionEditar = createRoute({ getParentRoute: () => instalacionesRaiz, path: '$instalacion', component: lazyRouteComponent(() => import('@/paginas/empresa/Instalacion'), 'InstalacionExistente') });
 
 const productosRaiz = createRoute({ getParentRoute: () => portal, path: 'productos' });
 const productosLista = createRoute({
@@ -342,7 +351,7 @@ const arbol = raiz.addChildren([
   ingreso,
   entradaQr,
   entradaEtiqueta,
-  portal.addChildren([inicio, perfil, empresaRaiz.addChildren([empresaFicha, empresaUsuarios]), productoresRaiz.addChildren([productoresLista, productorNuevo, productoresImportar, productorFicha]), productosRaiz.addChildren([productosLista, productoNuevo, productoRaiz.addChildren([productoFicha, productoVitrina, productoEmpresas, productoFinales, etiquetasRaiz.addChildren([etiquetasLista, etiquetaRaiz.addChildren([etiquetaEditor, etiquetaLotes, etiquetaOpiniones, etiquetaEstadisticas])]), productoConocimiento])]),
+  portal.addChildren([inicio, perfil, empresaRaiz.addChildren([empresaFicha, empresaUsuarios, instalacionesRaiz.addChildren([instalacionesLista, instalacionNueva, instalacionEditar])]), productoresRaiz.addChildren([productoresLista, productorNuevo, productoresImportar, productorFicha]), productosRaiz.addChildren([productosLista, productoNuevo, productoRaiz.addChildren([productoFicha, productoVitrina, productoEmpresas, productoFinales, etiquetasRaiz.addChildren([etiquetasLista, etiquetaRaiz.addChildren([etiquetaEditor, etiquetaLotes, etiquetaOpiniones, etiquetaEstadisticas])]), productoConocimiento])]),
     stockRaiz.addChildren([stockInicio, entregasRaiz.addChildren([entregasLista, entregaNueva, entregaMasiva, entregaFicha]), stockTodo, procesamientoRaiz.addChildren([procesamientoInicio, procesamientoNuevo, procesamientoEditar]), pagosRaiz.addChildren([pagosLista, pagoNuevo, pagoMasivoNuevo, pagoMasivoVer, pagoVer]), ordenesRaiz.addChildren([ordenesLista, ordenNueva, pedidoCliente, ordenAprobar]), beycoVuelta, beycoOferta, stockTrazabilidad]),
   ]),
   vitrina.addChildren([vPortada, vRecorrido, vPrecios, vProductores, vCalidad, vOpinion, vTerminos, vPrivacidad]),
