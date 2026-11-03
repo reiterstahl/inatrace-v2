@@ -503,6 +503,8 @@ export const manejadores = [
   }),
   http.delete('/api/product/:id', ({ params }) => {
     if (!conSesion()) return sinSesion();
+    // Como el backend con la revisión de H25: los productos finales no se borran con el producto.
+    if (leerFinales().some((f) => f.product?.id === Number(params.id))) return error(400, 'VALIDATION_ERROR', 'Cannot delete a product that has final products');
     guardarProductos(leerProductos().filter((x) => x.id !== Number(params.id)));
     // Como el backend con H25: las entradas de la base de conocimiento se borran con el producto.
     guardarConocimiento(leerConocimiento().filter((x) => x.productId !== Number(params.id)));

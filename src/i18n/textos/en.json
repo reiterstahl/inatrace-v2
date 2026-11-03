@@ -1413,6 +1413,11 @@
         "largo": "At most {{max}} characters.",
         "enlace": "Enter a valid link (https://…)."
       }
+    },
+    "no_se_borra": {
+      "finales": "The product cannot be deleted: it has final products. Delete them first in the Final products tab.",
+      "clientes": "The product cannot be deleted: customers are linked to it.",
+      "productores": "The product cannot be deleted: farmers are linked to it."
     }
   },
   "empresa": {

@@ -28,14 +28,14 @@ export const lotes = {
    * Opiniones de una etiqueta con los datos que dejó cada consumidor. Van por la ruta con sesión
    * (H24): la pública ya no entrega correo ni respuestas.
    */
-  opiniones: (etiqueta: number, f: { tipo?: TipoOpinion; pagina: number; todas?: boolean }) =>
+  opiniones: (etiqueta: number, f: { tipo?: TipoOpinion; pagina: number }) =>
     queryOptions({
       queryKey: ['opiniones', etiqueta, f],
       queryFn: () =>
         desenvolver(
           listProductLabelFeedbacksForLabel({
             path: { id: etiqueta },
-            query: f.todas ? { limit: 1000, sort: 'DESC' } : { type: f.tipo, sort: 'DESC', limit: POR_PAGINA_OPINIONES, offset: (f.pagina - 1) * POR_PAGINA_OPINIONES },
+            query: { type: f.tipo, sort: 'DESC', limit: POR_PAGINA_OPINIONES, offset: (f.pagina - 1) * POR_PAGINA_OPINIONES },
           }),
         ),
       placeholderData: keepPreviousData,
@@ -59,6 +59,18 @@ export function useGuardarLote(etiqueta: number) {
     onSuccess: () => void qc.invalidateQueries({ queryKey: ['lotes', etiqueta] }),
   });
 }
+
+/** Todas las opiniones de una etiqueta, de a páginas (para exportar: un pedido no las trae todas). */
+export async function todasLasOpiniones(etiqueta: number): Promise<ApiProductLabelFeedback[]> {
+  const todas: ApiProductLabelFeedback[] = [];
+  for (let offset = 0; ; offset += POR_PAGINA_EXPORTAR) {
+    const pagina = await desenvolver(listProductLabelFeedbacksForLabel({ path: { id: etiqueta }, query: { sort: 'DESC', limit: POR_PAGINA_EXPORTAR, offset } }));
+    const items = pagina.items ?? [];
+    todas.push(...items);
+    if (items.length < POR_PAGINA_EXPORTAR || todas.length >= (pagina.count ?? 0)) return todas;
+  }
+}
+const POR_PAGINA_EXPORTAR = 100;
 
 export function useBorrarLote(etiqueta: number) {
   const qc = useQueryClient();

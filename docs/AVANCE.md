@@ -733,6 +733,22 @@ celular, más la página en la prueba de ancho) y una nueva contra el backend re
 con agrupación por día, rendimiento sin errores con o sin datos, exportaciones). Suite real: 29 de 30
 (la de QR de convivencia).
 
+## Revisión de los PR en AgStack (03.11.2026)
+
+- **Mergeados:** #113 (H22, borrar entrega), #116 (H23), #118 (H26), #122 (H27) y #123 (H28).
+- **Cambios pedidos y respondidos:** #117 (H25: el borrado del producto quita también opiniones,
+  vínculos y el contenido de sus etiquetas, y rechaza con 400 si hay productos finales, clientes o
+  productores), #119 y frontend #33 (H24: lista pública con campos permitidos; cliente generado,
+  exportación completa y manejo de errores en la página de opiniones). #112 (H22, recibos) espera la
+  nueva revisión.
+- Para la guía de contribución propuesta en #85: los PR abiertos tienen ahora firma DCO, un issue cada
+  uno (#125, #126, #127 y frontend #34) y asuntos en formato Conventional Commits.
+- **En la v2:** la exportación de correos de opiniones recorre todas las páginas (se cortaba en 1000)
+  y el rechazo del backend al borrar un producto con productos finales, clientes o productores se
+  explica en el idioma de la interfaz. La copia aislada corre `inatrace-backend:dev-rev117-119`
+  (contrato `07fb83b`; respaldo previo `v2demo-antes-rev.sql`). Pruebas: 136 unitarias, 140 simuladas,
+  reales 29 de 30 (la de QR de convivencia).
+
 ## Fase 1b (activar la vitrina en una instalación) — pendiente, acordada el 19.10.2026
 
 Pasos, en orden:

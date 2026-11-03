@@ -170,4 +170,14 @@ test.describe('partes del producto (modo simulado)', () => {
     await expect(page.getByText('Se borró «La finca El Mirador, Todos Santos».')).toBeVisible();
     await expect(page.getByText('3 entradas')).toBeVisible();
   });
+
+  test('borrar un producto con productos finales explica por qué no se puede', async ({ page }) => {
+    await ingresar(page, 'productos/1');
+    let mensaje = '';
+    page.once('dialog', (d) => void d.accept());
+    await page.getByRole('button', { name: 'Borrar producto' }).click();
+    page.once('dialog', (d) => { mensaje = d.message(); void d.accept(); });
+    await expect.poll(() => mensaje).toContain('tiene productos finales');
+    await expect(page.getByRole('heading', { level: 1, name: 'Café Flor de la Sierra' })).toBeVisible();
+  });
 });

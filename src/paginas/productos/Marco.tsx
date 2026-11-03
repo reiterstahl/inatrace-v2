@@ -65,7 +65,11 @@ export function MarcoProducto() {
       await borrar.mutateAsync(producto.id!);
       await navegar({ to: '/productos' });
     } catch (x) {
-      window.alert((x as Error).message);
+      // El backend rechaza borrar un producto con datos de negocio propios (productos finales,
+      // clientes, productores): se explica en el idioma de la interfaz.
+      const m = (x as Error).message;
+      const motivo = /final products/.test(m) ? 'finales' : /company customers/.test(m) ? 'clientes' : /user customers/.test(m) ? 'productores' : null;
+      window.alert(motivo ? t(`productos.no_se_borra.${motivo}`) : m);
     }
   }
 

@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { getRouteApi } from '@tanstack/react-router';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { clsx } from 'clsx';
-import { POR_PAGINA_OPINIONES, lotes, useBorrarOpinion, type TipoOpinion } from '@/api/lotes';
+import { POR_PAGINA_OPINIONES, lotes, todasLasOpiniones, useBorrarOpinion, type TipoOpinion } from '@/api/lotes';
 import { Boton } from '@/componentes/ui/Boton';
 import { Aviso, Cargando, EstadoError } from '@/componentes/ui/Estados';
 import { Icono } from '@/componentes/ui/Icono';
@@ -23,7 +23,6 @@ export function OpinionesEtiqueta() {
   const { t } = useTranslation();
   const etiqueta = Number(ruta.useParams().etiqueta);
   const { editable } = useProducto();
-  const qc = useQueryClient();
   const [tipo, setTipo] = useState<TipoOpinion | undefined>();
   const [pagina, setPagina] = useState(1);
   const lista = useQuery(lotes.opiniones(etiqueta, { tipo, pagina }));
@@ -45,8 +44,8 @@ export function OpinionesEtiqueta() {
   async function exportar() {
     setExportando(true);
     try {
-      const todas = await qc.fetchQuery(lotes.opiniones(etiqueta, { pagina: 1, todas: true }));
-      const url = URL.createObjectURL(new Blob([csvCorreos(todas.items ?? [])], { type: 'text/csv;charset=utf-8' }));
+      const todas = await todasLasOpiniones(etiqueta);
+      const url = URL.createObjectURL(new Blob([csvCorreos(todas)], { type: 'text/csv;charset=utf-8' }));
       const a = Object.assign(document.createElement('a'), { href: url, download: `opiniones-correos-${etiqueta}.csv` });
       a.click();
       URL.revokeObjectURL(url);

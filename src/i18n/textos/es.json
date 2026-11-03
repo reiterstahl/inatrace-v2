@@ -1413,6 +1413,11 @@
         "largo": "Máximo {{max}} caracteres.",
         "enlace": "Escribe un enlace válido (https://…)."
       }
+    },
+    "no_se_borra": {
+      "finales": "No se puede borrar el producto: tiene productos finales. Bórralos primero en la pestaña Productos finales.",
+      "clientes": "No se puede borrar el producto: hay clientes asociados a él.",
+      "productores": "No se puede borrar el producto: hay productores asociados a él."
     }
   },
   "empresa": {
