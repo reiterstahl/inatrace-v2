@@ -789,14 +789,17 @@ Nueva pestaña **Usuarios** en Administración (`/administracion/usuarios`):
   (el correo no se puede cambiar), las mismas acciones y sus empresas (con «Administra» donde
   corresponde), que se abren para trabajar con ellas.
 
-### H29 🔴 — la administración regional puede dar el rol de administración del sistema (backend; parche listo, sin reportar)
+### H29 🔴 — la administración regional puede dar el rol de administración del sistema (backend; corregido, PR enviado)
 
 `changeUserStatus` solo le niega a la regional `DEACTIVATE_USER`; los cambios de rol pasan, y el
 control de empresa compartida se salta con cuentas sin empresa (cualquiera puede registrarse). En la
 copia aislada, una regional convirtió una segunda cuenta suya en `SYSTEM_ADMIN` (después se limpió).
-Está igual en el original. Parche con prueba (`RegionalAdminUserActionTest`, falla sin el arreglo),
-notas y borrador de correo en `upstream/seguridad/` del contrato, para el canal privado. La v2 no
-ofrece esas acciones a la regional aunque el backend las acepte.
+Está igual en el original. Arreglo con prueba (`RegionalAdminUserActionTest`, falla sin el arreglo):
+a pedido de Rolando, enviado por PR al original ([#129](https://github.com/agstack/inatrace-backend/pull/129),
+issue #128, 393 pruebas en verde) y aplicado en el contrato (`9835552`, 396 pruebas). La copia aislada
+corre `inatrace-backend:dev-h29` (respaldo previo `v2demo-antes-h29.sql`): la misma escalada ahora
+responde `UNAUTHORIZED`; suite real 32 de 33 (la de QR de convivencia). La v2 tampoco ofrece esas
+acciones a la regional.
 
 **Pruebas:** 144 unitarias (4 nuevas), 158 de punta a punta simuladas (3 nuevas en escritorio y
 celular; la de ancho suma lista y ficha) y dos nuevas contra el backend real (una cuenta desechable
