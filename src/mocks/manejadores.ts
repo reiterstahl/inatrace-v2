@@ -1,5 +1,5 @@
 import { http, HttpResponse, delay } from 'msw';
-import type { ApiCompanyCustomer, ApiProcessingAction, ApiFacility, ApiCompanyActionRequest, ApiCompanyGet, ApiCompanyUpdate, ApiCompanyUser, ApiFinalProduct, ApiKnowledgeBlog, ApiProduct, ApiProductLabel, ApiProductLabelBatch, ApiProductLabelCompanyDocument, ApiProductLabelContent, ApiProductLabelFeedback, ApiUserGet } from '@/api/gen/types.gen';
+import type { ApiCompany, ApiCompanyCustomer, ApiProcessingAction, ApiFacility, ApiCompanyActionRequest, ApiCompanyGet, ApiCompanyUpdate, ApiCompanyUser, ApiFinalProduct, ApiKnowledgeBlog, ApiProduct, ApiProductLabel, ApiProductLabelBatch, ApiProductLabelCompanyDocument, ApiProductLabelContent, ApiProductLabelFeedback, ApiUserGet } from '@/api/gen/types.gen';
 import { ETIQUETA_DEMO, QR_DEMO, etiqueta, qr } from './datos/vitrina';
 import type { ApiUserCustomer } from '@/api/gen/types.gen';
 import { accionesProcesamiento, clientes, instalacionVecina, pagosIniciales, procesosIniciales, productoFinalQr, acopiadores, agrupar, entregasIniciales, historiaDe, instalaciones, loteProcesado, recalcular, semiproductos, tiposEvidencia, usuariosEmpresa } from './datos/stock';
@@ -89,6 +89,13 @@ const leerEmpresa = (): ApiCompanyGet => JSON.parse(sessionStorage.getItem(CLAVE
 const CLAVE_USUARIOS = 'simulado.usuarios-empresa';
 const leerUsuarios = (): ApiCompanyUser[] => JSON.parse(sessionStorage.getItem(CLAVE_USUARIOS) ?? 'null') ?? usuariosEmpresa;
 const guardarUsuarios = (l: ApiCompanyUser[]) => sessionStorage.setItem(CLAVE_USUARIOS, JSON.stringify(l));
+// Empresas de la instancia con su estado (Administración → Empresas).
+const CLAVE_EMPRESAS = 'simulado.empresas';
+type EmpresaSimulada = { id: number; name: string; status: 'ACTIVE' | 'REGISTERED' | 'DEACTIVATED' };
+const ESTADOS_INICIALES: Record<number, EmpresaSimulada['status']> = { 60: 'REGISTERED', 61: 'DEACTIVATED' };
+const leerEmpresas = (): EmpresaSimulada[] => JSON.parse(sessionStorage.getItem(CLAVE_EMPRESAS) ?? 'null') ?? empresasInstancia.map((c) => ({ ...c, status: ESTADOS_INICIALES[c.id] ?? 'ACTIVE' }));
+const guardarEmpresas = (l: EmpresaSimulada[]) => sessionStorage.setItem(CLAVE_EMPRESAS, JSON.stringify(l));
+const nombreEmpresa = (id: number) => leerEmpresas().find((c) => c.id === id) ?? EMPRESA_DEMO;
 const esAdministracion = () => ['SYSTEM_ADMIN', 'REGIONAL_ADMIN'].includes(sessionStorage.getItem(CLAVE_ROL) ?? '');
 const CLAVE_ETIQUETAS = 'simulado.etiquetas';
 const leerEtiquetas = (): EtiquetaSimulada[] => JSON.parse(sessionStorage.getItem(CLAVE_ETIQUETAS) ?? 'null') ?? etiquetasIniciales;
@@ -215,8 +222,13 @@ export const manejadores = [
   // El rol se puede cambiar en las pruebas (sessionStorage "simulado.rol") para ver lo de la administración.
   http.get('/api/user/profile', () => (conSesion() ? ok({ ...usuario, role: (sessionStorage.getItem(CLAVE_ROL) as ApiUserGet['role']) ?? usuario.role }) : error(401, 'UNAUTHORIZED', 'Unauthorized'))),
   // ---------- Empresa y catálogos ----------
-  http.get('/api/company/profile/:id/name', () => (conSesion() ? ok(EMPRESA_DEMO) : sinSesion())),
-  http.get('/api/company/profile/:id', () => (conSesion() ? ok({ ...leerEmpresa(), users: leerUsuarios() }) : sinSesion())),
+  http.get('/api/company/profile/:id/name', ({ params }) => (conSesion() ? ok({ id: Number(params.id), name: nombreEmpresa(Number(params.id)).name }) : sinSesion())),
+  // La empresa demo es la completa; las demás (abiertas desde Administración), solo con el nombre.
+  http.get('/api/company/profile/:id', ({ params }) => {
+    if (!conSesion()) return sinSesion();
+    const id = Number(params.id);
+    return ok(id === EMPRESA_DEMO.id ? { ...leerEmpresa(), users: leerUsuarios() } : { id, name: nombreEmpresa(id).name, users: [], valueChains: [], documents: [], certifications: [] });
+  }),
   http.get('/api/company/profile/:id/users', () => (conSesion() ? ok(leerUsuarios()) : sinSesion())),
   // Como el backend: reemplaza los campos de la ficha; las cadenas solo si llegan; los usuarios van aparte.
   http.put('/api/company/profile', async ({ request }) => {
@@ -232,6 +244,14 @@ export const manejadores = [
     if (!conSesion()) return sinSesion();
     if (!esAdministracion()) return error(401, 'UNAUTHORIZED', "User doesn't have required permission!");
     const a = (await request.json()) as ApiCompanyActionRequest;
+    const empresas = leerEmpresas();
+    const conEstado = (id: number, status: EmpresaSimulada['status']) => guardarEmpresas(empresas.map((c) => (c.id === id ? { ...c, status } : c)));
+    if (params.accion === 'ACTIVATE_COMPANY') return (conEstado(a.companyId, 'ACTIVE'), ok());
+    if (params.accion === 'DEACTIVATE_COMPANY' || params.accion === 'MERGE_TO_COMPANY') {
+      if (sessionStorage.getItem(CLAVE_ROL) !== 'SYSTEM_ADMIN') return error(401, 'UNAUTHORIZED', 'Regional admin not authorized!');
+      if (params.accion === 'MERGE_TO_COMPANY' && empresas.find((c) => c.id === a.otherCompanyId)?.status !== 'ACTIVE') return error(400, 'INVALID_REQUEST', 'Merging to non-active company is impossible');
+      return (conEstado(a.companyId, 'DEACTIVATED'), ok());
+    }
     const lista = leerUsuarios();
     if (params.accion === 'ADD_USER_TO_COMPANY') {
       if (lista.some((u) => u.id === a.userId)) return error(400, 'INVALID_REQUEST', 'User already exists');
@@ -637,15 +657,23 @@ export const manejadores = [
     return ok();
   }),
   http.get('/api/product/label/analytics/:uid', ({ params }) => (conSesion() ? ok(params.uid === 'etiqueta-tienda' ? estadisticasDemo : { visits: 0 }) : sinSesion())),
-  http.get('/api/company/list', ({ request }) => {
+  // Como el backend: por comienzo del nombre y por estado, ordenadas por nombre.
+  ...(['/api/company/list', '/api/company/admin/list'] as const).map((ruta) =>
+    http.get(ruta, ({ request }) => {
+      if (!conSesion()) return sinSesion();
+      const u = new URL(request.url);
+      if (ruta.includes('admin') && sessionStorage.getItem(CLAVE_ROL) !== 'SYSTEM_ADMIN') return error(403, 'UNAUTHORIZED', 'Forbidden');
+      const q = (u.searchParams.get('name') ?? '').toLowerCase(), estado = u.searchParams.get('status');
+      const l = leerEmpresas().filter((c) => c.name.toLowerCase().startsWith(q) && (!estado || c.status === estado)).sort((a, b) => a.name.localeCompare(b.name));
+      return pagina(l, u);
+    }),
+  ),
+  http.post('/api/company/create', async ({ request }) => {
     if (!conSesion()) return sinSesion();
-    const q = (new URL(request.url).searchParams.get('name') ?? '').toLowerCase();
-    return paginado(empresasInstancia.filter((c) => c.name.toLowerCase().includes(q)));
-  }),
-  http.get('/api/company/admin/list', ({ request }) => {
-    if (!conSesion()) return sinSesion();
-    const q = (new URL(request.url).searchParams.get('name') ?? '').toLowerCase();
-    return paginado(empresasInstancia.filter((c) => c.name.toLowerCase().includes(q)));
+    const c = (await request.json()) as ApiCompany;
+    const nueva = { id: siguienteId++, name: c.name ?? '', status: 'REGISTERED' as const };
+    guardarEmpresas([...leerEmpresas(), nueva]);
+    return ok({ id: nueva.id });
   }),
   http.get('/api/chain/measure-unit-type/list', () => paginado(unidadesMedida)),
   http.get('/api/product/:producto/finalProduct/list', ({ params }) => (conSesion() ? paginado(leerFinales().filter((f) => f.product?.id === Number(params.producto))) : sinSesion())),

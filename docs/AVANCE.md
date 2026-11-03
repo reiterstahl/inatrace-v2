@@ -749,6 +749,31 @@ con agrupación por día, rendimiento sin errores con o sin datos, exportaciones
   (contrato `07fb83b`; respaldo previo `v2demo-antes-rev.sql`). Pruebas: 136 unitarias, 140 simuladas,
   reales 29 de 30 (la de QR de convivencia).
 
+## Fase 4c.1 (administración: empresas) — ✅ cerrada el 03.11.2026 (rama `fase-5`)
+
+Nueva sección **Administración** (`/administracion/empresas`), solo para la administración del
+sistema y la regional (entrada en la barra y tarjeta en el inicio únicamente para esos roles):
+
+- **Lista de empresas** con búsqueda (por comienzo del nombre, como el backend), filtro de estado
+  (activa, registrada, desactivada) y páginas. La del sistema usa la lista completa; la regional, las
+  empresas en las que está inscrita (no puede usar la otra).
+- **Acciones según estado y rol, como el backend:** la del sistema activa, desactiva y **fusiona**
+  (pasa las personas a otra empresa activa y desactiva la de origen; solo ofrece destinos activos y
+  nunca la misma); la regional solo activa. Confirmación antes de cada una; el texto de la fusión
+  aclara que productores, stock y demás datos no se mueven.
+- **Crear empresa** con solo el nombre: quien la crea queda como su administración (lo hace el
+  backend) y se abre la ficha para completarla.
+- **Abrir:** la administración del sistema puede trabajar con cualquier empresa aunque no esté
+  inscrita; la elegida se suma al selector de arriba y se recuerda al recargar.
+- Con la entrada extra la barra no entraba (36 px en celular, ~150 px a 1280): para la administración
+  los textos de la barra aparecen desde 2xl (antes, íconos con `title`) y en celular el enlace a la
+  versión actual queda en las tarjetas del inicio. La prueba de ancho cubre ahora ese rol.
+
+**Pruebas:** 140 unitarias (4 nuevas), 152 de punta a punta simuladas (5 nuevas en escritorio y
+celular y la de ancho con la administración) y una nueva contra el backend real (crear, abrir,
+buscar, activar, fusionar hacia la demo y desactivar; deja una empresa desactivada por corrida, ya
+que el backend no borra empresas). Suite real: 30 de 31 (la de QR de convivencia).
+
 ## Fase 1b (activar la vitrina en una instalación) — pendiente, acordada el 19.10.2026
 
 Pasos, en orden:
@@ -776,7 +801,8 @@ confirmar el uso del video de Anacafé o cambiarlo.**
 4. **Fase 3 cerrada** (3a–3e.3). Queda probar Beyco de verdad cuando haya una cuenta de pruebas.
 5. **Fase 5 cerrada** (5a.1–5d). En curso: fase 4 («Empresa y administración»): **4a cerrada**
    (ficha, usuarios, instalaciones y acciones) y **4b cerrada** (recolectores, clientes y tablero);
-   siguen 4c (administración del sistema), 4d (catálogos y ajustes) y 4e (cuenta).
+   siguen 4c (administración del sistema: **4c.1 empresas cerrada**; faltan 4c.2 usuarios y 4c.3
+   cadenas de valor), 4d (catálogos y ajustes) y 4e (cuenta).
 6. H23: PR #116 **mergeado** en AgStack (02.11.2026); #113 también. Sigue abierto #112 (con los
    cambios pedidos ya respondidos).
 7. H24: AgStack pidió enviarlo por PR (ver punto 9).

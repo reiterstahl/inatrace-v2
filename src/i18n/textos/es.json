@@ -53,14 +53,17 @@
       "empresa": "Empresa y administración",
       "empresa_desc": "Ficha, usuarios, instalaciones, cadenas de valor y catálogos.",
       "productos": "Productos y etiquetas",
-      "productos_desc": "Productos, etiquetas, lotes y estadísticas."
+      "productos_desc": "Productos, etiquetas, lotes y estadísticas.",
+      "administracion": "Administración",
+      "administracion_desc": "Empresas de la instancia: crear, activar, desactivar y fusionar."
     },
     "productores": "Productores",
     "empresa": "Empresa",
     "stock": "Stock",
     "en_parte": "En parte en la nueva versión",
     "resto_actual": "Lo demás, en la versión actual",
-    "productos": "Productos"
+    "productos": "Productos",
+    "administracion": "Administración"
   },
   "perfil": {
     "titulo": "Mi perfil",
@@ -1777,5 +1780,52 @@
     "periodo": "Período",
     "titulo": "Tablero",
     "descripcion": "Entregas y rendimiento de los procesos de {{empresa}}."
+  },
+  "administracion": {
+    "titulo": "Administración",
+    "subtitulo_sistema": "Todas las empresas de la instancia.",
+    "subtitulo_regional": "Las empresas de tu región.",
+    "sin_permiso": "Esta sección es solo para la administración del sistema o regional.",
+    "pestanas": {
+      "titulo": "Secciones de la administración",
+      "empresas": "Empresas"
+    },
+    "estado": {
+      "ACTIVE": "Activa",
+      "REGISTERED": "Registrada",
+      "DEACTIVATED": "Desactivada"
+    },
+    "empresas": {
+      "buscar": "Buscar",
+      "buscar_placeholder": "Comienzo del nombre",
+      "estado": "Estado",
+      "todos": "Todos",
+      "nueva": "Nueva empresa",
+      "nueva_ayuda": "Basta el nombre: al crearla quedas como su administración y se abre la ficha para completar el resto.",
+      "nombre": "Nombre",
+      "nombre_requerido": "Escribe el nombre de la empresa.",
+      "nombre_largo": "El nombre es demasiado largo.",
+      "crear": "Crear y abrir",
+      "vacio": "Todavía no hay empresas.",
+      "sin_resultados": "Ninguna empresa coincide con la búsqueda.",
+      "abrir": "Abrir",
+      "abrir_de": "Abrir {{nombre}}",
+      "activar": "Activar",
+      "activar_de": "Activar {{nombre}}",
+      "desactivar": "Desactivar",
+      "desactivar_de": "Desactivar {{nombre}}",
+      "fusionar": "Fusionar",
+      "fusionar_de": "Fusionar {{nombre}} con otra empresa",
+      "ACTIVATE_COMPANY_pregunta": "¿Activar {{nombre}}?",
+      "ACTIVATE_COMPANY_hecho": "{{nombre}} quedó activa.",
+      "DEACTIVATE_COMPANY_pregunta": "¿Desactivar {{nombre}}? Sus personas dejan de poder trabajar con ella hasta que se vuelva a activar.",
+      "DEACTIVATE_COMPANY_hecho": "{{nombre}} quedó desactivada.",
+      "fusionar_ayuda": "Las personas de {{nombre}} pasan a la empresa de destino (con el rol de usuario si no estaban) y {{nombre}} queda desactivada. Sus productores, stock y demás datos no se mueven.",
+      "buscar_destino": "Buscar destino",
+      "destino": "Empresa de destino",
+      "elegir_destino": "Elegir una empresa activa",
+      "fusionar_pregunta": "¿Fusionar {{origen}} con {{destino}}? {{origen}} quedará desactivada.",
+      "fusionar_hecho": "Las personas de {{origen}} pasaron a {{destino}}; {{origen}} quedó desactivada."
+    }
   }
 }

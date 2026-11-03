@@ -53,14 +53,17 @@
       "empresa": "Company and administration",
       "empresa_desc": "Facilities, users, value chains and catalogs.",
       "productos": "Products and labels",
-      "productos_desc": "Products, labels, batches and statistics."
+      "productos_desc": "Products, labels, batches and statistics.",
+      "administracion": "Administration",
+      "administracion_desc": "Companies in the instance: create, activate, deactivate and merge."
     },
     "productores": "Farmers",
     "empresa": "Company",
     "stock": "Stock",
     "en_parte": "Partly in the new version",
     "resto_actual": "The rest, in the current version",
-    "productos": "Products"
+    "productos": "Products",
+    "administracion": "Administration"
   },
   "perfil": {
     "titulo": "My profile",
@@ -1777,5 +1780,52 @@
     "periodo": "Period",
     "titulo": "Dashboard",
     "descripcion": "Deliveries and processing performance of {{empresa}}."
+  },
+  "administracion": {
+    "titulo": "Administration",
+    "subtitulo_sistema": "Every company in this instance.",
+    "subtitulo_regional": "The companies in your region.",
+    "sin_permiso": "This section is only for system or regional administrators.",
+    "pestanas": {
+      "titulo": "Administration sections",
+      "empresas": "Companies"
+    },
+    "estado": {
+      "ACTIVE": "Active",
+      "REGISTERED": "Registered",
+      "DEACTIVATED": "Deactivated"
+    },
+    "empresas": {
+      "buscar": "Search",
+      "buscar_placeholder": "Start of the name",
+      "estado": "Status",
+      "todos": "All",
+      "nueva": "New company",
+      "nueva_ayuda": "Only the name is needed: you become its administrator and its profile opens so you can fill in the rest.",
+      "nombre": "Name",
+      "nombre_requerido": "Enter the company name.",
+      "nombre_largo": "The name is too long.",
+      "crear": "Create and open",
+      "vacio": "There are no companies yet.",
+      "sin_resultados": "No company matches the search.",
+      "abrir": "Open",
+      "abrir_de": "Open {{nombre}}",
+      "activar": "Activate",
+      "activar_de": "Activate {{nombre}}",
+      "desactivar": "Deactivate",
+      "desactivar_de": "Deactivate {{nombre}}",
+      "fusionar": "Merge",
+      "fusionar_de": "Merge {{nombre}} into another company",
+      "ACTIVATE_COMPANY_pregunta": "Activate {{nombre}}?",
+      "ACTIVATE_COMPANY_hecho": "{{nombre}} is now active.",
+      "DEACTIVATE_COMPANY_pregunta": "Deactivate {{nombre}}? Its people can no longer work with it until it is activated again.",
+      "DEACTIVATE_COMPANY_hecho": "{{nombre}} is now deactivated.",
+      "fusionar_ayuda": "The people of {{nombre}} move to the target company (as users, if they were not there already) and {{nombre}} is deactivated. Its farmers, stock and other data are not moved.",
+      "buscar_destino": "Search target",
+      "destino": "Target company",
+      "elegir_destino": "Choose an active company",
+      "fusionar_pregunta": "Merge {{origen}} into {{destino}}? {{origen}} will be deactivated.",
+      "fusionar_hecho": "The people of {{origen}} moved to {{destino}}; {{origen}} is now deactivated."
+    }
   }
 }

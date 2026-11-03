@@ -6,13 +6,15 @@ import { Icono, type NombreIcono } from '@/componentes/ui/Icono';
 import { InterruptorTema, Logo, SelectorIdioma } from '@/componentes/ui/Preferencias';
 import { enAnterior } from '@/util/entorno';
 import { SelectorEmpresa } from '@/componentes/SelectorEmpresa';
+import { esAdministracion } from '@/util/administracion';
 
-const NAV: { to: '/' | '/productores' | '/stock' | '/productos' | '/empresa'; clave: string; icono: NombreIcono; exacto?: boolean }[] = [
+const NAV: { to: '/' | '/productores' | '/stock' | '/productos' | '/empresa' | '/administracion'; clave: string; icono: NombreIcono; exacto?: boolean; admin?: true }[] = [
   { to: '/', clave: 'portal.inicio', icono: 'inicio', exacto: true },
   { to: '/productores', clave: 'portal.productores', icono: 'personas' },
   { to: '/stock', clave: 'portal.stock', icono: 'bodega' },
   { to: '/productos', clave: 'portal.productos', icono: 'certificado' },
   { to: '/empresa', clave: 'portal.empresa', icono: 'web' },
+  { to: '/administracion', clave: 'portal.administracion', icono: 'lista', admin: true },
 ];
 
 export function Marco() {
@@ -20,6 +22,7 @@ export function Marco() {
   const { data: yo } = useSuspenseQuery(consultas.perfil());
   const salir = useSalir();
   const navegar = useNavigate();
+  const admin = esAdministracion(yo.role);
   const nombre = [yo.name, yo.surname].filter(Boolean).join(' ') || yo.email || '';
   const iniciales = nombre.split(/\s+/).map((p) => p[0]).slice(0, 2).join('').toUpperCase();
 
@@ -36,20 +39,23 @@ export function Marco() {
             <Logo compacto />
           </Link>
           <nav className="flex items-center gap-1" aria-label="Principal">
-            {NAV.map((n) => (
+            {NAV.filter((n) => !n.admin || admin).map((n) => (
               <Link
                 key={n.to}
                 to={n.to}
                 aria-label={t(n.clave)}
+                title={admin ? t(n.clave) : undefined}
                 className="inline-flex h-9 items-center gap-2 rounded-lg px-2.5 text-sm font-medium text-tinta-2 hover:bg-superficie-2 hover:text-tinta sm:px-3"
                 activeProps={{ className: 'bg-marca-suave !text-marca' }}
                 activeOptions={{ exact: !!n.exacto }}
               >
                 <Icono nombre={n.icono} className="size-4" />
-                <span className="hidden whitespace-nowrap md:inline">{t(n.clave)}</span>
+                {/* Con la entrada de la administración no entran los textos de las seis: solo si sobra lugar. */}
+                <span className={'hidden whitespace-nowrap ' + (admin ? '2xl:inline' : 'md:inline')}>{t(n.clave)}</span>
               </Link>
             ))}
-            <a href={enAnterior('/home')} aria-label={t('portal.version_actual')} className="inline-flex h-9 items-center gap-2 rounded-lg px-2.5 text-sm font-medium text-tinta-3 hover:bg-superficie-2 hover:text-tinta sm:px-3">
+            {/* Con la entrada de la administración no entra en el celular: queda en las tarjetas del inicio. */}
+            <a href={enAnterior('/home')} aria-label={t('portal.version_actual')} className={(admin ? 'hidden sm:inline-flex' : 'inline-flex') + ' h-9 items-center gap-2 rounded-lg px-2.5 text-sm font-medium text-tinta-3 hover:bg-superficie-2 hover:text-tinta sm:px-3'}>
               <Icono nombre="externo" className="size-4" />
               <span className="hidden whitespace-nowrap 2xl:inline">{t('portal.version_actual')}</span>
             </a>

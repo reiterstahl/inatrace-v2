@@ -4,15 +4,18 @@ import { consultas } from '@/api/consultas';
 import { Icono, type NombreIcono } from '@/componentes/ui/Icono';
 import { Link } from '@tanstack/react-router';
 import { enAnterior } from '@/util/entorno';
+import { esAdministracion } from '@/util/administracion';
 
 /** Estado de cada módulo en la migración. Se actualiza a medida que avanzan las fases. */
-const MODULOS: { clave: string; icono: NombreIcono; enV2: boolean; anterior?: string; v2?: '/productores' | '/stock' | '/productos' | '/empresa'; parcial?: boolean }[] = [
+const MODULOS: { clave: string; icono: NombreIcono; enV2: boolean; anterior?: string; v2?: '/productores' | '/stock' | '/productos' | '/empresa' | '/administracion'; parcial?: boolean; admin?: true }[] = [
   { clave: 'vitrina', icono: 'qr', enV2: true },
   { clave: 'productores', icono: 'personas', enV2: true, v2: '/productores' },
   { clave: 'stock', icono: 'bodega', enV2: true, v2: '/stock' },
   { clave: 'productos', icono: 'certificado', enV2: true, v2: '/productos' },
-  // La empresa propia, recolectores, clientes y tablero ya están en la v2; la administración del sistema, no.
+  // La empresa propia, recolectores, clientes y tablero ya están en la v2; los catálogos y ajustes, no.
   { clave: 'empresa', icono: 'web', enV2: true, parcial: true, v2: '/empresa', anterior: '/home' },
+  // Solo para la administración: por ahora las empresas; personas y cadenas de valor, en la actual.
+  { clave: 'administracion', icono: 'lista', enV2: true, parcial: true, v2: '/administracion', anterior: '/home', admin: true },
 ];
 
 export function Inicio() {
@@ -28,7 +31,7 @@ export function Inicio() {
       <section>
         <h2 className="mb-4 text-sm font-semibold tracking-wide text-tinta-3 uppercase">{t('portal.modulos')}</h2>
         <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {MODULOS.map((m) => (
+          {MODULOS.filter((m) => !m.admin || esAdministracion(yo.role)).map((m) => (
             <li key={m.clave} className="flex flex-col gap-4 rounded-caja border border-linea bg-superficie p-5 shadow-suave">
               <div className="flex items-start justify-between gap-3">
                 <span className="grid size-11 place-items-center rounded-xl bg-marca-suave text-marca">

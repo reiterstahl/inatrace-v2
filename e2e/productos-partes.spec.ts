@@ -65,7 +65,7 @@ test.describe('partes del producto (modo simulado)', () => {
     await ingresar(page, 'productos/1/empresas');
     await expect(page.getByRole('heading', { name: 'Asociar una empresa' })).toBeVisible();
     await page.getByRole('combobox', { name: 'Como' }).selectOption({ label: 'Exportadoras' });
-    await page.getByRole('searchbox', { name: 'Empresa' }).fill('norte');
+    await page.getByRole('searchbox', { name: 'Empresa' }).fill('Expor');
     await page.getByRole('list', { name: 'Empresas encontradas' }).getByRole('button', { name: 'Agregar' }).click();
     await expect(page.getByText('Se agregó a Exportadora del Norte.')).toBeVisible();
     await expect(page.getByRole('region', { name: 'Exportadoras' })).toContainText('Exportadora del Norte');
