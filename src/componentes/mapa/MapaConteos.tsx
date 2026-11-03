@@ -21,8 +21,8 @@ export default function MapaConteos({ puntos, etiqueta }: { puntos: { lat: numbe
         id: 'conteos',
         type: 'circle',
         source: 'conteos',
-        paint: { 'circle-color': color, 'circle-opacity': 0.55, 'circle-stroke-color': '#fff', 'circle-stroke-width': 1.5, // Con un solo valor (p. ej. todas las instalaciones con n = 1) no hay escala que interpolar.
-        'circle-radius': maximo > 1 ? ['interpolate', ['linear'], ['get', 'n'], 1, 6, maximo, 22] : 8 },
+        // Con un solo valor (p. ej. todas las instalaciones con n = 1) no hay escala que interpolar.
+        paint: { 'circle-color': color, 'circle-opacity': 0.55, 'circle-stroke-color': '#fff', 'circle-stroke-width': 1.5, 'circle-radius': maximo > 1 ? ['interpolate', ['linear'], ['get', 'n'], 1, 6, maximo, 22] : 8 },
       });
     });
     if (puntos.length) {
