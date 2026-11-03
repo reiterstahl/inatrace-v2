@@ -774,6 +774,36 @@ celular y la de ancho con la administración) y una nueva contra el backend real
 buscar, activar, fusionar hacia la demo y desactivar; deja una empresa desactivada por corrida, ya
 que el backend no borra empresas). Suite real: 30 de 31 (la de QR de convivencia).
 
+## Fase 4c.2 (administración: usuarios) — ✅ cerrada el 03.11.2026 (rama `fase-5`)
+
+Nueva pestaña **Usuarios** en Administración (`/administracion/usuarios`):
+
+- **Lista** con búsqueda en nombre, apellido y correo, filtros de estado y rol, total y páginas. La
+  administración del sistema ve todas las cuentas; la regional, las de sus empresas y las que todavía
+  no tienen empresa, sin las desactivadas (lo decide el backend).
+- **Acciones con las reglas de estado del backend:** confirmar el correo, activar (manda el correo de
+  aviso), desactivar y dar o quitar los roles de administración regional y del sistema. Nunca sobre la
+  propia cuenta, y a la administración del sistema no se la desactiva sin quitarle antes el rol.
+  **La regional solo confirma y activa** (ver H29 abajo).
+- **Ficha de cada persona** (`/administracion/usuarios/$id`): nombre, apellido e idioma editables
+  (el correo no se puede cambiar), las mismas acciones y sus empresas (con «Administra» donde
+  corresponde), que se abren para trabajar con ellas.
+
+### H29 🔴 — la administración regional puede dar el rol de administración del sistema (backend; parche listo, sin reportar)
+
+`changeUserStatus` solo le niega a la regional `DEACTIVATE_USER`; los cambios de rol pasan, y el
+control de empresa compartida se salta con cuentas sin empresa (cualquiera puede registrarse). En la
+copia aislada, una regional convirtió una segunda cuenta suya en `SYSTEM_ADMIN` (después se limpió).
+Está igual en el original. Parche con prueba (`RegionalAdminUserActionTest`, falla sin el arreglo),
+notas y borrador de correo en `upstream/seguridad/` del contrato, para el canal privado. La v2 no
+ofrece esas acciones a la regional aunque el backend las acepte.
+
+**Pruebas:** 144 unitarias (4 nuevas), 158 de punta a punta simuladas (3 nuevas en escritorio y
+celular; la de ancho suma lista y ficha) y dos nuevas contra el backend real (una cuenta desechable
+recorre todos los estados y roles y se edita; la ficha muestra las empresas, que el tipo generado no
+declara). Suite real: 32 de 33 (la de QR de convivencia). Cada corrida real deja una cuenta
+desactivada (el backend no borra cuentas).
+
 ## Fase 1b (activar la vitrina en una instalación) — pendiente, acordada el 19.10.2026
 
 Pasos, en orden:
@@ -801,8 +831,8 @@ confirmar el uso del video de Anacafé o cambiarlo.**
 4. **Fase 3 cerrada** (3a–3e.3). Queda probar Beyco de verdad cuando haya una cuenta de pruebas.
 5. **Fase 5 cerrada** (5a.1–5d). En curso: fase 4 («Empresa y administración»): **4a cerrada**
    (ficha, usuarios, instalaciones y acciones) y **4b cerrada** (recolectores, clientes y tablero);
-   siguen 4c (administración del sistema: **4c.1 empresas cerrada**; faltan 4c.2 usuarios y 4c.3
-   cadenas de valor), 4d (catálogos y ajustes) y 4e (cuenta).
+   siguen 4c (administración del sistema: **4c.1 empresas y 4c.2 usuarios cerradas**; falta
+   4c.3 cadenas de valor), 4d (catálogos y ajustes) y 4e (cuenta).
 6. H23: PR #116 **mergeado** en AgStack (02.11.2026); #113 también. Sigue abierto #112 (con los
    cambios pedidos ya respondidos).
 7. H24: AgStack pidió enviarlo por PR (ver punto 9).

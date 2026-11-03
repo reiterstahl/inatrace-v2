@@ -55,7 +55,7 @@
       "productos": "Products and labels",
       "productos_desc": "Products, labels, batches and statistics.",
       "administracion": "Administration",
-      "administracion_desc": "Companies in the instance: create, activate, deactivate and merge."
+      "administracion_desc": "Companies and people in the instance: create, activate, merge and change roles."
     },
     "productores": "Farmers",
     "empresa": "Company",
@@ -1788,7 +1788,8 @@
     "sin_permiso": "This section is only for system or regional administrators.",
     "pestanas": {
       "titulo": "Administration sections",
-      "empresas": "Companies"
+      "empresas": "Companies",
+      "usuarios": "Users"
     },
     "estado": {
       "ACTIVE": "Active",
@@ -1826,6 +1827,53 @@
       "elegir_destino": "Choose an active company",
       "fusionar_pregunta": "Merge {{origen}} into {{destino}}? {{origen}} will be deactivated.",
       "fusionar_hecho": "The people of {{origen}} moved to {{destino}}; {{origen}} is now deactivated."
+    },
+    "usuarios": {
+      "buscar": "Search",
+      "buscar_placeholder": "Name, surname or email",
+      "estado": "Status",
+      "rol": "Role",
+      "vacio": "There are no people yet.",
+      "sin_resultados": "No one matches the search.",
+      "total_one": "{{count}} person",
+      "total_other": "{{count}} people",
+      "volver": "Users",
+      "datos": "Details",
+      "requerido": "This field is required.",
+      "empresas": "Companies",
+      "empresas_ayuda": "The companies this person belongs to. To add them to another one, open that company and go to Users.",
+      "sin_empresas": "Not in any company yet.",
+      "administra": "Administrator",
+      "acciones": {
+        "CONFIRM_USER_EMAIL": "Confirm email",
+        "CONFIRM_USER_EMAIL_de": "Confirm the email of {{nombre}}",
+        "CONFIRM_USER_EMAIL_pregunta": "Mark the email of {{nombre}} as confirmed?",
+        "CONFIRM_USER_EMAIL_hecho": "The email of {{nombre}} is now confirmed.",
+        "ACTIVATE_USER": "Activate",
+        "ACTIVATE_USER_de": "Activate {{nombre}}",
+        "ACTIVATE_USER_pregunta": "Activate {{nombre}}? They will be able to sign in and will get a notification email.",
+        "ACTIVATE_USER_hecho": "{{nombre}} is now active.",
+        "DEACTIVATE_USER": "Deactivate",
+        "DEACTIVATE_USER_de": "Deactivate {{nombre}}",
+        "DEACTIVATE_USER_pregunta": "Deactivate {{nombre}}? They will no longer be able to sign in.",
+        "DEACTIVATE_USER_hecho": "{{nombre}} is now deactivated.",
+        "SET_USER_REGIONAL_ADMIN": "Make regional administrator",
+        "SET_USER_REGIONAL_ADMIN_de": "Make {{nombre}} a regional administrator",
+        "SET_USER_REGIONAL_ADMIN_pregunta": "Give {{nombre}} the regional administrator role?",
+        "SET_USER_REGIONAL_ADMIN_hecho": "{{nombre}} is now a regional administrator.",
+        "UNSET_USER_REGIONAL_ADMIN": "Remove regional administrator",
+        "UNSET_USER_REGIONAL_ADMIN_de": "Remove the regional administrator role from {{nombre}}",
+        "UNSET_USER_REGIONAL_ADMIN_pregunta": "Remove the regional administrator role from {{nombre}}?",
+        "UNSET_USER_REGIONAL_ADMIN_hecho": "{{nombre}} is no longer a regional administrator.",
+        "SET_USER_SYSTEM_ADMIN": "Make system administrator",
+        "SET_USER_SYSTEM_ADMIN_de": "Make {{nombre}} a system administrator",
+        "SET_USER_SYSTEM_ADMIN_pregunta": "Give {{nombre}} the system administrator role? They will have full access to the instance.",
+        "SET_USER_SYSTEM_ADMIN_hecho": "{{nombre}} is now a system administrator.",
+        "UNSET_USER_SYSTEM_ADMIN": "Remove system administrator",
+        "UNSET_USER_SYSTEM_ADMIN_de": "Remove the system administrator role from {{nombre}}",
+        "UNSET_USER_SYSTEM_ADMIN_pregunta": "Remove the system administrator role from {{nombre}}?",
+        "UNSET_USER_SYSTEM_ADMIN_hecho": "{{nombre}} is no longer a system administrator."
+      }
     }
   }
 }

@@ -1,9 +1,12 @@
 import { keepPreviousData, queryOptions, useMutation, useQueryClient } from '@tanstack/react-query';
-import { createCompany, executeCompanyAction, listCompanies, listCompaniesAdmin } from './gen/sdk.gen';
-import type { AccionEmpresa, EstadoEmpresa } from '@/util/administracion';
+import { activateUser, adminListUsers, adminUpdateProfile, createCompany, executeCompanyAction, getProfileForAdmin, listCompanies, listCompaniesAdmin, regionalAdminListUsers } from './gen/sdk.gen';
+import type { ApiAdminUserUpdate, ApiUserGet } from './gen/types.gen';
+import type { AccionEmpresa, AccionUsuario, EstadoEmpresa, EstadoUsuario, RolUsuario } from '@/util/administracion';
 import { consultas } from './consultas';
 import { POR_PAGINA } from './productores';
 import { desenvolver } from './respuesta';
+
+export type FiltroUsuarios = { texto: string; estado?: EstadoUsuario; rol?: RolUsuario; pagina: number };
 
 export type FiltroEmpresas = { texto: string; estado?: EstadoEmpresa; pagina: number };
 
@@ -28,7 +31,46 @@ export const administracion = {
       queryKey: ['empresas', 'administracion', 'activas', texto],
       queryFn: async () => (await desenvolver(listCompaniesAdmin({ query: { name: texto.trim() || undefined, status: 'ACTIVE', limit: 20, sortBy: 'name', sort: 'ASC' } }))).items ?? [],
     }),
+
+  /**
+   * Personas de la instancia (administración del sistema) o las de sus empresas más las que todavía
+   * no tienen empresa (regional). Busca en nombre, apellido y correo.
+   */
+  usuarios: (f: FiltroUsuarios, sistema: boolean) =>
+    queryOptions({
+      queryKey: ['usuarios', 'administracion', sistema, f],
+      queryFn: () => {
+        const query = { query: f.texto.trim() || undefined, status: f.estado, role: f.rol, limit: POR_PAGINA, offset: (f.pagina - 1) * POR_PAGINA, sortBy: 'surname', sort: 'ASC' as const };
+        return desenvolver(sistema ? adminListUsers({ query }) : regionalAdminListUsers({ query }));
+      },
+      placeholderData: keepPreviousData,
+    }),
+
+  /** El backend responde también las empresas de la persona (el tipo generado no las declara). */
+  usuario: (id: number) =>
+    queryOptions({
+      queryKey: ['usuarios', 'administracion', 'ficha', id],
+      queryFn: async () => (await desenvolver(getProfileForAdmin({ path: { id } }))) as ApiUserGet,
+      staleTime: 0,
+    }),
 };
+
+export function useAccionCuenta() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ accion, usuario }: { accion: AccionUsuario; usuario: number }) => desenvolver(activateUser({ path: { action: accion }, body: { id: usuario } })),
+    onSuccess: () => void qc.invalidateQueries({ queryKey: ['usuarios'] }),
+  });
+}
+
+/** El backend reemplaza nombre, apellido e idioma: se mandan los tres siempre. */
+export function useGuardarCuenta() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (u: ApiAdminUserUpdate) => desenvolver(adminUpdateProfile({ body: u })),
+    onSuccess: () => void qc.invalidateQueries({ queryKey: ['usuarios'] }),
+  });
+}
 
 function useAlCambiarEmpresas() {
   const qc = useQueryClient();

@@ -1,4 +1,4 @@
-import type { ApiCompanyListResponse, ApiUserGet } from '@/api/gen/types.gen';
+import type { ApiCompanyListResponse, ApiUserBase, ApiUserGet } from '@/api/gen/types.gen';
 
 export type EstadoEmpresa = NonNullable<ApiCompanyListResponse['status']>;
 export const ESTADOS_EMPRESA: EstadoEmpresa[] = ['ACTIVE', 'REGISTERED', 'DEACTIVATED'];
@@ -27,4 +27,55 @@ export function validarNombreEmpresa(nombre: string): 'requerido' | 'largo' | nu
   const n = nombre.trim();
   if (!n) return 'requerido';
   return n.length > 255 ? 'largo' : null;
+}
+
+export type EstadoUsuario = NonNullable<ApiUserBase['status']>;
+export type RolUsuario = NonNullable<ApiUserBase['role']>;
+export const ESTADOS_USUARIO: EstadoUsuario[] = ['UNCONFIRMED', 'CONFIRMED_EMAIL', 'ACTIVE', 'DEACTIVATED'];
+export const ROLES_USUARIO: RolUsuario[] = ['USER', 'REGIONAL_ADMIN', 'SYSTEM_ADMIN'];
+export type AccionUsuario =
+  | 'CONFIRM_USER_EMAIL'
+  | 'ACTIVATE_USER'
+  | 'DEACTIVATE_USER'
+  | 'SET_USER_SYSTEM_ADMIN'
+  | 'UNSET_USER_SYSTEM_ADMIN'
+  | 'SET_USER_REGIONAL_ADMIN'
+  | 'UNSET_USER_REGIONAL_ADMIN';
+
+/**
+ * Acciones sobre una persona, con las reglas de estado del backend. Nunca sobre uno mismo. La
+ * regional solo confirma el correo y activa: el backend le niega desactivar y, aunque hoy le acepta
+ * los cambios de rol (ver H29), dárselos le permitiría convertir cualquier cuenta en administración
+ * del sistema.
+ */
+export function accionesUsuario(u: Pick<ApiUserBase, 'id' | 'status' | 'role'>, yo: Pick<ApiUserGet, 'id' | 'role'>): AccionUsuario[] {
+  if (!u.id || u.id === yo.id || !esAdministracion(yo.role)) return [];
+  const sistema = yo.role === 'SYSTEM_ADMIN';
+  switch (u.status) {
+    case 'UNCONFIRMED':
+      return ['CONFIRM_USER_EMAIL'];
+    case 'CONFIRMED_EMAIL':
+      return sistema ? ['ACTIVATE_USER', 'DEACTIVATE_USER'] : ['ACTIVATE_USER'];
+    case 'DEACTIVATED':
+      return ['ACTIVATE_USER'];
+    case 'ACTIVE': {
+      if (!sistema) return [];
+      // El backend no desactiva a la administración del sistema: primero se le quita el rol.
+      if (u.role === 'SYSTEM_ADMIN') return ['UNSET_USER_SYSTEM_ADMIN'];
+      if (u.role === 'REGIONAL_ADMIN') return ['DEACTIVATE_USER', 'UNSET_USER_REGIONAL_ADMIN'];
+      return ['DEACTIVATE_USER', 'SET_USER_REGIONAL_ADMIN', 'SET_USER_SYSTEM_ADMIN'];
+    }
+    default:
+      return [];
+  }
+}
+
+export type FormPersona = { nombre: string; apellido: string };
+export type ErroresPersona = Partial<Record<'nombre' | 'apellido', 'requerido'>>;
+
+export function validarPersona(f: FormPersona): ErroresPersona {
+  const e: ErroresPersona = {};
+  if (!f.nombre.trim()) e.nombre = 'requerido';
+  if (!f.apellido.trim()) e.apellido = 'requerido';
+  return e;
 }

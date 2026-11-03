@@ -86,3 +86,71 @@ test.describe('administración (modo simulado)', () => {
     await expect(page.getByRole('button', { name: 'Activar Tostaduría Central', exact: true })).toBeVisible();
   });
 });
+
+test.describe('administración de usuarios (modo simulado)', () => {
+  test('filtrar, confirmar, activar, cambiar roles y desactivar', async ({ page }) => {
+    await ingresar(page, 'administracion/usuarios', 'SYSTEM_ADMIN');
+    await expect(page.getByRole('link', { name: 'Usuarios' })).toHaveAttribute('aria-current', 'page');
+    await expect(page.getByText('7 personas')).toBeVisible();
+    // Sobre la propia cuenta no hay acciones.
+    await expect(page.getByRole('listitem', { name: 'Ana Demo' }).getByRole('button')).toHaveCount(0);
+
+    await page.getByRole('searchbox', { name: 'Buscar' }).fill('chávez');
+    await expect(page.getByText('2 personas')).toBeVisible();
+    await page.getByRole('searchbox', { name: 'Buscar' }).fill('');
+    await page.getByRole('combobox', { name: 'Rol' }).selectOption({ label: 'Administración regional' });
+    await expect(page.getByRole('listitem')).toHaveCount(1);
+    await page.getByRole('combobox', { name: 'Rol' }).selectOption({ label: 'Todos' });
+
+    page.on('dialog', (d) => void d.accept());
+    // Sin confirmar → correo confirmado → activa.
+    await page.getByRole('button', { name: 'Confirmar el correo de Pedro Chávez' }).click();
+    await expect(page.getByText('El correo de Pedro Chávez quedó confirmado.')).toBeVisible();
+    await page.getByRole('button', { name: 'Activar a Pedro Chávez', exact: true }).click();
+    await expect(page.getByText('La cuenta de Pedro Chávez quedó activa.')).toBeVisible();
+    await expect(page.getByRole('listitem', { name: 'Pedro Chávez' })).toContainText('Activo');
+
+    // La administración del sistema no se desactiva sin quitarle antes el rol.
+    await page.getByRole('button', { name: 'Hacer a Luis Pérez administración del sistema' }).click();
+    await expect(page.getByText('Luis Pérez es ahora administración del sistema.')).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Desactivar a Luis Pérez' })).toHaveCount(0);
+    await page.getByRole('button', { name: 'Quitar a Luis Pérez la administración del sistema' }).click();
+    await page.getByRole('button', { name: 'Desactivar a Luis Pérez' }).click();
+    await expect(page.getByText('La cuenta de Luis Pérez quedó desactivada.')).toBeVisible();
+    await expect(page.getByRole('listitem', { name: 'Luis Pérez' })).toContainText('Desactivado');
+  });
+
+  test('ficha: editar datos y abrir una de sus empresas', async ({ page }) => {
+    await ingresar(page, 'administracion/usuarios', 'SYSTEM_ADMIN');
+    await page.getByRole('link', { name: /Rosa Chávez/ }).click();
+    await expect(page.getByRole('heading', { level: 2, name: 'Rosa Chávez' })).toBeVisible();
+    await expect(page.getByText('Todavía no está en ninguna empresa.')).toBeVisible();
+    await page.getByRole('link', { name: 'Usuarios', exact: true }).first().click();
+
+    await page.getByRole('link', { name: /Luis Pérez/ }).click();
+    await expect(page.getByRole('heading', { level: 2, name: 'Luis Pérez' })).toBeVisible();
+    await expect(page.getByRole('textbox', { name: 'Correo', exact: true })).toHaveValue('luis@inatrace.local');
+    const datos = page.getByRole('region', { name: 'Datos' });
+    await datos.getByRole('textbox', { name: 'Apellido' }).fill('');
+    await datos.getByRole('button', { name: 'Guardar' }).click();
+    await expect(page.getByText('Este campo es obligatorio.')).toBeVisible();
+    await datos.getByRole('textbox', { name: 'Apellido' }).fill('Pérez Mora');
+    await datos.getByRole('combobox', { name: 'Idioma' }).selectOption({ label: 'English' });
+    await datos.getByRole('button', { name: 'Guardar' }).click();
+    await expect(page.getByRole('heading', { level: 2, name: 'Luis Pérez Mora' })).toBeVisible();
+    await page.reload();
+    await expect(page.getByRole('region', { name: 'Datos' }).getByRole('combobox', { name: 'Idioma' })).toHaveValue('en');
+
+    await page.getByRole('region', { name: 'Empresas' }).getByRole('button', { name: 'Abrir Cooperativa Flor de la Sierra' }).click();
+    await expect(page).toHaveURL(/\/empresa\/usuarios$/);
+  });
+
+  test('la regional solo confirma y activa', async ({ page }) => {
+    await ingresar(page, 'administracion/usuarios', 'REGIONAL_ADMIN');
+    // Las desactivadas no le aparecen (como el backend).
+    await expect(page.getByRole('listitem', { name: 'Jorge Mora' })).toHaveCount(0);
+    await expect(page.getByRole('button', { name: /^Hacer|^Quitar|^Desactivar/ })).toHaveCount(0);
+    await expect(page.getByRole('button', { name: 'Activar a Marta Solís', exact: true })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Confirmar el correo de Pedro Chávez' })).toBeVisible();
+  });
+});

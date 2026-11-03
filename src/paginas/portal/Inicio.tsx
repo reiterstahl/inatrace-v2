@@ -14,7 +14,7 @@ const MODULOS: { clave: string; icono: NombreIcono; enV2: boolean; anterior?: st
   { clave: 'productos', icono: 'certificado', enV2: true, v2: '/productos' },
   // La empresa propia, recolectores, clientes y tablero ya están en la v2; los catálogos y ajustes, no.
   { clave: 'empresa', icono: 'web', enV2: true, parcial: true, v2: '/empresa', anterior: '/home' },
-  // Solo para la administración: por ahora las empresas; personas y cadenas de valor, en la actual.
+  // Solo para la administración: empresas y personas; las cadenas de valor, en la actual.
   { clave: 'administracion', icono: 'lista', enV2: true, parcial: true, v2: '/administracion', anterior: '/home', admin: true },
 ];
 

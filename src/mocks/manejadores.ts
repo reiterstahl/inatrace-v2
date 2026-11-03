@@ -1,5 +1,5 @@
 import { http, HttpResponse, delay } from 'msw';
-import type { ApiCompany, ApiCompanyCustomer, ApiProcessingAction, ApiFacility, ApiCompanyActionRequest, ApiCompanyGet, ApiCompanyUpdate, ApiCompanyUser, ApiFinalProduct, ApiKnowledgeBlog, ApiProduct, ApiProductLabel, ApiProductLabelBatch, ApiProductLabelCompanyDocument, ApiProductLabelContent, ApiProductLabelFeedback, ApiUserGet } from '@/api/gen/types.gen';
+import type { ApiAdminUserUpdate, ApiCompany, ApiCompanyCustomer, ApiUserBase, ApiProcessingAction, ApiFacility, ApiCompanyActionRequest, ApiCompanyGet, ApiCompanyUpdate, ApiCompanyUser, ApiFinalProduct, ApiKnowledgeBlog, ApiProduct, ApiProductLabel, ApiProductLabelBatch, ApiProductLabelCompanyDocument, ApiProductLabelContent, ApiProductLabelFeedback, ApiUserGet } from '@/api/gen/types.gen';
 import { ETIQUETA_DEMO, QR_DEMO, etiqueta, qr } from './datos/vitrina';
 import type { ApiUserCustomer } from '@/api/gen/types.gen';
 import { accionesProcesamiento, clientes, instalacionVecina, pagosIniciales, procesosIniciales, productoFinalQr, acopiadores, agrupar, entregasIniciales, historiaDe, instalaciones, loteProcesado, recalcular, semiproductos, tiposEvidencia, usuariosEmpresa } from './datos/stock';
@@ -96,6 +96,30 @@ const ESTADOS_INICIALES: Record<number, EmpresaSimulada['status']> = { 60: 'REGI
 const leerEmpresas = (): EmpresaSimulada[] => JSON.parse(sessionStorage.getItem(CLAVE_EMPRESAS) ?? 'null') ?? empresasInstancia.map((c) => ({ ...c, status: ESTADOS_INICIALES[c.id] ?? 'ACTIVE' }));
 const guardarEmpresas = (l: EmpresaSimulada[]) => sessionStorage.setItem(CLAVE_EMPRESAS, JSON.stringify(l));
 const nombreEmpresa = (id: number) => leerEmpresas().find((c) => c.id === id) ?? EMPRESA_DEMO;
+// Cuentas de la instancia (Administración → Usuarios): las de la empresa demo y algunas más.
+const CLAVE_CUENTAS = 'simulado.cuentas';
+const leerCuentas = (): ApiUserBase[] =>
+  JSON.parse(sessionStorage.getItem(CLAVE_CUENTAS) ?? 'null') ?? [
+    ...cuentasInstancia,
+    { id: 11, name: 'Marta', surname: 'Solís', email: 'marta@inatrace.local', status: 'CONFIRMED_EMAIL', role: 'USER', language: 'ES' },
+    { id: 12, name: 'Jorge', surname: 'Mora', email: 'jorge@inatrace.local', status: 'DEACTIVATED', role: 'USER', language: 'EN' },
+    { id: 13, name: 'Elena', surname: 'Ruiz', email: 'elena@inatrace.local', status: 'ACTIVE', role: 'REGIONAL_ADMIN', language: 'ES' },
+  ];
+const guardarCuentas = (l: ApiUserBase[]) => sessionStorage.setItem(CLAVE_CUENTAS, JSON.stringify(l));
+/** Reglas de estado y rol del backend (UserService); a la regional solo se le permite confirmar y activar. */
+function accionCuenta(u: ApiUserBase, accion: string, regional: boolean): ApiUserBase | string {
+  if (regional && !['CONFIRM_USER_EMAIL', 'ACTIVATE_USER'].includes(accion)) return 'Regional admin not authorized!';
+  switch (accion) {
+    case 'CONFIRM_USER_EMAIL': return u.status === 'UNCONFIRMED' ? { ...u, status: 'CONFIRMED_EMAIL' } : 'Invalid user status';
+    case 'ACTIVATE_USER': return u.status === 'DEACTIVATED' || u.status === 'CONFIRMED_EMAIL' ? { ...u, status: 'ACTIVE' } : 'Invalid user status';
+    case 'DEACTIVATE_USER': return u.role === 'SYSTEM_ADMIN' ? 'Cannot change status' : u.status === 'ACTIVE' || u.status === 'CONFIRMED_EMAIL' ? { ...u, status: 'DEACTIVATED' } : 'Invalid user status';
+    case 'SET_USER_SYSTEM_ADMIN': return u.status === 'ACTIVE' && u.role !== 'SYSTEM_ADMIN' ? { ...u, role: 'SYSTEM_ADMIN' } : 'Invalid user role';
+    case 'SET_USER_REGIONAL_ADMIN': return u.status === 'ACTIVE' && u.role !== 'REGIONAL_ADMIN' ? { ...u, role: 'REGIONAL_ADMIN' } : 'Invalid user role';
+    case 'UNSET_USER_SYSTEM_ADMIN': return u.role === 'SYSTEM_ADMIN' ? { ...u, role: 'USER' } : 'Invalid user role';
+    case 'UNSET_USER_REGIONAL_ADMIN': return u.role === 'REGIONAL_ADMIN' ? { ...u, role: 'USER' } : 'Invalid user role';
+    default: return 'Invalid user status';
+  }
+}
 const esAdministracion = () => ['SYSTEM_ADMIN', 'REGIONAL_ADMIN'].includes(sessionStorage.getItem(CLAVE_ROL) ?? '');
 const CLAVE_ETIQUETAS = 'simulado.etiquetas';
 const leerEtiquetas = (): EtiquetaSimulada[] => JSON.parse(sessionStorage.getItem(CLAVE_ETIQUETAS) ?? 'null') ?? etiquetasIniciales;
@@ -266,9 +290,43 @@ export const manejadores = [
   }),
   http.get('/api/chain/currency-type/list/enabled', () => paginado(monedas)),
   http.get('/api/chain/value-chain/list', () => paginado(cadenasActivas)),
-  http.get('/api/user/admin/list', ({ request }) => {
-    const q = (new URL(request.url).searchParams.get('query') ?? '').toLowerCase();
-    return paginado(cuentasInstancia.filter((u) => `${u.name} ${u.surname} ${u.email}`.toLowerCase().includes(q)));
+  // La regional ve las cuentas sin desactivar (el backend además filtra por sus empresas).
+  ...(['/api/user/admin/list', '/api/user/regional-admin/list'] as const).map((ruta) =>
+    http.get(ruta, ({ request }) => {
+      if (!conSesion()) return sinSesion();
+      const u = new URL(request.url);
+      const rol = sessionStorage.getItem(CLAVE_ROL);
+      if (rol !== (ruta.includes('regional') ? 'REGIONAL_ADMIN' : 'SYSTEM_ADMIN')) return error(403, 'UNAUTHORIZED', 'Forbidden');
+      const q = (u.searchParams.get('query') ?? '').toLowerCase(), estado = u.searchParams.get('status'), papel = u.searchParams.get('role');
+      const l = leerCuentas()
+        .filter((c) => `${c.name} ${c.surname} ${c.email}`.toLowerCase().includes(q) && (!estado || c.status === estado) && (!papel || c.role === papel))
+        .filter((c) => !ruta.includes('regional') || c.status !== 'DEACTIVATED')
+        .sort((a, b) => (a.surname ?? '').localeCompare(b.surname ?? ''));
+      return pagina(l, u);
+    }),
+  ),
+  http.get('/api/user/admin/profile/:id', ({ params }) => {
+    if (!conSesion()) return sinSesion();
+    const c = leerCuentas().find((x) => x.id === Number(params.id));
+    if (!c) return error(400, 'INVALID_REQUEST', 'Invalid user ID');
+    const enEmpresa = leerUsuarios().find((x) => x.id === c.id);
+    return ok({ ...c, companyIds: enEmpresa ? [EMPRESA_DEMO.id] : [], companyIdsAdmin: enEmpresa?.companyRole === 'COMPANY_ADMIN' ? [EMPRESA_DEMO.id] : [] });
+  }),
+  http.put('/api/user/admin/profile', async ({ request }) => {
+    if (!conSesion()) return sinSesion();
+    const b = (await request.json()) as ApiAdminUserUpdate;
+    guardarCuentas(leerCuentas().map((c) => (c.id === b.id ? { ...c, name: b.name, surname: b.surname, language: b.language } : c)));
+    return ok();
+  }),
+  http.post('/api/user/admin/execute/:accion', async ({ request, params }) => {
+    if (!conSesion()) return sinSesion();
+    const { id } = (await request.json()) as { id: number };
+    if (id === usuario.id) return error(400, 'INVALID_REQUEST', 'Cannot change status/role for this user');
+    const cuentas = leerCuentas();
+    const r = accionCuenta(cuentas.find((c) => c.id === id)!, String(params.accion), sessionStorage.getItem(CLAVE_ROL) === 'REGIONAL_ADMIN');
+    if (typeof r === 'string') return error(400, 'INVALID_REQUEST', r);
+    guardarCuentas(cuentas.map((c) => (c.id === id ? r : c)));
+    return ok();
   }),
   http.get('/api/company/:id/product-types', () => paginado(tiposProducto)),
   http.get('/api/company/associations/:id', () => paginado([{ id: 7, name: 'Asociación de Caficultores del Norte' }])),

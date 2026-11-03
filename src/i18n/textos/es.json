@@ -55,7 +55,7 @@
       "productos": "Productos y etiquetas",
       "productos_desc": "Productos, etiquetas, lotes y estadísticas.",
       "administracion": "Administración",
-      "administracion_desc": "Empresas de la instancia: crear, activar, desactivar y fusionar."
+      "administracion_desc": "Empresas y personas de la instancia: crear, activar, fusionar y cambiar roles."
     },
     "productores": "Productores",
     "empresa": "Empresa",
@@ -1788,7 +1788,8 @@
     "sin_permiso": "Esta sección es solo para la administración del sistema o regional.",
     "pestanas": {
       "titulo": "Secciones de la administración",
-      "empresas": "Empresas"
+      "empresas": "Empresas",
+      "usuarios": "Usuarios"
     },
     "estado": {
       "ACTIVE": "Activa",
@@ -1826,6 +1827,53 @@
       "elegir_destino": "Elegir una empresa activa",
       "fusionar_pregunta": "¿Fusionar {{origen}} con {{destino}}? {{origen}} quedará desactivada.",
       "fusionar_hecho": "Las personas de {{origen}} pasaron a {{destino}}; {{origen}} quedó desactivada."
+    },
+    "usuarios": {
+      "buscar": "Buscar",
+      "buscar_placeholder": "Nombre, apellido o correo",
+      "estado": "Estado",
+      "rol": "Rol",
+      "vacio": "Todavía no hay personas.",
+      "sin_resultados": "Ninguna persona coincide con la búsqueda.",
+      "total_one": "{{count}} persona",
+      "total_other": "{{count}} personas",
+      "volver": "Usuarios",
+      "datos": "Datos",
+      "requerido": "Este campo es obligatorio.",
+      "empresas": "Empresas",
+      "empresas_ayuda": "Las empresas en las que está inscrita la cuenta. Para sumarla a otra, abre esa empresa y ve a Usuarios.",
+      "sin_empresas": "Todavía no está en ninguna empresa.",
+      "administra": "Administra",
+      "acciones": {
+        "CONFIRM_USER_EMAIL": "Confirmar correo",
+        "CONFIRM_USER_EMAIL_de": "Confirmar el correo de {{nombre}}",
+        "CONFIRM_USER_EMAIL_pregunta": "¿Dar por confirmado el correo de {{nombre}}?",
+        "CONFIRM_USER_EMAIL_hecho": "El correo de {{nombre}} quedó confirmado.",
+        "ACTIVATE_USER": "Activar",
+        "ACTIVATE_USER_de": "Activar a {{nombre}}",
+        "ACTIVATE_USER_pregunta": "¿Activar la cuenta de {{nombre}}? Podrá ingresar y recibirá un correo de aviso.",
+        "ACTIVATE_USER_hecho": "La cuenta de {{nombre}} quedó activa.",
+        "DEACTIVATE_USER": "Desactivar",
+        "DEACTIVATE_USER_de": "Desactivar a {{nombre}}",
+        "DEACTIVATE_USER_pregunta": "¿Desactivar la cuenta de {{nombre}}? Ya no podrá ingresar.",
+        "DEACTIVATE_USER_hecho": "La cuenta de {{nombre}} quedó desactivada.",
+        "SET_USER_REGIONAL_ADMIN": "Hacer administración regional",
+        "SET_USER_REGIONAL_ADMIN_de": "Hacer a {{nombre}} administración regional",
+        "SET_USER_REGIONAL_ADMIN_pregunta": "¿Dar a {{nombre}} el rol de administración regional?",
+        "SET_USER_REGIONAL_ADMIN_hecho": "{{nombre}} es ahora administración regional.",
+        "UNSET_USER_REGIONAL_ADMIN": "Quitar administración regional",
+        "UNSET_USER_REGIONAL_ADMIN_de": "Quitar a {{nombre}} la administración regional",
+        "UNSET_USER_REGIONAL_ADMIN_pregunta": "¿Quitar a {{nombre}} el rol de administración regional?",
+        "UNSET_USER_REGIONAL_ADMIN_hecho": "{{nombre}} ya no es administración regional.",
+        "SET_USER_SYSTEM_ADMIN": "Hacer administración del sistema",
+        "SET_USER_SYSTEM_ADMIN_de": "Hacer a {{nombre}} administración del sistema",
+        "SET_USER_SYSTEM_ADMIN_pregunta": "¿Dar a {{nombre}} el rol de administración del sistema? Tendrá acceso total a la instancia.",
+        "SET_USER_SYSTEM_ADMIN_hecho": "{{nombre}} es ahora administración del sistema.",
+        "UNSET_USER_SYSTEM_ADMIN": "Quitar administración del sistema",
+        "UNSET_USER_SYSTEM_ADMIN_de": "Quitar a {{nombre}} la administración del sistema",
+        "UNSET_USER_SYSTEM_ADMIN_pregunta": "¿Quitar a {{nombre}} el rol de administración del sistema?",
+        "UNSET_USER_SYSTEM_ADMIN_hecho": "{{nombre}} ya no es administración del sistema."
+      }
     }
   }
 }
