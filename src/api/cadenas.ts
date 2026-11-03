@@ -82,7 +82,7 @@ export function useEstadoCadena() {
   });
 }
 
-/** El backend no borra una cadena en uso (falla por la clave foránea; ver H30). */
+/** El backend no borra una cadena en uso (sin H30 falla por la clave foránea con un 500). */
 export function useBorrarCadena() {
   const alCambiar = useAlCambiar();
   return useMutation({

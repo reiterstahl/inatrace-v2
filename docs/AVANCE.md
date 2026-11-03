@@ -828,12 +828,16 @@ Nueva pestaña **Cadenas de valor** en Administración (`/administracion/cadenas
   probable y sugiere desactivarla.
 - El inicio marca la administración como **en la nueva versión** (ya no «en parte»).
 
-### H30 🟡 — borrar una cadena de valor en uso responde 500 (backend; sin PR todavía)
+### H30 🟡 — borrar una cadena de valor en uso responde 500 (backend; corregido, PR enviado)
 
 `DELETE /api/chain/value-chain/{id}` hace `em.remove` sin revisar quién la usa (`CompanyValueChain`,
 `FacilityValueChain`, `ProcessingActionValueChain`, `Product`): la clave foránea hace fallar el
 borrado con **500** y se revierte (no se pierde nada). Comprobado en la copia aislada con la cadena 1.
-Mismo patrón que H27 y H28; también en el original.
+Mismo patrón que H27 y H28; también en el original. **Corregido:** se cuentan los usos y se responde
+400 claro (`ValueChainDeletionTest`, falla sin el arreglo). PR
+[#132](https://github.com/agstack/inatrace-backend/pull/132) (issue #131, 406 pruebas) y contrato
+`582b653` (398 pruebas); la copia aislada corre `inatrace-backend:dev-h30` (respaldo previo
+`v2demo-antes-h30.sql`) y la suite real da 34 de 35 (la de QR de convivencia).
 
 **Pruebas:** 147 unitarias (3 nuevas), 164 de punta a punta simuladas (3 nuevas en escritorio y
 celular; la de ancho suma lista, ficha y nueva) y dos nuevas contra el backend real (una cadena de

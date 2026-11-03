@@ -54,7 +54,8 @@ export function CadenasAdministracion() {
       await borrar.mutateAsync(c.id!);
       setAviso({ tono: 'ok', texto: t('administracion.cadenas.borrada', { nombre: c.name }) });
     } catch (x) {
-      // El backend responde un error genérico si la cadena está en uso (H30): se explica la causa probable.
+      // Una cadena en uso no se borra: el backend responde un 500 genérico o, con H30, un 400 en inglés.
+      // En los dos casos se explica en el idioma de la interfaz.
       const m = (x as Error).message;
       setAviso({ tono: 'mal', texto: /invalid value chain id/i.test(m) ? m : t('administracion.cadenas.no_se_borra', { nombre: c.name }) });
     }

@@ -351,12 +351,12 @@ export const manejadores = [
       return ok({ id: Number(params.id) });
     }),
   ),
-  // Como el backend (H30): la cadena en uso falla por la clave foránea con un error genérico.
+  // Como el backend con H30 corregido: la cadena en uso se rechaza con 400 (antes, 500 genérico).
   http.delete('/api/chain/value-chain/:id', ({ params }) => {
     if (sessionStorage.getItem(CLAVE_ROL) !== 'SYSTEM_ADMIN') return error(403, 'UNAUTHORIZED', 'Forbidden');
     const id = Number(params.id);
     if (!leerCadenas().some((x) => x.id === id)) return error(400, 'INVALID_REQUEST', 'Invalid value chain ID');
-    if (id === 1) return error(500, 'ERROR', 'Internal server error');
+    if (id === 1) return error(400, 'VALIDATION_ERROR', 'Cannot delete a value chain that is used by companies, facilities, processing actions or products');
     guardarCadenas(leerCadenas().filter((x) => x.id !== id));
     return ok();
   }),
