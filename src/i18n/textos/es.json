@@ -55,7 +55,7 @@
       "productos": "Productos y etiquetas",
       "productos_desc": "Productos, etiquetas, lotes y estadísticas.",
       "administracion": "Administración",
-      "administracion_desc": "Empresas y personas de la instancia: crear, activar, fusionar y cambiar roles."
+      "administracion_desc": "Empresas, personas y cadenas de valor de la instancia."
     },
     "productores": "Productores",
     "empresa": "Empresa",
@@ -1789,7 +1789,8 @@
     "pestanas": {
       "titulo": "Secciones de la administración",
       "empresas": "Empresas",
-      "usuarios": "Usuarios"
+      "usuarios": "Usuarios",
+      "cadenas": "Cadenas de valor"
     },
     "estado": {
       "ACTIVE": "Activa",
@@ -1873,6 +1874,44 @@
         "UNSET_USER_SYSTEM_ADMIN_de": "Quitar a {{nombre}} la administración del sistema",
         "UNSET_USER_SYSTEM_ADMIN_pregunta": "¿Quitar a {{nombre}} el rol de administración del sistema?",
         "UNSET_USER_SYSTEM_ADMIN_hecho": "{{nombre}} ya no es administración del sistema."
+      }
+    },
+    "cadenas": {
+      "buscar": "Buscar",
+      "estado": "Estado",
+      "ENABLED": "Activa",
+      "DISABLED": "Desactivada",
+      "nueva": "Nueva cadena de valor",
+      "vacio": "Todavía no hay cadenas de valor.",
+      "sin_resultados": "Ninguna cadena coincide con la búsqueda.",
+      "guardada": "Cadena «{{nombre}}» guardada.",
+      "no_existe": "No encontramos esa cadena de valor",
+      "activar": "Activar",
+      "activar_de": "Activar {{nombre}}",
+      "activar_pregunta": "¿Activar la cadena «{{nombre}}»?",
+      "activar_hecho": "La cadena «{{nombre}}» quedó activa.",
+      "desactivar": "Desactivar",
+      "desactivar_de": "Desactivar {{nombre}}",
+      "desactivar_pregunta": "¿Desactivar la cadena «{{nombre}}»? Las empresas ya no podrán elegirla y no se podrá editar hasta activarla de nuevo.",
+      "desactivar_hecho": "La cadena «{{nombre}}» quedó desactivada.",
+      "borrar_de": "Borrar {{nombre}}",
+      "borrar_pregunta": "¿Borrar la cadena «{{nombre}}»? No se puede deshacer.",
+      "borrada": "Cadena «{{nombre}}» borrada.",
+      "no_se_borra": "No se pudo borrar «{{nombre}}»: probablemente la usan empresas, productos, instalaciones o acciones de procesamiento. Puedes desactivarla.",
+      "solo_lectura": "Solo la administración del sistema edita cadenas de valor.",
+      "desactivada_lectura": "La cadena está desactivada: actívala para editarla.",
+      "basico": "Datos básicos",
+      "nombre": "Nombre",
+      "descripcion": "Descripción",
+      "tipo_producto": "Tipo de producto",
+      "configuracion": "Configuración",
+      "configuracion_ayuda": "Lo que las empresas de esta cadena pueden usar en sus instalaciones, procesos y stock.",
+      "listas": {
+        "facilityTypes": "Tipos de instalación",
+        "measureUnitTypes": "Unidades de medida",
+        "processingEvidenceTypes": "Tipos de evidencia de procesamiento",
+        "processingEvidenceFields": "Campos de evidencia de procesamiento",
+        "semiProducts": "Semiproductos"
       }
     }
   }

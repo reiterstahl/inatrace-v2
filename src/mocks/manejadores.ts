@@ -1,5 +1,5 @@
 import { http, HttpResponse, delay } from 'msw';
-import type { ApiAdminUserUpdate, ApiCompany, ApiCompanyCustomer, ApiUserBase, ApiProcessingAction, ApiFacility, ApiCompanyActionRequest, ApiCompanyGet, ApiCompanyUpdate, ApiCompanyUser, ApiFinalProduct, ApiKnowledgeBlog, ApiProduct, ApiProductLabel, ApiProductLabelBatch, ApiProductLabelCompanyDocument, ApiProductLabelContent, ApiProductLabelFeedback, ApiUserGet } from '@/api/gen/types.gen';
+import type { ApiAdminUserUpdate, ApiValueChain, ApiCompany, ApiCompanyCustomer, ApiUserBase, ApiProcessingAction, ApiFacility, ApiCompanyActionRequest, ApiCompanyGet, ApiCompanyUpdate, ApiCompanyUser, ApiFinalProduct, ApiKnowledgeBlog, ApiProduct, ApiProductLabel, ApiProductLabelBatch, ApiProductLabelCompanyDocument, ApiProductLabelContent, ApiProductLabelFeedback, ApiUserGet } from '@/api/gen/types.gen';
 import { ETIQUETA_DEMO, QR_DEMO, etiqueta, qr } from './datos/vitrina';
 import type { ApiUserCustomer } from '@/api/gen/types.gen';
 import { accionesProcesamiento, clientes, instalacionVecina, pagosIniciales, procesosIniciales, productoFinalQr, acopiadores, agrupar, entregasIniciales, historiaDe, instalaciones, loteProcesado, recalcular, semiproductos, tiposEvidencia, usuariosEmpresa } from './datos/stock';
@@ -120,6 +120,32 @@ function accionCuenta(u: ApiUserBase, accion: string, regional: boolean): ApiUse
     default: return 'Invalid user status';
   }
 }
+// Cadenas de valor (Administración → Cadenas de valor). La 1 está en uso: no se puede borrar.
+const CLAVE_CADENAS = 'simulado.cadenas';
+const camposEvidencia = [
+  { id: 31, fieldName: 'humedad', label: 'Humedad (%)', type: 'NUMBER' as const },
+  { id: 32, fieldName: 'variedad', label: 'Variedad', type: 'STRING' as const },
+];
+const leerCadenas = (): ApiValueChain[] =>
+  JSON.parse(sessionStorage.getItem(CLAVE_CADENAS) ?? 'null') ?? [
+    { ...cadenasActivas[0], description: 'Café de altura de la cooperativa', productType: tiposProducto[0], facilityTypes: tiposInstalacion.slice(0, 2), measureUnitTypes: unidadesMedida.slice(0, 1), processingEvidenceTypes: tiposEvidencia.slice(0, 1), processingEvidenceFields: camposEvidencia.slice(0, 1), semiProducts: semiproductos },
+    { ...cadenasActivas[1], description: 'Cacao fino de aroma', productType: tiposProducto[1], facilityTypes: [], measureUnitTypes: [], processingEvidenceTypes: [], processingEvidenceFields: [], semiProducts: [] },
+    { id: 3, name: 'Miel', description: 'Piloto suspendido', valueChainStatus: 'DISABLED', productType: tiposProducto[0], facilityTypes: [], measureUnitTypes: [], processingEvidenceTypes: [], processingEvidenceFields: [], semiProducts: [] },
+  ];
+const guardarCadenas = (l: ApiValueChain[]) => sessionStorage.setItem(CLAVE_CADENAS, JSON.stringify(l));
+/** Como el backend: guarda las listas por id contra los catálogos. */
+const completarCadena = (c: ApiValueChain): ApiValueChain => {
+  const de = <T extends { id?: number }>(cat: T[], l?: { id?: number }[]) => (l ?? []).map((x) => cat.find((y) => y.id === x.id) ?? x) as T[];
+  return {
+    ...c,
+    productType: tiposProducto.find((x) => x.id === c.productType?.id),
+    facilityTypes: de(tiposInstalacion, c.facilityTypes),
+    measureUnitTypes: de(unidadesMedida, c.measureUnitTypes),
+    processingEvidenceTypes: de(tiposEvidencia, c.processingEvidenceTypes),
+    processingEvidenceFields: de(camposEvidencia, c.processingEvidenceFields),
+    semiProducts: de(semiproductos, c.semiProducts),
+  };
+};
 const esAdministracion = () => ['SYSTEM_ADMIN', 'REGIONAL_ADMIN'].includes(sessionStorage.getItem(CLAVE_ROL) ?? '');
 const CLAVE_ETIQUETAS = 'simulado.etiquetas';
 const leerEtiquetas = (): EtiquetaSimulada[] => JSON.parse(sessionStorage.getItem(CLAVE_ETIQUETAS) ?? 'null') ?? etiquetasIniciales;
@@ -289,7 +315,55 @@ export const manejadores = [
     return ok();
   }),
   http.get('/api/chain/currency-type/list/enabled', () => paginado(monedas)),
-  http.get('/api/chain/value-chain/list', () => paginado(cadenasActivas)),
+  http.get('/api/chain/value-chain/list', ({ request }) => {
+    const u = new URL(request.url);
+    const q = (u.searchParams.get('name') ?? '').toLowerCase(), estado = u.searchParams.get('valueChainStatus');
+    const l = leerCadenas().filter((c) => (c.name ?? '').toLowerCase().includes(q) && (!estado || c.valueChainStatus === estado)).sort((a, b) => (a.name ?? '').localeCompare(b.name ?? ''));
+    return pagina(l.map(({ id, name, description, valueChainStatus, productType }) => ({ id, name, description, valueChainStatus, productType })), u);
+  }),
+  http.get('/api/chain/value-chain/:id', ({ params }) => {
+    const c = leerCadenas().find((x) => x.id === Number(params.id));
+    return c ? ok(c) : error(400, 'INVALID_REQUEST', 'Invalid value chain ID');
+  }),
+  http.put('/api/chain/value-chain', async ({ request }) => {
+    if (!conSesion()) return sinSesion();
+    const c = (await request.json()) as ApiValueChain;
+    const rol = sessionStorage.getItem(CLAVE_ROL);
+    if (rol !== 'SYSTEM_ADMIN' && rol !== 'REGIONAL_ADMIN') return error(403, 'UNAUTHORIZED', 'Forbidden');
+    if (!c.productType?.id) return error(400, 'INVALID_REQUEST', 'Product type id must be specified');
+    const lista = leerCadenas();
+    if (c.id) {
+      if (rol === 'REGIONAL_ADMIN') return error(401, 'UNAUTHORIZED', 'Regional admin not authorized!');
+      const antes = lista.find((x) => x.id === c.id);
+      if (!antes) return error(400, 'INVALID_REQUEST', 'Invalid value chain ID');
+      if (antes.valueChainStatus === 'DISABLED') return error(400, 'INVALID_REQUEST', 'Selected value chain is disabled, editing is not permitted');
+      guardarCadenas(lista.map((x) => (x.id === c.id ? completarCadena({ ...c, valueChainStatus: antes.valueChainStatus }) : x)));
+      return ok({ id: c.id });
+    }
+    const nueva = completarCadena({ ...c, id: siguienteId++, valueChainStatus: 'ENABLED' });
+    guardarCadenas([...lista, nueva]);
+    return ok({ id: nueva.id });
+  }),
+  ...(['enable', 'disable'] as const).map((accion) =>
+    http.post(`/api/chain/value-chain/:id/${accion}`, ({ params }) => {
+      if (sessionStorage.getItem(CLAVE_ROL) !== 'SYSTEM_ADMIN') return error(403, 'UNAUTHORIZED', 'Forbidden');
+      guardarCadenas(leerCadenas().map((x) => (x.id === Number(params.id) ? { ...x, valueChainStatus: accion === 'enable' ? 'ENABLED' : 'DISABLED' } : x)));
+      return ok({ id: Number(params.id) });
+    }),
+  ),
+  // Como el backend (H30): la cadena en uso falla por la clave foránea con un error genérico.
+  http.delete('/api/chain/value-chain/:id', ({ params }) => {
+    if (sessionStorage.getItem(CLAVE_ROL) !== 'SYSTEM_ADMIN') return error(403, 'UNAUTHORIZED', 'Forbidden');
+    const id = Number(params.id);
+    if (!leerCadenas().some((x) => x.id === id)) return error(400, 'INVALID_REQUEST', 'Invalid value chain ID');
+    if (id === 1) return error(500, 'ERROR', 'Internal server error');
+    guardarCadenas(leerCadenas().filter((x) => x.id !== id));
+    return ok();
+  }),
+  http.get('/api/product-type', () => paginado(tiposProducto)),
+  http.get('/api/chain/processing-evidence-type/list', () => paginado(tiposEvidencia)),
+  http.get('/api/chain/processing-evidence-field/list', () => paginado(camposEvidencia)),
+  http.get('/api/chain/semi-product/list', () => paginado(semiproductos)),
   // La regional ve las cuentas sin desactivar (el backend además filtra por sus empresas).
   ...(['/api/user/admin/list', '/api/user/regional-admin/list'] as const).map((ruta) =>
     http.get(ruta, ({ request }) => {
@@ -538,12 +612,7 @@ export const manejadores = [
     guardarAcciones(leerAcciones().filter((x) => x.id !== Number(params.id)));
     return ok();
   }),
-  http.get('/api/chain/processing-evidence-field/list/by-value-chains', () =>
-    paginado([
-      { id: 31, fieldName: 'humedad', label: 'Humedad (%)', type: 'NUMBER' },
-      { id: 32, fieldName: 'variedad', label: 'Variedad', type: 'STRING' },
-    ]),
-  ),
+  http.get('/api/chain/processing-evidence-field/list/by-value-chains', () => paginado(camposEvidencia)),
   // ---------- Productos ----------
   http.get('/api/product/list', ({ request }) => {
     if (!conSesion()) return sinSesion();

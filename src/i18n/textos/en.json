@@ -55,7 +55,7 @@
       "productos": "Products and labels",
       "productos_desc": "Products, labels, batches and statistics.",
       "administracion": "Administration",
-      "administracion_desc": "Companies and people in the instance: create, activate, merge and change roles."
+      "administracion_desc": "Companies, people and value chains in the instance."
     },
     "productores": "Farmers",
     "empresa": "Company",
@@ -1789,7 +1789,8 @@
     "pestanas": {
       "titulo": "Administration sections",
       "empresas": "Companies",
-      "usuarios": "Users"
+      "usuarios": "Users",
+      "cadenas": "Value chains"
     },
     "estado": {
       "ACTIVE": "Active",
@@ -1873,6 +1874,44 @@
         "UNSET_USER_SYSTEM_ADMIN_de": "Remove the system administrator role from {{nombre}}",
         "UNSET_USER_SYSTEM_ADMIN_pregunta": "Remove the system administrator role from {{nombre}}?",
         "UNSET_USER_SYSTEM_ADMIN_hecho": "{{nombre}} is no longer a system administrator."
+      }
+    },
+    "cadenas": {
+      "buscar": "Search",
+      "estado": "Status",
+      "ENABLED": "Active",
+      "DISABLED": "Deactivated",
+      "nueva": "New value chain",
+      "vacio": "There are no value chains yet.",
+      "sin_resultados": "No value chain matches the search.",
+      "guardada": "Value chain “{{nombre}}” saved.",
+      "no_existe": "We could not find that value chain",
+      "activar": "Activate",
+      "activar_de": "Activate {{nombre}}",
+      "activar_pregunta": "Activate the value chain “{{nombre}}”?",
+      "activar_hecho": "The value chain “{{nombre}}” is now active.",
+      "desactivar": "Deactivate",
+      "desactivar_de": "Deactivate {{nombre}}",
+      "desactivar_pregunta": "Deactivate the value chain “{{nombre}}”? Companies will no longer be able to choose it, and it cannot be edited until it is activated again.",
+      "desactivar_hecho": "The value chain “{{nombre}}” is now deactivated.",
+      "borrar_de": "Delete {{nombre}}",
+      "borrar_pregunta": "Delete the value chain “{{nombre}}”? This cannot be undone.",
+      "borrada": "Value chain “{{nombre}}” deleted.",
+      "no_se_borra": "“{{nombre}}” could not be deleted: companies, products, facilities or processing actions probably use it. You can deactivate it instead.",
+      "solo_lectura": "Only system administrators edit value chains.",
+      "desactivada_lectura": "This value chain is deactivated: activate it to edit it.",
+      "basico": "Basic information",
+      "nombre": "Name",
+      "descripcion": "Description",
+      "tipo_producto": "Product type",
+      "configuracion": "Configuration",
+      "configuracion_ayuda": "What the companies in this chain can use in their facilities, processes and stock.",
+      "listas": {
+        "facilityTypes": "Facility types",
+        "measureUnitTypes": "Measuring units",
+        "processingEvidenceTypes": "Processing evidence types",
+        "processingEvidenceFields": "Processing evidence fields",
+        "semiProducts": "Semi-products"
       }
     }
   }

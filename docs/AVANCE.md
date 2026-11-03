@@ -807,6 +807,39 @@ recorre todos los estados y roles y se edita; la ficha muestra las empresas, que
 declara). Suite real: 32 de 33 (la de QR de convivencia). Cada corrida real deja una cuenta
 desactivada (el backend no borra cuentas).
 
+## Estado de los PR en AgStack (03.11.2026, 18:12)
+
+**Mergeados todos los del backend** menos el último: #112, #113, #116, #117, #118, #119, #122 y #123.
+El frontend #33 está **aprobado** por padovan (CI verde) y le falta el merge. #129 (H29) está abierto,
+con CI verde y sin revisión todavía.
+
+## Fase 4c.3 (administración: cadenas de valor) — ✅ cerrada el 03.11.2026 (rama `fase-5`)
+
+Nueva pestaña **Cadenas de valor** en Administración (`/administracion/cadenas`). Con ella **cierra la 4c**:
+
+- **Lista** con búsqueda por nombre, filtro de estado y páginas; activar, desactivar y borrar (solo
+  la administración del sistema, como el backend).
+- **Formulario** (nueva y existente): nombre, descripción y tipo de producto obligatorios (como la
+  versión actual) y la configuración: tipos de instalación, unidades de medida, tipos y campos de
+  evidencia de procesamiento y semiproductos, en el idioma de la interfaz. Se guarda sobre la cadena
+  original. **La regional crea pero no edita** (el backend se lo niega); una cadena desactivada se ve
+  en solo lectura hasta activarla (el backend no la deja editar).
+- Al borrar una cadena en uso, el backend responde un error genérico (H30): la v2 explica la causa
+  probable y sugiere desactivarla.
+- El inicio marca la administración como **en la nueva versión** (ya no «en parte»).
+
+### H30 🟡 — borrar una cadena de valor en uso responde 500 (backend; sin PR todavía)
+
+`DELETE /api/chain/value-chain/{id}` hace `em.remove` sin revisar quién la usa (`CompanyValueChain`,
+`FacilityValueChain`, `ProcessingActionValueChain`, `Product`): la clave foránea hace fallar el
+borrado con **500** y se revierte (no se pierde nada). Comprobado en la copia aislada con la cadena 1.
+Mismo patrón que H27 y H28; también en el original.
+
+**Pruebas:** 147 unitarias (3 nuevas), 164 de punta a punta simuladas (3 nuevas en escritorio y
+celular; la de ancho suma lista, ficha y nueva) y dos nuevas contra el backend real (una cadena de
+prueba se crea, se edita, se desactiva, se activa y se borra, sin dejar nada; una en uso no se borra y
+se explica). Suite real: 34 de 35 (la de QR de convivencia).
+
 ## Fase 1b (activar la vitrina en una instalación) — pendiente, acordada el 19.10.2026
 
 Pasos, en orden:
@@ -834,8 +867,8 @@ confirmar el uso del video de Anacafé o cambiarlo.**
 4. **Fase 3 cerrada** (3a–3e.3). Queda probar Beyco de verdad cuando haya una cuenta de pruebas.
 5. **Fase 5 cerrada** (5a.1–5d). En curso: fase 4 («Empresa y administración»): **4a cerrada**
    (ficha, usuarios, instalaciones y acciones) y **4b cerrada** (recolectores, clientes y tablero);
-   siguen 4c (administración del sistema: **4c.1 empresas y 4c.2 usuarios cerradas**; falta
-   4c.3 cadenas de valor), 4d (catálogos y ajustes) y 4e (cuenta).
+   **4c cerrada** (administración: empresas, usuarios y cadenas de valor); siguen 4d (catálogos y
+   ajustes) y 4e (cuenta).
 6. H23: PR #116 **mergeado** en AgStack (02.11.2026); #113 también. Sigue abierto #112 (con los
    cambios pedidos ya respondidos).
 7. H24: AgStack pidió enviarlo por PR (ver punto 9).

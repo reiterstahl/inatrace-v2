@@ -154,3 +154,67 @@ test.describe('administración de usuarios (modo simulado)', () => {
     await expect(page.getByRole('button', { name: 'Confirmar el correo de Pedro Chávez' })).toBeVisible();
   });
 });
+
+test.describe('administración de cadenas de valor (modo simulado)', () => {
+  test('crear con su configuración, editar, desactivar y activar', async ({ page }) => {
+    await ingresar(page, 'administracion/cadenas', 'SYSTEM_ADMIN');
+    await expect(page.getByRole('listitem')).toHaveCount(3);
+    await page.getByRole('combobox', { name: 'Estado' }).selectOption({ label: 'Desactivada' });
+    await expect(page.getByRole('listitem')).toHaveCount(1);
+    await page.getByRole('combobox', { name: 'Estado' }).selectOption({ label: 'Todos' });
+
+    await page.getByRole('link', { name: 'Nueva cadena de valor' }).click();
+    await page.getByRole('button', { name: 'Guardar' }).click();
+    await expect(page.getByText('Este campo es obligatorio.')).toHaveCount(3);
+    await page.getByRole('textbox', { name: 'Nombre' }).fill('Cardamomo');
+    await page.getByRole('textbox', { name: 'Descripción' }).fill('Cardamomo de Alta Verapaz');
+    await page.getByRole('combobox', { name: 'Tipo de producto' }).selectOption({ label: 'Café' });
+    await page.getByRole('combobox', { name: 'Agregar a semiproductos' }).selectOption({ label: 'Café pergamino' });
+    await page.getByRole('button', { name: 'Agregar a semiproductos' }).click();
+    await page.getByRole('combobox', { name: 'Agregar a tipos de evidencia de procesamiento' }).selectOption({ label: 'Recibo' });
+    await page.getByRole('button', { name: 'Agregar a tipos de evidencia de procesamiento' }).click();
+    await page.getByRole('button', { name: 'Guardar' }).click();
+    await expect(page.getByText('Cadena «Cardamomo» guardada.')).toBeVisible();
+
+    await page.getByRole('link', { name: /Cardamomo/ }).click();
+    await expect(page.getByRole('heading', { level: 2, name: 'Cardamomo' })).toBeVisible();
+    await expect(page.getByRole('list', { name: 'Semiproductos' })).toContainText('Café pergamino');
+    await page.getByRole('button', { name: 'Quitar Recibo' }).click();
+    await expect(page.getByRole('list', { name: 'Tipos de evidencia de procesamiento' })).toHaveCount(0);
+    await page.getByRole('button', { name: 'Guardar' }).click();
+    await expect(page.getByText('Cadena «Cardamomo» guardada.')).toBeVisible();
+    await page.getByRole('link', { name: /Cardamomo/ }).click();
+    await expect(page.getByRole('list', { name: 'Tipos de evidencia de procesamiento' })).toHaveCount(0);
+    await page.getByRole('link', { name: 'Cadenas de valor', exact: true }).first().click();
+
+    page.on('dialog', (d) => void d.accept());
+    await page.getByRole('button', { name: 'Desactivar Cardamomo' }).click();
+    await expect(page.getByText('La cadena «Cardamomo» quedó desactivada.')).toBeVisible();
+    // Desactivada no se edita.
+    await page.getByRole('link', { name: /Cardamomo/ }).click();
+    await expect(page.getByText('La cadena está desactivada: actívala para editarla.')).toBeVisible();
+    await expect(page.getByRole('textbox', { name: 'Nombre' })).toBeDisabled();
+    await page.getByRole('link', { name: 'Cadenas de valor', exact: true }).first().click();
+    await page.getByRole('button', { name: 'Activar Cardamomo', exact: true }).click();
+    await expect(page.getByText('La cadena «Cardamomo» quedó activa.')).toBeVisible();
+  });
+
+  test('borrar: una en uso explica por qué no; una libre se borra', async ({ page }) => {
+    await ingresar(page, 'administracion/cadenas', 'SYSTEM_ADMIN');
+    page.on('dialog', (d) => void d.accept());
+    await page.getByRole('button', { name: 'Borrar Café' }).click();
+    await expect(page.getByText(/No se pudo borrar «Café»: probablemente la usan empresas/)).toBeVisible();
+    await page.getByRole('button', { name: 'Borrar Miel' }).click();
+    await expect(page.getByText('Cadena «Miel» borrada.')).toBeVisible();
+    await expect(page.getByRole('listitem')).toHaveCount(2);
+  });
+
+  test('la regional crea pero no edita, activa ni borra', async ({ page }) => {
+    await ingresar(page, 'administracion/cadenas', 'REGIONAL_ADMIN');
+    await expect(page.getByRole('link', { name: 'Nueva cadena de valor' })).toBeVisible();
+    await expect(page.getByRole('button', { name: /^Desactivar|^Activar|^Borrar/ })).toHaveCount(0);
+    await page.getByRole('link', { name: /Cacao/ }).click();
+    await expect(page.getByText('Solo la administración del sistema edita cadenas de valor.')).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Guardar' })).toHaveCount(0);
+  });
+});
