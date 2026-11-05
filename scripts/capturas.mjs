@@ -1,11 +1,16 @@
 // Capturas del README en modo simulado (sin backend). Uso: con `pnpm dev:simulado --port 5199`
 // corriendo, `pnpm capturas` (o CAPTURAS_URL=http://localhost:5199/v2/ node scripts/capturas.mjs).
-// Las imágenes van a docs/capturas/.
+// Las imágenes van a docs/capturas/; con CAPTURAS_IDIOMA=en, la interfaz en inglés va a docs/capturas/en/.
 import { chromium } from '@playwright/test';
 import { mkdir } from 'node:fs/promises';
 
 const BASE = process.env.CAPTURAS_URL ?? 'http://localhost:5199/v2/';
-const SALIDA = new URL('../docs/capturas/', import.meta.url);
+const IDIOMA = process.env.CAPTURAS_IDIOMA === 'en' ? 'en' : 'es';
+const SALIDA = new URL(IDIOMA === 'en' ? '../docs/capturas/en/' : '../docs/capturas/', import.meta.url);
+const TEXTOS = {
+  es: { locale: 'es-ES', correo: 'Correo electrónico', clave: 'Contraseña', ingresar: 'Ingresar' },
+  en: { locale: 'en-US', correo: 'Email', clave: 'Password', ingresar: 'Sign in' },
+}[IDIOMA];
 await mkdir(SALIDA, { recursive: true });
 
 const ESCRITORIO = { viewport: { width: 1280, height: 800 }, deviceScaleFactor: 1 };
@@ -28,16 +33,16 @@ const CAPTURAS = [
 
 const navegador = await chromium.launch({ args: ['--enable-unsafe-swiftshader', '--use-angle=swiftshader'] });
 for (const [archivo, ruta, o] of CAPTURAS) {
-  const contexto = await navegador.newContext({ ...(o.celular ? CELULAR : ESCRITORIO), locale: 'es-ES', colorScheme: o.oscuro ? 'dark' : 'light' });
+  const contexto = await navegador.newContext({ ...(o.celular ? CELULAR : ESCRITORIO), locale: TEXTOS.locale, colorScheme: o.oscuro ? 'dark' : 'light' });
   const page = await contexto.newPage();
   if (o.rol) await page.addInitScript((r) => sessionStorage.setItem('simulado.rol', r), o.rol);
   if (o.publica) {
     await page.goto(BASE + ruta);
   } else {
     await page.goto(BASE + 'ingreso?volver=' + encodeURIComponent('/' + ruta));
-    await page.getByLabel('Correo electrónico').fill('demo@inatrace.local');
-    await page.getByLabel('Contraseña').fill('demo1234');
-    await page.getByRole('button', { name: 'Ingresar' }).click();
+    await page.getByLabel(TEXTOS.correo).fill('demo@inatrace.local');
+    await page.getByLabel(TEXTOS.clave).fill('demo1234');
+    await page.getByRole('button', { name: TEXTOS.ingresar }).click();
   }
   await page.locator('main h1, h1').first().waitFor({ timeout: 20_000 });
   await page.waitForLoadState('networkidle');
