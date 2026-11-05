@@ -2,6 +2,8 @@
 
 # INATrace v2
 
+**Español** · [English](README.en.md)
+
 **Interfaz nueva para [INATrace](https://github.com/agstack/inatrace-backend), la plataforma abierta de trazabilidad de cadenas agrícolas, construida sobre el backend existente y sin cambiarlo.**
 
 [![CI](https://github.com/reiterstahl/inatrace-v2/actions/workflows/ci.yml/badge.svg?branch=fase-5)](https://github.com/reiterstahl/inatrace-v2/actions/workflows/ci.yml)
@@ -326,7 +328,7 @@ instalación):
 | `pnpm e2e` | Pruebas de punta a punta en modo simulado (Playwright) |
 | `pnpm api:actualizar` | Baja el OpenAPI del backend (`INATRACE_API`) y regenera el cliente tipado |
 | `pnpm i18n:importar` | Reutiliza las traducciones de la interfaz actual (alemán y kinyarwanda) |
-| `pnpm capturas` | Regenera las capturas de este README (con `pnpm dev:simulado --port 5199` corriendo) |
+| `pnpm capturas` | Regenera las capturas de este README (con `pnpm dev:simulado --port 5199` corriendo; `CAPTURAS_IDIOMA=en` para las del README en inglés) |
 
 ## Pruebas
 
