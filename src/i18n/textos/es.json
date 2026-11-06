@@ -30,7 +30,8 @@
     "error": "El correo o la contraseña no son correctos.",
     "olvido": "¿Olvidaste tu contraseña?",
     "version_actual": "Usar la versión actual",
-    "sesion_vencida": "Tu sesión terminó. Ingresa de nuevo."
+    "sesion_vencida": "Tu sesión terminó. Ingresa de nuevo.",
+    "crear_cuenta": "Crear una cuenta"
   },
   "portal": {
     "inicio": "Inicio",
@@ -2080,6 +2081,49 @@
       "enlace_ayuda": "Un enlace con más información para quienes preparan las etiquetas y sus QR. Aparece en la pestaña Etiquetas de cada producto.",
       "enlace_url": "Enlace (URL)",
       "enlace_invalido": "Escribe un enlace válido (por ejemplo, https://ejemplo.org/ayuda)."
+    }
+  },
+  "cuenta": {
+    "ir_al_ingreso": "Volver al ingreso",
+    "repetir": "Repite la contraseña",
+    "clave_ayuda": "De {{min}} a {{max}} caracteres.",
+    "enlace_invalido": "El enlace no es válido o ya se usó. Pide uno nuevo.",
+    "errores": {
+      "requerido": "Este campo es obligatorio.",
+      "correo": "Escribe un correo válido.",
+      "clave_corta": "La contraseña debe tener de {{min}} a {{max}} caracteres.",
+      "clave_larga": "La contraseña debe tener de {{min}} a {{max}} caracteres.",
+      "distintas": "Las contraseñas no coinciden.",
+      "aceptar": "Para crear la cuenta tienes que aceptar las condiciones."
+    },
+    "registro": {
+      "titulo": "Crea tu cuenta",
+      "subtitulo": "Te enviaremos un correo para confirmarla. Después, la administración la activa.",
+      "acepto": "Acepto las",
+      "condiciones": "condiciones de uso y privacidad",
+      "crear": "Crear cuenta",
+      "creando": "Creando…",
+      "ya_existe": "Ya hay una cuenta con ese correo.",
+      "ya_tienes": "¿Ya tienes cuenta?",
+      "listo_titulo": "Revisa tu correo",
+      "listo": "Te enviamos un enlace a {{correo}} para confirmar la cuenta. Cuando la confirmes, la administración la activará y te avisará por correo."
+    },
+    "confirmar": {
+      "titulo": "Confirmar el correo",
+      "listo": "Tu correo quedó confirmado. La administración activará tu cuenta y te avisará por correo; después podrás ingresar."
+    },
+    "olvido": {
+      "titulo": "¿Olvidaste tu contraseña?",
+      "subtitulo": "Escribe el correo de tu cuenta y te enviaremos un enlace para elegir una nueva.",
+      "enviar": "Enviar enlace",
+      "enviado": "Si hay una cuenta activa con {{correo}}, te enviamos un enlace para elegir una contraseña nueva. Revisa también la carpeta de correo no deseado."
+    },
+    "restablecer": {
+      "titulo": "Elige una contraseña nueva",
+      "subtitulo": "Después podrás ingresar con ella.",
+      "nueva": "Contraseña nueva",
+      "guardar": "Guardar contraseña",
+      "listo_sin_sesion": "Tu contraseña cambió. Podrás ingresar con ella cuando la administración active tu cuenta."
     }
   }
 }

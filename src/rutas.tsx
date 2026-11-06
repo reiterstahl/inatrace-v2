@@ -46,6 +46,12 @@ const ingreso = createRoute({
   component: Ingreso,
 });
 
+// Cuenta (fase 4e): sin sesión. Las rutas de los enlaces de los correos son las de la versión actual.
+const registro = createRoute({ getParentRoute: () => raiz, path: 'registro', component: lazyRouteComponent(() => import('@/paginas/acceso/Cuenta'), 'Registro') });
+const confirmarCorreo = createRoute({ getParentRoute: () => raiz, path: 'confirm-email/$token', component: lazyRouteComponent(() => import('@/paginas/acceso/Cuenta'), 'ConfirmarCorreo') });
+const olvideClave = createRoute({ getParentRoute: () => raiz, path: 'olvide-clave', component: lazyRouteComponent(() => import('@/paginas/acceso/Cuenta'), 'OlvideClave') });
+const restablecerClave = createRoute({ getParentRoute: () => raiz, path: 'reset-password/$token', component: lazyRouteComponent(() => import('@/paginas/acceso/Cuenta'), 'RestablecerClave') });
+
 // ---------- Portal (requiere sesión) ----------
 const portal = createRoute({
   getParentRoute: () => raiz,
@@ -390,6 +396,10 @@ const vTerminos = pestana('terms-of-use', () => <Legal tipo="terminos" />);
 const vPrivacidad = pestana('privacy-policy', () => <Legal tipo="privacidad" />);
 
 const arbol = raiz.addChildren([
+  registro,
+  confirmarCorreo,
+  olvideClave,
+  restablecerClave,
   ingreso,
   entradaQr,
   entradaEtiqueta,

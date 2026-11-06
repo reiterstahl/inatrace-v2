@@ -286,6 +286,33 @@ export const manejadores = [
   http.get('/api/common/image/:clave/:tamano?', ({ params }) => (conSesion() ? imagen(String(params.clave)) : sinSesion())),
 
   // ---------- Sesión ----------
+  // Cuenta (registro, confirmación y contraseña), como el backend. Los códigos de los enlaces del
+  // simulador: «codigo-valido» (cuenta que espera activación) y «codigo-activa» (abre la sesión).
+  http.post('/api/user/register', async ({ request }) => {
+    const b = (await request.json()) as { email: string; password: string; name: string; surname: string; language?: string };
+    if (!b.password || b.password.length < 8 || b.password.length > 50) return error(400, 'VALIDATION_ERROR', 'Invalid password');
+    if (leerCuentas().some((c) => c.email === b.email)) return error(400, 'INVALID_REQUEST', 'User already exists');
+    guardarCuentas([...leerCuentas(), { id: siguienteId++, email: b.email, name: b.name, surname: b.surname, status: 'UNCONFIRMED', role: 'USER' }]);
+    return ok();
+  }),
+  http.post('/api/user/confirm_email', async ({ request }) => {
+    const { token } = (await request.json()) as { token: string };
+    return token === 'codigo-valido' ? ok() : error(401, 'AUTH_ERROR', 'Invalid confirmation token');
+  }),
+  http.post('/api/user/request_reset_password', async ({ request }) => {
+    const { email } = (await request.json()) as { email: string };
+    const c = leerCuentas().find((x) => x.email === email);
+    // Como el backend: sin cuenta no hay error; una cuenta sin confirmar o desactivada sí lo da.
+    if (c && (c.status === 'UNCONFIRMED' || c.status === 'DEACTIVATED')) return error(400, 'INVALID_REQUEST', 'Invalid user status');
+    return ok();
+  }),
+  http.post('/api/user/reset_password', async ({ request }) => {
+    const { token, password } = (await request.json()) as { token: string; password: string };
+    if (token !== 'codigo-valido' && token !== 'codigo-activa') return error(401, 'AUTH_ERROR', 'Invalid password reset token');
+    if (!password || password.length < 8 || password.length > 50) return error(400, 'VALIDATION_ERROR', 'Invalid password');
+    if (token === 'codigo-activa') sessionStorage.setItem(CLAVE_SESION, '1');
+    return ok();
+  }),
   http.post('/api/user/login', async ({ request }) => {
     await delay(300);
     const { username, password } = (await request.json()) as { username: string; password: string };

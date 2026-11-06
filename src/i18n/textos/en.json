@@ -30,7 +30,8 @@
     "error": "The email or password is incorrect.",
     "olvido": "Forgot your password?",
     "version_actual": "Use the current version",
-    "sesion_vencida": "Your session ended. Please sign in again."
+    "sesion_vencida": "Your session ended. Please sign in again.",
+    "crear_cuenta": "Create an account"
   },
   "portal": {
     "inicio": "Home",
@@ -2080,6 +2081,49 @@
       "enlace_ayuda": "A link with more information for the people who prepare labels and their QR codes. It appears in the Labels tab of each product.",
       "enlace_url": "Link (URL)",
       "enlace_invalido": "Enter a valid link (for example, https://example.org/help)."
+    }
+  },
+  "cuenta": {
+    "ir_al_ingreso": "Back to sign in",
+    "repetir": "Repeat the password",
+    "clave_ayuda": "From {{min}} to {{max}} characters.",
+    "enlace_invalido": "The link is not valid or was already used. Ask for a new one.",
+    "errores": {
+      "requerido": "This field is required.",
+      "correo": "Enter a valid email.",
+      "clave_corta": "The password must have {{min}} to {{max}} characters.",
+      "clave_larga": "The password must have {{min}} to {{max}} characters.",
+      "distintas": "The passwords do not match.",
+      "aceptar": "You need to accept the conditions to create the account."
+    },
+    "registro": {
+      "titulo": "Create your account",
+      "subtitulo": "We will send you an email to confirm it. Then an administrator activates it.",
+      "acepto": "I accept the",
+      "condiciones": "terms of use and privacy",
+      "crear": "Create account",
+      "creando": "Creating…",
+      "ya_existe": "There is already an account with that email.",
+      "ya_tienes": "Already have an account?",
+      "listo_titulo": "Check your email",
+      "listo": "We sent a link to {{correo}} to confirm the account. Once you confirm it, an administrator will activate it and let you know by email."
+    },
+    "confirmar": {
+      "titulo": "Confirm your email",
+      "listo": "Your email is confirmed. An administrator will activate your account and let you know by email; then you can sign in."
+    },
+    "olvido": {
+      "titulo": "Forgot your password?",
+      "subtitulo": "Enter your account email and we will send you a link to choose a new one.",
+      "enviar": "Send link",
+      "enviado": "If there is an active account for {{correo}}, we sent you a link to choose a new password. Check your spam folder too."
+    },
+    "restablecer": {
+      "titulo": "Choose a new password",
+      "subtitulo": "You will sign in with it afterwards.",
+      "nueva": "New password",
+      "guardar": "Save password",
+      "listo_sin_sesion": "Your password changed. You can sign in with it once an administrator activates your account."
     }
   }
 }

@@ -940,12 +940,13 @@ original), cada uno con su editor. Con ellos **cierra la 4d** (y toda la adminis
   empresa.
 - Las listas activas de capas y certificaciones del simulador salen ahora del mismo estado.
 
-### H34 🟡 — la regional edita capas, certificaciones y factores de cualquier empresa (contrato)
+### H34 🟡 — la regional edita capas, certificaciones y factores de cualquier empresa (contrato; corregido)
 
 En estos tres catálogos (código propio del contrato) el backend deja que la administración regional
 **edite** los existentes, y en los factores, también los de empresas que no son suyas. En los catálogos
 del original (y en la regla #38 de AgStack) editar es solo del sistema. La v2 aplica la regla del original:
-la regional crea pero no edita ni borra. Corregirlo en el backend del contrato queda a decisión de Rolando.
+la regional crea pero no edita ni borra. **Corregido en el contrato** (`cadd0c0`, `RegionalCatalogEditTest`,
+441 pruebas); no va al original, donde estos catálogos no existen. Copia aislada con `dev-h34`.
 
 **H33:** se trajeron al contrato los dos commits del #101 del original (`a883b2a`, 438 pruebas); la copia
 aislada corre `inatrace-backend:dev-h33` (respaldo `respaldos/v2demo-antes-h33.sql`) y activar una moneda
@@ -954,6 +955,33 @@ responde al instante.
 **Pruebas:** 161 unitarias (5 nuevas), 182 de punta a punta simuladas (3 nuevas en escritorio y celular;
 la de ancho suma capas y factores) y una nueva contra el backend real (una capa, un sello y un factor se
 crean, editan y borran, sin dejar nada). Suite real: 40 de 41 (la de QR de convivencia).
+
+## Fase 4e (cuenta) — ✅ cerrada el 06.11.2026 (rama `fase-5`)
+
+Las pantallas sin sesión que faltaban. **Con esto, todas las pantallas de la versión actual están en
+la v2**; quedan las fases de despliegue (1b y 6).
+
+- **Registro** (`/registro`): nombre, apellido, correo, contraseña repetida (de 8 a 50 caracteres, como el
+  backend) y aceptación de las condiciones (el mismo enlace que la versión actual). Al terminar, «Revisa
+  tu correo». Una cuenta repetida se avisa, con el enlace para restablecer.
+- **Confirmar el correo** (`/confirm-email/$token`, la misma ruta que los correos de la versión actual):
+  confirma al abrir, una sola vez; un enlace usado o vencido se explica.
+- **Olvidé mi contraseña** (`/olvide-clave`): la respuesta es la misma haya o no cuenta (el backend
+  rechaza las cuentas sin confirmar o desactivadas; la v2 no lo revela).
+- **Restablecer** (`/reset-password/$token`): si la cuenta está activa el backend abre la sesión y se entra
+  al portal; si todavía espera su activación, solo cambia la contraseña y se avisa.
+- El ingreso enlaza a registro y a olvidé mi contraseña (antes iban a la versión actual), con un marco
+  común para las cinco pantallas de acceso.
+- **Arreglo:** con un código de enlace inválido el backend responde 401, y la v2 lo tomaba como «sesión
+  vencida» (intentaba renovar y mandaba al ingreso). Las rutas de cuenta ya no renuevan, como el ingreso.
+- **Copia aislada:** el envío de correos estaba apagado (`INAtrace.mail.sendingEnabled = false`); se
+  encendió con `INATRACE_MAIL_SENDINGENABLED=true` en `backend.env`. Los correos van a MailHog y no salen.
+
+**Pruebas:** 163 unitarias (2 nuevas), 192 de punta a punta simuladas (4 nuevas en escritorio y celular;
+la de ancho suma las pantallas de cuenta) y una nueva contra el backend real que recorre el ciclo con los
+correos de verdad (registro → enlace de confirmación desde MailHog → el mismo enlace no sirve dos veces →
+restablecer sin activar no abre sesión → la administración activa → restablecer entra al portal; la cuenta
+queda desactivada). Suite real: 41 de 42 (la de QR de convivencia).
 
 ## Fase 1b (activar la vitrina en una instalación) — pendiente, acordada el 19.10.2026
 
@@ -983,7 +1011,9 @@ confirmar el uso del video de Anacafé o cambiarlo.**
 5. **Fase 5 cerrada** (5a.1–5d). En curso: fase 4 («Empresa y administración»): **4a cerrada**
    (ficha, usuarios, instalaciones y acciones) y **4b cerrada** (recolectores, clientes y tablero);
    **4c cerrada** (administración: empresas, usuarios y cadenas de valor); **4d cerrada**
-   (catálogos, monedas, ajustes, capas de mapa, certificaciones y factores); sigue 4e (cuenta).
+   (catálogos, monedas, ajustes, capas de mapa, certificaciones y factores) y **4e cerrada** (cuenta):
+   **fase 4 completa, todas las pantallas migradas**. Quedan 1b (activar la vitrina en una instalación) y
+   6 (retiro de Angular), que dependen de decisiones de despliegue.
 6. H23: PR #116 **mergeado** en AgStack (02.11.2026); #113 también. Sigue abierto #112 (con los
    cambios pedidos ya respondidos).
 7. H24: AgStack pidió enviarlo por PR (ver punto 9).

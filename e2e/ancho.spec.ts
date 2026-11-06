@@ -26,6 +26,7 @@ test('ninguna pantalla es más ancha que la ventana', async ({ page }) => {
 
 // La administración tiene una entrada más en la barra.
 test('con la administración del sistema tampoco', async ({ page }) => {
+  test.setTimeout(120_000); // recorre todas las pantallas de administración
   await page.addInitScript(() => sessionStorage.setItem('simulado.rol', 'SYSTEM_ADMIN'));
   await page.goto('ingreso');
   await page.getByLabel('Correo electrónico').fill('demo@inatrace.local');
@@ -35,6 +36,17 @@ test('con la administración del sistema tampoco', async ({ page }) => {
   for (const ruta of ['', 'administracion/empresas', 'administracion/usuarios', 'administracion/usuarios/8', 'administracion/cadenas', 'administracion/cadenas/1', 'administracion/cadenas/nueva', 'administracion/catalogos', 'administracion/catalogos?tipo=tipos-evidencia', 'administracion/monedas', 'administracion/ajustes', 'administracion/catalogos?tipo=capas-mapa', 'administracion/catalogos?tipo=factores', 'empresa']) {
     await page.goto(ruta);
     await expect(page.locator('main h1').first()).toBeVisible({ timeout: 15_000 });
+    await page.waitForLoadState('networkidle');
+    const medidas = await page.evaluate(() => ({ ventana: document.documentElement.clientWidth, documento: document.documentElement.scrollWidth }));
+    expect(medidas.documento, `ancho del documento en /${ruta}`).toBeLessThanOrEqual(medidas.ventana);
+  }
+});
+
+// Las pantallas de cuenta no piden sesión.
+test('las pantallas de cuenta tampoco', async ({ page }) => {
+  for (const ruta of ['ingreso', 'registro', 'olvide-clave', 'reset-password/codigo-valido', 'confirm-email/codigo-valido']) {
+    await page.goto(ruta);
+    await expect(page.locator('h1').first()).toBeVisible({ timeout: 15_000 });
     await page.waitForLoadState('networkidle');
     const medidas = await page.evaluate(() => ({ ventana: document.documentElement.clientWidth, documento: document.documentElement.scrollWidth }));
     expect(medidas.documento, `ancho del documento en /${ruta}`).toBeLessThanOrEqual(medidas.ventana);

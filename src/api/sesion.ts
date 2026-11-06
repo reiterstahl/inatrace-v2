@@ -9,8 +9,12 @@
 
 const RUTA_RENOVAR = '/api/user/refresh_authentication';
 
-// Rutas donde un 401 no significa "sesión vencida": no tiene sentido renovar.
-const SIN_RENOVAR = ['/api/user/login', '/api/user/logout', RUTA_RENOVAR, '/api/public/'];
+// Rutas donde un 401 no significa "sesión vencida": no tiene sentido renovar. En las de cuenta
+// (registro, confirmación y contraseña) un 401 es un código de enlace inválido o vencido.
+const SIN_RENOVAR = [
+  '/api/user/login', '/api/user/logout', RUTA_RENOVAR, '/api/public/',
+  '/api/user/register', '/api/user/confirm_email', '/api/user/request_reset_password', '/api/user/reset_password',
+];
 
 type Escucha = () => void;
 const escuchasFin = new Set<Escucha>();

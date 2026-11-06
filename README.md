@@ -8,7 +8,7 @@
 
 [![CI](https://github.com/reiterstahl/inatrace-v2/actions/workflows/ci.yml/badge.svg?branch=fase-5)](https://github.com/reiterstahl/inatrace-v2/actions/workflows/ci.yml)
 ![Licencia: MPL 2.0](https://img.shields.io/badge/licencia-MPL%202.0-brightgreen)
-![Estado](https://img.shields.io/badge/migraci%C3%B3n-~85%25-1f6f4a)
+![Estado](https://img.shields.io/badge/pantallas-100%25%20migradas-1f6f4a)
 
 ![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)
 ![TypeScript](https://img.shields.io/badge/TypeScript-6-3178C6?logo=typescript&logoColor=white)
@@ -18,7 +18,7 @@
 ![MapLibre](https://img.shields.io/badge/MapLibre%20GL-6-396CB2?logo=maplibre&logoColor=white)
 ![i18next](https://img.shields.io/badge/i18next-ES%20%C2%B7%20EN%20%C2%B7%20DE%20%C2%B7%20RW-26A69A?logo=i18next&logoColor=white)
 
-![Vitest](https://img.shields.io/badge/Vitest-147%20pruebas-6E9F18?logo=vitest&logoColor=white)
+![Vitest](https://img.shields.io/badge/Vitest-163%20pruebas-6E9F18?logo=vitest&logoColor=white)
 ![Playwright](https://img.shields.io/badge/Playwright-escritorio%20%2B%20celular-2EAD33?logo=playwright&logoColor=white)
 ![MSW](https://img.shields.io/badge/MSW-modo%20simulado-FF6A33?logo=mockserviceworker&logoColor=white)
 ![OpenAPI](https://img.shields.io/badge/cliente-generado%20desde%20OpenAPI-6BA539?logo=openapiinitiative&logoColor=white)
@@ -124,8 +124,8 @@ está en [docs/PLAN.md](docs/PLAN.md) y el estado detallado, fase por fase, en
 | Productos, etiquetas, lotes, opiniones, estadísticas y base de conocimiento | ✅ |
 | Empresa: ficha, usuarios, instalaciones, acciones de procesamiento y clientes | ✅ |
 | Administración: empresas, usuarios y cadenas de valor | ✅ |
-| Catálogos y ajustes del sistema (tipos, monedas, capas de mapa, certificaciones, factores de conversión) | ⏳ en la versión actual |
-| Cuenta: registro, confirmación de correo y restablecer contraseña | ⏳ en la versión actual (el ingreso y el perfil ya están en la v2) |
+| Catálogos y ajustes del sistema (tipos, monedas, ajustes, capas de mapa, certificaciones, factores de conversión) | ✅ |
+| Cuenta: ingreso, registro, confirmación de correo y restablecer contraseña | ✅ |
 | Activar la vitrina en una instalación real (fase 1b) | ⏳ pendiente de decisión |
 | Retiro de la interfaz Angular (fase 6) | ⏳ al final |
 
@@ -202,7 +202,22 @@ está en [docs/PLAN.md](docs/PLAN.md) y el estado detallado, fase por fase, en
   persona con sus empresas.
 - **Cadenas de valor**: crear y editar con su configuración (tipos de instalación, unidades,
   evidencias, campos y semiproductos), activar, desactivar y borrar.
+- **Catálogos**: semiproductos, tipos de producto, de instalación, unidades, tipos y campos de evidencia
+  (con traducciones), capas de mapa, tipos de certificación y factores de conversión.
+- **Monedas** activas y **ajustes** de la instancia (el texto que ve quien escanea un QR de una etiqueta
+  sin publicar y un enlace de ayuda para las etiquetas).
 - La administración regional solo ve lo suyo y solo puede hacer lo que le corresponde.
+
+</details>
+
+<details>
+<summary><b>Cuenta</b></summary>
+
+- Ingreso, registro con aceptación de condiciones, confirmación del correo con el enlace recibido y
+  restablecimiento de la contraseña.
+- Los enlaces de los correos usan las mismas rutas que la versión actual (`/confirm-email/…`,
+  `/reset-password/…`), bajo `/v2`.
+- Pedir un enlace para restablecer no revela si el correo tiene cuenta.
 
 </details>
 
@@ -327,13 +342,13 @@ instalación):
 
 ## Pruebas
 
-Tres niveles, del más rápido al más cercano a producción (cifras al 03.11.2026):
+Tres niveles, del más rápido al más cercano a producción (cifras al 06.11.2026):
 
 | Nivel | Herramienta | Cantidad | Qué cubre |
 |---|---|---|---|
-| Unitarias | Vitest | 147 | Lógica pura: armado de fichas sobre el original, validaciones, permisos por rol, agrupaciones |
-| De punta a punta, simuladas | Playwright + MSW | 164 | Cada flujo en **escritorio y celular**, más una prueba que recorre todas las pantallas buscando desbordes |
-| Contra un backend real | Playwright | 35 | Los mismos flujos contra una copia aislada de INATrace, verificando lo guardado por la API |
+| Unitarias | Vitest | 163 | Lógica pura: armado de fichas sobre el original, validaciones, permisos por rol, agrupaciones |
+| De punta a punta, simuladas | Playwright + MSW | 192 | Cada flujo en **escritorio y celular**, más una prueba que recorre todas las pantallas buscando desbordes |
+| Contra un backend real | Playwright | 42 | Los mismos flujos contra una copia aislada de INATrace, verificando lo guardado por la API |
 
 ```bash
 pnpm lint && pnpm test && pnpm e2e
@@ -385,6 +400,7 @@ cada uno con prueba de regresión:
 | [#122](https://github.com/agstack/inatrace-backend/pull/122), [#123](https://github.com/agstack/inatrace-backend/pull/123) | Errores 500 al borrar acciones de procesamiento o clientes en uso | ✅ mergeados |
 | [#129](https://github.com/agstack/inatrace-backend/pull/129) | La administración regional podía dar el rol de administración del sistema | 🕓 en revisión |
 | [#132](https://github.com/agstack/inatrace-backend/pull/132) | Error 500 al borrar una cadena de valor en uso | 🕓 en revisión |
+| [#137](https://github.com/agstack/inatrace-backend/pull/137) | Error 500 al borrar elementos de catálogo en uso | 🕓 en revisión |
 
 ## Decisiones técnicas
 
