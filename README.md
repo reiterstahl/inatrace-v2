@@ -131,7 +131,7 @@ está en [docs/PLAN.md](https://github.com/reiterstahl/inatrace-v2/blob/fase-5/d
 | Administración: empresas, usuarios y cadenas de valor | ✅ |
 | Catálogos y ajustes del sistema (tipos, monedas, ajustes, capas de mapa, certificaciones, factores de conversión) | ✅ |
 | Cuenta: ingreso, registro, confirmación de correo y restablecer contraseña | ✅ |
-| Activar la vitrina en una instalación real (fase 1b) | ⏳ pendiente de decisión |
+| Activar la vitrina en una instalación (fase 1b) | ✅ en la instalación local de demostración |
 | Retiro de la interfaz Angular (fase 6) | ⏳ al final |
 
 ## Funcionalidades
@@ -240,8 +240,8 @@ flowchart LR
 
 - **Convivencia:** el proxy (`deploy/convivencia/`) manda `/v2/` a esta interfaz, `/api/` al
   backend y el resto a la interfaz actual. La cookie de sesión es la misma para las dos.
-- **QR ya impresos:** el proxy puede redirigir `/{idioma}/q-cd/…` a la vitrina de la v2. La regla
-  está lista y comentada; se activa en la fase 1b, con vuelta atrás inmediata.
+- **QR ya impresos:** con `QR_A_V2=si` el proxy redirige `/{idioma}/q-cd/…` a la vitrina de la v2;
+  con `no` siguen en la interfaz actual. Activar o volver atrás es cambiar la variable y reiniciar el proxy.
 - **Datos:** TanStack Query maneja la caché y las recargas. Las fichas se editan siempre sobre la
   versión completa y fresca del backend, porque este reemplaza todos los campos al guardar.
 - **Rutas:** TanStack Router define las rutas en código, con búsqueda validada en la URL y
@@ -368,8 +368,9 @@ las ramas `fase-*`, y en cada pull request. Desde `main` publica además la imag
 
 ## Despliegue
 
-- **Imagen:** `ghcr.io/reiterstahl/inatrace-v2` (etiquetas `latest` y el SHA del commit), publicada
-  por la CI desde `main` si pasan todas las pruebas. Es nginx sin privilegios en el puerto **8080**,
+- **Imagen:** `ghcr.io/reiterstahl/inatrace-v2`, publicada por la CI si pasan todas las pruebas: una
+  etiqueta `vX.Y.Z` publica la versión `X.Y.Z` (la primera es `2.0.0-rc.1`), `main` publica `latest`, y
+  las dos, el SHA del commit. Es nginx sin privilegios en el puerto **8080**,
   con cabeceras de seguridad y CSP estricta.
 - **Convivencia:** `deploy/convivencia/` trae el proxy y un `docker-compose.yml` para poner la v2
   delante de una instalación existente sin tocarla.
