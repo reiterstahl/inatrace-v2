@@ -45,8 +45,10 @@ const GUARDAR: Record<Catalogo, (x: ItemCatalogo) => Promise<unknown>> = {
 
 const BORRAR: Record<Catalogo, (id: number) => Promise<unknown>> = {
   semiproductos: (id) => desenvolver(deleteSemiProduct({ path: { id } })),
-  // El backend declara `/{id}` pero lee el id de la consulta (@RequestParam): el cliente lo manda así.
-  'tipos-producto': (id) => desenvolver(deleteProductType({ query: { id } })),
+  // El backend declara `/{id}` pero lee el id de la consulta (@RequestParam; AgStack lo documenta en
+  // docs/api-auth-coverage/38-codebooks.md). Va en los dos lugares, como la interfaz actual: así sirve
+  // también si algún día lo corrigen.
+  'tipos-producto': (id) => desenvolver(deleteProductType({ path: { id }, query: { id } } as unknown as Parameters<typeof deleteProductType>[0])),
   'tipos-instalacion': (id) => desenvolver(deleteFacilityType({ path: { id } })),
   unidades: (id) => desenvolver(deleteMeasurementUnitType({ path: { id } })),
   'tipos-evidencia': (id) => desenvolver(deleteProcessingEvidenceType({ path: { id } })),
