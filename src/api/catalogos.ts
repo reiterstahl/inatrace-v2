@@ -1,12 +1,12 @@
 import { queryOptions, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
-  createOrUpdateFacilityType, createOrUpdateMeasurementUnitType, createOrUpdateProcessingEvidenceField, createOrUpdateProcessingEvidenceType,
+  createOrUpdate, createOrUpdate1, createOrUpdateFacilityType, createOrUpdateMapLayer, delete1, delete_, deleteMapLayer, getAll, getFactors, getMapLayerList, createOrUpdateMeasurementUnitType, createOrUpdateProcessingEvidenceField, createOrUpdateProcessingEvidenceType,
   createOrUpdateSemiProduct, createProductType, deleteFacilityType, deleteMeasurementUnitType, deleteProcessingEvidenceField,
   deleteProcessingEvidenceType, deleteProductType, deleteSemiProduct, getFacilityTypeList, getMeasureUnitTypeList,
   getProcessingEvidenceFieldList, getProcessingEvidenceTypeList, getProductTypes, getSemiProductList, updateProductType,
 } from './gen/sdk.gen';
 import type {
-  ApiFacilityType, ApiMeasureUnitType, ApiProcessingEvidenceField, ApiProcessingEvidenceType, ApiProductType, ApiSemiProduct,
+  ApiCertificationType, ApiConversionFactor, ApiMapLayer, ApiFacilityType, ApiMeasureUnitType, ApiProcessingEvidenceField, ApiProcessingEvidenceType, ApiProductType, ApiSemiProduct,
 } from './gen/types.gen';
 import type { Catalogo, ItemCatalogo } from '@/util/catalogos';
 import { desenvolver } from './respuesta';
@@ -21,6 +21,10 @@ const LISTAS: Record<Catalogo, () => Promise<{ items?: ItemCatalogo[] }>> = {
   unidades: () => desenvolver(getMeasureUnitTypeList(MUCHOS)),
   'tipos-evidencia': () => desenvolver(getProcessingEvidenceTypeList(MUCHOS)),
   'campos-evidencia': () => desenvolver(getProcessingEvidenceFieldList(MUCHOS)),
+  'capas-mapa': () => desenvolver(getMapLayerList(MUCHOS)),
+  // Estos dos responden la lista sin paginar.
+  certificaciones: async () => ({ items: await desenvolver(getAll()) }),
+  factores: async () => ({ items: await desenvolver(getFactors()) }),
 };
 
 export const catalogos = {
@@ -41,6 +45,9 @@ const GUARDAR: Record<Catalogo, (x: ItemCatalogo) => Promise<unknown>> = {
   unidades: (x) => desenvolver(createOrUpdateMeasurementUnitType({ body: x as ApiMeasureUnitType })),
   'tipos-evidencia': (x) => desenvolver(createOrUpdateProcessingEvidenceType({ body: x as ApiProcessingEvidenceType })),
   'campos-evidencia': (x) => desenvolver(createOrUpdateProcessingEvidenceField({ body: x as ApiProcessingEvidenceField })),
+  'capas-mapa': (x) => desenvolver(createOrUpdateMapLayer({ body: x as ApiMapLayer })),
+  certificaciones: (x) => desenvolver(createOrUpdate1({ body: x as ApiCertificationType })),
+  factores: (x) => desenvolver(createOrUpdate({ body: x as ApiConversionFactor })),
 };
 
 const BORRAR: Record<Catalogo, (id: number) => Promise<unknown>> = {
@@ -53,6 +60,9 @@ const BORRAR: Record<Catalogo, (id: number) => Promise<unknown>> = {
   unidades: (id) => desenvolver(deleteMeasurementUnitType({ path: { id } })),
   'tipos-evidencia': (id) => desenvolver(deleteProcessingEvidenceType({ path: { id } })),
   'campos-evidencia': (id) => desenvolver(deleteProcessingEvidenceField({ path: { id } })),
+  'capas-mapa': (id) => desenvolver(deleteMapLayer({ path: { id } })),
+  certificaciones: (id) => desenvolver(delete1({ path: { id } })),
+  factores: (id) => desenvolver(delete_({ path: { id } })),
 };
 
 /** Cualquier cambio invalida todos los catálogos: los usan las cadenas, instalaciones, acciones y productos. */

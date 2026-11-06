@@ -1,11 +1,21 @@
 import type {
-  ApiFacilityType, ApiMeasureUnitType, ApiProcessingEvidenceField, ApiProcessingEvidenceType, ApiProductType, ApiSemiProduct,
+  ApiCertificationType, ApiConversionFactor, ApiFacilityType, ApiMapLayer, ApiMeasureUnitType, ApiProcessingEvidenceField,
+  ApiProcessingEvidenceType, ApiProductType, ApiSemiProduct,
 } from '@/api/gen/types.gen';
 
 /** Los catálogos del sistema que se editan desde Administración → Catálogos. */
-export const CATALOGOS = ['semiproductos', 'tipos-producto', 'tipos-instalacion', 'unidades', 'tipos-evidencia', 'campos-evidencia'] as const;
+export const CATALOGOS = [
+  'semiproductos', 'tipos-producto', 'tipos-instalacion', 'unidades', 'tipos-evidencia', 'campos-evidencia',
+  // Propios de esta instalación (no están en el original): tienen su propio editor.
+  'capas-mapa', 'certificaciones', 'factores',
+] as const;
 export type Catalogo = (typeof CATALOGOS)[number];
-export type ItemCatalogo = ApiSemiProduct | ApiProductType | ApiFacilityType | ApiMeasureUnitType | ApiProcessingEvidenceType | ApiProcessingEvidenceField;
+export const CATALOGOS_PROPIOS = ['capas-mapa', 'certificaciones', 'factores'] as const;
+export type CatalogoPropio = (typeof CATALOGOS_PROPIOS)[number];
+export const esPropio = (c: Catalogo): c is CatalogoPropio => (CATALOGOS_PROPIOS as readonly string[]).includes(c);
+export type ItemCatalogo =
+  | ApiSemiProduct | ApiProductType | ApiFacilityType | ApiMeasureUnitType | ApiProcessingEvidenceType | ApiProcessingEvidenceField
+  | ApiMapLayer | ApiCertificationType | ApiConversionFactor;
 
 /** El inglés va primero: el backend lo exige en los catálogos con traducciones. */
 export const IDIOMAS_CATALOGO = ['EN', 'ES', 'DE', 'RW'] as const;
@@ -36,6 +46,9 @@ export const FORMA: Record<Catalogo, {
   unidades: { codigo: 'estricto', etiqueta: true, peso: true },
   'tipos-evidencia': { codigo: 'estricto', traducciones: 'etiqueta', tipos: TIPOS_EVIDENCIA, marcas: ['fairness', 'provenance', 'quality'] },
   'campos-evidencia': { codigo: 'estricto', traducciones: 'etiqueta', tipos: TIPOS_CAMPO },
+  'capas-mapa': {},
+  certificaciones: {},
+  factores: {},
 };
 
 type Textos = Record<Idioma, { nombre: string; descripcion: string }>;
@@ -56,8 +69,10 @@ type Traduccion = { language?: Idioma; name?: string; description?: string; labe
 const traducciones = (x: ItemCatalogo | undefined): Traduccion[] => ((x as { translations?: Traduccion[] } | undefined)?.translations ?? []);
 const campo = <T,>(x: ItemCatalogo | undefined, k: string) => (x as Record<string, unknown> | undefined)?.[k] as T | undefined;
 
-/** Nombre a mostrar: la etiqueta, o el nombre, o el código. */
-export const nombreItem = (x: ItemCatalogo) => campo<string>(x, 'label') || campo<string>(x, 'name') || campo<string>(x, 'code') || campo<string>(x, 'fieldName') || `#${x.id}`;
+/** Nombre a mostrar: la etiqueta, o el nombre, o el código; un factor, como «entrada → salida». */
+export const nombreItem = (x: ItemCatalogo) =>
+  (campo<string>(x, 'inputSemiProductName') && `${campo<string>(x, 'inputSemiProductName')} → ${campo<string>(x, 'outputSemiProductName') ?? ''}`) ||
+  campo<string>(x, 'label') || campo<string>(x, 'name') || campo<string>(x, 'code') || campo<string>(x, 'fieldName') || `#${x.id}`;
 /** Código a mostrar junto al nombre. */
 export const codigoItem = (x: ItemCatalogo) => campo<string>(x, 'code') ?? campo<string>(x, 'fieldName') ?? '';
 
@@ -142,6 +157,9 @@ export function armarItem(cat: Catalogo, original: ItemCatalogo | undefined, f: 
         ...base, fieldName: f.codigo.trim(), label: en.nombre, type: f.tipo,
         translations: conTexto.map((language) => ({ language, label: f.textos[language].nombre.trim() })),
       } as ApiProcessingEvidenceField;
+    default:
+      // Los catálogos propios se arman con su editor (util/catalogosPropios.ts).
+      return base as ItemCatalogo;
   }
 }
 

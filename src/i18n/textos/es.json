@@ -1926,7 +1926,10 @@
         "tipos-instalacion": "Tipos de instalación",
         "unidades": "Unidades de medida",
         "tipos-evidencia": "Tipos de evidencia",
-        "campos-evidencia": "Campos de evidencia"
+        "campos-evidencia": "Campos de evidencia",
+        "capas-mapa": "Capas de mapa",
+        "certificaciones": "Tipos de certificación",
+        "factores": "Factores de conversión"
       },
       "ayudas": {
         "semiproductos": "Lo que se entrega, procesa y vende en cada etapa (café cereza, pergamino, oro…), con su unidad.",
@@ -1934,7 +1937,10 @@
         "tipos-instalacion": "Clases de instalaciones de las empresas: centros de acopio, beneficios, bodegas…",
         "unidades": "Unidades en que se miden las cantidades, con su peso en kg para convertir.",
         "tipos-evidencia": "Documentos u otras evidencias que un proceso puede pedir.",
-        "campos-evidencia": "Datos que se anotan en un proceso (humedad, variedad…), con su tipo."
+        "campos-evidencia": "Datos que se anotan en un proceso (humedad, variedad…), con su tipo.",
+        "capas-mapa": "Capas que se pueden encender sobre los mapas de parcelas (catastro, áreas protegidas, imágenes…).",
+        "certificaciones": "Sellos que se eligen en la ficha de cada productor. Los que están en uso no se borran: se retiran.",
+        "factores": "Cuánto sale de un semiproducto por cada unidad que entra de otro, para estimar rendimientos al procesar."
       },
       "buscar": "Buscar",
       "nuevo": "Nuevo",
@@ -1968,7 +1974,13 @@
       "errores": {
         "requerido": "Este campo es obligatorio.",
         "formato": "Solo mayúsculas, números y guion bajo.",
-        "numero": "Escribe un número mayor que cero."
+        "numero": "Escribe un número mayor que cero.",
+        "url": "Escribe una dirección que empiece con http:// o https://.",
+        "plantilla_xyz": "La plantilla debe tener {z}, {x} y {y}.",
+        "opacidad": "Un número entre 0 y 1.",
+        "entero": "Un número entero.",
+        "mismo": "No puede ser lo mismo que entra.",
+        "positivo": "Un número mayor que cero."
       },
       "tipos": {
         "DOCUMENT": "Documento",
@@ -1991,6 +2003,52 @@
         "fairness": "Equidad",
         "provenance": "Procedencia",
         "quality": "Calidad"
+      },
+      "codigo_fijo": "El código no se cambia una vez creado.",
+      "nombre": "Nombre",
+      "descripcion": "Descripción",
+      "orden": "Orden",
+      "activo": "Activo",
+      "inactivo": "Inactivo",
+      "capas": {
+        "tipos": {
+          "XYZ": "Mosaico (XYZ)",
+          "WMS": "Servicio WMS",
+          "ARCGIS_REST": "ArcGIS MapServer",
+          "GEOJSON": "GeoJSON"
+        },
+        "capa": "Nombre de la capa en el servicio",
+        "url": "Dirección (URL)",
+        "url_ayuda": {
+          "XYZ": "Plantilla con {z}, {x} y {y}, por ejemplo https://servidor/{z}/{x}/{y}.png.",
+          "WMS": "Dirección base del servicio WMS, sin parámetros.",
+          "ARCGIS_REST": "Dirección del MapServer, sin /tile al final.",
+          "GEOJSON": "Dirección directa del documento GeoJSON."
+        },
+        "opacidad": "Opacidad",
+        "opacidad_ayuda": "De 0 (transparente) a 1 (opaca).",
+        "atribucion": "Atribución",
+        "visible": "Encendida al abrir el mapa",
+        "visible_corto": "encendida al abrir"
+      },
+      "certificaciones": {
+        "codigo_fijo": "El código no se cambia: lo guardan las certificaciones ya cargadas.",
+        "significado": "Qué significa",
+        "logo": "Dirección de la imagen del sello",
+        "ofrecido": "Se ofrece al cargar certificaciones",
+        "no_se_borra": "No se pudo borrar «{{nombre}}»: hay certificaciones que lo usan. Desmarca «Se ofrece» para retirarlo."
+      },
+      "factores": {
+        "entrada": "Lo que entra",
+        "salida": "Lo que sale",
+        "factor": "Factor",
+        "factor_ayuda": "Por ejemplo, 0,2 si de 100 kg salen 20 kg.",
+        "por_cien": "Por cada 100 que entran, salen {{n}}.",
+        "notas": "Notas",
+        "en_uso": "En uso",
+        "resumen": "100 → {{n}}",
+        "empresa_corto": "solo empresa #{{empresa}}",
+        "de_empresa": "Este factor es solo para la empresa #{{empresa}}: se usa en lugar del general."
       }
     },
     "monedas": {

@@ -1926,7 +1926,10 @@
         "tipos-instalacion": "Facility types",
         "unidades": "Measuring units",
         "tipos-evidencia": "Evidence types",
-        "campos-evidencia": "Evidence fields"
+        "campos-evidencia": "Evidence fields",
+        "capas-mapa": "Map layers",
+        "certificaciones": "Certification types",
+        "factores": "Conversion factors"
       },
       "ayudas": {
         "semiproductos": "What is delivered, processed and sold at each stage (cherry, parchment, green coffee…), with its unit.",
@@ -1934,7 +1937,10 @@
         "tipos-instalacion": "Kinds of company facilities: collection centers, mills, warehouses…",
         "unidades": "Units used to measure quantities, with their weight in kg for conversions.",
         "tipos-evidencia": "Documents or other evidence a process can require.",
-        "campos-evidencia": "Data recorded in a process (moisture, variety…), with their type."
+        "campos-evidencia": "Data recorded in a process (moisture, variety…), with their type.",
+        "capas-mapa": "Layers that can be turned on over plot maps (cadastre, protected areas, imagery…).",
+        "certificaciones": "Seals chosen in each farmer profile. Those in use cannot be deleted: retire them instead.",
+        "factores": "How much of one semi-product comes out for each unit of another that goes in, to estimate processing yields."
       },
       "buscar": "Search",
       "nuevo": "New",
@@ -1968,7 +1974,13 @@
       "errores": {
         "requerido": "This field is required.",
         "formato": "Only capital letters, numbers and underscores.",
-        "numero": "Enter a number greater than zero."
+        "numero": "Enter a number greater than zero.",
+        "url": "Enter an address starting with http:// or https://.",
+        "plantilla_xyz": "The template must contain {z}, {x} and {y}.",
+        "opacidad": "A number between 0 and 1.",
+        "entero": "A whole number.",
+        "mismo": "It cannot be the same as what goes in.",
+        "positivo": "A number greater than zero."
       },
       "tipos": {
         "DOCUMENT": "Document",
@@ -1991,6 +2003,52 @@
         "fairness": "Fairness",
         "provenance": "Provenance",
         "quality": "Quality"
+      },
+      "codigo_fijo": "The code cannot be changed once created.",
+      "nombre": "Name",
+      "descripcion": "Description",
+      "orden": "Order",
+      "activo": "Active",
+      "inactivo": "Inactive",
+      "capas": {
+        "tipos": {
+          "XYZ": "Tiles (XYZ)",
+          "WMS": "WMS service",
+          "ARCGIS_REST": "ArcGIS MapServer",
+          "GEOJSON": "GeoJSON"
+        },
+        "capa": "Layer name in the service",
+        "url": "Address (URL)",
+        "url_ayuda": {
+          "XYZ": "Template with {z}, {x} and {y}, for example https://server/{z}/{x}/{y}.png.",
+          "WMS": "Base address of the WMS service, without parameters.",
+          "ARCGIS_REST": "Address of the MapServer, without /tile at the end.",
+          "GEOJSON": "Direct address of the GeoJSON document."
+        },
+        "opacidad": "Opacity",
+        "opacidad_ayuda": "From 0 (transparent) to 1 (opaque).",
+        "atribucion": "Attribution",
+        "visible": "On when the map opens",
+        "visible_corto": "on by default"
+      },
+      "certificaciones": {
+        "codigo_fijo": "The code cannot be changed: existing certifications store it.",
+        "significado": "What it means",
+        "logo": "Seal image address",
+        "ofrecido": "Offered when recording certifications",
+        "no_se_borra": "“{{nombre}}” could not be deleted: certifications use it. Untick “Offered” to retire it."
+      },
+      "factores": {
+        "entrada": "What goes in",
+        "salida": "What comes out",
+        "factor": "Factor",
+        "factor_ayuda": "For example, 0.2 if 20 kg come out of 100 kg.",
+        "por_cien": "For every 100 that go in, {{n}} come out.",
+        "notas": "Notes",
+        "en_uso": "In use",
+        "resumen": "100 → {{n}}",
+        "empresa_corto": "company #{{empresa}} only",
+        "de_empresa": "This factor is only for company #{{empresa}}: it is used instead of the general one."
       }
     },
     "monedas": {

@@ -345,3 +345,65 @@ test.describe('administración de monedas y ajustes (modo simulado)', () => {
     await expect(page.getByText('Este café todavía no tiene su historia publicada. Escríbenos a la cooperativa.')).toBeVisible();
   });
 });
+
+test.describe('catálogos propios: capas, certificaciones y factores (modo simulado)', () => {
+  test('capas de mapa: reglas por tipo, código fijo y borrar', async ({ page }) => {
+    await ingresar(page, 'administracion/catalogos?tipo=capas-mapa', 'SYSTEM_ADMIN');
+    await expect(page.getByRole('listitem', { name: 'Imagen satelital' })).toContainText('SATELITE · ArcGIS MapServer');
+    await page.getByRole('button', { name: 'Nuevo', exact: true }).click();
+    await page.getByRole('textbox', { name: 'Código' }).fill('CATASTRO');
+    await page.getByRole('textbox', { name: 'Nombre' }).fill('Catastro municipal');
+    await page.getByRole('combobox', { name: 'Tipo' }).selectOption({ label: 'Mosaico (XYZ)' });
+    await page.getByRole('textbox', { name: 'Dirección (URL)' }).fill('https://tiles.ejemplo.org/{z}/{x}.png');
+    await page.getByRole('textbox', { name: 'Opacidad' }).fill('2');
+    await page.getByRole('button', { name: 'Guardar' }).click();
+    await expect(page.getByText('La plantilla debe tener {z}, {x} y {y}.')).toBeVisible();
+    await expect(page.getByText('Un número entre 0 y 1.')).toBeVisible();
+    // WMS pide el nombre de la capa.
+    await page.getByRole('combobox', { name: 'Tipo' }).selectOption({ label: 'Servicio WMS' });
+    await page.getByRole('textbox', { name: 'Dirección (URL)' }).fill('https://mapas.ejemplo.org/wms');
+    await page.getByRole('textbox', { name: 'Opacidad' }).fill('0,6');
+    await page.getByRole('button', { name: 'Guardar' }).click();
+    await expect(page.getByText('Este campo es obligatorio.')).toBeVisible();
+    await page.getByRole('textbox', { name: 'Nombre de la capa en el servicio' }).fill('catastro:parcelas');
+    await page.getByText('Encendida al abrir el mapa').click();
+    await page.getByRole('button', { name: 'Guardar' }).click();
+    await expect(page.getByText('«Catastro municipal» guardado.')).toBeVisible();
+    await expect(page.getByRole('listitem', { name: 'Catastro municipal' })).toContainText('CATASTRO · Servicio WMS · encendida al abrir');
+
+    await page.getByRole('button', { name: 'Editar Catastro municipal' }).click();
+    await expect(page.getByRole('textbox', { name: 'Código' })).toHaveAttribute('readonly', '');
+    await page.getByRole('button', { name: 'Cancelar' }).click();
+    page.on('dialog', (d) => void d.accept());
+    await page.getByRole('button', { name: 'Borrar Catastro municipal' }).click();
+    await expect(page.getByText('«Catastro municipal» borrado.')).toBeVisible();
+  });
+
+  test('tipos de certificación: uno en uso no se borra; retirar uno', async ({ page }) => {
+    await ingresar(page, 'administracion/catalogos?tipo=certificaciones', 'SYSTEM_ADMIN');
+    page.on('dialog', (d) => void d.accept());
+    await page.getByRole('button', { name: 'Borrar Orgánico' }).click();
+    await expect(page.getByText('No se pudo borrar «Orgánico»: hay certificaciones que lo usan. Desmarca «Se ofrece» para retirarlo.')).toBeVisible();
+    await page.getByRole('button', { name: 'Editar Comercio justo' }).click();
+    await page.getByText('Se ofrece al cargar certificaciones').click();
+    await page.getByRole('button', { name: 'Guardar' }).click();
+    await expect(page.getByRole('listitem', { name: 'Comercio justo' })).toContainText('FAIRTRADE · Inactivo');
+  });
+
+  test('factores de conversión: entrada distinta de salida y el factor en palabras', async ({ page }) => {
+    await ingresar(page, 'administracion/catalogos?tipo=factores', 'SYSTEM_ADMIN');
+    await expect(page.getByRole('listitem', { name: 'Café cereza → Café pergamino' })).toContainText('100 → 20');
+    await page.getByRole('button', { name: 'Nuevo', exact: true }).click();
+    await page.getByRole('combobox', { name: 'Lo que entra' }).selectOption({ label: 'Café pergamino' });
+    await page.getByRole('combobox', { name: 'Lo que sale' }).selectOption({ label: 'Café pergamino' });
+    await page.getByRole('textbox', { name: 'Factor' }).fill('0');
+    await page.getByRole('button', { name: 'Guardar' }).click();
+    await expect(page.getByText('No puede ser lo mismo que entra.')).toBeVisible();
+    await expect(page.getByText('Un número mayor que cero.')).toBeVisible();
+    await page.getByRole('combobox', { name: 'Lo que sale' }).selectOption({ label: 'Café cereza' });
+    await page.getByRole('textbox', { name: 'Factor' }).fill('4,8');
+    await expect(page.getByText('Por cada 100 que entran, salen 480.')).toBeVisible();
+    await page.getByRole('button', { name: 'Guardar' }).click();
+    await expect(page.getByRole('listitem', { name: 'Café pergamino → Café cereza' })).toContainText('100 → 480');
+  });
+});

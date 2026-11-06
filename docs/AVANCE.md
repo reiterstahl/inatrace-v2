@@ -909,7 +909,7 @@ aislada con `inatrace-backend:dev-h31` (respaldo `respaldos/v2demo-antes-h31.sql
 AgStack ya lo documenta en `docs/api-auth-coverage/38-codebooks.md` y pide tratarlo aparte; la v2 manda el
 id en la ruta y en la consulta.
 
-### H33 🟠 — activar una moneda puede colgar el pedido (contrato; ya corregido en el original)
+### H33 🟠 — activar una moneda puede colgar el pedido (contrato; corregido trayendo el #101 del original)
 
 `CurrencyTypeService.updateCurrencies` llama al servicio de tipos de cambio con `WebClient...block()`
 **sin tiempo límite** y dentro de la transacción. En la copia aislada, dos activaciones quedaron
@@ -923,6 +923,37 @@ solo lectura por esto.
 celular; la de ancho suma monedas y ajustes) y dos nuevas contra el backend real (monedas en solo
 lectura; ajustes que llegan a la vitrina sin sesión y a Etiquetas, y se restauran). Suite real: 39 de 40
 (la de QR de convivencia).
+
+## Fase 4d.3 (administración: capas de mapa, certificaciones y factores) — ✅ cerrada el 06.11.2026 (rama `fase-5`)
+
+Tres catálogos más en Administración → Catálogos, los **propios de esta instalación** (no están en el
+original), cada uno con su editor. Con ellos **cierra la 4d** (y toda la administración):
+
+- **Capas de mapa:** tipo (mosaico XYZ, WMS, ArcGIS MapServer o GeoJSON), dirección con ayuda según el
+  tipo, nombre de capa para WMS, opacidad, atribución, orden y si se enciende al abrir el mapa. Las mismas
+  reglas que el backend (plantilla `{z}/{x}/{y}` en XYZ, opacidad de 0 a 1, solo http/https). El código
+  no cambia al editar (el backend lo ignora).
+- **Tipos de certificación:** nombre, significado, imagen del sello, orden y si se ofrece. Uno en uso no
+  se borra (el backend lo rechaza con un mensaje claro): la v2 sugiere retirarlo.
+- **Factores de conversión:** lo que entra y lo que sale (distintos), el factor con su lectura en palabras
+  («por cada 100 que entran, salen 20») y notas. Se conserva la empresa de los factores propios de una
+  empresa.
+- Las listas activas de capas y certificaciones del simulador salen ahora del mismo estado.
+
+### H34 🟡 — la regional edita capas, certificaciones y factores de cualquier empresa (contrato)
+
+En estos tres catálogos (código propio del contrato) el backend deja que la administración regional
+**edite** los existentes, y en los factores, también los de empresas que no son suyas. En los catálogos
+del original (y en la regla #38 de AgStack) editar es solo del sistema. La v2 aplica la regla del original:
+la regional crea pero no edita ni borra. Corregirlo en el backend del contrato queda a decisión de Rolando.
+
+**H33:** se trajeron al contrato los dos commits del #101 del original (`a883b2a`, 438 pruebas); la copia
+aislada corre `inatrace-backend:dev-h33` (respaldo `respaldos/v2demo-antes-h33.sql`) y activar una moneda
+responde al instante.
+
+**Pruebas:** 161 unitarias (5 nuevas), 182 de punta a punta simuladas (3 nuevas en escritorio y celular;
+la de ancho suma capas y factores) y una nueva contra el backend real (una capa, un sello y un factor se
+crean, editan y borran, sin dejar nada). Suite real: 40 de 41 (la de QR de convivencia).
 
 ## Fase 1b (activar la vitrina en una instalación) — pendiente, acordada el 19.10.2026
 
@@ -951,9 +982,8 @@ confirmar el uso del video de Anacafé o cambiarlo.**
 4. **Fase 3 cerrada** (3a–3e.3). Queda probar Beyco de verdad cuando haya una cuenta de pruebas.
 5. **Fase 5 cerrada** (5a.1–5d). En curso: fase 4 («Empresa y administración»): **4a cerrada**
    (ficha, usuarios, instalaciones y acciones) y **4b cerrada** (recolectores, clientes y tablero);
-   **4c cerrada** (administración: empresas, usuarios y cadenas de valor); **4d.1 y 4d.2 cerradas**
-   (catálogos de tipos, monedas y ajustes); siguen 4d.3 (capas de mapa, certificaciones y factores de
-   conversión) y 4e (cuenta).
+   **4c cerrada** (administración: empresas, usuarios y cadenas de valor); **4d cerrada**
+   (catálogos, monedas, ajustes, capas de mapa, certificaciones y factores); sigue 4e (cuenta).
 6. H23: PR #116 **mergeado** en AgStack (02.11.2026); #113 también. Sigue abierto #112 (con los
    cambios pedidos ya respondidos).
 7. H24: AgStack pidió enviarlo por PR (ver punto 9).

@@ -10,9 +10,12 @@ import { Area, Campo, Selector } from '@/componentes/ui/Campo';
 import { Aviso, Cargando, EstadoError } from '@/componentes/ui/Estados';
 import { Icono } from '@/componentes/ui/Icono';
 import {
-  CATALOGOS, FORMA, IDIOMAS_CATALOGO, armarItem, codigoItem, formDesdeItem, nombreItem, permisosCatalogo, validarCatalogo,
+  CATALOGOS, FORMA, IDIOMAS_CATALOGO, armarItem, codigoItem, esPropio, formDesdeItem, nombreItem, permisosCatalogo, validarCatalogo,
   type Catalogo, type ErroresCatalogo, type FormCatalogo, type ItemCatalogo,
 } from '@/util/catalogos';
+import { porCien } from '@/util/catalogosPropios';
+import type { ApiCertificationType, ApiConversionFactor, ApiMapLayer } from '@/api/gen/types.gen';
+import { EditorCapa, EditorCertificacion, EditorFactor } from './EditoresPropios';
 import { Casilla, Tarjeta } from '../productos/piezas';
 
 const ruta = getRouteApi('/portal/administracion/catalogos');
@@ -20,12 +23,18 @@ const OBLIGATORIO = <span className="text-mal" aria-hidden> *</span>;
 type AvisoPantalla = { tono: 'ok' | 'mal'; texto: string } | null;
 
 /** Detalle corto de cada elemento en la lista, según el catálogo. */
-function detalle(cat: Catalogo, x: ItemCatalogo, t: (k: string) => string) {
+function detalle(cat: Catalogo, x: ItemCatalogo, t: (k: string, o?: Record<string, unknown>) => string, idioma: string) {
   const r = x as Record<string, unknown>;
   if (cat === 'semiproductos') return (r.measurementUnitType as ApiMeasureUnitType | undefined)?.label ?? '';
   if (cat === 'unidades') return r.weight != null ? `${r.weight} kg` : '';
   if (cat === 'tipos-evidencia' || cat === 'campos-evidencia') return r.type ? t(`administracion.catalogos.tipos.${r.type}`) : '';
-  return '';
+  const inactivo = r.enabled === false ? t('administracion.catalogos.inactivo') : '';
+  if (cat === 'capas-mapa') return [t(`administracion.catalogos.capas.tipos.${r.type}`), r.visibleByDefault ? t('administracion.catalogos.capas.visible_corto') : '', inactivo].filter(Boolean).join(' · ');
+  if (cat === 'factores') {
+    const f = x as ApiConversionFactor;
+    return [t('administracion.catalogos.factores.resumen', { n: porCien(f.factor).toLocaleString(idioma) }), f.companyId ? t('administracion.catalogos.factores.empresa_corto', { empresa: f.companyId }) : '', inactivo].filter(Boolean).join(' · ');
+  }
+  return inactivo;
 }
 
 /**
@@ -57,7 +66,7 @@ export function CatalogosAdministracion() {
       setAviso({ tono: 'ok', texto: t('administracion.catalogos.borrado', { nombre }) });
     } catch {
       // En uso: el backend responde un 500 genérico o, con H31, un 400 en inglés. Se explica en el idioma de la interfaz.
-      setAviso({ tono: 'mal', texto: t('administracion.catalogos.no_se_borra', { nombre }) });
+      setAviso({ tono: 'mal', texto: t(cat === 'certificaciones' ? 'administracion.catalogos.certificaciones.no_se_borra' : 'administracion.catalogos.no_se_borra', { nombre }) });
     }
   }
 
@@ -81,7 +90,19 @@ export function CatalogosAdministracion() {
 
       {aviso && <Aviso tono={aviso.tono}>{aviso.texto}</Aviso>}
 
-      {editando ? (
+      {editando && esPropio(cat) ? (
+        (() => {
+          const clave = `${cat}-${editando === 'nuevo' ? 'nuevo' : editando.id}`;
+          const comun = {
+            editable: editando === 'nuevo' ? permisos.crear : permisos.editar,
+            cerrar: (texto?: string) => { setEditando(null); if (texto) setAviso({ tono: 'ok', texto }); },
+          };
+          const original = editando === 'nuevo' ? undefined : editando;
+          if (cat === 'capas-mapa') return <EditorCapa key={clave} {...comun} original={original as ApiMapLayer | undefined} />;
+          if (cat === 'certificaciones') return <EditorCertificacion key={clave} {...comun} original={original as ApiCertificationType | undefined} />;
+          return <EditorFactor key={clave} {...comun} original={original as ApiConversionFactor | undefined} />;
+        })()
+      ) : editando ? (
         <EditorItem
           key={`${cat}-${editando === 'nuevo' ? 'nuevo' : editando.id}`}
           cat={cat}
@@ -112,7 +133,7 @@ export function CatalogosAdministracion() {
               <ul className="divide-y divide-linea" aria-label={t(`administracion.catalogos.nombres.${cat}`)}>
                 {items.map((x) => {
                   const nombre = nombreItem(x);
-                  const extra = detalle(cat, x, t);
+                  const extra = detalle(cat, x, t, i18n.language);
                   return (
                     <li key={x.id} aria-label={nombre} className="flex flex-wrap items-center justify-between gap-3 py-2.5">
                       <span className="grid min-w-0 gap-0.5">

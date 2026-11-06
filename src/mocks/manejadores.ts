@@ -149,17 +149,24 @@ const completarCadena = (c: ApiValueChain): ApiValueChain => {
 // Catálogos del sistema (Administración → Catálogos), con estado. Los de ejemplo están en uso: como
 // el backend con H31 corregido, borrarlos se rechaza con 400 (antes, 500 genérico).
 type ItemSimulado = { id?: number } & Record<string, unknown>;
-const CATALOGOS_SIMULADOS: Record<string, { ruta: string; inicial: () => ItemSimulado[] }> = {
+const CATALOGOS_SIMULADOS: Record<string, { ruta: string; inicial: () => ItemSimulado[]; lista?: string; plano?: boolean; libres?: boolean }> = {
   semiproductos: { ruta: '/api/chain/semi-product', inicial: () => semiproductos },
   'tipos-producto': { ruta: '/api/product-type', inicial: () => tiposProducto },
   'tipos-instalacion': { ruta: '/api/chain/facility-type', inicial: () => tiposInstalacion },
   unidades: { ruta: '/api/chain/measure-unit-type', inicial: () => unidadesMedida },
   'tipos-evidencia': { ruta: '/api/chain/processing-evidence-type', inicial: () => tiposEvidencia },
   'campos-evidencia': { ruta: '/api/chain/processing-evidence-field', inicial: () => camposEvidencia },
+  // Propios de esta instalación. Las capas y los factores no tienen quién los use: se borran siempre.
+  'capas-mapa': { ruta: '/api/chain/map-layer', inicial: () => capasMapa, libres: true },
+  certificaciones: { ruta: '/api/chain/certification-type', inicial: () => tiposCertificacion, plano: true },
+  factores: {
+    ruta: '/api/chain/conversion/factors', lista: '/api/chain/conversion/factors', plano: true, libres: true,
+    inicial: () => [{ id: 71, inputSemiProductId: 3, inputSemiProductName: 'Café cereza', outputSemiProductId: 4, outputSemiProductName: 'Café pergamino', factor: 0.2, enabled: true }],
+  },
 };
 const leerCatalogo = (cat: string): ItemSimulado[] => JSON.parse(sessionStorage.getItem(`simulado.catalogo.${cat}`) ?? 'null') ?? CATALOGOS_SIMULADOS[cat]!.inicial();
 const guardarCatalogo = (cat: string, l: ItemSimulado[]) => sessionStorage.setItem(`simulado.catalogo.${cat}`, JSON.stringify(l));
-const enUsoInicial = (cat: string, id: number) => CATALOGOS_SIMULADOS[cat]!.inicial().some((x) => x.id === id);
+const enUsoInicial = (cat: string, id: number) => !CATALOGOS_SIMULADOS[cat]!.libres && CATALOGOS_SIMULADOS[cat]!.inicial().some((x) => x.id === id);
 const CLAVE_MONEDAS = 'simulado.monedas';
 const leerMonedas = (): ApiCurrencyType[] =>
   JSON.parse(sessionStorage.getItem(CLAVE_MONEDAS) ?? 'null') ?? [
@@ -366,8 +373,8 @@ export const manejadores = [
     sessionStorage.setItem(CLAVE_AJUSTES, JSON.stringify({ ...leerAjustes(), [String(params.nombre)]: { value: b.value, isPublic: !!b.isPublic } }));
     return ok();
   }),
-  ...Object.entries(CATALOGOS_SIMULADOS).flatMap(([cat, { ruta }]) => {
-    const lista = ruta === '/api/product-type' ? ruta : `${ruta}/list`;
+  ...Object.entries(CATALOGOS_SIMULADOS).flatMap(([cat, { ruta, lista: rutaLista, plano }]) => {
+    const lista = rutaLista ?? (ruta === '/api/product-type' ? ruta : `${ruta}/list`);
     const guardar = async (request: Request) => {
       if (!conSesion()) return sinSesion();
       const rol = sessionStorage.getItem(CLAVE_ROL);
@@ -381,7 +388,10 @@ export const manejadores = [
       const id = x.id ?? siguienteId++;
       // Como el backend: las unidades referidas vuelven completas.
       const unidad = (u: unknown) => (u && (u as ItemSimulado).id ? leerCatalogo('unidades').find((y) => y.id === (u as ItemSimulado).id) ?? u : undefined);
-      const completo = { ...x, id, measurementUnitType: unidad(x.measurementUnitType), underlyingMeasurementUnitType: unidad(x.underlyingMeasurementUnitType) };
+      const semi = (sid: unknown) => leerCatalogo('semiproductos').find((y) => y.id === sid)?.name;
+      const completo = cat === 'factores'
+        ? { ...x, id, inputSemiProductName: semi(x.inputSemiProductId), outputSemiProductName: semi(x.outputSemiProductId) }
+        : { ...x, id, measurementUnitType: unidad(x.measurementUnitType), underlyingMeasurementUnitType: unidad(x.underlyingMeasurementUnitType) };
       guardarCatalogo(cat, x.id ? l.map((y) => (y.id === id ? completo : y)) : [...l, completo]);
       return ok({ id });
     };
@@ -390,13 +400,13 @@ export const manejadores = [
       http.get(lista, ({ request }) => {
         if (!conSesion()) return sinSesion();
         const idioma = request.headers.get('language');
-        return paginado(
+        const traducidos =
           leerCatalogo(cat).map((x) => {
             const t = (x.translations as { language?: string; name?: string; description?: string; label?: string }[] | undefined)?.find((y) => y.language === idioma);
             if (!t) return x;
             return { ...x, ...(t.name ? { name: t.name, description: t.description } : {}), ...(t.label ? { label: t.label } : {}) };
-          }),
-        );
+          });
+        return plano ? ok(traducidos) : paginado(traducidos);
       }),
       ...(ruta === '/api/product-type'
         ? [http.post(ruta, ({ request }) => guardar(request)), http.put(ruta, ({ request }) => guardar(request))]
@@ -405,7 +415,7 @@ export const manejadores = [
         if (sessionStorage.getItem(CLAVE_ROL) !== 'SYSTEM_ADMIN') return error(403, 'UNAUTHORIZED', 'Forbidden');
         // Los tipos de producto mandan el id en la consulta (el backend lo lee de ahí).
         const id = Number(ruta === '/api/product-type' ? new URL(request.url).searchParams.get('id') : params.id);
-        if (enUsoInicial(cat, id)) return error(400, 'VALIDATION_ERROR', 'Cannot delete an entry that is in use');
+        if (enUsoInicial(cat, id)) return error(400, cat === 'certificaciones' ? 'INVALID_REQUEST' : 'VALIDATION_ERROR', 'Cannot delete an entry that is in use');
         guardarCatalogo(cat, leerCatalogo(cat).filter((x) => x.id !== id));
         return ok();
       }),
@@ -497,8 +507,9 @@ export const manejadores = [
   http.get('/api/company/:id/product-types', () => paginado(tiposProducto)),
   http.get('/api/company/associations/:id', () => paginado([{ id: 7, name: 'Asociación de Caficultores del Norte' }])),
   http.get('/api/common/countries', () => paginado(paises)),
-  http.get('/api/chain/certification-type/active', () => ok(tiposCertificacion)),
-  http.get('/api/chain/map-layer/active', () => ok(capasMapa)),
+  // Las activas salen del mismo estado que edita Administración → Catálogos.
+  http.get('/api/chain/certification-type/active', () => ok(leerCatalogo('certificaciones').filter((x) => x.enabled !== false))),
+  http.get('/api/chain/map-layer/active', () => ok(leerCatalogo('capas-mapa').filter((x) => x.enabled !== false))),
 
   // ---------- Productores ----------
   http.get('/api/company/userCustomers/:companyId/plots', () => (conSesion() ? ok(parcelasDe(leerProductores().filter((p) => deTipo(p, 'FARMER')))) : sinSesion())),

@@ -32,7 +32,7 @@ test('con la administración del sistema tampoco', async ({ page }) => {
   await page.getByLabel('Contraseña').fill('demo1234');
   await page.getByRole('button', { name: 'Ingresar' }).click();
   await expect(page.getByRole('heading', { name: /^Hola/ })).toBeVisible();
-  for (const ruta of ['', 'administracion/empresas', 'administracion/usuarios', 'administracion/usuarios/8', 'administracion/cadenas', 'administracion/cadenas/1', 'administracion/cadenas/nueva', 'administracion/catalogos', 'administracion/catalogos?tipo=tipos-evidencia', 'administracion/monedas', 'administracion/ajustes', 'empresa']) {
+  for (const ruta of ['', 'administracion/empresas', 'administracion/usuarios', 'administracion/usuarios/8', 'administracion/cadenas', 'administracion/cadenas/1', 'administracion/cadenas/nueva', 'administracion/catalogos', 'administracion/catalogos?tipo=tipos-evidencia', 'administracion/monedas', 'administracion/ajustes', 'administracion/catalogos?tipo=capas-mapa', 'administracion/catalogos?tipo=factores', 'empresa']) {
     await page.goto(ruta);
     await expect(page.locator('main h1').first()).toBeVisible({ timeout: 15_000 });
     await page.waitForLoadState('networkidle');
