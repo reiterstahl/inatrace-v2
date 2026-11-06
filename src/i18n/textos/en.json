@@ -1288,7 +1288,8 @@
         "lotes": "Batches",
         "opiniones": "Feedback",
         "estadisticas": "Statistics"
-      }
+      },
+      "mas_informacion": "More information"
     },
     "lotes": {
       "titulo": "Batches",
@@ -1791,7 +1792,9 @@
       "empresas": "Companies",
       "usuarios": "Users",
       "cadenas": "Value chains",
-      "catalogos": "Catalogs"
+      "catalogos": "Catalogs",
+      "monedas": "Currencies",
+      "ajustes": "Settings"
     },
     "estado": {
       "ACTIVE": "Active",
@@ -1989,6 +1992,36 @@
         "provenance": "Provenance",
         "quality": "Quality"
       }
+    },
+    "monedas": {
+      "titulo": "Currencies",
+      "ayuda": "Active currencies are the ones companies can choose as their base currency and for payments.",
+      "cuales": "Which currencies to show",
+      "activas": "Active",
+      "desactivadas": "Deactivated",
+      "buscar": "Search",
+      "buscar_placeholder": "Code or name",
+      "vacio": "No currency matches.",
+      "total_one": "{{count}} currency",
+      "total_other": "{{count}} currencies",
+      "activar": "Activate",
+      "activar_de": "Activate {{moneda}}",
+      "desactivar": "Deactivate",
+      "desactivar_de": "Deactivate {{moneda}}",
+      "activada": "{{moneda}} is now active.",
+      "desactivada": "{{moneda}} is now deactivated.",
+      "activando": "Activating…",
+      "ayuda_activar": "Activating one updates the exchange rates through an external service, so it can take a while."
+    },
+    "ajustes": {
+      "solo_lectura": "Only system administrators edit the settings.",
+      "no_publicada": "Unpublished labels",
+      "no_publicada_ayuda": "What people see when they scan a QR code whose label is not published yet (or no longer exists). Empty: the standard message is shown.",
+      "no_publicada_texto": "Text for consumers",
+      "enlace": "Help for labels",
+      "enlace_ayuda": "A link with more information for the people who prepare labels and their QR codes. It appears in the Labels tab of each product.",
+      "enlace_url": "Link (URL)",
+      "enlace_invalido": "Enter a valid link (for example, https://example.org/help)."
     }
   }
 }

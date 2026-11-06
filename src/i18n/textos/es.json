@@ -1288,7 +1288,8 @@
         "lotes": "Lotes",
         "opiniones": "Opiniones",
         "estadisticas": "Estadísticas"
-      }
+      },
+      "mas_informacion": "Más información"
     },
     "lotes": {
       "titulo": "Lotes",
@@ -1791,7 +1792,9 @@
       "empresas": "Empresas",
       "usuarios": "Usuarios",
       "cadenas": "Cadenas de valor",
-      "catalogos": "Catálogos"
+      "catalogos": "Catálogos",
+      "monedas": "Monedas",
+      "ajustes": "Ajustes"
     },
     "estado": {
       "ACTIVE": "Activa",
@@ -1989,6 +1992,36 @@
         "provenance": "Procedencia",
         "quality": "Calidad"
       }
+    },
+    "monedas": {
+      "titulo": "Monedas",
+      "ayuda": "Las activas son las que las empresas pueden elegir como moneda base y en los pagos.",
+      "cuales": "Qué monedas ver",
+      "activas": "Activas",
+      "desactivadas": "Desactivadas",
+      "buscar": "Buscar",
+      "buscar_placeholder": "Código o nombre",
+      "vacio": "Ninguna moneda coincide.",
+      "total_one": "{{count}} moneda",
+      "total_other": "{{count}} monedas",
+      "activar": "Activar",
+      "activar_de": "Activar {{moneda}}",
+      "desactivar": "Desactivar",
+      "desactivar_de": "Desactivar {{moneda}}",
+      "activada": "{{moneda}} quedó activa.",
+      "desactivada": "{{moneda}} quedó desactivada.",
+      "activando": "Activando…",
+      "ayuda_activar": "Al activar una, se actualizan los tipos de cambio con un servicio externo: puede tardar."
+    },
+    "ajustes": {
+      "solo_lectura": "Solo la administración del sistema edita los ajustes.",
+      "no_publicada": "Etiquetas sin publicar",
+      "no_publicada_ayuda": "Lo que ve quien escanea un QR cuya etiqueta todavía no está publicada (o ya no existe). Vacío: se muestra el mensaje estándar.",
+      "no_publicada_texto": "Texto para el consumidor",
+      "enlace": "Ayuda para las etiquetas",
+      "enlace_ayuda": "Un enlace con más información para quienes preparan las etiquetas y sus QR. Aparece en la pestaña Etiquetas de cada producto.",
+      "enlace_url": "Enlace (URL)",
+      "enlace_invalido": "Escribe un enlace válido (por ejemplo, https://ejemplo.org/ayuda)."
     }
   }
 }

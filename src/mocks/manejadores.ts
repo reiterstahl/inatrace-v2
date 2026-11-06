@@ -1,5 +1,5 @@
 import { http, HttpResponse, delay } from 'msw';
-import type { ApiAdminUserUpdate, ApiValueChain, ApiCompany, ApiCompanyCustomer, ApiUserBase, ApiProcessingAction, ApiFacility, ApiCompanyActionRequest, ApiCompanyGet, ApiCompanyUpdate, ApiCompanyUser, ApiFinalProduct, ApiKnowledgeBlog, ApiProduct, ApiProductLabel, ApiProductLabelBatch, ApiProductLabelCompanyDocument, ApiProductLabelContent, ApiProductLabelFeedback, ApiUserGet } from '@/api/gen/types.gen';
+import type { ApiAdminUserUpdate, ApiCurrencyType, ApiValueChain, ApiCompany, ApiCompanyCustomer, ApiUserBase, ApiProcessingAction, ApiFacility, ApiCompanyActionRequest, ApiCompanyGet, ApiCompanyUpdate, ApiCompanyUser, ApiFinalProduct, ApiKnowledgeBlog, ApiProduct, ApiProductLabel, ApiProductLabelBatch, ApiProductLabelCompanyDocument, ApiProductLabelContent, ApiProductLabelFeedback, ApiUserGet } from '@/api/gen/types.gen';
 import { ETIQUETA_DEMO, QR_DEMO, etiqueta, qr } from './datos/vitrina';
 import type { ApiUserCustomer } from '@/api/gen/types.gen';
 import { accionesProcesamiento, clientes, instalacionVecina, pagosIniciales, procesosIniciales, productoFinalQr, acopiadores, agrupar, entregasIniciales, historiaDe, instalaciones, loteProcesado, recalcular, semiproductos, tiposEvidencia, usuariosEmpresa } from './datos/stock';
@@ -146,8 +146,8 @@ const completarCadena = (c: ApiValueChain): ApiValueChain => {
     semiProducts: de(semiproductos, c.semiProducts),
   };
 };
-// Catálogos del sistema (Administración → Catálogos), con estado. Los de ejemplo están en uso:
-// como el backend sin H31, borrarlos falla por la clave foránea con un 500 genérico.
+// Catálogos del sistema (Administración → Catálogos), con estado. Los de ejemplo están en uso: como
+// el backend con H31 corregido, borrarlos se rechaza con 400 (antes, 500 genérico).
 type ItemSimulado = { id?: number } & Record<string, unknown>;
 const CATALOGOS_SIMULADOS: Record<string, { ruta: string; inicial: () => ItemSimulado[] }> = {
   semiproductos: { ruta: '/api/chain/semi-product', inicial: () => semiproductos },
@@ -160,6 +160,15 @@ const CATALOGOS_SIMULADOS: Record<string, { ruta: string; inicial: () => ItemSim
 const leerCatalogo = (cat: string): ItemSimulado[] => JSON.parse(sessionStorage.getItem(`simulado.catalogo.${cat}`) ?? 'null') ?? CATALOGOS_SIMULADOS[cat]!.inicial();
 const guardarCatalogo = (cat: string, l: ItemSimulado[]) => sessionStorage.setItem(`simulado.catalogo.${cat}`, JSON.stringify(l));
 const enUsoInicial = (cat: string, id: number) => CATALOGOS_SIMULADOS[cat]!.inicial().some((x) => x.id === id);
+const CLAVE_MONEDAS = 'simulado.monedas';
+const leerMonedas = (): ApiCurrencyType[] =>
+  JSON.parse(sessionStorage.getItem(CLAVE_MONEDAS) ?? 'null') ?? [
+    ...monedas,
+    { id: 4, code: 'CRC', label: 'Costa Rican colón', enabled: false },
+    { id: 5, code: 'HNL', label: 'Honduran lempira', enabled: false },
+  ];
+const CLAVE_AJUSTES = 'simulado.ajustes';
+const leerAjustes = (): Record<string, { value?: string; isPublic: boolean }> => JSON.parse(sessionStorage.getItem(CLAVE_AJUSTES) ?? 'null') ?? {};
 const esAdministracion = () => ['SYSTEM_ADMIN', 'REGIONAL_ADMIN'].includes(sessionStorage.getItem(CLAVE_ROL) ?? '');
 const CLAVE_ETIQUETAS = 'simulado.etiquetas';
 const leerEtiquetas = (): EtiquetaSimulada[] => JSON.parse(sessionStorage.getItem(CLAVE_ETIQUETAS) ?? 'null') ?? etiquetasIniciales;
@@ -247,7 +256,8 @@ export const manejadores = [
   // ---------- Vitrina pública ----------
   http.get('/api/public/product/label/:uid', async ({ params }) => {
     await delay(250);
-    return params.uid === ETIQUETA_DEMO ? ok(etiqueta) : error(404, 'NOT_FOUND', 'Label not found');
+    // Como el backend: una etiqueta inexistente o sin publicar responde 400, no 404.
+    return params.uid === ETIQUETA_DEMO ? ok(etiqueta) : error(400, 'INVALID_REQUEST', 'Invalid label uid');
   }),
   http.get('/api/public/stock-order/:qrTag', async ({ params }) => {
     await delay(200);
@@ -328,7 +338,34 @@ export const manejadores = [
     }
     return ok();
   }),
-  http.get('/api/chain/currency-type/list/enabled', () => paginado(monedas)),
+  // Monedas (Administración → Monedas): activas y desactivadas, con búsqueda por código o nombre.
+  ...(['enabled', 'disabled'] as const).map((cuales) =>
+    http.get(`/api/chain/currency-type/list/${cuales}`, ({ request }) => {
+      const u = new URL(request.url);
+      const q = (u.searchParams.get('query') ?? '').toLowerCase();
+      return pagina(leerMonedas().filter((m) => (cuales === 'enabled') === !!m.enabled && `${m.code} ${m.label}`.toLowerCase().includes(q)).sort((a, b) => a.code.localeCompare(b.code)), u);
+    }),
+  ),
+  ...(['enable', 'disable'] as const).map((accion) =>
+    http.put(`/api/chain/currency-type/:id/${accion}`, ({ params }) => {
+      const rol = sessionStorage.getItem(CLAVE_ROL);
+      if (rol !== 'SYSTEM_ADMIN' && !(accion === 'enable' && rol === 'REGIONAL_ADMIN')) return error(403, 'UNAUTHORIZED', 'Forbidden');
+      sessionStorage.setItem(CLAVE_MONEDAS, JSON.stringify(leerMonedas().map((m) => (m.id === Number(params.id) ? { ...m, enabled: accion === 'enable' } : m))));
+      return ok();
+    }),
+  ),
+  // Ajustes globales: con sesión se leen todos; sin sesión, solo los públicos.
+  http.get('/api/common/globalSettings/:nombre', ({ params }) => (conSesion() ? ok({ value: leerAjustes()[String(params.nombre)]?.value }) : sinSesion())),
+  http.get('/api/public/globalSettings/:nombre', ({ params }) => {
+    const a = leerAjustes()[String(params.nombre)];
+    return ok({ value: a?.isPublic ? a.value : undefined });
+  }),
+  http.post('/api/common/globalSettings/:nombre', async ({ request, params }) => {
+    if (sessionStorage.getItem(CLAVE_ROL) !== 'SYSTEM_ADMIN') return error(403, 'UNAUTHORIZED', 'Forbidden');
+    const b = (await request.json()) as { value?: string; isPublic?: boolean };
+    sessionStorage.setItem(CLAVE_AJUSTES, JSON.stringify({ ...leerAjustes(), [String(params.nombre)]: { value: b.value, isPublic: !!b.isPublic } }));
+    return ok();
+  }),
   ...Object.entries(CATALOGOS_SIMULADOS).flatMap(([cat, { ruta }]) => {
     const lista = ruta === '/api/product-type' ? ruta : `${ruta}/list`;
     const guardar = async (request: Request) => {
@@ -368,7 +405,7 @@ export const manejadores = [
         if (sessionStorage.getItem(CLAVE_ROL) !== 'SYSTEM_ADMIN') return error(403, 'UNAUTHORIZED', 'Forbidden');
         // Los tipos de producto mandan el id en la consulta (el backend lo lee de ahí).
         const id = Number(ruta === '/api/product-type' ? new URL(request.url).searchParams.get('id') : params.id);
-        if (enUsoInicial(cat, id)) return error(500, 'ERROR', 'Internal server error');
+        if (enUsoInicial(cat, id)) return error(400, 'VALIDATION_ERROR', 'Cannot delete an entry that is in use');
         guardarCatalogo(cat, leerCatalogo(cat).filter((x) => x.id !== id));
         return ok();
       }),

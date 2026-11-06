@@ -863,14 +863,14 @@ settings/types de la versión actual, con los seis catálogos en una misma panta
 - El aviso y la lista nombran cada elemento en el idioma de la interfaz (el backend traduce con la
   cabecera `language`; el simulador ahora también).
 
-### H31 🟡 — borrar un elemento de catálogo en uso responde 500 (backend; sin PR todavía)
+### H31 🟡 — borrar un elemento de catálogo en uso responde 500 (backend; corregido, PR enviado)
 
 Las seis rutas de borrado (semiproductos, tipos de producto, tipos de instalación, unidades, tipos y
 campos de evidencia) hacen `em.remove` sin revisar quién usa el elemento: la clave foránea lo rechaza
 con **500** y se revierte. Comprobado en la copia aislada con el semiproducto 3 y la unidad 2. Mismo
 patrón que H27, H28 y H30 (la guía AGENTS.md de AgStack, #124, pide justamente revisar las FK).
 
-### H32 🟡 — borrar un tipo de producto lee el id de la consulta (backend; sin PR todavía)
+### H32 🟡 — borrar un tipo de producto lee el id de la consulta (backend; conocido en el original)
 
 `DELETE /api/product-type/{id}` declara el id en la ruta pero lo lee con `@RequestParam`: solo funciona
 si además va `?id=`. El cliente generado lo manda así y la v2 lo usa; un cliente que siga la ruta
@@ -884,6 +884,45 @@ nada; un semiproducto en uso no se borra y se explica). Suite real: 37 de 38 (la
 **Entorno:** el reinicio del host del 05.11 vació el scratchpad de la sesión y con él los respaldos
 `v2demo-antes-*.sql`. Desde ahora los respaldos de la copia aislada van a `inatrace-v2-demo/respaldos/`
 (fuera de git); el primero es `v2demo-2026-11-06-4d1.sql`.
+
+## Fase 4d.2 (administración: monedas y ajustes) — ✅ cerrada el 06.11.2026 (rama `fase-5`)
+
+Dos pestañas nuevas en Administración:
+
+- **Monedas** (`/administracion/monedas`): activas y desactivadas, búsqueda por código o nombre,
+  páginas; activar (también la regional, como el backend) y desactivar (solo el sistema). Activar
+  muestra «Activando…» y avisa que puede tardar: el backend actualiza los tipos de cambio con un
+  servicio externo (ver H33).
+- **Ajustes** (`/administracion/ajustes`), los «ajustes adicionales» de la versión actual: el texto
+  para etiquetas sin publicar (público) y un enlace de ayuda para las etiquetas (validado: solo http/https).
+  Solo el sistema los edita. En la versión actual se guardaban pero **ninguna pantalla los usaba**; en la
+  v2 el texto aparece en la vitrina cuando un QR apunta a una etiqueta sin publicar, y el enlace, como
+  «Más información» en la pestaña Etiquetas de cada producto.
+- **Arreglo en la vitrina:** con una etiqueta inexistente o sin publicar, el backend responde 400
+  «Invalid label uid» (no 404) y la v2 mostraba «Algo salió mal» con «Reintentar». Ahora muestra «No
+  encontramos este producto» (o el texto configurado). El simulador respondía 404 y lo escondía; ahora
+  responde como el backend.
+
+**H31 → PR [#137](https://github.com/agstack/inatrace-backend/pull/137)** (issue #136, 416 pruebas, sin
+atribución de IA). Contrato `6100add` (401 pruebas; suma `ConversionFactor`, propio del fork); copia
+aislada con `inatrace-backend:dev-h31` (respaldo `respaldos/v2demo-antes-h31.sql`). **H32 no se reporta:**
+AgStack ya lo documenta en `docs/api-auth-coverage/38-codebooks.md` y pide tratarlo aparte; la v2 manda el
+id en la ruta y en la consulta.
+
+### H33 🟠 — activar una moneda puede colgar el pedido (contrato; ya corregido en el original)
+
+`CurrencyTypeService.updateCurrencies` llama al servicio de tipos de cambio con `WebClient...block()`
+**sin tiempo límite** y dentro de la transacción. En la copia aislada, dos activaciones quedaron
+colgadas más de 8 minutos (volcado de hilos: `Mono.block` en la línea 76); hubo que reiniciar el backend
+de la copia aislada y restaurar la moneda. El original ya lo corrigió en el #101 (27.10.2026, `b5d2b87f`
+y `70342cdb`: tiempo límite y respuestas parciales), después del punto en que se sincronizó el
+contrato (`19d0ea3`). Portarlo al contrato queda a decisión de Rolando. La prueba real de monedas es de
+solo lectura por esto.
+
+**Pruebas:** 156 unitarias (3 nuevas), 176 de punta a punta simuladas (3 nuevas en escritorio y
+celular; la de ancho suma monedas y ajustes) y dos nuevas contra el backend real (monedas en solo
+lectura; ajustes que llegan a la vitrina sin sesión y a Etiquetas, y se restauran). Suite real: 39 de 40
+(la de QR de convivencia).
 
 ## Fase 1b (activar la vitrina en una instalación) — pendiente, acordada el 19.10.2026
 
@@ -912,9 +951,9 @@ confirmar el uso del video de Anacafé o cambiarlo.**
 4. **Fase 3 cerrada** (3a–3e.3). Queda probar Beyco de verdad cuando haya una cuenta de pruebas.
 5. **Fase 5 cerrada** (5a.1–5d). En curso: fase 4 («Empresa y administración»): **4a cerrada**
    (ficha, usuarios, instalaciones y acciones) y **4b cerrada** (recolectores, clientes y tablero);
-   **4c cerrada** (administración: empresas, usuarios y cadenas de valor); **4d.1 cerrada** (catálogos
-   de tipos); siguen 4d.2 (monedas y ajustes adicionales), 4d.3 (capas de mapa, certificaciones y
-   factores de conversión) y 4e (cuenta).
+   **4c cerrada** (administración: empresas, usuarios y cadenas de valor); **4d.1 y 4d.2 cerradas**
+   (catálogos de tipos, monedas y ajustes); siguen 4d.3 (capas de mapa, certificaciones y factores de
+   conversión) y 4e (cuenta).
 6. H23: PR #116 **mergeado** en AgStack (02.11.2026); #113 también. Sigue abierto #112 (con los
    cambios pedidos ya respondidos).
 7. H24: AgStack pidió enviarlo por PR (ver punto 9).

@@ -297,3 +297,51 @@ test.describe('administración de catálogos (modo simulado)', () => {
     await expect(page.getByText('«Secadora» guardado.')).toBeVisible();
   });
 });
+
+test.describe('administración de monedas y ajustes (modo simulado)', () => {
+  test('monedas: buscar, activar y desactivar', async ({ page }) => {
+    await ingresar(page, 'administracion/monedas', 'SYSTEM_ADMIN');
+    const activas = page.getByRole('list', { name: 'Activas' });
+    await expect(activas.getByRole('listitem')).toHaveCount(3);
+    await page.getByRole('button', { name: 'Desactivadas' }).click();
+    await page.getByRole('searchbox', { name: 'Buscar' }).fill('colón');
+    await expect(page.getByRole('list', { name: 'Desactivadas' }).getByRole('listitem')).toHaveCount(1);
+    await page.getByRole('button', { name: 'Activar CRC' }).click();
+    await expect(page.getByText('CRC · Costa Rican colón quedó activa.')).toBeVisible();
+    await page.getByRole('searchbox', { name: 'Buscar' }).fill('');
+    await page.getByRole('button', { name: 'Activas' }).click();
+    await expect(activas.getByRole('listitem')).toHaveCount(4);
+    await page.getByRole('button', { name: 'Desactivar EUR' }).click();
+    await expect(page.getByText('EUR · Euro quedó desactivada.')).toBeVisible();
+    await expect(activas.getByRole('listitem', { name: /^EUR/ })).toHaveCount(0);
+  });
+
+  test('la regional activa monedas pero no las desactiva ni edita ajustes', async ({ page }) => {
+    await ingresar(page, 'administracion/monedas', 'REGIONAL_ADMIN');
+    await expect(page.getByRole('button', { name: /^Desactivar/ })).toHaveCount(0);
+    await page.getByRole('button', { name: 'Desactivadas' }).click();
+    await expect(page.getByRole('button', { name: 'Activar HNL' })).toBeVisible();
+    await page.getByRole('link', { name: 'Ajustes' }).click();
+    await expect(page.getByText('Solo la administración del sistema edita los ajustes.')).toBeVisible();
+    await expect(page.getByRole('textbox', { name: 'Texto para el consumidor' })).toBeDisabled();
+  });
+
+  test('ajustes: el texto de etiquetas sin publicar llega a la vitrina y el enlace a Etiquetas', async ({ page }) => {
+    await ingresar(page, 'administracion/ajustes', 'SYSTEM_ADMIN');
+    await page.getByRole('textbox', { name: 'Texto para el consumidor' }).fill('Este café todavía no tiene su historia publicada. Escríbenos a la cooperativa.');
+    await page.getByRole('textbox', { name: 'Enlace (URL)' }).fill('no es un enlace');
+    await page.getByRole('button', { name: 'Guardar' }).click();
+    await expect(page.getByText('Escribe un enlace válido (por ejemplo, https://ejemplo.org/ayuda).')).toBeVisible();
+    await page.getByRole('textbox', { name: 'Enlace (URL)' }).fill('docs.ejemplo.org/etiquetas');
+    await page.getByRole('button', { name: 'Guardar' }).click();
+    await expect(page.getByText('Cambios guardados')).toBeVisible();
+    await page.reload();
+    await expect(page.getByRole('textbox', { name: 'Enlace (URL)' })).toHaveValue('https://docs.ejemplo.org/etiquetas');
+
+    await page.goto('productos/1/etiquetas');
+    await expect(page.getByRole('link', { name: 'Más información' })).toHaveAttribute('href', 'https://docs.ejemplo.org/etiquetas');
+
+    await page.goto('p-cd/etiqueta-que-no-existe/QR-X');
+    await expect(page.getByText('Este café todavía no tiene su historia publicada. Escríbenos a la cooperativa.')).toBeVisible();
+  });
+});

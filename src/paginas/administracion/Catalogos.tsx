@@ -56,7 +56,7 @@ export function CatalogosAdministracion() {
       await borrar.mutateAsync(x.id!);
       setAviso({ tono: 'ok', texto: t('administracion.catalogos.borrado', { nombre }) });
     } catch {
-      // El backend responde un error genérico si está en uso (H31): se explica la causa probable.
+      // En uso: el backend responde un 500 genérico o, con H31, un 400 en inglés. Se explica en el idioma de la interfaz.
       setAviso({ tono: 'mal', texto: t('administracion.catalogos.no_se_borra', { nombre }) });
     }
   }

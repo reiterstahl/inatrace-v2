@@ -2,6 +2,8 @@ import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { Link, getRouteApi, useBlocker, useNavigate } from '@tanstack/react-router';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
+import { ajustes } from '@/api/ajustes';
+import { enlaceValido, normalizarEnlace } from '@/util/ajustes';
 import { clsx } from 'clsx';
 import { etiquetas, useBorrarEtiqueta, useCrearEtiqueta, useGuardarEtiqueta, usePublicarEtiqueta } from '@/api/etiquetas';
 import type { ApiProductLabel, ApiProductLabelCompanyDocument, ApiProductLabelContent } from '@/api/gen/types.gen';
@@ -39,6 +41,8 @@ export function EtiquetasProducto() {
   const { t, i18n } = useTranslation();
   const { producto, editable } = useProducto();
   const lista = useQuery(etiquetas.lista(producto.id!));
+  // Solo un http(s) válido: el valor lo guarda la administración, pero termina en un href.
+  const enlaceAyuda = useQuery({ ...ajustes.valor('enlaceAyudaEtiquetas'), select: (v) => (v && enlaceValido(v) ? normalizarEnlace(v) : ''), staleTime: 10 * 60_000 });
   const crear = useCrearEtiqueta(producto.id!);
   const navegar = useNavigate();
   const delUsuario = i18n.language.slice(0, 2).toUpperCase() as Idioma;
@@ -63,7 +67,18 @@ export function EtiquetasProducto() {
     <Tarjeta
       id="etiquetas"
       titulo={t('productos.etiquetas.titulo')}
-      ayuda={t('productos.etiquetas.ayuda')}
+      ayuda={
+        <>
+          {t('productos.etiquetas.ayuda')}
+          {/* Enlace de ayuda configurable en Administración → Ajustes (vacío: no se muestra). */}
+          {enlaceAyuda.data && (
+            <>
+              {' '}
+              <a href={enlaceAyuda.data} target="_blank" rel="noopener noreferrer" className="font-semibold text-marca hover:underline">{t('productos.etiquetas.mas_informacion')}</a>
+            </>
+          )}
+        </>
+      }
       acciones={editable && !nueva && (
         <Boton chico onClick={() => { setEnviado(false); setNueva({ titulo: '', idioma: producto.settings?.language ?? ((IDIOMAS as string[]).includes(delUsuario) ? delUsuario : 'EN') }); }}>
           <Icono nombre="mas" className="size-4" /> {t('productos.etiquetas.nueva')}

@@ -1,6 +1,8 @@
 import { useEffect, useRef } from 'react';
 import { Link, Outlet, useRouter, type ErrorComponentProps } from '@tanstack/react-router';
+import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
+import { ajustes } from '@/api/ajustes';
 import { ErrorApi } from '@/api/respuesta';
 import { EstadoError } from '@/componentes/ui/Estados';
 import { Icono, type NombreIcono } from '@/componentes/ui/Icono';
@@ -206,6 +208,16 @@ function Pie() {
   );
 }
 
+/**
+ * Etiqueta sin publicar (o inexistente): si la instancia configuró un texto para eso (Administración →
+ * Ajustes), se muestra ese; si no, el genérico.
+ */
+function NoEncontrada() {
+  const { t } = useTranslation();
+  const texto = useQuery(ajustes.publico('textoNoPublicada'));
+  return <EstadoError titulo={t('vitrina.no_encontrada')} texto={texto.data?.trim() || t('vitrina.no_encontrada_texto')} />;
+}
+
 export function VitrinaError({ error }: ErrorComponentProps) {
   const { t } = useTranslation();
   const router = useRouter();
@@ -216,7 +228,7 @@ export function VitrinaError({ error }: ErrorComponentProps) {
       {noEsta && previa ? (
         <EstadoError titulo={t('vitrina.previa.vencida_titulo')} texto={t('vitrina.previa.vencida')} />
       ) : noEsta ? (
-        <EstadoError titulo={t('vitrina.no_encontrada')} texto={t('vitrina.no_encontrada_texto')} />
+        <NoEncontrada />
       ) : (
         <EstadoError reintentar={() => void router.invalidate()} />
       )}

@@ -31,7 +31,15 @@ export const consultas = {
     queryOptions({
       queryKey: ['vitrina', 'etiqueta', uid],
       queryFn: async (): Promise<EtiquetaVitrina> => {
-        if (!esVistaPrevia(uid)) return desenvolver(getPublicProductLabelValues({ path: { uid } }));
+        if (!esVistaPrevia(uid)) {
+          try {
+            return await desenvolver(getPublicProductLabelValues({ path: { uid } }));
+          } catch (e) {
+            // El backend responde 400 «Invalid label uid» si la etiqueta no existe o no está publicada.
+            if (e instanceof ErrorApi && e.estado === 'INVALID_REQUEST') throw new ErrorApi(e.message, 'NOT_FOUND', 404);
+            throw e;
+          }
+        }
         const previa = leerVistaPrevia(uid);
         if (!previa) throw new ErrorApi('La vista previa ya no está disponible: ábrela de nuevo desde el editor de la etiqueta.', 'NOT_FOUND', 404);
         return previa;

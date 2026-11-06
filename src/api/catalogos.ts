@@ -66,7 +66,7 @@ export function useGuardarItem(cat: Catalogo) {
   return useMutation({ mutationFn: (x: ItemCatalogo) => GUARDAR[cat](x), onSuccess: alCambiar });
 }
 
-/** El backend no borra lo que está en uso: falla por la clave foránea con un 500 genérico (H31). */
+/** El backend no borra lo que está en uso: sin H31 falla con un 500 genérico; con H31, 400 en inglés. */
 export function useBorrarItem(cat: Catalogo) {
   const alCambiar = useAlCambiar();
   return useMutation({ mutationFn: (id: number) => BORRAR[cat](id), onSuccess: alCambiar });
