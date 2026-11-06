@@ -1020,7 +1020,7 @@ las dos URL de correo del backend.
   y `/blog/…`, sin enlaces desde la vitrina) llevan al inicio.
 - **En la demo:** `ANGULAR=no`. El contenedor de Angular pasó a un perfil opcional (`anterior`): no
   arranca, pero vuelve con `docker compose --profile anterior up -d anterior proxy` y `ANGULAR=si`.
-- **Prueba `e2e-real/retiro-angular.spec.ts`** (con `ANGULAR_RETIRADO=1`): 61 rutas viejas redirigen a su
+- **Prueba `e2e-real/retiro-angular.spec.ts`** (con `ANGULAR_RETIRADO=1`): 60 rutas viejas redirigen a su
   destino y cada destino existe en la v2 (sin el 404). Las dos pruebas de sesión compartida con Angular se
   omiten en ese modo. **Suite real por el proxy: 42 pasan y 2 se omiten**, incluida la del QR impreso.
 - **Acceso desde `inatrace-v2.29alabs.com`:** el proxy publica `0.0.0.0:8390`. El NPM externo apunta a
