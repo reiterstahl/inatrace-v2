@@ -1010,6 +1010,28 @@ adelante se le apunta una URL. Lo hecho:
 túnel), poner ese dominio en `APP_BASE_URL` de la v2 y de la interfaz actual (los QR nuevos lo usan) y en
 las dos URL de correo del backend.
 
+## Fase 6 (retiro de Angular) — ✅ cerrada el 06.11.2026 en la instalación local de demostración
+
+- **`ANGULAR=si|no` en el proxy de convivencia.** Con `si` (por defecto) todo lo que no es `/v2/` ni
+  `/api/` sigue en la interfaz actual. Con `no`, la interfaz actual se retira: cada ruta vieja responde una
+  redirección a su equivalente en la v2, con o sin el idioma delante (`/es/my-farmers/edit/101` →
+  `/v2/productores/101`). La tabla tiene 74 reglas, que cubren las rutas de la interfaz actual. La vuelta de
+  Beyco (`/my-stock/orders?code=…`) conserva sus parámetros. Las páginas sueltas sin equivalente (`/s/…`
+  y `/blog/…`, sin enlaces desde la vitrina) llevan al inicio.
+- **En la demo:** `ANGULAR=no`. El contenedor de Angular pasó a un perfil opcional (`anterior`): no
+  arranca, pero vuelve con `docker compose --profile anterior up -d anterior proxy` y `ANGULAR=si`.
+- **Prueba `e2e-real/retiro-angular.spec.ts`** (con `ANGULAR_RETIRADO=1`): 61 rutas viejas redirigen a su
+  destino y cada destino existe en la v2 (sin el 404). Las dos pruebas de sesión compartida con Angular se
+  omiten en ese modo. **Suite real por el proxy: 42 pasan y 2 se omiten**, incluida la del QR impreso.
+- **Acceso desde `inatrace-v2.29alabs.com`:** el proxy publica `0.0.0.0:8390`. El NPM externo apunta a
+  `http://192.168.1.27:8390` y termina el https. El proxy respeta el `X-Forwarded-Proto` que recibe, y sus
+  redirecciones son relativas, así que el navegador se queda en el dominio. La v2 usa
+  `APP_BASE_URL=https://inatrace-v2.29alabs.com` (los QR nuevos) y los correos enlazan a ese dominio. Las
+  cookies del backend son `HttpOnly` sin `Secure`: sirven por http y por https.
+
+**Con la fase 6 se terminan las fases de la migración.** Lo que sigue es el cierre (`main`, versión 2.0.0
+y repositorio público) y, después, mantenimiento.
+
 ## Medios de demostración
 
 `scripts/sembrar-medios.mjs` cargó en la copia aislada 6 fotos con licencia libre de Wikimedia
@@ -1027,8 +1049,8 @@ confirmar el uso del video de Anacafé o cambiarlo.**
    (ficha, usuarios, instalaciones y acciones) y **4b cerrada** (recolectores, clientes y tablero);
    **4c cerrada** (administración: empresas, usuarios y cadenas de valor); **4d cerrada**
    (catálogos, monedas, ajustes, capas de mapa, certificaciones y factores) y **4e cerrada** (cuenta):
-   **fase 4 completa, todas las pantallas migradas**. **1b cerrada** en la instalación local de
-   demostración (`v2.0.0-rc.1`). Queda la 6 (retiro de Angular).
+   **fase 4 completa, todas las pantallas migradas**. **1b y 6 cerradas** en la instalación local
+   de demostración (`v2.0.0-rc.1`, Angular retirado). **Migración terminada.**
 6. H23: PR #116 **mergeado** en AgStack (02.11.2026); #113 también. Sigue abierto #112 (con los
    cambios pedidos ya respondidos).
 7. H24: AgStack pidió enviarlo por PR (ver punto 9).

@@ -28,8 +28,11 @@ services:
       ANTERIOR_UPSTREAM: ${ANTERIOR_UPSTREAM:-inatrace-fe:80}
       # si: los QR impresos abren la vitrina v2 (fase 1b). no: siguen en la interfaz actual.
       QR_A_V2: ${QR_A_V2:-no}
+      # si: convivencia con la interfaz actual. no (fase 6): retirada; sus rutas van a la v2.
+      ANGULAR: ${ANGULAR:-si}
     volumes:
       - ./nginx.conf.template:/etc/nginx/templates/default.conf.template:ro
+      - ./angular:/etc/nginx/templates/angular:ro
       - ./qr:/etc/nginx/qr:ro
     ports:
       - "${PROXY_PUERTO:-127.0.0.1:8090}:8080"

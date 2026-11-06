@@ -1,0 +1,6 @@
+# ANGULAR=si: todo lo que no es /v2/ ni /api/ sigue en la interfaz actual (convivencia).
+location / {
+  proxy_pass http://${ANTERIOR_UPSTREAM};
+  proxy_set_header Upgrade $http_upgrade;
+  proxy_set_header Connection $connection_upgrade;
+}

@@ -2,6 +2,92 @@
 # Al compartir origen, las cookies de sesión del backend valen para ambas interfaces.
 # Las variables ${...} las completa la imagen oficial de nginx al arrancar (envsubst).
 
+# Fase 6 (ANGULAR=no): adónde va cada ruta de la interfaz actual en la v2. Las rutas viejas pueden
+# llevar el idioma delante (/es/…). Se revisan en orden: la primera que coincide gana.
+map $uri $destino_v2 {
+  default "/v2/";
+  "~^(?:/(?:es|en|de|rw))?/?/?$" "/v2/";
+  "~^(?:/(?:es|en|de|rw))?/login/?$" "/v2/ingreso";
+  "~^(?:/(?:es|en|de|rw))?/app-version/?$" "/v2/";
+  "~^(?:/(?:es|en|de|rw))?/register/?$" "/v2/registro";
+  "~^(?:/(?:es|en|de|rw))?/account-activation/?$" "/v2/ingreso";
+  "~^(?:/(?:es|en|de|rw))?/confirm-email/([^/]+)/?$" "/v2/confirm-email/$1";
+  "~^(?:/(?:es|en|de|rw))?/reset-password/([^/]+)/?$" "/v2/reset-password/$1";
+  "~^(?:/(?:es|en|de|rw))?/reset-password/?$" "/v2/olvide-clave";
+  "~^(?:/(?:es|en|de|rw))?/home/?$" "/v2/";
+  "~^(?:/(?:es|en|de|rw))?/user-profile/?$" "/v2/perfil";
+  "~^(?:/(?:es|en|de|rw))?/settings/additional/?$" "/v2/administracion/ajustes";
+  "~^(?:/(?:es|en|de|rw))?/settings(?:/types)?/?$" "/v2/administracion/catalogos";
+  "~^(?:/(?:es|en|de|rw))?/map-layers/?$" "/v2/administracion/catalogos?tipo=capas-mapa";
+  "~^(?:/(?:es|en|de|rw))?/certification-types/?$" "/v2/administracion/catalogos?tipo=certificaciones";
+  "~^(?:/(?:es|en|de|rw))?/conversion-factors/?$" "/v2/administracion/catalogos?tipo=factores";
+  "~^(?:/(?:es|en|de|rw))?/currencies/?$" "/v2/administracion/monedas";
+  "~^(?:/(?:es|en|de|rw))?/value-chains/new/?$" "/v2/administracion/cadenas/nueva";
+  "~^(?:/(?:es|en|de|rw))?/value-chains/(\d+)(?:/value-chain)?/?$" "/v2/administracion/cadenas/$1";
+  "~^(?:/(?:es|en|de|rw))?/value-chains/?$" "/v2/administracion/cadenas";
+  "~^(?:/(?:es|en|de|rw))?/users/(\d+)/?$" "/v2/administracion/usuarios/$1";
+  "~^(?:/(?:es|en|de|rw))?/users/?$" "/v2/administracion/usuarios";
+  "~^(?:/(?:es|en|de|rw))?/companies/new/?$" "/v2/administracion/empresas";
+  "~^(?:/(?:es|en|de|rw))?/companies/\d+/processingActions/new/?$" "/v2/empresa/acciones/nueva";
+  "~^(?:/(?:es|en|de|rw))?/companies/\d+/processingActions/(\d+)/edit/?$" "/v2/empresa/acciones/$1";
+  "~^(?:/(?:es|en|de|rw))?/companies/\d+/processingActions/?$" "/v2/empresa/acciones";
+  "~^(?:/(?:es|en|de|rw))?/companies/\d+/users/?$" "/v2/empresa/usuarios";
+  "~^(?:/(?:es|en|de|rw))?/companies/\d+/facilities/add/?$" "/v2/empresa/instalaciones/nueva";
+  "~^(?:/(?:es|en|de|rw))?/companies/\d+/facilities/(\d+)/edit/?$" "/v2/empresa/instalaciones/$1";
+  "~^(?:/(?:es|en|de|rw))?/companies/\d+/facilities/?$" "/v2/empresa/instalaciones";
+  "~^(?:/(?:es|en|de|rw))?/companies/\d+(?:/company)?/?$" "/v2/empresa";
+  "~^(?:/(?:es|en|de|rw))?/companies/?$" "/v2/administracion/empresas";
+  "~^(?:/(?:es|en|de|rw))?/my-customers(?:/.*)?/?$" "/v2/empresa/clientes";
+  "~^(?:/(?:es|en|de|rw))?/my-stock/deliveries/update/(\d+)/?$" "/v2/stock/entregas/$1";
+  "~^(?:/(?:es|en|de|rw))?/my-stock/deliveries/facility/(\d+)/[^/]+/new-bulk/?$" "/v2/stock/entregas/masiva?inst=$1";
+  "~^(?:/(?:es|en|de|rw))?/my-stock/deliveries/facility/(\d+)/[^/]+/new/?$" "/v2/stock/entregas/nueva?inst=$1";
+  "~^(?:/(?:es|en|de|rw))?/my-stock/deliveries(?:/tab)?/?$" "/v2/stock/entregas";
+  "~^(?:/(?:es|en|de|rw))?/my-stock/processing/update/(\d+)/?$" "/v2/stock/procesamiento/$1";
+  "~^(?:/(?:es|en|de|rw))?/my-stock/processing/(\d+)/facility/(\d+)/new/?$" "/v2/stock/procesamiento/nueva?accion=$1&inst=$2";
+  "~^(?:/(?:es|en|de|rw))?/my-stock/processing(?:/tab)?/?$" "/v2/stock/procesamiento";
+  "~^(?:/(?:es|en|de|rw))?/my-stock/payments/delivery/(\d+)/new/?$" "/v2/stock/pagos/nuevo?entrega=$1";
+  "~^(?:/(?:es|en|de|rw))?/my-stock/payments/customer-order/(\d+)/new/?$" "/v2/stock/pagos/nuevo?orden=$1";
+  "~^(?:/(?:es|en|de|rw))?/my-stock/payments/deliveries/bulk-payment/update/(\d+)/?$" "/v2/stock/pagos/masivo/$1";
+  "~^(?:/(?:es|en|de|rw))?/my-stock/payments/deliveries/bulk-payment/([\d,]+)/new/[^/]+/?$" "/v2/stock/pagos/masivo/nuevo?entregas=$1";
+  "~^(?:/(?:es|en|de|rw))?/my-stock/payments/(\d+)/update/[^/]+/?$" "/v2/stock/pagos/$1";
+  "~^(?:/(?:es|en|de|rw))?/my-stock/payments(?:/tab)?/?$" "/v2/stock/pagos";
+  "~^(?:/(?:es|en|de|rw))?/my-stock/orders/?$" "/v2/stock/beyco$is_args$args";
+  "~^(?:/(?:es|en|de|rw))?/my-stock/all-stock/stock-order/(\d+)/view/?$" "/v2/stock/trazabilidad/$1";
+  "~^(?:/(?:es|en|de|rw))?/my-stock/all-stock(?:/tab)?/?$" "/v2/stock/todo";
+  "~^(?:/(?:es|en|de|rw))?/my-stock/beyco(?:/list)?/?$" "/v2/stock/todo";
+  "~^(?:/(?:es|en|de|rw))?/my-stock(?:/.*)?/?$" "/v2/stock/entregas";
+  "~^(?:/(?:es|en|de|rw))?/company-dashboard/?$" "/v2/stock/tablero";
+  "~^(?:/(?:es|en|de|rw))?/my-orders/received-orders/?$" "/v2/stock/ordenes?vista=recibidas";
+  "~^(?:/(?:es|en|de|rw))?/my-orders/customer-order/add/?$" "/v2/stock/ordenes/cliente";
+  "~^(?:/(?:es|en|de|rw))?/my-orders(?:/.*)?/?$" "/v2/stock/ordenes";
+  "~^(?:/(?:es|en|de|rw))?/my-farmers/add/?$" "/v2/productores/nuevo";
+  "~^(?:/(?:es|en|de|rw))?/my-farmers/edit/(\d+)/?$" "/v2/productores/$1";
+  "~^(?:/(?:es|en|de|rw))?/my-farmers/import/?$" "/v2/productores/importar";
+  "~^(?:/(?:es|en|de|rw))?/my-farmers(?:/.*)?/?$" "/v2/productores";
+  "~^(?:/(?:es|en|de|rw))?/my-collectors/add/?$" "/v2/productores/recolectores/nuevo";
+  "~^(?:/(?:es|en|de|rw))?/my-collectors/edit/(\d+)/?$" "/v2/productores/recolectores/$1";
+  "~^(?:/(?:es|en|de|rw))?/my-collectors(?:/.*)?/?$" "/v2/productores/recolectores";
+  "~^(?:/(?:es|en|de|rw))?/product-labels/new/\d+/\d+/?$" "/v2/productos/nuevo";
+  "~^(?:/(?:es|en|de|rw))?/product-labels/(\d+)/labels/(\d+)/batches(?:/.*)?/?$" "/v2/productos/$1/etiquetas/$2/lotes";
+  "~^(?:/(?:es|en|de|rw))?/product-labels/(\d+)/labels/(\d+)/feedback/?$" "/v2/productos/$1/etiquetas/$2/opiniones";
+  "~^(?:/(?:es|en|de|rw))?/product-labels/(\d+)/labels/(\d+)/statistics/?$" "/v2/productos/$1/etiquetas/$2/estadisticas";
+  "~^(?:/(?:es|en|de|rw))?/product-labels/(\d+)/labels/(\d+)/?$" "/v2/productos/$1/etiquetas/$2";
+  "~^(?:/(?:es|en|de|rw))?/product-labels/(\d+)/knowledge-blog(?:/.*)?/?$" "/v2/productos/$1/conocimiento";
+  "~^(?:/(?:es|en|de|rw))?/product-labels/(\d+)/stakeholders(?:/.*)?/?$" "/v2/productos/$1/empresas";
+  "~^(?:/(?:es|en|de|rw))?/product-labels/(\d+)/final-products/?$" "/v2/productos/$1/finales";
+  "~^(?:/(?:es|en|de|rw))?/product-labels/(\d+)(?:/product)?/?$" "/v2/productos/$1";
+  "~^(?:/(?:es|en|de|rw))?/product-labels/?$" "/v2/productos";
+  "~^(?:/(?:es|en|de|rw))?/(p-cd|q-cd|q)/(.+)/?$" "/v2/$1/$2$is_args$args";
+  "~^(?:/(?:es|en|de|rw))?/s/.*/?$" "/v2/";
+  "~^(?:/(?:es|en|de|rw))?/blog/.*/?$" "/v2/";
+}
+
+# Detrás de otro proxy (NPM, Coolify) que termina el https, se respeta el esquema que este informa.
+map $http_x_forwarded_proto $esquema {
+  default $http_x_forwarded_proto;
+  ''      $scheme;
+}
+
 map $http_upgrade $connection_upgrade {
   default upgrade;
   ''      close;
@@ -19,7 +105,7 @@ server {
   proxy_set_header Host $host;
   proxy_set_header X-Real-IP $remote_addr;
   proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-  proxy_set_header X-Forwarded-Proto $scheme;
+  proxy_set_header X-Forwarded-Proto $esquema;
 
   # Nueva interfaz.
   location /v2/ {
@@ -36,10 +122,6 @@ server {
   # en la interfaz actual. Cambiar la variable y reiniciar el proxy activa o vuelve atrás al instante.
   include /etc/nginx/qr/${QR_A_V2}.conf;
 
-  # Todo lo demás sigue en la interfaz actual.
-  location / {
-    proxy_pass http://${ANTERIOR_UPSTREAM};
-    proxy_set_header Upgrade $http_upgrade;
-    proxy_set_header Connection $connection_upgrade;
-  }
+  # Todo lo demás: la interfaz actual (ANGULAR=si) o, retirada, su equivalente en la v2 (ANGULAR=no).
+  include /etc/nginx/conf.d/angular/${ANGULAR}.conf;
 }

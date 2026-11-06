@@ -8,6 +8,7 @@ Requieren la convivencia levantada (proxy en un solo origen) y datos sembrados c
 | `INATRACE_URL` | Origen del proxy (por defecto `http://127.0.0.1:8390`) |
 | `INATRACE_USUARIO`, `INATRACE_CLAVE` | Usuario de la instancia |
 | `DEMO_ETIQUETA`, `DEMO_QR` | uuid de la etiqueta publicada y código QR (los imprime la siembra) |
+| `ANGULAR_RETIRADO` | `1` cuando el proxy corre con `ANGULAR=no` (fase 6): activa `retiro-angular.spec.ts` y omite las pruebas de sesión compartida con Angular |
 | `MAILHOG_URL` | API de MailHog donde el backend deja los correos (para `cuenta.spec.ts`); el backend necesita `INATRACE_MAIL_SENDINGENABLED=true`. Sin ella, esa prueba se omite |
 
 `pnpm exec playwright test -c playwright.real.config.ts`

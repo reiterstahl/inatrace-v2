@@ -1,0 +1,5 @@
+# ANGULAR=no (fase 6): la interfaz actual se retiró. Cada ruta vieja va a su equivalente en la v2
+# (tabla $destino_v2 en default.conf); las que no tienen, al inicio de la v2.
+location / {
+  return 302 $destino_v2;
+}

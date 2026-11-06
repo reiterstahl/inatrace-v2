@@ -127,7 +127,7 @@ está en [docs/PLAN.md](docs/PLAN.md) y el estado detallado, fase por fase, en
 | Catálogos y ajustes del sistema (tipos, monedas, ajustes, capas de mapa, certificaciones, factores de conversión) | ✅ |
 | Cuenta: ingreso, registro, confirmación de correo y restablecer contraseña | ✅ |
 | Activar la vitrina en una instalación (fase 1b) | ✅ en la instalación local de demostración |
-| Retiro de la interfaz Angular (fase 6) | ⏳ al final |
+| Retiro de la interfaz Angular (fase 6) | ✅ en la instalación local de demostración |
 
 ## Funcionalidades
 
@@ -237,6 +237,8 @@ flowchart LR
   backend y el resto a la interfaz actual. La cookie de sesión es la misma para las dos.
 - **QR ya impresos:** con `QR_A_V2=si` el proxy redirige `/{idioma}/q-cd/…` a la vitrina de la v2;
   con `no` siguen en la interfaz actual. Activar o volver atrás es cambiar la variable y reiniciar el proxy.
+- **Retiro de Angular:** con `ANGULAR=no` el proxy deja de enviar tráfico a la interfaz actual y cada ruta
+  vieja redirige a su equivalente en la v2 (74 reglas, con o sin idioma delante).
 - **Datos:** TanStack Query maneja la caché y las recargas. Las fichas se editan siempre sobre la
   versión completa y fresca del backend, porque este reemplaza todos los campos al guardar.
 - **Rutas:** TanStack Router define las rutas en código, con búsqueda validada en la URL y

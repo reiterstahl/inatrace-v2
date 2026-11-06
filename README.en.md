@@ -128,7 +128,7 @@ in [docs/PLAN.md](docs/PLAN.md) and the detailed status of each phase is in
 | System catalogs and settings (types, currencies, settings, map layers, certifications, conversion factors) | ✅ |
 | Account: sign-in, sign-up, email confirmation and password reset | ✅ |
 | Enable the public page on an installation (phase 1b) | ✅ on the local demo installation |
-| Retire the Angular interface (phase 6) | ⏳ last |
+| Retire the Angular interface (phase 6) | ✅ on the local demo installation |
 
 ## Features
 
@@ -236,6 +236,8 @@ flowchart LR
   backend and everything else to the current interface. Both share the same session cookie.
 - **QR codes already printed:** with `QR_A_V2=si` the proxy redirects `/{language}/q-cd/…` to the v2 public
   page; with `no` they stay on the current interface. Switching is changing the variable and restarting the proxy.
+- **Retiring Angular:** with `ANGULAR=no` the proxy stops sending traffic to the current interface and every
+  old route redirects to its v2 equivalent (74 rules, with or without the language prefix).
 - **Data:** TanStack Query handles caching and refetching. Forms always edit the complete, fresh
   record from the backend, because the backend replaces every field on save.
 - **Routing:** TanStack Router defines routes in code, with validated search parameters in the URL

@@ -40,6 +40,7 @@ test('precios y opinión contra el backend', async ({ page }) => {
 });
 
 test('la sesión iniciada en la v2 vale en la interfaz actual', async ({ page }) => {
+  test.skip(!!process.env.ANGULAR_RETIRADO, 'La interfaz actual se retiró (fase 6)');
   await page.goto('/v2/ingreso');
   await page.getByLabel('Correo electrónico').fill(usuario);
   await page.getByLabel('Contraseña').fill(clave);
@@ -57,6 +58,7 @@ test('la sesión iniciada en la v2 vale en la interfaz actual', async ({ page })
 });
 
 test('la sesión iniciada en la interfaz actual vale en la v2', async ({ page }) => {
+  test.skip(!!process.env.ANGULAR_RETIRADO, 'La interfaz actual se retiró (fase 6)');
   // Se ingresa por la API, igual que hace la interfaz actual (deja las mismas cookies).
   const r = await page.request.post('/api/user/login', { data: { username: usuario, password: clave } });
   expect(r.ok()).toBe(true);
