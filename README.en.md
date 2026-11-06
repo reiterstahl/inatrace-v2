@@ -8,7 +8,7 @@
 
 [![CI](https://github.com/reiterstahl/inatrace-v2/actions/workflows/ci.yml/badge.svg?branch=fase-5)](https://github.com/reiterstahl/inatrace-v2/actions/workflows/ci.yml)
 ![License: MPL 2.0](https://img.shields.io/badge/license-MPL%202.0-brightgreen)
-![Status](https://img.shields.io/badge/migration-~85%25-1f6f4a)
+![Status](https://img.shields.io/badge/screens-100%25%20migrated-1f6f4a)
 
 ![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)
 ![TypeScript](https://img.shields.io/badge/TypeScript-6-3178C6?logo=typescript&logoColor=white)
@@ -18,7 +18,7 @@
 ![MapLibre](https://img.shields.io/badge/MapLibre%20GL-6-396CB2?logo=maplibre&logoColor=white)
 ![i18next](https://img.shields.io/badge/i18next-ES%20%C2%B7%20EN%20%C2%B7%20DE%20%C2%B7%20RW-26A69A?logo=i18next&logoColor=white)
 
-![Vitest](https://img.shields.io/badge/Vitest-147%20tests-6E9F18?logo=vitest&logoColor=white)
+![Vitest](https://img.shields.io/badge/Vitest-163%20tests-6E9F18?logo=vitest&logoColor=white)
 ![Playwright](https://img.shields.io/badge/Playwright-desktop%20%2B%20mobile-2EAD33?logo=playwright&logoColor=white)
 ![MSW](https://img.shields.io/badge/MSW-mock%20mode-FF6A33?logo=mockserviceworker&logoColor=white)
 ![OpenAPI](https://img.shields.io/badge/client-generated%20from%20OpenAPI-6BA539?logo=openapiinitiative&logoColor=white)
@@ -130,8 +130,8 @@ in [docs/PLAN.md](https://github.com/reiterstahl/inatrace-v2/blob/fase-5/docs/PL
 | Products, labels, batches, feedback, statistics and knowledge base | ✅ |
 | Company: profile, users, facilities, processing actions and customers | ✅ |
 | Administration: companies, users and value chains | ✅ |
-| System catalogs and settings (types, currencies, map layers, certifications, conversion factors) | ⏳ in the current version |
-| Account: sign-up, email confirmation and password reset | ⏳ in the current version (sign-in and profile are already in v2) |
+| System catalogs and settings (types, currencies, settings, map layers, certifications, conversion factors) | ✅ |
+| Account: sign-in, sign-up, email confirmation and password reset | ✅ |
 | Enable the public page on a real installation (phase 1b) | ⏳ awaiting a decision |
 | Retire the Angular interface (phase 6) | ⏳ last |
 
@@ -207,7 +207,21 @@ in [docs/PLAN.md](https://github.com/reiterstahl/inatrace-v2/blob/fase-5/docs/PL
   listing their companies.
 - **Value chains**: create and edit with their configuration (facility types, units, evidence types,
   fields and semi-products), activate, deactivate and delete.
+- **Catalogs**: semi-products, product, facility and evidence types, measuring units, evidence fields (with
+  translations), map layers, certification types and conversion factors.
+- Active **currencies** and instance **settings** (the text shown when a QR code points to an unpublished
+  label, and a help link for labels).
 - Regional administrators only see their own companies and can only do what their role allows.
+
+</details>
+
+<details>
+<summary><b>Account</b></summary>
+
+- Sign-in, sign-up with acceptance of the conditions, email confirmation through the link received, and
+  password reset.
+- Email links use the same routes as the current version (`/confirm-email/…`, `/reset-password/…`), under `/v2`.
+- Asking for a reset link does not reveal whether the email has an account.
 
 </details>
 
@@ -333,13 +347,13 @@ In mock mode you can try the interface with another role by setting `simulado.ro
 
 ## Tests
 
-Three levels, from fastest to closest to production (figures as of 3 November 2026):
+Three levels, from fastest to closest to production (figures as of 6 November 2026):
 
 | Level | Tool | Count | What it covers |
 |---|---|---|---|
-| Unit | Vitest | 147 | Pure logic: building records on top of the original, validation, role permissions, grouping |
-| End-to-end, mocked | Playwright + MSW | 164 | Every flow on **desktop and phone**, plus a test that visits every screen looking for overflow |
-| Against a real backend | Playwright | 35 | The same flows against an isolated copy of INATrace, checking what was saved through the API |
+| Unit | Vitest | 163 | Pure logic: building records on top of the original, validation, role permissions, grouping |
+| End-to-end, mocked | Playwright + MSW | 192 | Every flow on **desktop and phone**, plus a test that visits every screen looking for overflow |
+| Against a real backend | Playwright | 42 | The same flows against an isolated copy of INATrace, checking what was saved through the API |
 
 ```bash
 pnpm lint && pnpm test && pnpm e2e
@@ -391,6 +405,7 @@ a regression test:
 | [#122](https://github.com/agstack/inatrace-backend/pull/122), [#123](https://github.com/agstack/inatrace-backend/pull/123) | 500 errors when deleting processing actions or customers in use | ✅ merged |
 | [#129](https://github.com/agstack/inatrace-backend/pull/129) | Regional administrators could grant the system administrator role | 🕓 in review |
 | [#132](https://github.com/agstack/inatrace-backend/pull/132) | 500 error when deleting a value chain in use | 🕓 in review |
+| [#137](https://github.com/agstack/inatrace-backend/pull/137) | 500 error when deleting codebook entries in use | 🕓 in review |
 
 ## Technical decisions
 
