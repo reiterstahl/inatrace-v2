@@ -32,15 +32,9 @@ server {
     proxy_read_timeout 120s;
   }
 
-  # Vitrina pública: cuando se decida, los QR ya impresos pasan a la v2. Los QR apuntan a
-  # /{idioma}/q-cd/{etiqueta}/{qr}; la v2 registra la visita (estadísticas) y abre la vitrina.
-  # Descomentar el bloque siguiente para activarlo.
-  # location ~ ^/(?:es|en|de|rw)/(q-cd|q|p-cd)/ {
-  #   rewrite ^/(?:es|en|de|rw)/(.*)$ /v2/$1 redirect;
-  # }
-  # location ~ ^/(q-cd|q|p-cd)/ {
-  #   return 302 /v2$request_uri;
-  # }
+  # Vitrina pública: con QR_A_V2=si los QR ya impresos pasan a la v2; con no (por defecto) siguen
+  # en la interfaz actual. Cambiar la variable y reiniciar el proxy activa o vuelve atrás al instante.
+  include /etc/nginx/qr/${QR_A_V2}.conf;
 
   # Todo lo demás sigue en la interfaz actual.
   location / {

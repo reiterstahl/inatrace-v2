@@ -127,7 +127,7 @@ in [docs/PLAN.md](docs/PLAN.md) and the detailed status of each phase is in
 | Administration: companies, users and value chains | ✅ |
 | System catalogs and settings (types, currencies, settings, map layers, certifications, conversion factors) | ✅ |
 | Account: sign-in, sign-up, email confirmation and password reset | ✅ |
-| Enable the public page on a real installation (phase 1b) | ⏳ awaiting a decision |
+| Enable the public page on an installation (phase 1b) | ✅ on the local demo installation |
 | Retire the Angular interface (phase 6) | ⏳ last |
 
 ## Features
@@ -234,8 +234,8 @@ flowchart LR
 
 - **Side by side:** the proxy (`deploy/convivencia/`) sends `/v2/` to this interface, `/api/` to the
   backend and everything else to the current interface. Both share the same session cookie.
-- **QR codes already printed:** the proxy can redirect `/{language}/q-cd/…` to the v2 public page. The
-  rule is ready but commented out; it is enabled in phase 1b and can be rolled back instantly.
+- **QR codes already printed:** with `QR_A_V2=si` the proxy redirects `/{language}/q-cd/…` to the v2 public
+  page; with `no` they stay on the current interface. Switching is changing the variable and restarting the proxy.
 - **Data:** TanStack Query handles caching and refetching. Forms always edit the complete, fresh
   record from the backend, because the backend replaces every field on save.
 - **Routing:** TanStack Router defines routes in code, with validated search parameters in the URL
@@ -363,8 +363,9 @@ to the `fase-*` branches, and on every pull request. From `main` it also publish
 
 ## Deployment
 
-- **Image:** `ghcr.io/reiterstahl/inatrace-v2` (tags `latest` and the commit SHA), published by CI
-  from `main` when every test passes. It is unprivileged nginx on port **8080**, with security headers
+- **Image:** `ghcr.io/reiterstahl/inatrace-v2`, published by CI when every test passes: a `vX.Y.Z` tag
+  publishes version `X.Y.Z` (the first is `2.0.0-rc.1`), `main` publishes `latest`, and both publish the
+  commit SHA. It is unprivileged nginx on port **8080**, with security headers
   and a strict CSP.
 - **Side by side:** `deploy/convivencia/` provides the proxy and a `docker-compose.yml` to put v2 in
   front of an existing installation without touching it.

@@ -983,17 +983,32 @@ correos de verdad (registro → enlace de confirmación desde MailHog → el mis
 restablecer sin activar no abre sesión → la administración activa → restablecer entra al portal; la cuenta
 queda desactivada). Suite real: 41 de 42 (la de QR de convivencia).
 
-## Fase 1b (activar la vitrina en una instalación) — pendiente, acordada el 19.10.2026
+## Fase 1b (activar la vitrina en una instalación) — ✅ cerrada el 06.11.2026 en la instalación local de demostración
 
-Pasos, en orden:
+Rolando eligió una **instalación propia de demostración, local** (separada de GIZ), para mostrarla; más
+adelante se le apunta una URL. Lo hecho:
 
-1. Publicar la imagen (pasar a `main` o etiquetar una versión; el CI la sube a GHCR).
-2. En la instalación: definir `TOKEN_REGISTRO_PUBLICO` igual al `REQUEST_LOG_TOKEN` del backend.
-3. Levantar `deploy/convivencia/` delante del frontend actual y apuntar el dominio al proxy.
-4. Probar con la v2 en `/v2/` sin tocar los QR (la versión actual sigue igual).
-5. Descomentar la redirección de QR del proxy y escanear un QR impreso real: debe abrir la v2 y
-   sumar la visita en las estadísticas de la etiqueta.
-6. Vuelta atrás: volver a comentar la redirección (los QR vuelven a la versión actual al instante).
+1. **Imagen publicada por versión:** la CI publica `ghcr.io/reiterstahl/inatrace-v2:X.Y.Z` (y el SHA) al
+   empujar una etiqueta `vX.Y.Z`, sin pasar por `main` (que sigue publicando `latest`). Primera versión:
+   **`v2.0.0-rc.1`**. La demo usa la misma versión construida desde un worktree limpio de la etiqueta
+   (el token local no tiene `read:packages` para bajar la imagen privada).
+2. **Token de visitas:** `TOKEN_REGISTRO_PUBLICO` de la v2 igual al `REQUEST_LOG_TOKEN` del backend
+   (comprobado sin mostrarlo).
+3. **Proxy de convivencia delante:** `deploy/convivencia/` en `127.0.0.1:8390`: `/v2/` → v2, `/api/` →
+   backend, el resto → interfaz actual; la sesión vale en las dos.
+4. **Redirección de los QR impresos como variable:** `QR_A_V2=si|no` en el proxy (antes había que
+   descomentar nginx). Con `si`, `/{idioma}/q-cd/{etiqueta}/{qr}` y `/q-cd/…` van a `/v2/q-cd/…`.
+5. **Probado de punta a punta por el proxy:** las 6 pruebas de convivencia pasan, **incluida la del QR
+   impreso** (registra la visita en las estadísticas y abre la vitrina v2), la sesión compartida en los
+   dos sentidos y la vitrina sin violaciones de CSP.
+6. **Vuelta atrás probada:** `QR_A_V2=no` y reiniciar el proxy → los QR vuelven a la interfaz actual al
+   instante (y `si` los devuelve a la v2).
+7. **Correos:** en la copia aislada, los enlaces de confirmación y de restablecimiento abren la v2 detrás
+   del proxy (`INATRACE_EMAILCONFIRMATION_URL` y `INATRACE_PASSWORDRESET_URL`); los correos van a MailHog.
+
+**Para apuntarle una URL** (cuando se decida): publicar el puerto del proxy con un dominio (Coolify o un
+túnel), poner ese dominio en `APP_BASE_URL` de la v2 y de la interfaz actual (los QR nuevos lo usan) y en
+las dos URL de correo del backend.
 
 ## Medios de demostración
 
@@ -1012,8 +1027,8 @@ confirmar el uso del video de Anacafé o cambiarlo.**
    (ficha, usuarios, instalaciones y acciones) y **4b cerrada** (recolectores, clientes y tablero);
    **4c cerrada** (administración: empresas, usuarios y cadenas de valor); **4d cerrada**
    (catálogos, monedas, ajustes, capas de mapa, certificaciones y factores) y **4e cerrada** (cuenta):
-   **fase 4 completa, todas las pantallas migradas**. Quedan 1b (activar la vitrina en una instalación) y
-   6 (retiro de Angular), que dependen de decisiones de despliegue.
+   **fase 4 completa, todas las pantallas migradas**. **1b cerrada** en la instalación local de
+   demostración (`v2.0.0-rc.1`). Queda la 6 (retiro de Angular).
 6. H23: PR #116 **mergeado** en AgStack (02.11.2026); #113 también. Sigue abierto #112 (con los
    cambios pedidos ya respondidos).
 7. H24: AgStack pidió enviarlo por PR (ver punto 9).
