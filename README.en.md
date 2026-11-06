@@ -6,7 +6,7 @@
 
 **A new web interface for [INATrace](https://github.com/agstack/inatrace-backend), the open-source traceability platform for agricultural supply chains. It is built on the existing backend and leaves it unchanged.**
 
-[![CI](https://github.com/reiterstahl/inatrace-v2/actions/workflows/ci.yml/badge.svg?branch=fase-5)](https://github.com/reiterstahl/inatrace-v2/actions/workflows/ci.yml)
+[![CI](https://github.com/reiterstahl/inatrace-v2/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/reiterstahl/inatrace-v2/actions/workflows/ci.yml)
 ![License: MPL 2.0](https://img.shields.io/badge/license-MPL%202.0-brightgreen)
 ![Status](https://img.shields.io/badge/screens-100%25%20migrated-1f6f4a)
 

@@ -6,7 +6,7 @@
 
 **Interfaz nueva para [INATrace](https://github.com/agstack/inatrace-backend), la plataforma abierta de trazabilidad de cadenas agrícolas, construida sobre el backend existente y sin cambiarlo.**
 
-[![CI](https://github.com/reiterstahl/inatrace-v2/actions/workflows/ci.yml/badge.svg?branch=fase-5)](https://github.com/reiterstahl/inatrace-v2/actions/workflows/ci.yml)
+[![CI](https://github.com/reiterstahl/inatrace-v2/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/reiterstahl/inatrace-v2/actions/workflows/ci.yml)
 ![Licencia: MPL 2.0](https://img.shields.io/badge/licencia-MPL%202.0-brightgreen)
 ![Estado](https://img.shields.io/badge/pantallas-100%25%20migradas-1f6f4a)
 

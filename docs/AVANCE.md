@@ -48,12 +48,13 @@ el `index.html`; redirecciones de nginx con el puerto interno del contenedor.
 
 ## Entorno de demostración
 
-Copia aislada en `/home/work-claude/projects/inatrace-v2-demo/` (fuera del repo, con permisos
-restringidos: contiene contraseñas). Base copiada de la instancia de referencia el 17.10.2026,
-red propia, solo accesible desde esta máquina.
+Copia aislada en la carpeta hermana `inatrace-v2-demo/` (fuera del repo, con permisos restringidos:
+contiene contraseñas). Base copiada de la instancia de referencia el 17.10.2026, red propia. Desde la
+fase 6 solo el proxy de convivencia queda abierto a la red (para el proxy https externo); el backend y la
+base siguen accesibles solo desde la máquina.
 
 ```bash
-cd /home/work-claude/projects/inatrace-v2-demo && docker compose up -d
+cd ../inatrace-v2-demo && docker compose up -d
 # proxy de convivencia: http://127.0.0.1:8390  ·  backend directo: http://127.0.0.1:8381
 ```
 
@@ -881,7 +882,7 @@ celular; la de ancho suma dos catálogos) y tres nuevas contra el backend real (
 traducciones se crea, edita y borra; un elemento de cada otro catálogo se crea y se borra, sin dejar
 nada; un semiproducto en uso no se borra y se explica). Suite real: 37 de 38 (la de QR de convivencia).
 
-**Entorno:** el reinicio del host del 05.11 vació el scratchpad de la sesión y con él los respaldos
+**Entorno:** el reinicio del host del 05.11 vació la carpeta temporal de trabajo y con ella los respaldos
 `v2demo-antes-*.sql`. Desde ahora los respaldos de la copia aislada van a `inatrace-v2-demo/respaldos/`
 (fuera de git); el primero es `v2demo-2026-11-06-4d1.sql`.
 
@@ -1024,7 +1025,7 @@ las dos URL de correo del backend.
   destino y cada destino existe en la v2 (sin el 404). Las dos pruebas de sesión compartida con Angular se
   omiten en ese modo. **Suite real por el proxy: 42 pasan y 2 se omiten**, incluida la del QR impreso.
 - **Acceso desde `inatrace-v2.29alabs.com`:** el proxy publica `0.0.0.0:8390`. El NPM externo apunta a
-  `http://192.168.1.27:8390` y termina el https. El proxy respeta el `X-Forwarded-Proto` que recibe, y sus
+  `http://<IP de la máquina>:8390` y termina el https. El proxy respeta el `X-Forwarded-Proto` que recibe, y sus
   redirecciones son relativas, así que el navegador se queda en el dominio. La v2 usa
   `APP_BASE_URL=https://inatrace-v2.29alabs.com` (los QR nuevos) y los correos enlazan a ese dominio. Las
   cookies del backend son `HttpOnly` sin `Secure`: sirven por http y por https.
