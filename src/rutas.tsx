@@ -2,6 +2,7 @@ import { QueryClient } from '@tanstack/react-query';
 import { Outlet, createRootRouteWithContext, createRoute, createRouter, lazyRouteComponent, redirect } from '@tanstack/react-router';
 import { consultas, registrarVisitaQr, QR_VACIO } from '@/api/consultas';
 import { CONFIG } from '@/util/entorno';
+import { CATALOGOS, type Catalogo } from '@/util/catalogos';
 import i18n from '@/i18n';
 import { ErrorApi } from '@/api/respuesta';
 import { Cargando, EstadoError } from '@/componentes/ui/Estados';
@@ -129,6 +130,12 @@ const administracionCadenas = createRoute({
 });
 const administracionCadenaNueva = createRoute({ getParentRoute: () => administracionCadenasRaiz, path: 'nueva', component: lazyRouteComponent(() => import('@/paginas/administracion/Cadena'), 'CadenaNueva') });
 const administracionCadena = createRoute({ getParentRoute: () => administracionCadenasRaiz, path: '$id', component: lazyRouteComponent(() => import('@/paginas/administracion/Cadena'), 'CadenaExistente') });
+const administracionCatalogos = createRoute({
+  getParentRoute: () => administracionRaiz,
+  path: 'catalogos',
+  validateSearch: (s: Record<string, unknown>): { tipo: Catalogo } => ({ tipo: uno(s.tipo, CATALOGOS) ?? 'semiproductos' }),
+  component: lazyRouteComponent(() => import('@/paginas/administracion/Catalogos'), 'CatalogosAdministracion'),
+});
 const administracionUsuario = createRoute({ getParentRoute: () => administracionUsuariosRaiz, path: '$id', component: lazyRouteComponent(() => import('@/paginas/administracion/Usuario'), 'UsuarioAdministracion') });
 
 const productosRaiz = createRoute({ getParentRoute: () => portal, path: 'productos' });
@@ -384,7 +391,7 @@ const arbol = raiz.addChildren([
   ingreso,
   entradaQr,
   entradaEtiqueta,
-  portal.addChildren([inicio, perfil, empresaRaiz.addChildren([empresaFicha, empresaUsuarios, instalacionesRaiz.addChildren([instalacionesLista, instalacionNueva, instalacionEditar]), accionesRaiz.addChildren([accionesLista, accionNueva, accionEditar]), empresaClientes]), administracionRaiz.addChildren([administracionInicio, administracionEmpresas, administracionUsuariosRaiz.addChildren([administracionUsuarios, administracionUsuario]), administracionCadenasRaiz.addChildren([administracionCadenas, administracionCadenaNueva, administracionCadena])]), productoresRaiz.addChildren([productoresLista, productorNuevo, productoresImportar, productorFicha, recolectoresRaiz.addChildren([recolectoresLista, recolectorNuevo, recolectorFicha])]), productosRaiz.addChildren([productosLista, productoNuevo, productoRaiz.addChildren([productoFicha, productoVitrina, productoEmpresas, productoFinales, etiquetasRaiz.addChildren([etiquetasLista, etiquetaRaiz.addChildren([etiquetaEditor, etiquetaLotes, etiquetaOpiniones, etiquetaEstadisticas])]), productoConocimiento])]),
+  portal.addChildren([inicio, perfil, empresaRaiz.addChildren([empresaFicha, empresaUsuarios, instalacionesRaiz.addChildren([instalacionesLista, instalacionNueva, instalacionEditar]), accionesRaiz.addChildren([accionesLista, accionNueva, accionEditar]), empresaClientes]), administracionRaiz.addChildren([administracionInicio, administracionEmpresas, administracionUsuariosRaiz.addChildren([administracionUsuarios, administracionUsuario]), administracionCadenasRaiz.addChildren([administracionCadenas, administracionCadenaNueva, administracionCadena]), administracionCatalogos]), productoresRaiz.addChildren([productoresLista, productorNuevo, productoresImportar, productorFicha, recolectoresRaiz.addChildren([recolectoresLista, recolectorNuevo, recolectorFicha])]), productosRaiz.addChildren([productosLista, productoNuevo, productoRaiz.addChildren([productoFicha, productoVitrina, productoEmpresas, productoFinales, etiquetasRaiz.addChildren([etiquetasLista, etiquetaRaiz.addChildren([etiquetaEditor, etiquetaLotes, etiquetaOpiniones, etiquetaEstadisticas])]), productoConocimiento])]),
     stockRaiz.addChildren([stockInicio, stockTablero, entregasRaiz.addChildren([entregasLista, entregaNueva, entregaMasiva, entregaFicha]), stockTodo, procesamientoRaiz.addChildren([procesamientoInicio, procesamientoNuevo, procesamientoEditar]), pagosRaiz.addChildren([pagosLista, pagoNuevo, pagoMasivoNuevo, pagoMasivoVer, pagoVer]), ordenesRaiz.addChildren([ordenesLista, ordenNueva, pedidoCliente, ordenAprobar]), beycoVuelta, beycoOferta, stockTrazabilidad]),
   ]),
   vitrina.addChildren([vPortada, vRecorrido, vPrecios, vProductores, vCalidad, vOpinion, vTerminos, vPrivacidad]),

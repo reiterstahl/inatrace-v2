@@ -1790,7 +1790,8 @@
       "titulo": "Secciones de la administración",
       "empresas": "Empresas",
       "usuarios": "Usuarios",
-      "cadenas": "Cadenas de valor"
+      "cadenas": "Cadenas de valor",
+      "catalogos": "Catálogos"
     },
     "estado": {
       "ACTIVE": "Activa",
@@ -1912,6 +1913,81 @@
         "processingEvidenceTypes": "Tipos de evidencia de procesamiento",
         "processingEvidenceFields": "Campos de evidencia de procesamiento",
         "semiProducts": "Semiproductos"
+      }
+    },
+    "catalogos": {
+      "titulo": "Catálogos del sistema",
+      "nombres": {
+        "semiproductos": "Semiproductos",
+        "tipos-producto": "Tipos de producto",
+        "tipos-instalacion": "Tipos de instalación",
+        "unidades": "Unidades de medida",
+        "tipos-evidencia": "Tipos de evidencia",
+        "campos-evidencia": "Campos de evidencia"
+      },
+      "ayudas": {
+        "semiproductos": "Lo que se entrega, procesa y vende en cada etapa (café cereza, pergamino, oro…), con su unidad.",
+        "tipos-producto": "El cultivo o producto en el que se basa cada cadena de valor (café, cacao…).",
+        "tipos-instalacion": "Clases de instalaciones de las empresas: centros de acopio, beneficios, bodegas…",
+        "unidades": "Unidades en que se miden las cantidades, con su peso en kg para convertir.",
+        "tipos-evidencia": "Documentos u otras evidencias que un proceso puede pedir.",
+        "campos-evidencia": "Datos que se anotan en un proceso (humedad, variedad…), con su tipo."
+      },
+      "buscar": "Buscar",
+      "nuevo": "Nuevo",
+      "nuevo_de": "Nuevo: {{que}}",
+      "vacio": "Este catálogo está vacío.",
+      "sin_resultados": "Nada coincide con la búsqueda.",
+      "editar_de": "Editar {{nombre}}",
+      "ver": "Ver",
+      "ver_de": "Ver {{nombre}}",
+      "volver": "Volver",
+      "borrar_de": "Borrar {{nombre}}",
+      "borrar_pregunta": "¿Borrar «{{nombre}}»? No se puede deshacer.",
+      "borrado": "«{{nombre}}» borrado.",
+      "guardado": "«{{nombre}}» guardado.",
+      "no_se_borra": "No se pudo borrar «{{nombre}}»: probablemente está en uso (en cadenas de valor, instalaciones, procesos, productos o stock).",
+      "solo_lectura": "Solo la administración del sistema edita los catálogos.",
+      "codigo": "Código",
+      "codigo_ayuda": "Mayúsculas, números y guion bajo (por ejemplo, WET_MILL).",
+      "nombre_campo": "Nombre del campo",
+      "etiqueta": "Etiqueta",
+      "traducciones_ayuda": "El inglés es obligatorio; los demás idiomas, opcionales (sin texto, se muestra el inglés).",
+      "nombre_en": "Nombre ({{idioma}})",
+      "descripcion_en": "Descripción ({{idioma}})",
+      "etiqueta_en": "Etiqueta ({{idioma}})",
+      "unidad": "Unidad de medida",
+      "peso": "Peso en kg",
+      "peso_ayuda": "Para convertir entre unidades. Vacío si no es de peso.",
+      "unidad_base": "Unidad base",
+      "ninguna": "Ninguna",
+      "tipo": "Tipo",
+      "errores": {
+        "requerido": "Este campo es obligatorio.",
+        "formato": "Solo mayúsculas, números y guion bajo.",
+        "numero": "Escribe un número mayor que cero."
+      },
+      "tipos": {
+        "DOCUMENT": "Documento",
+        "FIELD": "Campo",
+        "CALCULATED": "Calculado",
+        "STRING": "Texto corto",
+        "TEXT": "Texto largo",
+        "NUMBER": "Número",
+        "INTEGER": "Número entero",
+        "DATE": "Fecha",
+        "OBJECT": "Objeto",
+        "PRICE": "Precio",
+        "EXCHANGE_RATE": "Tipo de cambio",
+        "TIMESTAMP": "Fecha y hora"
+      },
+      "marcas": {
+        "buyable": "Se puede comprar al productor",
+        "sku": "Es unidad de inventario (SKU) del productor",
+        "skuendCustomer": "Es unidad de inventario (SKU) del consumidor final",
+        "fairness": "Equidad",
+        "provenance": "Procedencia",
+        "quality": "Calidad"
       }
     }
   }

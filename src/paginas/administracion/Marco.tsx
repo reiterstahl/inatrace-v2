@@ -7,10 +7,11 @@ import { Aviso } from '@/componentes/ui/Estados';
 import { Icono, type NombreIcono } from '@/componentes/ui/Icono';
 import { esAdministracion } from '@/util/administracion';
 
-const PESTANAS: { to: '/administracion/empresas' | '/administracion/usuarios' | '/administracion/cadenas'; clave: string; icono: NombreIcono }[] = [
+const PESTANAS: { to: '/administracion/empresas' | '/administracion/usuarios' | '/administracion/cadenas' | '/administracion/catalogos'; clave: string; icono: NombreIcono }[] = [
   { to: '/administracion/empresas', clave: 'administracion.pestanas.empresas', icono: 'web' },
   { to: '/administracion/usuarios', clave: 'administracion.pestanas.usuarios', icono: 'personas' },
   { to: '/administracion/cadenas', clave: 'administracion.pestanas.cadenas', icono: 'ruta' },
+  { to: '/administracion/catalogos', clave: 'administracion.pestanas.catalogos', icono: 'lista' },
 ];
 
 const PESTANA = 'inline-flex h-11 shrink-0 items-center gap-2 rounded-t-lg border-b-2 border-transparent px-4 text-sm font-semibold text-tinta-2 hover:text-tinta';

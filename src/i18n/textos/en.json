@@ -1790,7 +1790,8 @@
       "titulo": "Administration sections",
       "empresas": "Companies",
       "usuarios": "Users",
-      "cadenas": "Value chains"
+      "cadenas": "Value chains",
+      "catalogos": "Catalogs"
     },
     "estado": {
       "ACTIVE": "Active",
@@ -1912,6 +1913,81 @@
         "processingEvidenceTypes": "Processing evidence types",
         "processingEvidenceFields": "Processing evidence fields",
         "semiProducts": "Semi-products"
+      }
+    },
+    "catalogos": {
+      "titulo": "System catalogs",
+      "nombres": {
+        "semiproductos": "Semi-products",
+        "tipos-producto": "Product types",
+        "tipos-instalacion": "Facility types",
+        "unidades": "Measuring units",
+        "tipos-evidencia": "Evidence types",
+        "campos-evidencia": "Evidence fields"
+      },
+      "ayudas": {
+        "semiproductos": "What is delivered, processed and sold at each stage (cherry, parchment, green coffee…), with its unit.",
+        "tipos-producto": "The crop or product each value chain is based on (coffee, cocoa…).",
+        "tipos-instalacion": "Kinds of company facilities: collection centers, mills, warehouses…",
+        "unidades": "Units used to measure quantities, with their weight in kg for conversions.",
+        "tipos-evidencia": "Documents or other evidence a process can require.",
+        "campos-evidencia": "Data recorded in a process (moisture, variety…), with their type."
+      },
+      "buscar": "Search",
+      "nuevo": "New",
+      "nuevo_de": "New: {{que}}",
+      "vacio": "This catalog is empty.",
+      "sin_resultados": "Nothing matches the search.",
+      "editar_de": "Edit {{nombre}}",
+      "ver": "View",
+      "ver_de": "View {{nombre}}",
+      "volver": "Back",
+      "borrar_de": "Delete {{nombre}}",
+      "borrar_pregunta": "Delete “{{nombre}}”? This cannot be undone.",
+      "borrado": "“{{nombre}}” deleted.",
+      "guardado": "“{{nombre}}” saved.",
+      "no_se_borra": "“{{nombre}}” could not be deleted: it is probably in use (by value chains, facilities, processes, products or stock).",
+      "solo_lectura": "Only system administrators edit the catalogs.",
+      "codigo": "Code",
+      "codigo_ayuda": "Capital letters, numbers and underscores (for example, WET_MILL).",
+      "nombre_campo": "Field name",
+      "etiqueta": "Label",
+      "traducciones_ayuda": "English is required; the other languages are optional (without text, English is shown).",
+      "nombre_en": "Name ({{idioma}})",
+      "descripcion_en": "Description ({{idioma}})",
+      "etiqueta_en": "Label ({{idioma}})",
+      "unidad": "Measuring unit",
+      "peso": "Weight in kg",
+      "peso_ayuda": "Used to convert between units. Leave empty if it is not a weight.",
+      "unidad_base": "Base unit",
+      "ninguna": "None",
+      "tipo": "Type",
+      "errores": {
+        "requerido": "This field is required.",
+        "formato": "Only capital letters, numbers and underscores.",
+        "numero": "Enter a number greater than zero."
+      },
+      "tipos": {
+        "DOCUMENT": "Document",
+        "FIELD": "Field",
+        "CALCULATED": "Calculated",
+        "STRING": "Short text",
+        "TEXT": "Long text",
+        "NUMBER": "Number",
+        "INTEGER": "Whole number",
+        "DATE": "Date",
+        "OBJECT": "Object",
+        "PRICE": "Price",
+        "EXCHANGE_RATE": "Exchange rate",
+        "TIMESTAMP": "Date and time"
+      },
+      "marcas": {
+        "buyable": "Can be bought from the farmer",
+        "sku": "Is a stock keeping unit (SKU) at the farmer",
+        "skuendCustomer": "Is a stock keeping unit (SKU) for the end customer",
+        "fairness": "Fairness",
+        "provenance": "Provenance",
+        "quality": "Quality"
       }
     }
   }

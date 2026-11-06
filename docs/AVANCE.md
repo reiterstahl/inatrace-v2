@@ -844,6 +844,47 @@ celular; la de ancho suma lista, ficha y nueva) y dos nuevas contra el backend r
 prueba se crea, se edita, se desactiva, se activa y se borra, sin dejar nada; una en uso no se borra y
 se explica). Suite real: 34 de 35 (la de QR de convivencia).
 
+## Fase 4d.1 (administración: catálogos de tipos) — ✅ cerrada el 06.11.2026 (rama `fase-5`)
+
+Nueva pestaña **Catálogos** en Administración (`/administracion/catalogos?tipo=…`), portada de
+settings/types de la versión actual, con los seis catálogos en una misma pantalla:
+
+- **Semiproductos** (traducciones de nombre y descripción, unidad de medida y si se compra al productor
+  o es unidad de inventario del productor o del consumidor final), **tipos de producto** (código y
+  traducciones), **tipos de instalación** y **unidades de medida** (código, etiqueta, peso en kg y
+  unidad base), **tipos de evidencia** (código, traducciones de la etiqueta, tipo y si es de equidad,
+  procedencia o calidad) y **campos de evidencia** (nombre del campo, traducciones y tipo).
+- Las mismas reglas que la versión actual y el backend: el inglés es obligatorio (el backend lo exige),
+  los códigos van en mayúsculas, números y guion bajo (salvo los tipos de producto), solo se mandan
+  las traducciones con texto y la etiqueta principal sale del inglés.
+- **La regional crea pero no edita ni borra** (ve los elementos en solo lectura); editar y borrar es
+  de la administración del sistema.
+- Al borrar algo en uso, el backend responde un error genérico (H31): la v2 explica la causa probable.
+- El aviso y la lista nombran cada elemento en el idioma de la interfaz (el backend traduce con la
+  cabecera `language`; el simulador ahora también).
+
+### H31 🟡 — borrar un elemento de catálogo en uso responde 500 (backend; sin PR todavía)
+
+Las seis rutas de borrado (semiproductos, tipos de producto, tipos de instalación, unidades, tipos y
+campos de evidencia) hacen `em.remove` sin revisar quién usa el elemento: la clave foránea lo rechaza
+con **500** y se revierte. Comprobado en la copia aislada con el semiproducto 3 y la unidad 2. Mismo
+patrón que H27, H28 y H30 (la guía AGENTS.md de AgStack, #124, pide justamente revisar las FK).
+
+### H32 🟡 — borrar un tipo de producto lee el id de la consulta (backend; sin PR todavía)
+
+`DELETE /api/product-type/{id}` declara el id en la ruta pero lo lee con `@RequestParam`: solo funciona
+si además va `?id=`. El cliente generado lo manda así y la v2 lo usa; un cliente que siga la ruta
+declarada recibe un error.
+
+**Pruebas:** 153 unitarias (6 nuevas), 170 de punta a punta simuladas (3 nuevas en escritorio y
+celular; la de ancho suma dos catálogos) y tres nuevas contra el backend real (un semiproducto con
+traducciones se crea, edita y borra; un elemento de cada otro catálogo se crea y se borra, sin dejar
+nada; un semiproducto en uso no se borra y se explica). Suite real: 37 de 38 (la de QR de convivencia).
+
+**Entorno:** el reinicio del host del 05.11 vació el scratchpad de la sesión y con él los respaldos
+`v2demo-antes-*.sql`. Desde ahora los respaldos de la copia aislada van a `inatrace-v2-demo/respaldos/`
+(fuera de git); el primero es `v2demo-2026-11-06-4d1.sql`.
+
 ## Fase 1b (activar la vitrina en una instalación) — pendiente, acordada el 19.10.2026
 
 Pasos, en orden:
@@ -871,8 +912,9 @@ confirmar el uso del video de Anacafé o cambiarlo.**
 4. **Fase 3 cerrada** (3a–3e.3). Queda probar Beyco de verdad cuando haya una cuenta de pruebas.
 5. **Fase 5 cerrada** (5a.1–5d). En curso: fase 4 («Empresa y administración»): **4a cerrada**
    (ficha, usuarios, instalaciones y acciones) y **4b cerrada** (recolectores, clientes y tablero);
-   **4c cerrada** (administración: empresas, usuarios y cadenas de valor); siguen 4d (catálogos y
-   ajustes) y 4e (cuenta).
+   **4c cerrada** (administración: empresas, usuarios y cadenas de valor); **4d.1 cerrada** (catálogos
+   de tipos); siguen 4d.2 (monedas y ajustes adicionales), 4d.3 (capas de mapa, certificaciones y
+   factores de conversión) y 4e (cuenta).
 6. H23: PR #116 **mergeado** en AgStack (02.11.2026); #113 también. Sigue abierto #112 (con los
    cambios pedidos ya respondidos).
 7. H24: AgStack pidió enviarlo por PR (ver punto 9).

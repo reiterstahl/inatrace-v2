@@ -218,3 +218,82 @@ test.describe('administración de cadenas de valor (modo simulado)', () => {
     await expect(page.getByRole('button', { name: 'Guardar' })).toHaveCount(0);
   });
 });
+
+test.describe('administración de catálogos (modo simulado)', () => {
+  test('semiproductos: crear con traducciones, editar, borrar; uno en uso se explica', async ({ page }) => {
+    await ingresar(page, 'administracion/catalogos', 'SYSTEM_ADMIN');
+    await expect(page.getByRole('link', { name: 'Semiproductos' })).toHaveAttribute('aria-current', 'page');
+    const lista = page.getByRole('list', { name: 'Semiproductos' });
+    await expect(lista.getByRole('listitem')).toHaveCount(2);
+
+    await page.getByRole('button', { name: 'Nuevo', exact: true }).click();
+    await page.getByRole('group', { name: 'Español' }).getByRole('textbox', { name: 'Nombre (Español)' }).fill('Café oro');
+    await page.getByRole('button', { name: 'Guardar' }).click();
+    // El inglés es obligatorio, y la unidad también.
+    await expect(page.getByText('Este campo es obligatorio.')).toHaveCount(2);
+    await page.getByRole('textbox', { name: 'Nombre (Inglés)' }).fill('Green coffee');
+    await page.getByRole('textbox', { name: 'Descripción (Inglés)' }).fill('Hulled coffee');
+    await page.getByRole('combobox', { name: 'Unidad de medida' }).selectOption({ label: 'kg' });
+    await page.getByText('Se puede comprar al productor').click();
+    await page.getByRole('button', { name: 'Guardar' }).click();
+    // La lista y el aviso usan el nombre en el idioma de la interfaz.
+    await expect(page.getByText('«Café oro» guardado.')).toBeVisible();
+    await expect(lista.getByRole('listitem', { name: 'Café oro' })).toContainText('kg');
+
+    await page.getByRole('button', { name: 'Editar Café oro' }).click();
+    await expect(page.getByRole('textbox', { name: 'Nombre (Inglés)' })).toHaveValue('Green coffee');
+    await expect(page.getByRole('checkbox', { name: 'Se puede comprar al productor' })).toBeChecked();
+    await page.getByRole('textbox', { name: 'Nombre (Español)' }).fill('Café oro exportable');
+    await page.getByRole('button', { name: 'Guardar' }).click();
+    await expect(page.getByText('«Café oro exportable» guardado.')).toBeVisible();
+
+    page.on('dialog', (d) => void d.accept());
+    await page.getByRole('button', { name: 'Borrar Café cereza' }).click();
+    await expect(page.getByText(/No se pudo borrar «Café cereza»: probablemente está en uso/)).toBeVisible();
+    await page.getByRole('button', { name: 'Borrar Café oro exportable' }).click();
+    await expect(page.getByText('«Café oro exportable» borrado.')).toBeVisible();
+    await expect(lista.getByRole('listitem')).toHaveCount(2);
+  });
+
+  test('unidades y campos de evidencia: código, peso, unidad base y tipo', async ({ page }) => {
+    await ingresar(page, 'administracion/catalogos?tipo=unidades', 'SYSTEM_ADMIN');
+    await page.getByRole('button', { name: 'Nuevo', exact: true }).click();
+    await page.getByRole('textbox', { name: 'Código' }).fill('saco 46');
+    await page.getByRole('textbox', { name: 'Etiqueta' }).fill('Saco de 46 kg');
+    await page.getByRole('textbox', { name: 'Peso en kg' }).fill('abc');
+    await page.getByRole('button', { name: 'Guardar' }).click();
+    await expect(page.getByText('Solo mayúsculas, números y guion bajo.')).toBeVisible();
+    await expect(page.getByText('Escribe un número mayor que cero.')).toBeVisible();
+    await page.getByRole('textbox', { name: 'Código' }).fill('SACO_46');
+    await page.getByRole('textbox', { name: 'Peso en kg' }).fill('46');
+    await page.getByRole('combobox', { name: 'Unidad base' }).selectOption({ label: 'kg' });
+    await page.getByRole('button', { name: 'Guardar' }).click();
+    await expect(page.getByRole('listitem', { name: 'Saco de 46 kg' })).toContainText('SACO_46 · 46 kg');
+
+    await page.getByRole('link', { name: 'Campos de evidencia' }).click();
+    await expect(page).toHaveURL(/tipo=campos-evidencia/);
+    await page.getByRole('button', { name: 'Nuevo', exact: true }).click();
+    await page.getByRole('textbox', { name: 'Nombre del campo' }).fill('altura');
+    // El código se escribe en mayúsculas.
+    await expect(page.getByRole('textbox', { name: 'Nombre del campo' })).toHaveValue('ALTURA');
+    await page.getByRole('textbox', { name: 'Etiqueta (Inglés)' }).fill('Altitude (m)');
+    await page.getByRole('textbox', { name: 'Etiqueta (Español)' }).fill('Altura (m)');
+    await page.getByRole('combobox', { name: 'Tipo' }).selectOption({ label: 'Número entero' });
+    await page.getByRole('button', { name: 'Guardar' }).click();
+    await expect(page.getByRole('listitem', { name: 'Altura (m)' })).toContainText('ALTURA · Número entero');
+  });
+
+  test('la regional crea pero ve el resto en solo lectura', async ({ page }) => {
+    await ingresar(page, 'administracion/catalogos?tipo=tipos-instalacion', 'REGIONAL_ADMIN');
+    await expect(page.getByRole('button', { name: /^Borrar|^Editar/ })).toHaveCount(0);
+    await page.getByRole('button', { name: 'Ver Beneficio húmedo' }).click();
+    await expect(page.getByText('Solo la administración del sistema edita los catálogos.')).toBeVisible();
+    await expect(page.getByRole('textbox', { name: 'Etiqueta' })).toBeDisabled();
+    await page.getByRole('button', { name: 'Volver' }).click();
+    await page.getByRole('button', { name: 'Nuevo', exact: true }).click();
+    await page.getByRole('textbox', { name: 'Código' }).fill('SECADORA');
+    await page.getByRole('textbox', { name: 'Etiqueta' }).fill('Secadora');
+    await page.getByRole('button', { name: 'Guardar' }).click();
+    await expect(page.getByText('«Secadora» guardado.')).toBeVisible();
+  });
+});

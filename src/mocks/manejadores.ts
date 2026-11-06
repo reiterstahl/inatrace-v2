@@ -146,6 +146,20 @@ const completarCadena = (c: ApiValueChain): ApiValueChain => {
     semiProducts: de(semiproductos, c.semiProducts),
   };
 };
+// Catálogos del sistema (Administración → Catálogos), con estado. Los de ejemplo están en uso:
+// como el backend sin H31, borrarlos falla por la clave foránea con un 500 genérico.
+type ItemSimulado = { id?: number } & Record<string, unknown>;
+const CATALOGOS_SIMULADOS: Record<string, { ruta: string; inicial: () => ItemSimulado[] }> = {
+  semiproductos: { ruta: '/api/chain/semi-product', inicial: () => semiproductos },
+  'tipos-producto': { ruta: '/api/product-type', inicial: () => tiposProducto },
+  'tipos-instalacion': { ruta: '/api/chain/facility-type', inicial: () => tiposInstalacion },
+  unidades: { ruta: '/api/chain/measure-unit-type', inicial: () => unidadesMedida },
+  'tipos-evidencia': { ruta: '/api/chain/processing-evidence-type', inicial: () => tiposEvidencia },
+  'campos-evidencia': { ruta: '/api/chain/processing-evidence-field', inicial: () => camposEvidencia },
+};
+const leerCatalogo = (cat: string): ItemSimulado[] => JSON.parse(sessionStorage.getItem(`simulado.catalogo.${cat}`) ?? 'null') ?? CATALOGOS_SIMULADOS[cat]!.inicial();
+const guardarCatalogo = (cat: string, l: ItemSimulado[]) => sessionStorage.setItem(`simulado.catalogo.${cat}`, JSON.stringify(l));
+const enUsoInicial = (cat: string, id: number) => CATALOGOS_SIMULADOS[cat]!.inicial().some((x) => x.id === id);
 const esAdministracion = () => ['SYSTEM_ADMIN', 'REGIONAL_ADMIN'].includes(sessionStorage.getItem(CLAVE_ROL) ?? '');
 const CLAVE_ETIQUETAS = 'simulado.etiquetas';
 const leerEtiquetas = (): EtiquetaSimulada[] => JSON.parse(sessionStorage.getItem(CLAVE_ETIQUETAS) ?? 'null') ?? etiquetasIniciales;
@@ -315,6 +329,51 @@ export const manejadores = [
     return ok();
   }),
   http.get('/api/chain/currency-type/list/enabled', () => paginado(monedas)),
+  ...Object.entries(CATALOGOS_SIMULADOS).flatMap(([cat, { ruta }]) => {
+    const lista = ruta === '/api/product-type' ? ruta : `${ruta}/list`;
+    const guardar = async (request: Request) => {
+      if (!conSesion()) return sinSesion();
+      const rol = sessionStorage.getItem(CLAVE_ROL);
+      if (rol !== 'SYSTEM_ADMIN' && rol !== 'REGIONAL_ADMIN') return error(403, 'UNAUTHORIZED', 'Forbidden');
+      const x = (await request.json()) as ItemSimulado;
+      const l = leerCatalogo(cat);
+      if (x.id && rol === 'REGIONAL_ADMIN') return error(401, 'UNAUTHORIZED', 'Regional admin not authorized!');
+      // Como el backend: el inglés es obligatorio donde hay traducciones.
+      const tr = x.translations as { language?: string }[] | undefined;
+      if (tr && !tr.some((t) => t.language === 'EN')) return error(400, 'INVALID_REQUEST', 'English translation is required!');
+      const id = x.id ?? siguienteId++;
+      // Como el backend: las unidades referidas vuelven completas.
+      const unidad = (u: unknown) => (u && (u as ItemSimulado).id ? leerCatalogo('unidades').find((y) => y.id === (u as ItemSimulado).id) ?? u : undefined);
+      const completo = { ...x, id, measurementUnitType: unidad(x.measurementUnitType), underlyingMeasurementUnitType: unidad(x.underlyingMeasurementUnitType) };
+      guardarCatalogo(cat, x.id ? l.map((y) => (y.id === id ? completo : y)) : [...l, completo]);
+      return ok({ id });
+    };
+    return [
+      // Como el backend: nombre, descripción y etiqueta en el idioma de la cabecera `language`, si hay traducción.
+      http.get(lista, ({ request }) => {
+        if (!conSesion()) return sinSesion();
+        const idioma = request.headers.get('language');
+        return paginado(
+          leerCatalogo(cat).map((x) => {
+            const t = (x.translations as { language?: string; name?: string; description?: string; label?: string }[] | undefined)?.find((y) => y.language === idioma);
+            if (!t) return x;
+            return { ...x, ...(t.name ? { name: t.name, description: t.description } : {}), ...(t.label ? { label: t.label } : {}) };
+          }),
+        );
+      }),
+      ...(ruta === '/api/product-type'
+        ? [http.post(ruta, ({ request }) => guardar(request)), http.put(ruta, ({ request }) => guardar(request))]
+        : [http.put(ruta, ({ request }) => guardar(request))]),
+      http.delete(`${ruta}/:id`, ({ params, request }) => {
+        if (sessionStorage.getItem(CLAVE_ROL) !== 'SYSTEM_ADMIN') return error(403, 'UNAUTHORIZED', 'Forbidden');
+        // Los tipos de producto mandan el id en la consulta (el backend lo lee de ahí).
+        const id = Number(ruta === '/api/product-type' ? new URL(request.url).searchParams.get('id') : params.id);
+        if (enUsoInicial(cat, id)) return error(500, 'ERROR', 'Internal server error');
+        guardarCatalogo(cat, leerCatalogo(cat).filter((x) => x.id !== id));
+        return ok();
+      }),
+    ];
+  }),
   http.get('/api/chain/value-chain/list', ({ request }) => {
     const u = new URL(request.url);
     const q = (u.searchParams.get('name') ?? '').toLowerCase(), estado = u.searchParams.get('valueChainStatus');
@@ -360,10 +419,6 @@ export const manejadores = [
     guardarCadenas(leerCadenas().filter((x) => x.id !== id));
     return ok();
   }),
-  http.get('/api/product-type', () => paginado(tiposProducto)),
-  http.get('/api/chain/processing-evidence-type/list', () => paginado(tiposEvidencia)),
-  http.get('/api/chain/processing-evidence-field/list', () => paginado(camposEvidencia)),
-  http.get('/api/chain/semi-product/list', () => paginado(semiproductos)),
   // La regional ve las cuentas sin desactivar (el backend además filtra por sus empresas).
   ...(['/api/user/admin/list', '/api/user/regional-admin/list'] as const).map((ruta) =>
     http.get(ruta, ({ request }) => {
@@ -491,7 +546,6 @@ export const manejadores = [
     guardarInstalaciones(leerInstalaciones().filter((x) => x.id !== Number(params.id)));
     return ok();
   }),
-  http.get('/api/chain/facility-type/list', () => paginado(tiposInstalacion)),
   http.get('/api/company/:id/value-chains', () => (conSesion() ? paginado(leerEmpresa().valueChains ?? []) : sinSesion())),
   http.get('/api/chain/semi-product/list/by-value-chains', () => (conSesion() ? paginado(semiproductos) : sinSesion())),
   http.get('/api/final-product/company/:companyId', () => (conSesion() ? paginado(leerFinales()) : sinSesion())),
@@ -802,7 +856,6 @@ export const manejadores = [
     guardarEmpresas([...leerEmpresas(), nueva]);
     return ok({ id: nueva.id });
   }),
-  http.get('/api/chain/measure-unit-type/list', () => paginado(unidadesMedida)),
   http.get('/api/product/:producto/finalProduct/list', ({ params }) => (conSesion() ? paginado(leerFinales().filter((f) => f.product?.id === Number(params.producto))) : sinSesion())),
   http.put('/api/product/:producto/finalProduct', async ({ request, params }) => {
     if (!conSesion()) return sinSesion();
