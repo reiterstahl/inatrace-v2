@@ -1,6 +1,6 @@
 # Antes y después
 
-**Español** · [English](BEFORE-AND-AFTER.md)
+[English](BEFORE-AND-AFTER.md) · **Español**
 
 Una comparación entre la interfaz actual de INATrace (Angular) y INATrace v2. Las dos pantallas de cada par
 muestran **los mismos datos**: los de la instalación de demostración, servidos por el mismo backend y el

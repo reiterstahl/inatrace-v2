@@ -2,13 +2,13 @@
 
 # INATrace v2
 
-**Español** · [English](README.en.md)
+**English** · [Español](README.es.md)
 
-**Interfaz nueva para [INATrace](https://github.com/agstack/inatrace-backend), la plataforma abierta de trazabilidad de cadenas agrícolas, construida sobre el backend existente y sin cambiarlo.**
+**A new web interface for [INATrace](https://github.com/agstack/inatrace-backend), the open-source traceability platform for agricultural supply chains. It is built on the existing backend and leaves it unchanged.**
 
 [![CI](https://github.com/reiterstahl/inatrace-v2/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/reiterstahl/inatrace-v2/actions/workflows/ci.yml)
-![Licencia: MPL 2.0](https://img.shields.io/badge/licencia-MPL%202.0-brightgreen)
-![Estado](https://img.shields.io/badge/pantallas-100%25%20migradas-1f6f4a)
+![License: MPL 2.0](https://img.shields.io/badge/license-MPL%202.0-brightgreen)
+![Status](https://img.shields.io/badge/screens-100%25%20migrated-1f6f4a)
 
 ![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)
 ![TypeScript](https://img.shields.io/badge/TypeScript-6-3178C6?logo=typescript&logoColor=white)
@@ -18,431 +18,433 @@
 ![MapLibre](https://img.shields.io/badge/MapLibre%20GL-6-396CB2?logo=maplibre&logoColor=white)
 ![i18next](https://img.shields.io/badge/i18next-ES%20%C2%B7%20EN%20%C2%B7%20DE%20%C2%B7%20RW-26A69A?logo=i18next&logoColor=white)
 
-![Vitest](https://img.shields.io/badge/Vitest-163%20pruebas-6E9F18?logo=vitest&logoColor=white)
-![Playwright](https://img.shields.io/badge/Playwright-escritorio%20%2B%20celular-2EAD33?logo=playwright&logoColor=white)
-![MSW](https://img.shields.io/badge/MSW-modo%20simulado-FF6A33?logo=mockserviceworker&logoColor=white)
-![OpenAPI](https://img.shields.io/badge/cliente-generado%20desde%20OpenAPI-6BA539?logo=openapiinitiative&logoColor=white)
-![Docker](https://img.shields.io/badge/Docker-nginx%20sin%20privilegios-2496ED?logo=docker&logoColor=white)
+![Vitest](https://img.shields.io/badge/Vitest-163%20tests-6E9F18?logo=vitest&logoColor=white)
+![Playwright](https://img.shields.io/badge/Playwright-desktop%20%2B%20mobile-2EAD33?logo=playwright&logoColor=white)
+![MSW](https://img.shields.io/badge/MSW-mock%20mode-FF6A33?logo=mockserviceworker&logoColor=white)
+![OpenAPI](https://img.shields.io/badge/client-generated%20from%20OpenAPI-6BA539?logo=openapiinitiative&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-unprivileged%20nginx-2496ED?logo=docker&logoColor=white)
 ![pnpm](https://img.shields.io/badge/pnpm-9-F69220?logo=pnpm&logoColor=white)
 
-<img src="docs/capturas/inicio.png" alt="Inicio de INATrace v2: saludo y módulos" width="860">
+<img src="docs/capturas/en/inicio.png" alt="INATrace v2 home: greeting and modules" width="860">
 
 </div>
 
 ---
 
-## Índice
+## Contents
 
-- [Qué es](#qué-es)
-- [Vistas previas](#vistas-previas)
-- [Qué cambia respecto a la interfaz actual](#qué-cambia-respecto-a-la-interfaz-actual) · [antes y después, con capturas](docs/ANTES-Y-DESPUES.md)
-- [Estado por módulo](#estado-por-módulo)
-- [Funcionalidades](#funcionalidades)
-- [Arquitectura](#arquitectura)
-- [Tecnologías](#tecnologías)
-- [Estructura del repositorio](#estructura-del-repositorio)
-- [Empezar](#empezar)
-- [Configuración](#configuración)
+- [What it is](#what-it-is)
+- [Previews](#previews)
+- [What changes from the current interface](#what-changes-from-the-current-interface) · [before and after, with screenshots](docs/BEFORE-AND-AFTER.md)
+- [Status by module](#status-by-module)
+- [Features](#features)
+- [Architecture](#architecture)
+- [Technology](#technology)
+- [Repository layout](#repository-layout)
+- [Getting started](#getting-started)
+- [Configuration](#configuration)
 - [Scripts](#scripts)
-- [Pruebas](#pruebas)
-- [Despliegue](#despliegue)
-- [Seguridad](#seguridad)
-- [Contribuciones al proyecto original](#contribuciones-al-proyecto-original)
-- [Decisiones técnicas](#decisiones-técnicas)
-- [Documentación](#documentación)
-- [Licencia y créditos](#licencia-y-créditos)
+- [Tests](#tests)
+- [Deployment](#deployment)
+- [Security](#security)
+- [Contributions to the original project](#contributions-to-the-original-project)
+- [Technical decisions](#technical-decisions)
+- [Documentation](#documentation)
+- [License and credits](#license-and-credits)
 
 ---
 
-## Qué es
+## What it is
 
-INATrace v2 es una interfaz web nueva para INATrace, en React, que reemplaza a la actual (Angular 10)
-**en todas sus pantallas**. Habla con el **mismo backend Java/Spring sin modificarlo**, así que se
-instala delante de una instancia existente sin migrar datos.
+INATrace v2 is a new web interface for INATrace, built in React, that replaces the current one
+(Angular 10) **on every screen**. It talks to the **same Java/Spring backend without modifying it**, so
+it goes in front of an existing instance with no data migration.
 
-El cambio puede ser gradual: un proxy reparte las rutas en un mismo dominio, la sesión es una sola y
-las dos interfaces **conviven** el tiempo que haga falta. Cuando se decide, el proxy retira la
-interfaz actual y cada enlace viejo (incluidos los QR ya impresos) lleva a su equivalente en la v2.
+The switch can be gradual: a proxy splits the routes on a single domain, both interfaces share one
+session and they can **run side by side** for as long as needed. When the time comes, the proxy
+retires the current interface and every old link (including QR codes already printed) leads to its
+v2 equivalent.
 
-Es una iniciativa propia de Rolando Quirós, separada de los contratos con la GIZ. El plan completo
-está en [docs/PLAN.md](docs/PLAN.md) y el estado detallado, fase por fase, en
-[docs/AVANCE.md](docs/AVANCE.md). Versión actual: **2.0.4**.
+It is an independent initiative by Rolando Quirós, separate from the GIZ contracts. The full plan is
+in [docs/PLAN.md](docs/PLAN.md) and the detailed status of each phase is in
+[docs/AVANCE.md](docs/AVANCE.md) (both in Spanish). Current version: **2.0.4**.
 
-## Vistas previas
+## Previews
 
-> Capturas del **modo simulado** (datos ficticios, sin backend). Se regeneran con `pnpm capturas`.
+> Screenshots of **mock mode** (fictitious data, no backend). Regenerate them with
+> `CAPTURAS_IDIOMA=en pnpm capturas`.
 
 <table>
   <tr>
-    <td width="50%"><img src="docs/capturas/productores-mapa.png" alt="Productores en el mapa"><br><sub><b>Productores en el mapa</b>: lista o mapa con capas del catálogo, sin token de Mapbox.</sub></td>
-    <td width="50%"><img src="docs/capturas/productor-parcelas.png" alt="Ficha de un productor"><br><sub><b>Ficha del productor</b>: datos personales, finca, parcelas, tarjeta con QR, entregas y pagos.</sub></td>
+    <td width="50%"><img src="docs/capturas/en/productores-mapa.png" alt="Farmers on the map"><br><sub><b>Farmers on the map</b>: list or map view with catalog layers, no Mapbox token needed.</sub></td>
+    <td width="50%"><img src="docs/capturas/en/productor-parcelas.png" alt="Farmer profile"><br><sub><b>Farmer profile</b>: personal details, farm, plots, QR card, deliveries and payments.</sub></td>
   </tr>
   <tr>
-    <td><img src="docs/capturas/entregas.png" alt="Lista de entregas"><br><sub><b>Entregas</b>: filtros, saldo pendiente, entrega masiva y exportación a Excel.</sub></td>
-    <td><img src="docs/capturas/trazabilidad.png" alt="Trazabilidad de un lote"><br><sub><b>Trazabilidad</b>: de dónde viene un lote, con sus procesos y entregas de origen.</sub></td>
+    <td><img src="docs/capturas/en/entregas.png" alt="Deliveries list"><br><sub><b>Deliveries</b>: filters, outstanding balance, bulk delivery and Excel export.</sub></td>
+    <td><img src="docs/capturas/en/trazabilidad.png" alt="Batch traceability"><br><sub><b>Traceability</b>: where a batch comes from, with its processes and source deliveries.</sub></td>
   </tr>
   <tr>
-    <td><img src="docs/capturas/tablero.png" alt="Tablero de stock"><br><sub><b>Tablero</b>: entregas y rendimiento por período, con vista de tabla y exportación.</sub></td>
-    <td><img src="docs/capturas/tablero-oscuro.png" alt="Tablero en modo oscuro"><br><sub><b>Modo oscuro</b>: toda la interfaz, con colores de gráficos validados en los dos temas.</sub></td>
+    <td><img src="docs/capturas/en/tablero.png" alt="Stock dashboard"><br><sub><b>Dashboard</b>: deliveries and processing yield by period, with a table view and export.</sub></td>
+    <td><img src="docs/capturas/en/tablero-oscuro.png" alt="Dashboard in dark mode"><br><sub><b>Dark mode</b>: across the whole interface, with chart colors validated in both themes.</sub></td>
   </tr>
   <tr>
-    <td><img src="docs/capturas/etiqueta.png" alt="Editor de etiquetas"><br><sub><b>Etiquetas</b>: qué se muestra en la vitrina campo por campo, vista previa, lotes, opiniones y estadísticas.</sub></td>
-    <td><img src="docs/capturas/administracion.png" alt="Administración de empresas"><br><sub><b>Administración</b>: empresas, usuarios y cadenas de valor de la instancia, según el rol.</sub></td>
+    <td><img src="docs/capturas/en/etiqueta.png" alt="Label editor"><br><sub><b>Labels</b>: what the public page shows, field by field, plus preview, batches, feedback and statistics.</sub></td>
+    <td><img src="docs/capturas/en/administracion.png" alt="Company administration"><br><sub><b>Administration</b>: the instance's companies, users and value chains, depending on the role.</sub></td>
   </tr>
 </table>
 
 <table>
   <tr>
-    <td width="33%" align="center"><img src="docs/capturas/vitrina-celular.png" alt="Vitrina pública en el celular" width="260"><br><sub><b>Vitrina pública</b> que abre el QR impreso, en el celular.</sub></td>
-    <td width="33%" align="center"><img src="docs/capturas/entregas-celular.png" alt="Entregas en el celular" width="260"><br><sub><b>Entregas en el celular</b>: las tablas pasan a tarjetas.</sub></td>
+    <td width="33%" align="center"><img src="docs/capturas/en/vitrina-celular.png" alt="Public product page on a phone" width="260"><br><sub><b>Public product page</b> opened by the printed QR code, on a phone.</sub></td>
+    <td width="33%" align="center"><img src="docs/capturas/en/entregas-celular.png" alt="Deliveries on a phone" width="260"><br><sub><b>Deliveries on a phone</b>: tables become cards.</sub></td>
     <td width="34%" valign="top">
-      <b>Pensada para el celular</b><br><br>
-      Cada pantalla se prueba también con el ancho de un teléfono (390 px). Una prueba automática
-      recorre <b>todas</b> las pantallas y falla si alguna queda más ancha que la ventana.
+      <b>Built for phones</b><br><br>
+      Every screen is also tested at phone width (390 px). An automated test visits <b>every</b>
+      screen and fails if any of them becomes wider than the window.
     </td>
   </tr>
 </table>
 
-## Qué cambia respecto a la interfaz actual
+## What changes from the current interface
 
-> 📸 **[Antes y después](docs/ANTES-Y-DESPUES.md):** las mismas pantallas, con los mismos datos, en la interfaz
-> actual y en la v2. En el celular, la vitrina pública baja **un 82 % menos** (1 089 KB contra 5 975 KB) y
-> **un 87 % menos de JavaScript**.
+> 📸 **[Before and after](docs/BEFORE-AND-AFTER.md):** the same screens, with the same data, in the current
+> interface and in v2. On a phone, the public product page downloads **82% less** (1,089 KB vs 5,975 KB) and
+> **87% less JavaScript**.
 
-| | Interfaz actual (v1) | INATrace v2 |
+| | Current interface (v1) | INATrace v2 |
 |---|---|---|
-| **Base técnica** | Angular 10 + Node 14, sin soporte ni parches de seguridad | React 19, Vite 8 y TypeScript 6, con soporte vigente |
-| **Cliente de la API** | Generado, pero desfasado del backend (operaciones obsoletas y faltantes) | Se regenera desde el OpenAPI del backend en uso: un cambio en la API rompe la compilación, no la pantalla |
-| **Diseño** | El diseño original | Sistema de diseño nuevo, pensado primero para el celular, con modo claro y oscuro |
-| **Mapas** | Mapbox (requiere token) | MapLibre, con capas del catálogo, dibujo de parcelas y superficie calculada, sin token |
-| **Errores** | Mensajes genéricos en varios casos | Se explica la causa en el idioma de la interfaz (por ejemplo, por qué algo no se puede borrar) |
-| **Vitrina pública (QR)** | Parte de la aplicación completa | Se carga sola, sin formularios ni mapas de edición, con las mismas URL y el mismo registro de visitas |
-| **Permisos** | Algunas reglas solo se aplican en la pantalla (H29) | Respeta cada rol en la interfaz, y la corrección del backend ya está en el original ([#129](https://github.com/agstack/inatrace-backend/pull/129)) |
+| **Technical base** | Angular 10 + Node 14, out of support with no security updates | React 19, Vite 8 and TypeScript 6, all currently supported |
+| **API client** | Generated, but out of date with the backend (obsolete and missing operations) | Regenerated from the running backend's OpenAPI spec: an API change breaks the build, not the screen |
+| **Design** | The original design | New design system, mobile first, with light and dark modes |
+| **Maps** | Mapbox (needs a token) | MapLibre, with catalog layers, plot drawing and computed area, no token |
+| **Errors** | Generic messages in several cases | The cause is explained in the interface language (for example, why something cannot be deleted) |
+| **Public product page (QR)** | Part of the full application | Loads on its own, without forms or editing maps, with the same URLs and the same visit tracking |
+| **Permissions** | Some rules are only enforced on screen (H29) | Each role is respected in the interface, and the backend fix is now upstream ([#129](https://github.com/agstack/inatrace-backend/pull/129)) |
 
-## Estado por módulo
+## Status by module
 
-| Módulo | Estado |
+| Module | Status |
 |---|---|
-| Cimientos: sesión compartida, cliente de API, diseño, idiomas, CI | ✅ |
-| Vitrina pública del producto (QR) | ✅ |
-| Productores, recolectores y parcelas | ✅ |
-| Stock: entregas, procesamiento, pagos, órdenes, trazabilidad, tablero y Beyco | ✅ (Beyco sin probar contra una cuenta real) |
-| Productos, etiquetas, lotes, opiniones, estadísticas y base de conocimiento | ✅ |
-| Empresa: ficha, usuarios, instalaciones, acciones de procesamiento y clientes | ✅ |
-| Administración: empresas, usuarios y cadenas de valor | ✅ |
-| Catálogos y ajustes del sistema (tipos, monedas, ajustes, capas de mapa, certificaciones, factores de conversión) | ✅ |
-| Cuenta: ingreso, registro, confirmación de correo y restablecer contraseña | ✅ |
-| Activar la vitrina en una instalación (fase 1b) | ✅ en la instalación local de demostración |
-| Retiro de la interfaz Angular (fase 6) | ✅ en la instalación local de demostración |
+| Foundations: shared session, API client, design, languages, CI | ✅ |
+| Public product page (QR) | ✅ |
+| Farmers, collectors and plots | ✅ |
+| Stock: deliveries, processing, payments, orders, traceability, dashboard and Beyco | ✅ (Beyco not yet tested against a real account) |
+| Products, labels, batches, feedback, statistics and knowledge base | ✅ |
+| Company: profile, users, facilities, processing actions and customers | ✅ |
+| Administration: companies, users and value chains | ✅ |
+| System catalogs and settings (types, currencies, settings, map layers, certifications, conversion factors) | ✅ |
+| Account: sign-in, sign-up, email confirmation and password reset | ✅ |
+| Enable the public page on an installation (phase 1b) | ✅ on the local demo installation |
+| Retire the Angular interface (phase 6) | ✅ on the local demo installation |
 
-## Funcionalidades
+## Features
 
 <details open>
-<summary><b>Vitrina pública (lo que ve quien escanea el QR)</b></summary>
+<summary><b>Public product page (what people see when they scan the QR code)</b></summary>
 
-- Portada del producto, recorrido en el mapa, precios justos, productores, calidad y certificados.
-- Formulario de opinión con consentimiento explícito.
-- Términos y política de privacidad.
-- Mismas URL que la versión actual (`/q-cd/{etiqueta}/{qr}`) y registro de cada visita en las
-  estadísticas de la etiqueta.
-- Cuatro idiomas y diseño para el celular.
+- Product home, journey on the map, fair prices, farmers, quality and certificates.
+- Feedback form with explicit consent.
+- Terms and privacy policy.
+- Same URLs as the current version (`/q-cd/{label}/{qr}`), and every visit is counted in the label
+  statistics.
+- Four languages and a mobile design.
 
 </details>
 
 <details>
-<summary><b>Productores, recolectores y parcelas</b></summary>
+<summary><b>Farmers, collectors and plots</b></summary>
 
-- Lista con búsqueda, orden y páginas, o vista de mapa con conteos y capas del catálogo.
-- Ficha completa: datos personales, finca, cultivos, organizaciones, datos bancarios y
-  certificaciones.
-- Parcelas dibujadas sobre el mapa (Terra Draw), con superficie calculada y aviso si se aparta
-  mucho de la declarada.
-- Tarjeta imprimible con QR del productor.
-- Importación desde planilla Excel y exportación de datos.
-- Recolectores (acopiadores) con la misma ficha, sin finca ni parcelas.
+- List with search, sorting and paging, or a map view with counts and catalog layers.
+- Full profile: personal details, farm, crops, organizations, bank details and certifications.
+- Plots drawn on the map (Terra Draw) with computed area, and a warning when the drawn area differs a
+  lot from the declared one.
+- Printable farmer card with a QR code.
+- Import from an Excel spreadsheet and data export.
+- Collectors (aggregators) use the same profile, without farm or plots.
 
 </details>
 
 <details>
 <summary><b>Stock</b></summary>
 
-- **Entregas**: individuales y masivas, filtros (instalación, productor, semiproducto, café de
-  mujeres, saldo pendiente) y exportación.
-- **Todo el stock**: vista suelta o agrupada por instalación.
-- **Procesamiento**: procesos con evidencias, campos y QR del lote resultante.
-- **Pagos**: individuales y masivos, a entregas y a órdenes, con comprobantes.
-- **Órdenes entre empresas y pedidos de clientes**: emitidas, recibidas y aprobación.
-- **Trazabilidad**: el origen de cada lote, hasta las entregas de los productores.
-- **Tablero**: entregas y rendimiento del procesamiento por período, en gráficos SVG propios con
-  tooltip, leyenda y tabla; exportación a Excel, CSV y PDF.
-- **Beyco**: ofertas al mercado desde los lotes (integración opcional).
+- **Deliveries**: single and bulk, with filters (facility, farmer, semi-product, women's coffee,
+  outstanding balance) and export.
+- **All stock**: flat or grouped by facility.
+- **Processing**: processes with evidence, fields and a QR code for the resulting batch.
+- **Payments**: single and bulk, for deliveries and orders, with receipts.
+- **Orders between companies and customer orders**: placed, received and approval.
+- **Traceability**: where each batch comes from, back to the farmers' deliveries.
+- **Dashboard**: deliveries and processing yield by period, drawn as our own SVG charts with tooltip,
+  legend and table; export to Excel, CSV and PDF.
+- **Beyco**: market offers from batches (optional integration).
 
 </details>
 
 <details>
-<summary><b>Productos y etiquetas</b></summary>
+<summary><b>Products and labels</b></summary>
 
-- Ficha del producto, vitrina y recorrido, empresas de la cadena y productos finales.
-- Etiquetas con visibilidad campo por campo, publicación, vista previa sin guardar y QR.
-- Lotes, opiniones de consumidores (con exportación) y estadísticas de visitas.
-- Base de conocimiento por producto, con temas, documentos y videos.
-
-</details>
-
-<details>
-<summary><b>Empresa</b></summary>
-
-- Ficha de la empresa: datos, logo, certificaciones, videos, moneda y cadenas de valor.
-- Usuarios de la empresa con su rol, sin dejarla nunca sin administración.
-- Instalaciones con su tipo, ubicación en el mapa, cadenas y semiproductos.
-- Acciones de procesamiento con sus evidencias y campos.
-- Clientes de la empresa.
+- Product profile, public page and journey, supply chain companies and final products.
+- Labels with field-by-field visibility, publishing, preview without saving, and QR codes.
+- Batches, consumer feedback (with export) and visit statistics.
+- Knowledge base per product, with topics, documents and videos.
 
 </details>
 
 <details>
-<summary><b>Administración del sistema</b> (solo administración del sistema y regional)</summary>
+<summary><b>Company</b></summary>
 
-- **Empresas**: buscar, crear, activar, desactivar, fusionar y abrir cualquiera para trabajar con ella.
-- **Usuarios**: confirmar el correo, activar, desactivar y cambiar el rol, más la ficha de cada
-  persona con sus empresas.
-- **Cadenas de valor**: crear y editar con su configuración (tipos de instalación, unidades,
-  evidencias, campos y semiproductos), activar, desactivar y borrar.
-- **Catálogos**: semiproductos, tipos de producto, de instalación, unidades, tipos y campos de evidencia
-  (con traducciones), capas de mapa, tipos de certificación y factores de conversión.
-- **Monedas** activas y **ajustes** de la instancia (el texto que ve quien escanea un QR de una etiqueta
-  sin publicar y un enlace de ayuda para las etiquetas).
-- La administración regional solo ve lo suyo y solo puede hacer lo que le corresponde.
+- Company profile: details, logo, certifications, videos, currency and value chains.
+- Company users with their roles; a company is never left without an administrator.
+- Facilities with type, location on the map, value chains and semi-products.
+- Processing actions with their evidence and fields.
+- Company customers.
 
 </details>
 
 <details>
-<summary><b>Cuenta</b></summary>
+<summary><b>System administration</b> (system and regional administrators only)</summary>
 
-- Ingreso, registro con aceptación de condiciones, confirmación del correo con el enlace recibido y
-  restablecimiento de la contraseña.
-- Los enlaces de los correos usan las mismas rutas que la versión actual (`/confirm-email/…`,
-  `/reset-password/…`), bajo `/v2`.
-- Pedir un enlace para restablecer no revela si el correo tiene cuenta.
+- **Companies**: search, create, activate, deactivate, merge, and open any company to work in it.
+- **Users**: confirm email, activate, deactivate and change role, plus a profile for each person
+  listing their companies.
+- **Value chains**: create and edit with their configuration (facility types, units, evidence types,
+  fields and semi-products), activate, deactivate and delete.
+- **Catalogs**: semi-products, product, facility and evidence types, measuring units, evidence fields (with
+  translations), map layers, certification types and conversion factors.
+- Active **currencies** and instance **settings** (the text shown when a QR code points to an unpublished
+  label, and a help link for labels).
+- Regional administrators only see their own companies and can only do what their role allows.
 
 </details>
 
-## Arquitectura
+<details>
+<summary><b>Account</b></summary>
+
+- Sign-in, sign-up with acceptance of the conditions, email confirmation through the link received, and
+  password reset.
+- Email links use the same routes as the current version (`/confirm-email/…`, `/reset-password/…`), under `/v2`.
+- Asking for a reset link does not reveal whether the email has an account.
+
+</details>
+
+## Architecture
 
 ```mermaid
 flowchart LR
-  U["Navegador<br/>(escritorio o celular)"] --> P["Proxy nginx<br/>(un solo dominio)"]
-  P -- "/v2/" --> V2["INATrace v2<br/>React + Vite<br/>(nginx sin privilegios)"]
-  P -- "/api/" --> B["Backend INATrace<br/>Java · Spring Boot · MySQL<br/>(sin cambios)"]
-  P -. "resto, mientras conviven" .-> A["Interfaz actual<br/>Angular (opcional)"]
-  V2 -. "cliente generado<br/>desde OpenAPI" .-> B
+  U["Browser<br/>(desktop or phone)"] --> P["nginx proxy<br/>(one domain)"]
+  P -- "/v2/" --> V2["INATrace v2<br/>React + Vite<br/>(unprivileged nginx)"]
+  P -- "/api/" --> B["INATrace backend<br/>Java · Spring Boot · MySQL<br/>(unchanged)"]
+  P -. "everything else, while both run" .-> A["Current interface<br/>Angular (optional)"]
+  V2 -. "client generated<br/>from OpenAPI" .-> B
   A --> B
 ```
 
-- **Convivencia:** el proxy (`deploy/convivencia/`) manda `/v2/` a esta interfaz, `/api/` al
-  backend y el resto a la interfaz actual. La cookie de sesión es la misma para las dos. Mientras
-  conviven, `URL_ANTERIOR` muestra enlaces a la interfaz actual; sin ella, la v2 no los muestra.
-- **QR ya impresos:** con `QR_A_V2=si` el proxy redirige `/{idioma}/q-cd/…` a la vitrina de la v2;
-  con `no` siguen en la interfaz actual. Activar o volver atrás es cambiar la variable y reiniciar el proxy.
-- **Retiro de Angular:** con `ANGULAR=no` el proxy deja de enviar tráfico a la interfaz actual y cada ruta
-  vieja redirige a su equivalente en la v2 (74 reglas, con o sin idioma delante).
-- **Datos:** TanStack Query maneja la caché y las recargas. Las fichas se editan siempre sobre la
-  versión completa y fresca del backend, porque este reemplaza todos los campos al guardar.
-- **Rutas:** TanStack Router define las rutas en código, con búsqueda validada en la URL y
-  pantallas que se cargan al entrar.
-- **Idioma:** cada petición manda la cabecera `language`, igual que la interfaz actual, y el backend
-  traduce con eso.
+- **Side by side:** the proxy (`deploy/convivencia/`) sends `/v2/` to this interface, `/api/` to the
+  backend and everything else to the current interface. Both share the same session cookie. While
+  both run, `URL_ANTERIOR` shows links to the current interface; without it, v2 shows none.
+- **QR codes already printed:** with `QR_A_V2=si` the proxy redirects `/{language}/q-cd/…` to the v2 public
+  page; with `no` they stay on the current interface. Switching is changing the variable and restarting the proxy.
+- **Retiring Angular:** with `ANGULAR=no` the proxy stops sending traffic to the current interface and every
+  old route redirects to its v2 equivalent (74 rules, with or without the language prefix).
+- **Data:** TanStack Query handles caching and refetching. Forms always edit the complete, fresh
+  record from the backend, because the backend replaces every field on save.
+- **Routing:** TanStack Router defines routes in code, with validated search parameters in the URL
+  and screens loaded on demand.
+- **Language:** every request sends the `language` header, like the current interface, and the
+  backend translates with it.
 
-## Tecnologías
+## Technology
 
-| Área | Tecnología |
+| Area | Technology |
 |---|---|
-| Interfaz | React 19, TypeScript 6 |
-| Compilación | Vite 8 |
-| Rutas y datos | TanStack Router, TanStack Query |
-| Formularios | React Hook Form + Zod |
-| Estilos | Tailwind CSS 4 con tokens propios (claro y oscuro); tipografías Inter y Fraunces |
-| Mapas | MapLibre GL 6 y Terra Draw (dibujo de parcelas) |
-| Idiomas | i18next: español, inglés, alemán y kinyarwanda |
-| Cliente de API | `@hey-api/openapi-ts`, generado desde el OpenAPI del backend |
-| QR | `uqr` |
-| HTML seguro | DOMPurify |
-| Modo simulado | MSW (Mock Service Worker) |
-| Pruebas | Vitest + Testing Library; Playwright |
-| Entrega | Docker: compilación con Node 24 y nginx sin privilegios; imagen en GHCR |
-| Paquetes | pnpm 9 |
+| UI | React 19, TypeScript 6 |
+| Build | Vite 8 |
+| Routing and data | TanStack Router, TanStack Query |
+| Forms | React Hook Form + Zod |
+| Styling | Tailwind CSS 4 with our own tokens (light and dark); Inter and Fraunces typefaces |
+| Maps | MapLibre GL 6 and Terra Draw (plot drawing) |
+| Languages | i18next: Spanish, English, German and Kinyarwanda |
+| API client | `@hey-api/openapi-ts`, generated from the backend's OpenAPI spec |
+| QR codes | `uqr` |
+| Safe HTML | DOMPurify |
+| Mock mode | MSW (Mock Service Worker) |
+| Tests | Vitest + Testing Library; Playwright |
+| Delivery | Docker: Node 24 build stage and unprivileged nginx; image on GHCR |
+| Packages | pnpm 9 |
 
-## Estructura del repositorio
+## Repository layout
+
+Folder and file names are in Spanish, like the rest of the code.
 
 ```text
 inatrace-v2/
 ├── src/
-│   ├── api/            # consultas y mutaciones por área (TanStack Query) + gen/ (cliente generado)
-│   ├── componentes/    # interfaz común: ui/, mapa/, graficos/, selectores
-│   ├── paginas/        # pantallas por módulo: vitrina, productores, stock, productos,
-│   │                   #   empresa, administracion, portal, acceso
-│   ├── util/           # lógica pura con pruebas unitarias (armado de fichas, validaciones, permisos)
-│   ├── i18n/           # configuración y textos (es, en, de, rw)
-│   ├── mocks/          # modo simulado: manejadores MSW y datos ficticios
-│   ├── estilos/        # tokens de diseño y estilos base
-│   └── rutas.tsx       # árbol de rutas
-├── e2e/                # pruebas de punta a punta con datos simulados (escritorio y celular)
-├── e2e-real/           # pruebas contra una instalación real (ver e2e-real/README.md)
+│   ├── api/            # queries and mutations by area (TanStack Query) + gen/ (generated client)
+│   ├── componentes/    # shared UI: ui/, mapa/ (maps), graficos/ (charts), selectors
+│   ├── paginas/        # screens by module: vitrina (public page), productores (farmers), stock,
+│   │                   #   productos (products), empresa (company), administracion, portal, acceso (sign-in)
+│   ├── util/           # pure logic with unit tests (building records, validation, permissions)
+│   ├── i18n/           # setup and texts (es, en, de, rw)
+│   ├── mocks/          # mock mode: MSW handlers and fictitious data
+│   ├── estilos/        # design tokens and base styles
+│   └── rutas.tsx       # route tree
+├── e2e/                # end-to-end tests with mock data (desktop and mobile)
+├── e2e-real/           # tests against a real installation (see e2e-real/README.md)
 ├── deploy/
-│   ├── nginx/          # configuración del contenedor (CSP, config en tiempo de ejecución)
-│   └── convivencia/    # proxy + compose para correr junto a la interfaz actual
-├── scripts/            # actualizar el cliente, importar traducciones, sembrar demos, capturas, comparación
-├── docs/               # PLAN.md, AVANCE.md, antes y después, créditos y capturas
-└── public/config.js    # configuración leída en tiempo de ejecución (no en el build)
+│   ├── nginx/          # container configuration (CSP, runtime config)
+│   └── convivencia/    # proxy + compose to run next to the current interface
+├── scripts/            # update the API client, import translations, seed demos, screenshots, comparison
+├── docs/               # PLAN.md, AVANCE.md, before and after, credits and screenshots
+└── public/config.js    # configuration read at runtime (not at build time)
 ```
 
-## Empezar
+## Getting started
 
-**Requisitos:** Node 24 y pnpm 9. Para las pruebas de punta a punta, Chromium de Playwright.
+**Requirements:** Node 24 and pnpm 9. For end-to-end tests, Playwright's Chromium.
 
 ```bash
 pnpm install
 
-# Sin backend: MSW responde con datos de ejemplo
+# No backend: MSW answers with sample data
 pnpm dev:simulado
-#   → http://localhost:5173/v2/          (ingreso: demo@inatrace.local / demo1234)
-#   → http://localhost:5173/v2/p-cd/demo/QR-DEMO-2026   (vitrina pública)
+#   → http://localhost:5173/v2/          (sign in: demo@inatrace.local / demo1234)
+#   → http://localhost:5173/v2/p-cd/demo/QR-DEMO-2026   (public product page)
 
-# Contra un backend real (ver .env.ejemplo)
+# Against a real backend (see .env.ejemplo)
 cp .env.ejemplo .env
 pnpm dev
 ```
 
-En modo simulado se puede probar la interfaz con otro rol guardando el rol en `sessionStorage`
-(`simulado.rol` = `SYSTEM_ADMIN` o `REGIONAL_ADMIN`) desde la consola del navegador.
+In mock mode you can try the interface with another role by setting `simulado.rol` in
+`sessionStorage` to `SYSTEM_ADMIN` or `REGIONAL_ADMIN` from the browser console.
 
-## Configuración
+## Configuration
 
-**Desarrollo** (`.env`):
+**Development** (`.env`):
 
-| Variable | Para qué |
+| Variable | Purpose |
 |---|---|
-| `INATRACE_API` | Backend al que Vite redirige `/api` (por defecto `http://localhost:8081`) |
-| `VITE_URL_ANTERIOR` | URL de la interfaz actual, para los enlaces «Versión actual» (vacío: no se muestran) |
+| `INATRACE_API` | Backend that Vite proxies `/api` to (default `http://localhost:8081`) |
+| `VITE_URL_ANTERIOR` | URL of the current interface, for the "Current version" links (empty: hidden) |
 
-**Contenedor** (variables de entorno, leídas **al arrancar**: la misma imagen sirve para cualquier
-instalación):
+**Container** (environment variables read **at startup**, so one image serves any installation):
 
-| Variable | Para qué |
+| Variable | Purpose |
 |---|---|
-| `TOKEN_REGISTRO_PUBLICO` | Igual al `INATrace.requestLog.token` del backend; registra las visitas de los QR |
-| `APP_BASE_URL` | Raíz pública de los QR (vacío: el origen de la página) |
-| `QR_CODE_BASE_PATH` | Ruta de los QR impresos (por defecto `q-cd`) |
-| `URL_ANTERIOR` | Raíz de la interfaz actual mientras conviven; vacío (por defecto) oculta los enlaces a ella |
-| `BEYCO_AUTH_URL`, `BEYCO_CLIENT_ID` | Integración con Beyco (vacías: sin Beyco) |
+| `TOKEN_REGISTRO_PUBLICO` | Must match the backend's `INATrace.requestLog.token`; records QR visits |
+| `APP_BASE_URL` | Public root of the QR codes (empty: the page's origin) |
+| `QR_CODE_BASE_PATH` | Path of the printed QR codes (default `q-cd`) |
+| `URL_ANTERIOR` | Root of the current interface while both run side by side; empty (the default) hides the links to it |
+| `BEYCO_AUTH_URL`, `BEYCO_CLIENT_ID` | Beyco integration (empty: no Beyco) |
 
 ## Scripts
 
-| Script | Qué hace |
+| Script | What it does |
 |---|---|
-| `pnpm dev` | Servidor de desarrollo contra un backend real |
-| `pnpm dev:simulado` | Servidor de desarrollo con datos simulados (MSW) |
-| `pnpm build` | Revisa los tipos y compila para producción |
-| `pnpm lint` | Revisión de tipos (`tsc -b`) |
-| `pnpm test` | Pruebas unitarias (Vitest) |
-| `pnpm e2e` | Pruebas de punta a punta en modo simulado (Playwright) |
-| `pnpm api:actualizar` | Baja el OpenAPI del backend (`INATRACE_API`) y regenera el cliente tipado |
-| `pnpm i18n:importar` | Reutiliza las traducciones de la interfaz actual (alemán y kinyarwanda) |
-| `pnpm capturas` | Regenera las capturas de este README (con `pnpm dev:simulado --port 5199` corriendo; `CAPTURAS_IDIOMA=en` para las del README en inglés) |
+| `pnpm dev` | Development server against a real backend |
+| `pnpm dev:simulado` | Development server with mock data (MSW) |
+| `pnpm build` | Type-check and production build |
+| `pnpm lint` | Type check (`tsc -b`) |
+| `pnpm test` | Unit tests (Vitest) |
+| `pnpm e2e` | End-to-end tests in mock mode (Playwright) |
+| `pnpm api:actualizar` | Download the backend's OpenAPI spec (`INATRACE_API`) and regenerate the typed client |
+| `pnpm i18n:importar` | Reuse the current interface's translations (German and Kinyarwanda) |
+| `pnpm capturas` | Regenerate the README screenshots (with `pnpm dev:simulado --port 5199` running; `CAPTURAS_IDIOMA=en` for English) |
 
-## Pruebas
+## Tests
 
-Tres niveles, del más rápido al más cercano a producción (cifras al 07.11.2026):
+Three levels, from fastest to closest to production (figures as of 7 November 2026):
 
-| Nivel | Herramienta | Cantidad | Qué cubre |
+| Level | Tool | Count | What it covers |
 |---|---|---|---|
-| Unitarias | Vitest | 163 | Lógica pura: armado de fichas sobre el original, validaciones, permisos por rol, agrupaciones |
-| De punta a punta, simuladas | Playwright + MSW | 196 | Cada flujo en **escritorio y celular**, más pruebas que recorren todas las pantallas y la barra en diez anchos buscando desbordes |
-| Contra un backend real | Playwright | 42 | Los mismos flujos contra una copia aislada de INATrace, verificando lo guardado por la API |
+| Unit | Vitest | 163 | Pure logic: building records on top of the original, validation, role permissions, grouping |
+| End-to-end, mocked | Playwright + MSW | 196 | Every flow on **desktop and phone**, plus tests that visit every screen, and the top bar at ten widths, looking for overflow |
+| Against a real backend | Playwright | 42 | The same flows against an isolated copy of INATrace, checking what was saved through the API |
 
 ```bash
 pnpm lint && pnpm test && pnpm e2e
 
-# Contra una instalación real (ver e2e-real/README.md para las variables)
+# Against a real installation (see e2e-real/README.md for the variables)
 INATRACE_URL=http://localhost:5181 INATRACE_USUARIO=… INATRACE_CLAVE=… \
   pnpm exec playwright test -c playwright.real.config.ts
 ```
 
-La CI (GitHub Actions) corre tipos, pruebas unitarias y de punta a punta en cada push a `main`, en
-cada etiqueta de versión y en cada pull request. Desde `main` y las etiquetas publica además la imagen.
+CI (GitHub Actions) runs the type check, unit tests and end-to-end tests on every push to `main`, on
+every version tag and on every pull request. From `main` and the tags it also publishes the image.
 
-## Despliegue
+## Deployment
 
-- **Imagen:** `ghcr.io/reiterstahl/inatrace-v2`, publicada por la CI si pasan todas las pruebas: una
-  etiqueta `vX.Y.Z` publica la versión `X.Y.Z` (y `latest`, si es estable), `main` publica `latest`, y
-  las dos, el SHA del commit. Es nginx sin privilegios en el puerto **8080**, con cabeceras de
-  seguridad y CSP estricta.
-- **Convivencia y retiro:** `deploy/convivencia/` trae el proxy y un `docker-compose.yml` para poner la
-  v2 delante de una instalación existente sin tocarla. `QR_A_V2` y `ANGULAR` deciden, cada una con un
-  reinicio del proxy, si los QR impresos abren la v2 y si la interfaz actual sigue en uso.
-- **Datos de demostración** (solo para instancias de prueba):
-  - `scripts/sembrar-demo.mjs`: una acción «generar QR», un lote con QR y una etiqueta publicada.
-  - `scripts/sembrar-medios.mjs`: fotos con licencia libre y un video; los créditos están en
+- **Image:** `ghcr.io/reiterstahl/inatrace-v2`, published by CI when every test passes: a `vX.Y.Z` tag
+  publishes version `X.Y.Z` (and `latest`, if it is a stable release), `main` publishes `latest`, and
+  both publish the commit SHA. It is unprivileged nginx on port **8080**, with security headers and a
+  strict CSP.
+- **Side by side and retirement:** `deploy/convivencia/` provides the proxy and a `docker-compose.yml`
+  to put v2 in front of an existing installation without touching it. `QR_A_V2` and `ANGULAR` decide,
+  each with a proxy restart, whether printed QR codes open v2 and whether the current interface stays.
+- **Demo data** (test instances only):
+  - `scripts/sembrar-demo.mjs`: a "generate QR" action, a batch with a QR code and a published label.
+  - `scripts/sembrar-medios.mjs`: openly licensed photos and a video; credits are in
     [docs/CREDITOS-DEMO.md](docs/CREDITOS-DEMO.md).
-  - Otros `scripts/sembrar-*.mjs` cargan procesamiento, órdenes, monedas y productos.
+  - Other `scripts/sembrar-*.mjs` seed processing, orders, currencies and products.
 
-## Seguridad
+## Security
 
-- **CSP estricta** (`script-src 'self'`) y cabeceras de seguridad en el nginx del contenedor, que
-  corre sin privilegios.
-- **HTML de usuarios saneado** con DOMPurify antes de mostrarse.
-- **Sin secretos en el build:** la configuración de cada instalación se inyecta al arrancar.
-- **Permisos por rol en la interfaz:** la v2 no ofrece acciones que el rol no debería tener, aunque
-  el backend las acepte.
-- **Documentos e imágenes privados** se piden por rutas con sesión, no por enlaces públicos.
+- **Strict CSP** (`script-src 'self'`) and security headers in the container's nginx, which runs
+  unprivileged.
+- **User-supplied HTML is sanitized** with DOMPurify before it is shown.
+- **No secrets in the build:** each installation's configuration is injected at startup.
+- **Role permissions in the interface:** v2 does not offer actions a role should not have, even when
+  the backend accepts them.
+- **Private documents and images** are fetched through authenticated routes, not public links.
 
-## Contribuciones al proyecto original
+## Contributions to the original project
 
-Construir la v2 contra el backend real sacó a la luz errores del backend de INATrace. Se corrigieron
-y se enviaron como pull requests a [agstack/inatrace-backend](https://github.com/agstack/inatrace-backend),
-cada uno con prueba de regresión:
+Building v2 against the real backend surfaced bugs in the INATrace backend. They were fixed and sent
+as pull requests to [agstack/inatrace-backend](https://github.com/agstack/inatrace-backend), each with
+a regression test:
 
-| PR | Qué corrige | Estado |
+| PR | What it fixes | Status |
 |---|---|---|
-| [#112](https://github.com/agstack/inatrace-backend/pull/112), [#113](https://github.com/agstack/inatrace-backend/pull/113) | Comprobantes de pago y transacción al borrar una entrega | ✅ mergeados |
-| [#116](https://github.com/agstack/inatrace-backend/pull/116) | La copia del producto a la etiqueta perdía políticas laborales y lugares de origen | ✅ mergeado |
-| [#117](https://github.com/agstack/inatrace-backend/pull/117) | Un producto con base de conocimiento no se podía borrar | ✅ mergeado |
-| [#118](https://github.com/agstack/inatrace-backend/pull/118) | La «gerencia» de la empresa nunca se guardaba | ✅ mergeado |
-| [#119](https://github.com/agstack/inatrace-backend/pull/119) + [frontend #33](https://github.com/agstack/inatrace-frontend/pull/33) | La lista pública de opiniones exponía datos de los consumidores | ✅ mergeados |
-| [#122](https://github.com/agstack/inatrace-backend/pull/122), [#123](https://github.com/agstack/inatrace-backend/pull/123) | Errores 500 al borrar acciones de procesamiento o clientes en uso | ✅ mergeados |
-| [#129](https://github.com/agstack/inatrace-backend/pull/129) | La administración regional podía dar el rol de administración del sistema | ✅ mergeado |
-| [#132](https://github.com/agstack/inatrace-backend/pull/132) | Error 500 al borrar una cadena de valor en uso | ✅ mergeado |
-| [#137](https://github.com/agstack/inatrace-backend/pull/137) | Error 500 al borrar elementos de catálogo en uso | 🕓 en revisión |
+| [#112](https://github.com/agstack/inatrace-backend/pull/112), [#113](https://github.com/agstack/inatrace-backend/pull/113) | Payment receipts, and the transaction when deleting a delivery | ✅ merged |
+| [#116](https://github.com/agstack/inatrace-backend/pull/116) | Copying a product to a label lost labor policies and origin locations | ✅ merged |
+| [#117](https://github.com/agstack/inatrace-backend/pull/117) | A product with a knowledge base could not be deleted | ✅ merged |
+| [#118](https://github.com/agstack/inatrace-backend/pull/118) | The company manager was never saved | ✅ merged |
+| [#119](https://github.com/agstack/inatrace-backend/pull/119) + [frontend #33](https://github.com/agstack/inatrace-frontend/pull/33) | The public feedback list exposed consumers' personal data | ✅ merged |
+| [#122](https://github.com/agstack/inatrace-backend/pull/122), [#123](https://github.com/agstack/inatrace-backend/pull/123) | 500 errors when deleting processing actions or customers in use | ✅ merged |
+| [#129](https://github.com/agstack/inatrace-backend/pull/129) | Regional administrators could grant the system administrator role | ✅ merged |
+| [#132](https://github.com/agstack/inatrace-backend/pull/132) | 500 error when deleting a value chain in use | ✅ merged |
+| [#137](https://github.com/agstack/inatrace-backend/pull/137) | 500 error when deleting codebook entries in use | 🕓 in review |
 
-## Decisiones técnicas
+## Technical decisions
 
-- **TypeScript 6, no 7:** el generador del cliente usa la API JavaScript del compilador.
-- **MapLibre 6 necesita la URL de su worker explícita** (`setWorkerUrl`); sin eso el mapa queda en
-  blanco.
-- **Las URL de la vitrina son las mismas** que en la versión actual, bajo `/v2`, para que los QR
-  impresos sigan sirviendo.
-- **Fichas guardadas sobre el original:** el backend reemplaza todos los campos al actualizar, así
-  que cada pantalla edita sobre la versión completa recién leída y manda los objetos de catálogo
-  completos.
-- **Gráficos propios en SVG,** sin librería: barras con tooltip, leyenda, vista de tabla y colores
-  validados para daltonismo en los dos temas.
+- **TypeScript 6, not 7:** the client generator uses the compiler's JavaScript API.
+- **MapLibre 6 needs its worker URL set explicitly** (`setWorkerUrl`); without it the map stays blank.
+- **Public page URLs are the same** as in the current version, under `/v2`, so printed QR codes keep
+  working.
+- **Records are saved on top of the original:** the backend replaces every field on update, so each
+  screen edits the complete, freshly read record and sends complete catalog objects.
+- **Our own SVG charts,** with no charting library: bars with tooltip, legend, table view and colors
+  validated for color blindness in both themes.
 
-## Documentación
+## Documentation
 
-- [docs/PLAN.md](docs/PLAN.md): qué es y qué no es, principios, arquitectura, inventario de la
-  interfaz actual, fases y riesgos.
-- [docs/AVANCE.md](docs/AVANCE.md): qué se hizo en cada fase, con sus pruebas, hallazgos y pendientes.
-- [docs/ANTES-Y-DESPUES.md](docs/ANTES-Y-DESPUES.md): la interfaz actual y la v2, pantalla por pantalla y
-  con los mismos datos.
-- [deploy/convivencia/](deploy/convivencia/): el proxy, sus variables y las reglas de redirección.
-- [e2e-real/README.md](e2e-real/README.md): cómo correr las pruebas contra una instalación real.
+- [docs/BEFORE-AND-AFTER.md](docs/BEFORE-AND-AFTER.md): the current interface and v2, screen by screen,
+  with the same data.
 
-## Licencia y créditos
+These documents are in Spanish:
 
-**Mozilla Public License 2.0** ([LICENSE](LICENSE)), la misma que INATrace. INATrace v2 es una
-reinterpretación de su interfaz: el código es nuevo, pero algunas partes derivan del frontend
-original (el cálculo de «Precios justos» y las traducciones al alemán y al kinyarwanda, importadas
-de sus archivos de idioma) y se distribuyen bajo los mismos términos. INATrace es un proyecto de la
-GIZ y sus colaboradores, hoy mantenido en [AgStack](https://github.com/agstack).
+- [docs/PLAN.md](docs/PLAN.md): what v2 is and is not, principles, architecture, inventory of the
+  current interface, phases and risks.
+- [docs/AVANCE.md](docs/AVANCE.md): what was done in each phase, with its tests, findings and open items.
+- [e2e-real/README.md](e2e-real/README.md): how to run the tests against a real installation.
+- [deploy/convivencia/](deploy/convivencia/): the proxy, its variables and the redirect rules (comments in Spanish).
 
-Las fotos de la demostración tienen sus propias licencias: ver [docs/CREDITOS-DEMO.md](docs/CREDITOS-DEMO.md).
+## License and credits
+
+**Mozilla Public License 2.0** ([LICENSE](LICENSE)), the same as INATrace. INATrace v2 reinterprets
+its interface: the code is new, but some parts derive from the original frontend (the "Fair prices"
+calculation and the German and Kinyarwanda translations, imported from its language files) and are
+distributed under the same terms. INATrace is a project of GIZ and its contributors, now maintained
+at [AgStack](https://github.com/agstack).
+
+The demo photos have their own licenses: see [docs/CREDITOS-DEMO.md](docs/CREDITOS-DEMO.md).

@@ -1,6 +1,6 @@
 # Before and after
 
-[Español](ANTES-Y-DESPUES.md) · **English**
+**English** · [Español](ANTES-Y-DESPUES.md)
 
 A comparison between the current INATrace interface (Angular) and INATrace v2. Both screens in each pair show
 **the same data**: the demo installation's, served by the same backend and the same proxy, with the same
