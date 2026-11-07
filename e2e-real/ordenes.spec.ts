@@ -1,4 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
+import { aceptarAviso } from '../e2e/avisos';
 
 const { INATRACE_USUARIO: usuario = '', INATRACE_CLAVE: clave = '' } = process.env;
 
@@ -95,19 +96,19 @@ test('pedido entre empresas: pedir, completar con stock del proveedor, aprobar, 
   await expect(pago).toContainText(PRODUCTORA);
   await expect(pago).toContainText(/321/);
   await pago.getByRole('link').first().click();
-  page.once('dialog', (d) => void d.accept());
+  await aceptarAviso(page);
   await page.getByRole('button', { name: 'Borrar pago' }).click();
   await expect(page.getByRole('heading', { level: 1, name: 'Pagos' })).toBeVisible();
   await page.goto('/v2/stock/ordenes');
 
   // 6. Limpieza: borrar la orden (exportadora) y la entrega (productora).
-  page.once('dialog', (d) => void d.accept());
+  await aceptarAviso(page);
   await page.locator('tbody tr').filter({ hasText: orden }).first().getByRole('button', { name: new RegExp(`^Borrar la orden`) }).click();
   await expect(page.locator('tbody tr').filter({ hasText: orden })).toHaveCount(0);
   await comoEmpresa(page, PRODUCTORA);
   await page.goto('/v2/stock/todo');
   await page.getByRole('combobox', { name: 'Instalación' }).selectOption({ label: 'Centro de acopio — Bodega Demo' });
-  page.once('dialog', (d) => void d.accept());
+  await aceptarAviso(page);
   await filaCon(page, bruto).first().getByRole('button', { name: 'Borrar entrega' }).click();
   await expect(filaCon(page, bruto)).toHaveCount(0);
 });
@@ -147,7 +148,7 @@ test('pedido de cliente: la exportadora lo crea, la productora lo recibe y se bo
   // 3. Limpieza: la exportadora borra la orden.
   await comoEmpresa(page, EXPORTADORA);
   await page.goto('/v2/stock/ordenes');
-  page.once('dialog', (d) => void d.accept());
+  await aceptarAviso(page);
   await page.locator('tbody tr').filter({ hasText: numero }).first().getByRole('button', { name: /^Borrar la orden/ }).click();
   await expect(page.locator('tbody tr').filter({ hasText: numero })).toHaveCount(0);
 });

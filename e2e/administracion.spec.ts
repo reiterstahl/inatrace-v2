@@ -1,5 +1,6 @@
 import { test, expect } from './ayudas';
 import type { Page } from '@playwright/test';
+import { aceptarAvisos } from './avisos';
 
 async function ingresar(page: Page, destino: string, rol?: string) {
   if (rol) await page.addInitScript((r) => sessionStorage.setItem('simulado.rol', r), rol);
@@ -32,7 +33,7 @@ test.describe('administración (modo simulado)', () => {
     await expect(lista).toHaveCount(1);
     await page.getByRole('combobox', { name: 'Estado' }).selectOption({ label: 'Todos' });
 
-    page.on('dialog', (d) => void d.accept());
+    await aceptarAvisos(page);
     const exportadora = page.getByRole('listitem', { name: 'Exportadora del Norte' });
     await expect(exportadora).toContainText('Registrada');
     await page.getByRole('button', { name: 'Activar Exportadora del Norte', exact: true }).click();
@@ -102,7 +103,7 @@ test.describe('administración de usuarios (modo simulado)', () => {
     await expect(page.getByRole('listitem')).toHaveCount(1);
     await page.getByRole('combobox', { name: 'Rol' }).selectOption({ label: 'Todos' });
 
-    page.on('dialog', (d) => void d.accept());
+    await aceptarAvisos(page);
     // Sin confirmar → correo confirmado → activa.
     await page.getByRole('button', { name: 'Confirmar el correo de Pedro Chávez' }).click();
     await expect(page.getByText('El correo de Pedro Chávez quedó confirmado.')).toBeVisible();
@@ -187,7 +188,7 @@ test.describe('administración de cadenas de valor (modo simulado)', () => {
     await expect(page.getByRole('list', { name: 'Tipos de evidencia de procesamiento' })).toHaveCount(0);
     await page.getByRole('link', { name: 'Cadenas de valor', exact: true }).first().click();
 
-    page.on('dialog', (d) => void d.accept());
+    await aceptarAvisos(page);
     await page.getByRole('button', { name: 'Desactivar Cardamomo' }).click();
     await expect(page.getByText('La cadena «Cardamomo» quedó desactivada.')).toBeVisible();
     // Desactivada no se edita.
@@ -201,7 +202,7 @@ test.describe('administración de cadenas de valor (modo simulado)', () => {
 
   test('borrar: una en uso explica por qué no; una libre se borra', async ({ page }) => {
     await ingresar(page, 'administracion/cadenas', 'SYSTEM_ADMIN');
-    page.on('dialog', (d) => void d.accept());
+    await aceptarAvisos(page);
     await page.getByRole('button', { name: 'Borrar Café' }).click();
     await expect(page.getByText(/No se pudo borrar «Café»: probablemente la usan empresas/)).toBeVisible();
     await page.getByRole('button', { name: 'Borrar Miel' }).click();
@@ -247,7 +248,7 @@ test.describe('administración de catálogos (modo simulado)', () => {
     await page.getByRole('button', { name: 'Guardar' }).click();
     await expect(page.getByText('«Café oro exportable» guardado.')).toBeVisible();
 
-    page.on('dialog', (d) => void d.accept());
+    await aceptarAvisos(page);
     await page.getByRole('button', { name: 'Borrar Café cereza' }).click();
     await expect(page.getByText(/No se pudo borrar «Café cereza»: probablemente está en uso/)).toBeVisible();
     await page.getByRole('button', { name: 'Borrar Café oro exportable' }).click();
@@ -374,14 +375,14 @@ test.describe('catálogos propios: capas, certificaciones y factores (modo simul
     await page.getByRole('button', { name: 'Editar Catastro municipal' }).click();
     await expect(page.getByRole('textbox', { name: 'Código' })).toHaveAttribute('readonly', '');
     await page.getByRole('button', { name: 'Cancelar' }).click();
-    page.on('dialog', (d) => void d.accept());
+    await aceptarAvisos(page);
     await page.getByRole('button', { name: 'Borrar Catastro municipal' }).click();
     await expect(page.getByText('«Catastro municipal» borrado.')).toBeVisible();
   });
 
   test('tipos de certificación: uno en uso no se borra; retirar uno', async ({ page }) => {
     await ingresar(page, 'administracion/catalogos?tipo=certificaciones', 'SYSTEM_ADMIN');
-    page.on('dialog', (d) => void d.accept());
+    await aceptarAvisos(page);
     await page.getByRole('button', { name: 'Borrar Orgánico' }).click();
     await expect(page.getByText('No se pudo borrar «Orgánico»: hay certificaciones que lo usan. Desmarca «Se ofrece» para retirarlo.')).toBeVisible();
     await page.getByRole('button', { name: 'Editar Comercio justo' }).click();

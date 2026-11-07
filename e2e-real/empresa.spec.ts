@@ -1,4 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
+import { aceptarAviso } from '../e2e/avisos';
 
 const { INATRACE_USUARIO: usuario = '', INATRACE_CLAVE: clave = '' } = process.env;
 
@@ -103,14 +104,14 @@ test('instalaciones: crear, ver lo guardado, desactivar, activar y borrar contra
     expect(d.facilitySemiProductList.length).toBe(1);
 
     const fila = page.getByRole('listitem', { name: nombre });
-    page.once('dialog', (x) => void x.accept());
+    await aceptarAviso(page);
     await fila.getByRole('button', { name: 'Desactivar' }).click();
     await expect(fila).toContainText('Desactivada');
     expect((await todas()).find((f) => f.id === id)?.deactivated).toBe(true);
     await fila.getByRole('button', { name: 'Activar' }).click();
     await expect(fila).not.toContainText('Desactivada');
 
-    page.once('dialog', (x) => void x.accept());
+    await aceptarAviso(page);
     await page.getByRole('button', { name: `Borrar ${nombre}` }).click();
     await expect(page.getByText(`Se borró «${nombre}».`)).toBeVisible();
     expect((await todas()).some((f) => f.id === id)).toBe(false);
@@ -165,7 +166,7 @@ test('acciones: crear un procesamiento, ver lo guardado, cambiar el tipo y borra
     const t = (await (await page.request.get(`/api/chain/processing-action/${id}/detail`)).json()).data;
     expect(t).toMatchObject({ type: 'TRANSFER', finalProductAction: false });
 
-    page.once('dialog', (x) => void x.accept());
+    await aceptarAviso(page);
     await page.getByRole('button', { name: `Borrar ${nombre}` }).click();
     await expect(page.getByText(`Se borró «${nombre}».`)).toBeVisible();
     expect((await todas()).some((a) => a.id === id)).toBe(false);
@@ -216,13 +217,13 @@ test('recolectores y clientes: crear, ver lo guardado y borrar contra el backend
     const c = clientes.find((x) => x.name === nombre)!;
     cliente = c.id;
     expect(c).toMatchObject({ vatId: '3-101-' + marca, location: { city: 'Heredia', country: { code: 'CR' } } });
-    page.once('dialog', (d) => void d.accept());
+    await aceptarAviso(page);
     await page.getByRole('button', { name: `Borrar ${nombre}` }).click();
     await expect(page.getByText(`Se borró «${nombre}».`)).toBeVisible();
     cliente = undefined;
 
     await page.goto(`/v2/productores/recolectores/${recolector}`);
-    page.once('dialog', (d) => void d.accept());
+    await aceptarAviso(page);
     await page.getByRole('button', { name: 'Eliminar' }).click();
     await expect(page).toHaveURL(/\/v2\/productores\/recolectores$/);
     recolector = undefined;

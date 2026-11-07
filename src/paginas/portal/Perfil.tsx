@@ -6,6 +6,7 @@ import { Boton } from '@/componentes/ui/Boton';
 import { Campo, Selector } from '@/componentes/ui/Campo';
 import { Aviso } from '@/componentes/ui/Estados';
 import { InterruptorTema } from '@/componentes/ui/Preferencias';
+import { SelectorTema } from '@/componentes/ui/SelectorTema';
 import { IDIOMAS, aApi, cambiarIdioma, deApi, type Idioma } from '@/i18n';
 
 export function Perfil() {
@@ -62,6 +63,14 @@ export function Perfil() {
           </Boton>
         </div>
       </form>
+
+      <section aria-labelledby="perfil-apariencia" className="mt-6 grid gap-5 rounded-caja border border-linea bg-superficie p-6 shadow-suave">
+        <div>
+          <h2 id="perfil-apariencia" className="font-semibold">{t('perfil.apariencia.titulo')}</h2>
+          <p className="mt-1 text-sm text-tinta-2">{t('perfil.apariencia.ayuda')}</p>
+        </div>
+        <SelectorTema />
+      </section>
     </div>
   );
 }

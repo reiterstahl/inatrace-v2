@@ -12,6 +12,7 @@ import { puntoNuevo, type PuntoOrigen } from '@/util/producto';
 import { NumeroConUnidad } from '../../stock/procesamiento/piezas';
 import { useProducto } from '../Marco';
 import { CampoArchivo, Casilla, Tarjeta } from '../piezas';
+import { confirmar } from '@/componentes/ui/Confirmar';
 
 const SelectorPuntos = lazy(() => import('@/componentes/mapa/SelectorPuntos'));
 const ruta = getRouteApi('/portal/productos/$id/etiquetas/$etiqueta');
@@ -37,7 +38,7 @@ export function LotesEtiqueta() {
   };
 
   async function eliminar(id: number, n: string) {
-    if (!window.confirm(t('productos.lotes.borrar_pregunta', { numero: n }))) return;
+    if (!(await confirmar(t('productos.lotes.borrar_pregunta', { numero: n }), { accion: 'eliminar' }))) return;
     setAviso(null);
     try {
       await borrar.mutateAsync(id);
@@ -145,8 +146,8 @@ function FormularioLote({ etiqueta, inicial, alTerminar }: { etiqueta: number; i
     }
   }
 
-  function usarLugaresDelProducto() {
-    if (f.lugares.length && !window.confirm(t('productos.lotes.reemplazar_lugares'))) return;
+  async function usarLugaresDelProducto() {
+    if (f.lugares.length && !(await confirmar(t('productos.lotes.reemplazar_lugares'), { accion: 'continuar' }))) return;
     cambiar({ lugares: delProducto.map(lugarDesde) });
     setVersion((v) => v + 1);
   }

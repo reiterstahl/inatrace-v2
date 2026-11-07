@@ -16,6 +16,7 @@ import {
 } from '@/util/fichaEmpresa';
 import { CampoArchivo, Casilla } from '../productos/piezas';
 import { useEmpresaVista } from './Marco';
+import { confirmar, confirmarSalida } from '@/componentes/ui/Confirmar';
 
 const SECCIONES = ['datos', 'sede', 'descripcion', 'operacion', 'certificaciones', 'videos', 'registros', 'productores', 'redes'] as const;
 type Seccion = (typeof SECCIONES)[number];
@@ -60,7 +61,7 @@ function Formulario() {
   };
   const conError = new Set(Object.keys(errores).map(seccionDe));
 
-  useBlocker({ shouldBlockFn: () => tocado && !guardar.isPending && !window.confirm(t('stock.entrega.salir_sin_guardar')), enableBeforeUnload: () => tocado });
+  useBlocker({ shouldBlockFn: async () => tocado && !guardar.isPending && !(await confirmarSalida(t('stock.entrega.salir_sin_guardar'))), enableBeforeUnload: () => tocado });
 
   async function alGuardar() {
     setAviso(null);
@@ -306,7 +307,7 @@ function Operacion({ f, cambiar, err, editable, monedas, req }: {
               <li key={c.id} className="inline-flex items-center gap-1 rounded-full bg-marca-suave py-1 pr-1 pl-3 text-sm font-semibold text-marca">
                 {c.name}
                 {editable && (
-                  <button type="button" onClick={() => window.confirm(t('empresa.quitar_cadena_pregunta', { cadena: c.name })) && cambiar({ cadenas: f.cadenas.filter((x) => x.id !== c.id) })} className="rounded-full p-1 hover:bg-marca/15" aria-label={t('empresa.quitar_cadena', { cadena: c.name })}>
+                  <button type="button" onClick={async () => (await confirmar(t('empresa.quitar_cadena_pregunta', { cadena: c.name }), { accion: 'quitar' })) && cambiar({ cadenas: f.cadenas.filter((x) => x.id !== c.id) })} className="rounded-full p-1 hover:bg-marca/15" aria-label={t('empresa.quitar_cadena', { cadena: c.name })}>
                     <Icono nombre="cerrar" className="size-3.5" />
                   </button>
                 )}

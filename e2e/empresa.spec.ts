@@ -1,5 +1,6 @@
 import { test, expect } from './ayudas';
 import type { Page } from '@playwright/test';
+import { aceptarAviso, cancelarAviso } from './avisos';
 
 async function ingresar(page: Page, destino: string) {
   await page.goto('ingreso?volver=' + encodeURIComponent('/' + destino));
@@ -46,7 +47,7 @@ test.describe('mi empresa (modo simulado)', () => {
     await expect(page.getByRole('group', { name: 'Video 2' }).getByRole('textbox', { name: /^Enlace del video/ })).toHaveValue('https://youtu.be/beneficio');
     await expect(page.getByRole('group', { name: 'Certificación 1' }).getByText('fairtrade.pdf')).toBeVisible();
     // Quitar una cadena avisa que el procesamiento deja de funcionar.
-    page.once('dialog', (d) => void d.dismiss());
+    await cancelarAviso(page);
     await page.getByRole('button', { name: 'Quitar la cadena Cacao' }).click();
     await expect(page.getByRole('list', { name: /^Cadenas de valor/ })).toContainText('Cacao');
   });
@@ -80,7 +81,7 @@ test.describe('mi empresa (modo simulado)', () => {
     await page.getByRole('combobox', { name: 'Rol de Ana Demo' }).selectOption({ label: 'Gerencia' });
     await expect(page.getByText('Ana Demo ahora tiene el rol Gerencia.')).toBeVisible();
 
-    page.once('dialog', (d) => void d.accept());
+    await aceptarAviso(page);
     await page.getByRole('button', { name: 'Quitar a Luis Pérez' }).click();
     await expect(page.getByText('Se quitó a Luis Pérez de la empresa.')).toBeVisible();
     await expect(page.getByRole('listitem', { name: 'Luis Pérez' })).toHaveCount(0);
@@ -92,12 +93,12 @@ test.describe('mi empresa (modo simulado)', () => {
     const beneficio = page.getByRole('listitem', { name: 'Beneficio Flor de la Sierra' });
     await expect(beneficio).toContainText('Beneficio húmedo · Huehuetenango, Guatemala');
     await expect(beneficio).toContainText('Acopio');
-    page.once('dialog', (d) => void d.accept());
+    await aceptarAviso(page);
     await page.getByRole('button', { name: 'Borrar Beneficio Flor de la Sierra' }).click();
     await expect(page.getByText('Cannot delete a facility that has stock orders')).toBeVisible();
 
     const mirador = page.getByRole('listitem', { name: 'Centro de acopio El Mirador' });
-    page.once('dialog', (d) => void d.accept());
+    await aceptarAviso(page);
     await mirador.getByRole('button', { name: 'Desactivar' }).click();
     await expect(page.getByText('Se desactivó «Centro de acopio El Mirador».')).toBeVisible();
     await expect(mirador).toContainText('Desactivada');
@@ -143,13 +144,13 @@ test.describe('mi empresa (modo simulado)', () => {
     await page.getByRole('combobox', { name: 'País' }).selectOption({ label: 'Rwanda' });
     await expect(page.getByRole('textbox', { name: 'Aldea' })).toBeVisible();
     await expect(page.getByRole('textbox', { name: 'Ciudad' })).toHaveCount(0);
-    page.once('dialog', (d) => void d.accept());
+    await aceptarAviso(page);
     await page.getByRole('button', { name: 'Quitar Café', exact: true }).click();
     await expect(page.getByText('Elige primero una cadena de valor.')).toBeVisible();
-    page.once('dialog', (d) => void d.accept());
+    await aceptarAviso(page);
     await page.getByRole('link', { name: 'Instalaciones' }).first().click();
 
-    page.once('dialog', (d) => void d.accept());
+    await aceptarAviso(page);
     await page.getByRole('button', { name: 'Borrar Bodega Norte' }).click();
     await expect(page.getByText('Se borró «Bodega Norte».')).toBeVisible();
   });
@@ -165,7 +166,7 @@ test.describe('mi empresa (modo simulado)', () => {
     await page.getByRole('searchbox', { name: 'Buscar' }).fill('');
     const pedido = page.getByRole('listitem').filter({ hasText: 'Pedido' }).first();
     const nombre = (await pedido.getAttribute('aria-label'))!;
-    page.once('dialog', (d) => void d.accept());
+    await aceptarAviso(page);
     await page.getByRole('button', { name: `Borrar ${nombre}` }).click();
     await expect(page.getByText('el backend no permite borrarla', { exact: false })).toBeVisible();
   });
@@ -220,7 +221,7 @@ test.describe('mi empresa (modo simulado)', () => {
     await page.getByRole('button', { name: 'Guardar' }).click();
     await expect(page.getByRole('listitem', { name: 'Fermentado' })).toContainText('Traslado');
 
-    page.once('dialog', (d) => void d.accept());
+    await aceptarAviso(page);
     await page.getByRole('button', { name: 'Borrar Fermentado' }).click();
     await expect(page.getByText('Se borró «Fermentado».')).toBeVisible();
   });
@@ -228,7 +229,7 @@ test.describe('mi empresa (modo simulado)', () => {
   test('clientes: crear con dirección del país, editar, y no se borra uno con pedidos', async ({ page }) => {
     await ingresar(page, 'empresa/clientes');
     await expect(page.getByRole('listitem', { name: 'Tostaduría El Grano' })).toBeVisible();
-    page.once('dialog', (d) => void d.accept());
+    await aceptarAviso(page);
     await page.getByRole('button', { name: 'Borrar Tostaduría El Grano' }).click();
     await expect(page.getByText('Si ya tiene pedidos, el backend no permite borrarlo.', { exact: false })).toBeVisible();
 
@@ -255,7 +256,7 @@ test.describe('mi empresa (modo simulado)', () => {
     await edicion.getByRole('textbox', { name: 'Persona de contacto' }).fill('Lena');
     await edicion.getByRole('button', { name: 'Guardar' }).click();
     await expect(page.getByRole('listitem', { name: 'Kaffee Rösterei' })).toContainText('Lena');
-    page.once('dialog', (d) => void d.accept());
+    await aceptarAviso(page);
     await page.getByRole('button', { name: 'Borrar Kaffee Rösterei' }).click();
     await expect(page.getByText('Se borró «Kaffee Rösterei».')).toBeVisible();
   });

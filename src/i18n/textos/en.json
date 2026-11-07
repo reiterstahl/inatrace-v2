@@ -12,7 +12,17 @@
     "tema_oscuro": "Dark theme",
     "si": "Yes",
     "no": "No",
-    "editar": "Edit"
+    "editar": "Edit",
+    "aviso": {
+      "confirmar": "Confirm",
+      "eliminar": "Delete",
+      "quitar": "Remove",
+      "desactivar": "Deactivate",
+      "continuar": "Continue",
+      "salir": "Leave without saving",
+      "seguir": "Keep editing",
+      "entendido": "Got it"
+    }
   },
   "idiomas": {
     "es": "Español",
@@ -82,6 +92,27 @@
       "CONFIRMED_EMAIL": "Email confirmed",
       "ACTIVE": "Active",
       "DEACTIVATED": "Deactivated"
+    },
+    "apariencia": {
+      "titulo": "Appearance",
+      "ayuda": "Choose the platform colors. It is saved in this browser; the public product page keeps using each product’s colors.",
+      "claros": "Light",
+      "oscuros": "Dark",
+      "activo": "in use",
+      "temas": {
+        "claro": "Forest",
+        "oceano": "Ocean",
+        "terracota": "Terracotta",
+        "lavanda": "Lavender",
+        "grafito": "Graphite",
+        "latte": "Latte",
+        "oscuro": "Night forest",
+        "medianoche": "Midnight",
+        "carbon": "Charcoal",
+        "ciruela": "Plum",
+        "brasa": "Ember",
+        "cacao": "Cacao"
+      }
     }
   },
   "vitrina": {
@@ -193,6 +224,14 @@
       "sin_opinion": "Feedback is not sent from the preview.",
       "vencida_titulo": "The preview is no longer available",
       "vencida": "Open it again from the label editor."
+    },
+    "galeria": {
+      "carrusel": "carousel",
+      "elemento": "photo",
+      "posicion": "{{n}} of {{total}}",
+      "ir": "Go to photo {{n}} of {{total}}",
+      "anterior": "Previous photo",
+      "siguiente": "Next photo"
     }
   },
   "mapa": {

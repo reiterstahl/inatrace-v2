@@ -12,7 +12,17 @@
     "tema_oscuro": "Tema oscuro",
     "si": "Sí",
     "no": "No",
-    "editar": "Editar"
+    "editar": "Editar",
+    "aviso": {
+      "confirmar": "Confirmar",
+      "eliminar": "Eliminar",
+      "quitar": "Quitar",
+      "desactivar": "Desactivar",
+      "continuar": "Continuar",
+      "salir": "Salir sin guardar",
+      "seguir": "Seguir editando",
+      "entendido": "Entendido"
+    }
   },
   "idiomas": {
     "es": "Español",
@@ -82,6 +92,27 @@
       "CONFIRMED_EMAIL": "Correo confirmado",
       "ACTIVE": "Activo",
       "DEACTIVATED": "Desactivado"
+    },
+    "apariencia": {
+      "titulo": "Apariencia",
+      "ayuda": "Elige los colores de la plataforma. Se guarda en este navegador; la vitrina pública sigue usando los colores de cada producto.",
+      "claros": "Claros",
+      "oscuros": "Oscuros",
+      "activo": "en uso",
+      "temas": {
+        "claro": "Bosque",
+        "oceano": "Océano",
+        "terracota": "Terracota",
+        "lavanda": "Lavanda",
+        "grafito": "Grafito",
+        "latte": "Café con leche",
+        "oscuro": "Bosque nocturno",
+        "medianoche": "Medianoche",
+        "carbon": "Carbón",
+        "ciruela": "Ciruela",
+        "brasa": "Brasa",
+        "cacao": "Cacao"
+      }
     }
   },
   "vitrina": {
@@ -193,6 +224,14 @@
       "sin_opinion": "En la vista previa no se envían opiniones.",
       "vencida_titulo": "La vista previa ya no está disponible",
       "vencida": "Ábrela de nuevo desde el editor de la etiqueta."
+    },
+    "galeria": {
+      "carrusel": "carrusel",
+      "elemento": "foto",
+      "posicion": "{{n}} de {{total}}",
+      "ir": "Ir a la foto {{n}} de {{total}}",
+      "anterior": "Foto anterior",
+      "siguiente": "Foto siguiente"
     }
   },
   "mapa": {

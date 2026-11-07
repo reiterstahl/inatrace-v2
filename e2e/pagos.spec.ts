@@ -1,5 +1,6 @@
 import { test, expect } from './ayudas';
 import type { Page } from '@playwright/test';
+import { aceptarAviso } from './avisos';
 
 async function ingresar(page: Page, destino = 'stock/pagos') {
   await page.goto('ingreso?volver=' + encodeURIComponent('/' + destino));
@@ -19,7 +20,7 @@ test.describe('pagos (modo simulado)', () => {
     // Solo los sin confirmar se pueden elegir.
     await expect(page.getByRole('row', { name: /María López/ }).getByRole('checkbox')).toHaveCount(0);
     await pedro.getByRole('checkbox').check();
-    page.once('dialog', (d) => void d.accept());
+    await aceptarAviso(page);
     await page.getByRole('button', { name: 'Confirmar 1 pago' }).click();
     await expect(pedro).toContainText('Confirmado');
   });

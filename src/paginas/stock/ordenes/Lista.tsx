@@ -13,6 +13,7 @@ import { useEmpresaActual } from '@/util/empresa';
 import { fechaCorta } from '@/util/fecha';
 import { cantidad, nombreInstalacion } from '@/util/formato';
 import { puedePagarseOrden } from '@/util/pago';
+import { confirmar } from '@/componentes/ui/Confirmar';
 
 const ruta = getRouteApi('/portal/stock/ordenes/');
 
@@ -44,7 +45,7 @@ function Contenido({ empresa }: { empresa: number }) {
   const borrar = useBorrarProcesamiento();
 
   async function eliminar(o: ApiStockOrder) {
-    if (!window.confirm(t('stock.ord.borrar_pregunta', { orden: o.internalLotNumber || o.orderId || `#${o.id}` }))) return;
+    if (!(await confirmar(t('stock.ord.borrar_pregunta', { orden: o.internalLotNumber || o.orderId || `#${o.id}` }), { accion: 'eliminar' }))) return;
     setError(null);
     try {
       const orden = await qc.fetchQuery({ ...procesamiento.deLote(o.id!), staleTime: 0 });

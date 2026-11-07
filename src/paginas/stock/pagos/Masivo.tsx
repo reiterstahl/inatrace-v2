@@ -31,6 +31,7 @@ import { aDecimal } from '../entregas/esquema';
 import { CONTROL } from '../entregas/campos';
 import { MensajeError, NumeroConUnidad } from '../procesamiento/piezas';
 import { EstadoPagoChip } from './Lista';
+import { confirmarSalida } from '@/componentes/ui/Confirmar';
 
 const rutaNuevo = getRouteApi('/portal/stock/pagos/masivo/nuevo');
 const rutaVer = getRouteApi('/portal/stock/pagos/masivo/$id');
@@ -68,7 +69,7 @@ function Formulario({ empresa, monedaEmpresa, entregas }: { empresa: number; mon
   const err = (k: 'fecha' | 'proposito' | 'descripcion' | 'recibo' | 'costoAdicional' | 'descripcionCosto') => (errores?.[k] ? t(`stock.errores.${errores[k]}`) : undefined);
   const ids = { fecha: useId(), proposito: useId(), descripcion: useId(), recibo: useId(), costoDesc: useId() };
 
-  useBlocker({ shouldBlockFn: () => tocado && !crear.isPending && !window.confirm(t('stock.entrega.salir_sin_guardar')), enableBeforeUnload: () => tocado });
+  useBlocker({ shouldBlockFn: async () => tocado && !crear.isPending && !(await confirmarSalida(t('stock.entrega.salir_sin_guardar'))), enableBeforeUnload: () => tocado });
   useEffect(() => {
     document.title = `${t('stock.pagos.masivo_nuevo')} · INATrace v2`;
   }, [t]);

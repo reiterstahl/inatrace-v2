@@ -16,6 +16,7 @@ import {
 } from '@/util/beyco';
 import { Bloque, CONTROL } from '../entregas/campos';
 import { Etiqueta, MensajeError, NumeroConUnidad } from '../procesamiento/piezas';
+import { confirmarSalida } from '@/componentes/ui/Confirmar';
 
 const rutaVuelta = getRouteApi('/portal/stock/beyco');
 const rutaOferta = getRouteApi('/portal/stock/beyco/oferta');
@@ -107,7 +108,7 @@ function Formulario({ empresa, inicial }: { empresa: number; inicial: OfertaBeyc
   const cambiarCafe = (clave: string, c: Partial<CafeBeyco>) => cambiar({ cafes: f.cafes.map((x) => (x.clave === clave ? { ...x, ...c } : x)) });
   const err = (k: Exclude<keyof ErroresOferta, 'cafes'>) => (errores[k] ? t(`stock.beyco.errores.${errores[k]}`, { defaultValue: t(`stock.errores.${errores[k]}`) }) : undefined);
 
-  useBlocker({ shouldBlockFn: () => tocado && !enviar.isPending && !listo && !window.confirm(t('stock.entrega.salir_sin_guardar')), enableBeforeUnload: () => tocado && !listo });
+  useBlocker({ shouldBlockFn: async () => tocado && !enviar.isPending && !listo && !(await confirmarSalida(t('stock.entrega.salir_sin_guardar'))), enableBeforeUnload: () => tocado && !listo });
   useEffect(() => {
     document.title = `${t('stock.beyco.titulo')} · INATrace v2`;
   }, [t]);

@@ -22,6 +22,7 @@ import { CamposFicha, ConVisibilidad, type Visibilidad } from './Ficha';
 import { useProducto } from './Marco';
 import { BarraGuardar, Casilla, Tarjeta } from './piezas';
 import { EditorVitrina } from './Vitrina';
+import { confirmar, confirmarSalida } from '@/componentes/ui/Confirmar';
 
 type Idioma = NonNullable<ApiProductLabel['language']>;
 const rutaEditor = getRouteApi('/portal/productos/$id/etiquetas/$etiqueta');
@@ -171,7 +172,7 @@ function FormEtiqueta({ etiqueta, contenido, medios: mediosIniciales }: { etique
   const conError = seccionesConError(errores.ficha);
   const nombre = titulo.trim() || `#${etiqueta.id}`;
 
-  useBlocker({ shouldBlockFn: () => tocado && !guardar.isPending && !borrar.isPending && !window.confirm(t('stock.entrega.salir_sin_guardar')), enableBeforeUnload: () => tocado });
+  useBlocker({ shouldBlockFn: async () => tocado && !guardar.isPending && !borrar.isPending && !(await confirmarSalida(t('stock.entrega.salir_sin_guardar'))), enableBeforeUnload: () => tocado });
 
   /** El contenido tal como quedaría con lo que hay en el editor. */
   const contenidoNuevo = () => armarVitrina(vitrina, armarContenido(f, contenido));
@@ -214,7 +215,7 @@ function FormEtiqueta({ etiqueta, contenido, medios: mediosIniciales }: { etique
   }
 
   async function eliminar() {
-    if (!window.confirm(t('productos.etiquetas.borrar_pregunta', { nombre }))) return;
+    if (!(await confirmar(t('productos.etiquetas.borrar_pregunta', { nombre }), { accion: 'eliminar' }))) return;
     try {
       await borrar.mutateAsync(etiqueta.id!);
       setTocado(false);

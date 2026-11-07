@@ -20,6 +20,7 @@ import { Organizaciones } from './secciones/Organizaciones';
 import { Parcelas } from './secciones/Parcelas';
 import { Personales } from './secciones/Personales';
 import { Ubicacion } from './secciones/Ubicacion';
+import { confirmar, confirmarSalida } from '@/componentes/ui/Confirmar';
 
 const SECCIONES = ['personales', 'ubicacion', 'finca', 'organizaciones', 'banco', 'certificaciones', 'parcelas'] as const;
 /** Sección de cada campo con error, para marcarla en el índice y llevar ahí al guardar. */
@@ -135,7 +136,7 @@ function Formulario({
   const { formState, handleSubmit, reset } = form;
 
   // No perder cambios sin guardar al salir de la ficha.
-  useBlocker({ shouldBlockFn: () => formState.isDirty && !guardar.isPending && !window.confirm(t('productores.ficha.salir_sin_guardar')), enableBeforeUnload: () => formState.isDirty });
+  useBlocker({ shouldBlockFn: async () => formState.isDirty && !guardar.isPending && !(await confirmarSalida(t('productores.ficha.salir_sin_guardar'))), enableBeforeUnload: () => formState.isDirty });
 
   const recolector = tipo === 'COLLECTOR';
   const secciones = recolector ? SECCIONES_RECOLECTOR : SECCIONES;
@@ -164,7 +165,7 @@ function Formulario({
   }
 
   async function eliminar() {
-    if (!original?.id || !window.confirm(t(recolector ? 'recolectores.borrar_confirmar' : 'productores.borrar_confirmar', { nombre: nombreCompleto(original) }))) return;
+    if (!original?.id || !(await confirmar(t(recolector ? 'recolectores.borrar_confirmar' : 'productores.borrar_confirmar', { nombre: nombreCompleto(original) }), { accion: 'eliminar' }))) return;
     try {
       await borrar.mutateAsync(original.id);
       reset(form.getValues()); // sin cambios pendientes: que el bloqueo no pregunte
@@ -176,7 +177,7 @@ function Formulario({
 
   async function subirGeo(archivo: File) {
     if (!original?.id) return;
-    if (formState.isDirty && !window.confirm(t('productores.parcela.subir_con_cambios'))) return;
+    if (formState.isDirty && !(await confirmar(t('productores.parcela.subir_con_cambios'), { accion: 'continuar' }))) return;
     setOcupado(true);
     setAviso(null);
     try {

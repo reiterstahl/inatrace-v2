@@ -16,6 +16,7 @@ import { costo, pesoNeto } from '@/util/entrega';
 import { cantidad, dinero, nombreInstalacion } from '@/util/formato';
 import { MONEDAS, aApiMasiva, filaVacia, formasPagoPosibles, masivaVacia, resolverMasiva, type FormMasiva } from './esquema';
 import { Bloque, CampoE, SelectorE, SiNoE } from './campos';
+import { confirmarSalida } from '@/componentes/ui/Confirmar';
 
 const ruta = getRouteApi('/portal/stock/entregas/masiva');
 
@@ -105,7 +106,7 @@ function Formulario({ empresa, instalaciones, usuarios, defecto }: { empresa: nu
   const unidades = new Set((v.filas ?? []).map((f) => unidadDe(f?.semiproducto)));
   const unidadTotal = unidades.size === 1 ? [...unidades][0] : undefined;
 
-  useBlocker({ shouldBlockFn: () => formState.isDirty && !guardar.isPending && !window.confirm(t('stock.entrega.salir_sin_guardar')), enableBeforeUnload: () => formState.isDirty });
+  useBlocker({ shouldBlockFn: async () => formState.isDirty && !guardar.isPending && !(await confirmarSalida(t('stock.entrega.salir_sin_guardar'))), enableBeforeUnload: () => formState.isDirty });
 
   async function alGuardar(f: FormMasiva) {
     setAviso(null);

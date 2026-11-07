@@ -12,6 +12,7 @@ import { Icono } from '@/componentes/ui/Icono';
 import { lugarInstalacion, nombreInstalacion } from '@/util/instalacion';
 import { Tarjeta } from '../productos/piezas';
 import { useEmpresaVista } from './Marco';
+import { confirmar } from '@/componentes/ui/Confirmar';
 
 const MapaConteos = lazy(() => import('@/componentes/mapa/MapaConteos'));
 const ruta = getRouteApi('/portal/empresa/instalaciones/');
@@ -48,15 +49,15 @@ export function InstalacionesEmpresa() {
     }
   }
 
-  function cambiarEstado(i: ApiFacility) {
+  async function cambiarEstado(i: ApiFacility) {
     const nombre = nombreInstalacion(i);
-    if (!i.deactivated && !window.confirm(t('empresa.instalaciones.desactivar_pregunta', { nombre }))) return;
+    if (!i.deactivated && !(await confirmar(t('empresa.instalaciones.desactivar_pregunta', { nombre }), { accion: 'desactivar' }))) return;
     void ejecutar(() => estado.mutateAsync({ id: i.id!, activa: !!i.deactivated }), t(i.deactivated ? 'empresa.instalaciones.activada' : 'empresa.instalaciones.desactivada', { nombre }));
   }
 
-  function eliminar(i: ApiFacility) {
+  async function eliminar(i: ApiFacility) {
     const nombre = nombreInstalacion(i);
-    if (!window.confirm(t('empresa.instalaciones.borrar_pregunta', { nombre }))) return;
+    if (!(await confirmar(t('empresa.instalaciones.borrar_pregunta', { nombre }), { accion: 'eliminar' }))) return;
     void ejecutar(() => borrar.mutateAsync(i.id!), t('empresa.instalaciones.borrada', { nombre }));
   }
 

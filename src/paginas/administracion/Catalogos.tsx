@@ -17,6 +17,7 @@ import { porCien } from '@/util/catalogosPropios';
 import type { ApiCertificationType, ApiConversionFactor, ApiMapLayer } from '@/api/gen/types.gen';
 import { EditorCapa, EditorCertificacion, EditorFactor } from './EditoresPropios';
 import { Casilla, Tarjeta } from '../productos/piezas';
+import { confirmar } from '@/componentes/ui/Confirmar';
 
 const ruta = getRouteApi('/portal/administracion/catalogos');
 const OBLIGATORIO = <span className="text-mal" aria-hidden> *</span>;
@@ -59,7 +60,7 @@ export function CatalogosAdministracion() {
 
   async function eliminar(x: ItemCatalogo) {
     const nombre = nombreItem(x);
-    if (!window.confirm(t('administracion.catalogos.borrar_pregunta', { nombre }))) return;
+    if (!(await confirmar(t('administracion.catalogos.borrar_pregunta', { nombre }), { accion: 'eliminar' }))) return;
     setAviso(null);
     try {
       await borrar.mutateAsync(x.id!);

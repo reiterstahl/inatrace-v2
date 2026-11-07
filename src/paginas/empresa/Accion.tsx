@@ -19,6 +19,7 @@ import { NumeroConUnidad } from '../stock/procesamiento/piezas';
 import { Casilla, Tarjeta } from '../productos/piezas';
 import { useEmpresaVista } from './Marco';
 import { Fichas, SiNo } from './piezas';
+import { confirmar, confirmarSalida } from '@/componentes/ui/Confirmar';
 
 const ruta = getRouteApi('/portal/empresa/acciones/$accion');
 
@@ -68,7 +69,7 @@ function Formulario({ original, inicial, titulo }: { original: ApiProcessingActi
   const nombreFinal = (x: { name?: string; product?: { name?: string } }) => [x.name, x.product?.name].filter(Boolean).join(' · ');
   const unidadEntrada = semis.data?.find((s) => s.id === f.entradaSemi)?.measurementUnitType?.label;
 
-  useBlocker({ shouldBlockFn: () => tocado && !guardar.isPending && !window.confirm(t('stock.entrega.salir_sin_guardar')), enableBeforeUnload: () => tocado });
+  useBlocker({ shouldBlockFn: async () => tocado && !guardar.isPending && !(await confirmarSalida(t('stock.entrega.salir_sin_guardar'))), enableBeforeUnload: () => tocado });
 
   async function alGuardar() {
     setAviso(null);
@@ -90,9 +91,9 @@ function Formulario({ original, inicial, titulo }: { original: ApiProcessingActi
     }
   }
 
-  function quitarCadena(id: number) {
+  async function quitarCadena(id: number) {
     const nombre = f.cadenas.find((c) => c.id === id)?.name ?? '';
-    if (!window.confirm(t('empresa.acciones.quitar_cadena_pregunta', { cadena: nombre }))) return;
+    if (!(await confirmar(t('empresa.acciones.quitar_cadena_pregunta', { cadena: nombre }), { accion: 'quitar' }))) return;
     // Como la versión actual: se vacía lo que depende de las cadenas.
     cambiar({ cadenas: f.cadenas.filter((c) => c.id !== id), entradaSemi: null, salidas: [], campos: [], documentos: [] });
   }

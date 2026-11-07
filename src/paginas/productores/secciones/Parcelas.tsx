@@ -9,6 +9,7 @@ import { Aviso } from '@/componentes/ui/Estados';
 import { puntoDe } from '@/util/productor';
 import { CampoForm, Seccion, SelectorForm } from '../comunes';
 import { parcelaVacia, type FormProductor } from '../esquema';
+import { confirmar } from '@/componentes/ui/Confirmar';
 
 const MapaParcelas = lazy(() => import('@/componentes/mapa/MapaParcelas'));
 const EditorParcela = lazy(() => import('@/componentes/mapa/EditorParcela'));
@@ -103,8 +104,8 @@ export function Parcelas({
                   </Boton>
                   <button
                     type="button"
-                    onClick={() => {
-                      if (!window.confirm(t('productores.parcela.quitar_confirmar', { nombre: p.plotName || t('productores.parcela.sin_nombre') }))) return;
+                    onClick={async () => {
+                      if (!(await confirmar(t('productores.parcela.quitar_confirmar', { nombre: p.plotName || t('productores.parcela.sin_nombre') }), { accion: 'quitar' }))) return;
                       lista.remove(i);
                       setEditando(null);
                     }}

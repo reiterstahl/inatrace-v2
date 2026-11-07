@@ -1,5 +1,6 @@
 import { test, expect } from './ayudas';
 import type { Page } from '@playwright/test';
+import { aceptarAviso } from './avisos';
 
 async function ingresar(page: Page, destino = 'productores') {
   await page.goto('ingreso?volver=' + encodeURIComponent('/' + destino));
@@ -73,7 +74,7 @@ test.describe('productores (modo simulado)', () => {
     await page.getByRole('link', { name: 'Productores' }).first().click();
     await expect(page.getByText('4 productores en Cooperativa Flor de la Sierra')).toBeVisible();
     await page.getByRole('link', { name: /Juana/ }).first().click();
-    page.once('dialog', (d) => d.accept());
+    await aceptarAviso(page);
     await page.getByRole('button', { name: 'Eliminar' }).click();
     await expect(page.getByText('3 productores en Cooperativa Flor de la Sierra')).toBeVisible();
   });
@@ -113,7 +114,7 @@ test.describe('productores (modo simulado)', () => {
     await page.getByRole('link', { name: 'Productores', exact: true }).last().click();
     await expect(page.getByText('Marcos', { exact: true })).toHaveCount(0);
     await page.getByRole('link', { name: 'Recolectores' }).first().click();
-    page.once('dialog', (d) => void d.accept());
+    await aceptarAviso(page);
     await page.getByRole('button', { name: /^Eliminar a Marcos Ixcoy|^Borrar.*Marcos Ixcoy/ }).click();
     await expect(page.getByText('Se eliminó a Marcos Ixcoy.')).toBeVisible();
   });

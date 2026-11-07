@@ -1,5 +1,6 @@
 import { test, expect, type Page } from '@playwright/test';
 import { completarNombres, ofertaDesdeCampos } from '../src/util/beyco';
+import { aceptarAviso } from '../e2e/avisos';
 
 const { INATRACE_USUARIO: usuario = '', INATRACE_CLAVE: clave = '' } = process.env;
 
@@ -91,7 +92,7 @@ test('Beyco: salida y vuelta con state, error limpio sin Beyco, y precarga de la
   // 5. Limpieza: borrar la entrega.
   await page.goto('/v2/stock/todo');
   await page.getByRole('combobox', { name: 'Instalación' }).selectOption({ label: 'Centro de acopio — Bodega Demo' });
-  page.once('dialog', (d) => void d.accept());
+  await aceptarAviso(page);
   await filaCon(page, bruto).first().getByRole('button', { name: 'Borrar entrega' }).click();
   await expect(filaCon(page, bruto)).toHaveCount(0);
 });

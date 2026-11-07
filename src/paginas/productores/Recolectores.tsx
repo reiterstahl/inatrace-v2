@@ -10,6 +10,7 @@ import { Aviso, Cargando, EstadoError } from '@/componentes/ui/Estados';
 import { Icono } from '@/componentes/ui/Icono';
 import { useEmpresaActual } from '@/util/empresa';
 import { nombreCompleto, ubicacionCorta } from '@/util/productor';
+import { confirmar } from '@/componentes/ui/Confirmar';
 
 const PESTANA = 'inline-flex h-11 shrink-0 items-center gap-2 rounded-t-lg border-b-2 border-transparent px-4 text-sm font-semibold text-tinta-2 hover:text-tinta';
 
@@ -48,7 +49,7 @@ export function ListaRecolectores() {
   const paginas = Math.max(1, Math.ceil(total / POR_PAGINA));
 
   async function eliminar(r: ApiUserCustomer) {
-    if (!window.confirm(t('recolectores.borrar_confirmar', { nombre: nombreCompleto(r) }))) return;
+    if (!(await confirmar(t('recolectores.borrar_confirmar', { nombre: nombreCompleto(r) }), { accion: 'eliminar' }))) return;
     setAviso(null);
     try {
       await borrar.mutateAsync(r.id!);

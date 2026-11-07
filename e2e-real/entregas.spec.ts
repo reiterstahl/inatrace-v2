@@ -1,4 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
+import { aceptarAviso } from '../e2e/avisos';
 
 const { INATRACE_USUARIO: usuario = '', INATRACE_CLAVE: clave = '' } = process.env;
 
@@ -60,7 +61,7 @@ test.describe('entregas contra el backend real', () => {
     await expect(page.getByText('Debe 907,50')).toBeVisible();
 
     // Borrar.
-    page.once('dialog', (d) => void d.accept());
+    await aceptarAviso(page);
     await page.getByRole('button', { name: 'Borrar entrega' }).click();
     await expect(page.getByRole('heading', { name: 'Entregas', exact: true })).toBeVisible();
     await page.getByRole('searchbox').fill(nombre.split(' ')[0]);
@@ -105,7 +106,7 @@ test.describe('entregas contra el backend real', () => {
       await page.getByRole('searchbox').fill(nombre.split(' ')[0]!);
       const fila = page.locator('tbody tr').filter({ hasText: nombre }).filter({ hasText: monto }).first();
       await expect(fila).toBeVisible();
-      page.once('dialog', (d) => void d.accept());
+      await aceptarAviso(page);
       await fila.getByRole('button', { name: 'Borrar entrega' }).click();
       await expect(page.locator('tbody tr').filter({ hasText: nombre }).filter({ hasText: monto })).toHaveCount(0);
     }
@@ -151,7 +152,7 @@ test.describe('todo el stock y trazabilidad contra el backend real', () => {
     // Borrarla desde el stock.
     await page.goto('/v2/stock/todo');
     await page.getByRole('combobox', { name: 'Instalación' }).selectOption({ index: 1 });
-    page.once('dialog', (d) => void d.accept());
+    await aceptarAviso(page);
     await page.locator('tbody tr').filter({ hasText: '333' }).first().getByRole('button', { name: 'Borrar entrega' }).click();
     await expect(page.locator('tbody tr').filter({ hasText: '333' })).toHaveCount(0);
   });

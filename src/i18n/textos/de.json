@@ -69,6 +69,14 @@
     "legal": {
       "terminos": "Nutzungsbedingungen",
       "privacidad": "Datenschutzrichtlinie"
+    },
+    "galeria": {
+      "carrusel": "Karussell",
+      "elemento": "Foto",
+      "posicion": "{{n}} von {{total}}",
+      "ir": "Zu Foto {{n}} von {{total}}",
+      "anterior": "Vorheriges Foto",
+      "siguiente": "Nächstes Foto"
     }
   }
 }

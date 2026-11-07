@@ -1,4 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
+import { aceptarAvisos } from '../e2e/avisos';
 
 const { INATRACE_USUARIO: usuario = '', INATRACE_CLAVE: clave = '' } = process.env;
 
@@ -16,7 +17,7 @@ const sufijo = () => Date.now().toString().slice(-6);
 test('catálogos: semiproducto con traducciones, editar y borrar', async ({ page }) => {
   test.setTimeout(90_000);
   await ingresar(page);
-  page.on('dialog', (d) => void d.accept());
+  await aceptarAvisos(page);
   const nombre = `E2E semi ${sufijo()}`;
 
   await page.goto('/v2/administracion/catalogos?tipo=semiproductos');
@@ -52,7 +53,7 @@ test('catálogos: semiproducto con traducciones, editar y borrar', async ({ page
 test('catálogos: tipo de producto, unidad, tipo de instalación y evidencias se crean y se borran', async ({ page }) => {
   test.setTimeout(120_000);
   await ingresar(page);
-  page.on('dialog', (d) => void d.accept());
+  await aceptarAvisos(page);
   const s = sufijo();
 
   async function crearYBorrar(tipo: string, llenar: () => Promise<void>, nombre: string) {
@@ -105,7 +106,7 @@ test('catálogos: tipo de producto, unidad, tipo de instalación y evidencias se
 
 test('catálogos: un semiproducto en uso no se borra y se explica', async ({ page }) => {
   await ingresar(page);
-  page.on('dialog', (d) => void d.accept());
+  await aceptarAvisos(page);
   await page.goto('/v2/administracion/catalogos?tipo=semiproductos');
   // El que usan las entregas de la demo.
   const [entrega] = (await (await page.request.get('/api/chain/stock-order/list/company/1?limit=1')).json()).data?.items ?? [];
@@ -118,7 +119,7 @@ test('catálogos: un semiproducto en uso no se borra y se explica', async ({ pag
 test('catálogos propios: capa de mapa, tipo de certificación y factor se crean, editan y borran', async ({ page }) => {
   test.setTimeout(120_000);
   await ingresar(page);
-  page.on('dialog', (d) => void d.accept());
+  await aceptarAvisos(page);
   const s = sufijo();
 
   // Capa de mapa.

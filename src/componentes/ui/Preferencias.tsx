@@ -26,11 +26,11 @@ export function SelectorIdioma({ className = '' }: { className?: string }) {
 
 export function InterruptorTema() {
   const { t } = useTranslation();
-  const [tema, alternar] = useTema();
-  const texto = tema === 'oscuro' ? t('comun.tema_claro') : t('comun.tema_oscuro');
+  const [, modo, alternar] = useTema();
+  const texto = modo === 'oscuro' ? t('comun.tema_claro') : t('comun.tema_oscuro');
   return (
     <button type="button" onClick={alternar} className="grid size-9 place-items-center rounded-lg text-tinta-2 hover:bg-superficie-2" title={texto} aria-label={texto}>
-      <Icono nombre={tema === 'oscuro' ? 'sol' : 'luna'} className="size-[1.1rem]" />
+      <Icono nombre={modo === 'oscuro' ? 'sol' : 'luna'} className="size-[1.1rem]" />
     </button>
   );
 }

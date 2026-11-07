@@ -1,6 +1,7 @@
 import { test, expect } from './ayudas';
 import type { Page } from '@playwright/test';
 import { readFile } from 'node:fs/promises';
+import { aceptarAviso } from './avisos';
 
 async function ingresar(page: Page, destino: string) {
   await page.goto('ingreso?volver=' + encodeURIComponent('/' + destino));
@@ -48,7 +49,7 @@ test.describe('lotes, opiniones y estadísticas de una etiqueta (modo simulado)'
     await expect(edicion.getByText('El vencimiento no puede ser anterior a la producción.')).toBeVisible();
     await edicion.getByRole('button', { name: 'Cancelar' }).click();
 
-    page.once('dialog', (d) => void d.accept());
+    await aceptarAviso(page);
     await page.getByRole('button', { name: 'Borrar el lote FS202603' }).click();
     await expect(page.getByText('Se borró el lote FS202603.')).toBeVisible();
     await expect(page.getByText('2 lotes')).toBeVisible();
@@ -69,7 +70,7 @@ test.describe('lotes, opiniones y estadísticas de una etiqueta (modo simulado)'
     const csv = await readFile((await descarga.path())!, 'utf8');
     expect(csv).toBe('email\nlucia@example.com\n');
 
-    page.once('dialog', (d) => void d.accept());
+    await aceptarAviso(page);
     await page.getByRole('listitem').filter({ hasText: 'La bolsa llegó abierta.' }).getByRole('button', { name: 'Borrar la opinión' }).click();
     await expect(page.getByText('Se borró la opinión.')).toBeVisible();
     await expect(page.getByText('2 opiniones')).toBeVisible();

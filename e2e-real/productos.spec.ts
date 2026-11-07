@@ -1,4 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
+import { aceptarAviso } from '../e2e/avisos';
 
 const { INATRACE_USUARIO: usuario = '', INATRACE_CLAVE: clave = '' } = process.env;
 
@@ -64,7 +65,7 @@ test('producto: crear con foto y origen, editar, verlo en solo lectura desde otr
   // 4. Limpieza: borrar el producto de prueba.
   await comoEmpresa(page, 'Empresa Demo GIZ');
   await page.goto(`/v2/productos/${id}`);
-  page.once('dialog', (d) => void d.accept());
+  await aceptarAviso(page);
   await page.getByRole('button', { name: 'Borrar producto' }).click();
   await expect(page).toHaveURL(/productos$/);
   expect((await (await page.request.get(`/api/product/${id}`)).json()).status).not.toBe('OK');

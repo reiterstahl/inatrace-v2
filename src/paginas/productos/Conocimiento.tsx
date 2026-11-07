@@ -13,6 +13,7 @@ import { Icono } from '@/componentes/ui/Icono';
 import { MAXIMOS, TEMAS, armarEntrada, enlaceValido, entradaVacia, formDesdeEntrada, normalizarEnlace, sinErroresEntrada, validarEntrada, type ErroresEntrada, type FormEntrada, type Tema } from '@/util/conocimiento';
 import { useAdministraEmpresas, useProducto } from './Marco';
 import { Tarjeta } from './piezas';
+import { confirmar } from '@/componentes/ui/Confirmar';
 
 const TIPOS_DOC = ['pdf', 'png', 'jpg', 'jpeg'];
 
@@ -51,7 +52,7 @@ export function ConocimientoProducto() {
   }
 
   async function eliminar(id: number, titulo: string) {
-    if (!window.confirm(t('productos.conocimiento.borrar_pregunta', { titulo }))) return;
+    if (!(await confirmar(t('productos.conocimiento.borrar_pregunta', { titulo }), { accion: 'eliminar' }))) return;
     setAviso(null);
     try {
       await borrar.mutateAsync(id);

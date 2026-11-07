@@ -13,6 +13,7 @@ import { NumeroConUnidad } from '../stock/procesamiento/piezas';
 import { ConVisibilidad, type Visibilidad } from './Ficha';
 import { useProducto } from './Marco';
 import { BarraGuardar, CampoArchivo, CampoColor, Casilla, Tarjeta } from './piezas';
+import { confirmarSalida } from '@/componentes/ui/Confirmar';
 
 const SelectorPuntos = lazy(() => import('@/componentes/mapa/SelectorPuntos'));
 
@@ -31,7 +32,7 @@ export function VitrinaProducto() {
     setF((x) => ({ ...x, ...c }));
     setTocado(true);
   };
-  useBlocker({ shouldBlockFn: () => tocado && !guardar.isPending && !window.confirm(t('stock.entrega.salir_sin_guardar')), enableBeforeUnload: () => tocado });
+  useBlocker({ shouldBlockFn: async () => tocado && !guardar.isPending && !(await confirmarSalida(t('stock.entrega.salir_sin_guardar'))), enableBeforeUnload: () => tocado });
 
   async function alGuardar() {
     setAviso(null);

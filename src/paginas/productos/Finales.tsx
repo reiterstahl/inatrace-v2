@@ -9,6 +9,7 @@ import { Aviso, Cargando, EstadoError } from '@/componentes/ui/Estados';
 import { Icono } from '@/componentes/ui/Icono';
 import { useProducto } from './Marco';
 import { Casilla, Tarjeta } from './piezas';
+import { confirmar } from '@/componentes/ui/Confirmar';
 
 type FormFinal = { id?: number; nombre: string; descripcion: string; unidad: number | null; etiquetas: Set<number> };
 const vacio = (): FormFinal => ({ nombre: '', descripcion: '', unidad: null, etiquetas: new Set() });
@@ -27,7 +28,7 @@ export function FinalesProducto() {
   const [aviso, setAviso] = useState<{ tono: 'mal' | 'ok'; texto: string } | null>(null);
 
   async function eliminar(f: ApiFinalProduct) {
-    if (!window.confirm(t('productos.finales.borrar_pregunta', { nombre: f.name }))) return;
+    if (!(await confirmar(t('productos.finales.borrar_pregunta', { nombre: f.name }), { accion: 'eliminar' }))) return;
     setAviso(null);
     try {
       await borrar.mutateAsync(f.id!);

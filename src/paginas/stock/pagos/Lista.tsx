@@ -12,6 +12,7 @@ import { useEmpresaActual } from '@/util/empresa';
 import { fechaCorta } from '@/util/fecha';
 import { dinero } from '@/util/formato';
 import { nombreCompleto } from '@/util/productor';
+import { confirmar as preguntar } from '@/componentes/ui/Confirmar';
 
 const ruta = getRouteApi('/portal/stock/pagos/');
 const FORMAS = ['CASH', 'CASH_VIA_COLLECTOR', 'BANK_TRANSFER', 'CHEQUE', 'OFFSETTING', 'UNKNOWN'] as const;
@@ -104,7 +105,7 @@ function Pagos({ empresa, filtro, fijar, setError }: { empresa: number; filtro: 
   const sinConfirmar = items.filter((p) => p.paymentStatus === 'UNCONFIRMED');
 
   async function confirmarLista(lista: ApiPayment[]) {
-    if (lista.length === 0 || !window.confirm(t('stock.pagos.confirmar_pregunta', { count: lista.length }))) return;
+    if (lista.length === 0 || !(await preguntar(t('stock.pagos.confirmar_pregunta', { count: lista.length })))) return;
     setError(null);
     try {
       for (const p of lista) await confirmar.mutateAsync(p);
@@ -115,7 +116,7 @@ function Pagos({ empresa, filtro, fijar, setError }: { empresa: number; filtro: 
   }
 
   async function eliminar(p: ApiPayment) {
-    if (!window.confirm(t('stock.pagos.borrar_pregunta', { monto: dinero(p.amount, p.currency, i18n.language) }))) return;
+    if (!(await preguntar(t('stock.pagos.borrar_pregunta', { monto: dinero(p.amount, p.currency, i18n.language) }), { accion: 'eliminar' }))) return;
     setError(null);
     try {
       await borrar.mutateAsync(p.id!);

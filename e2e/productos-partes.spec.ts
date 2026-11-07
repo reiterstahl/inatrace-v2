@@ -1,5 +1,6 @@
 import { test, expect } from './ayudas';
 import type { Page } from '@playwright/test';
+import { aceptarAviso } from './avisos';
 
 async function ingresar(page: Page, destino: string) {
   await page.goto('ingreso?volver=' + encodeURIComponent('/' + destino));
@@ -70,7 +71,7 @@ test.describe('partes del producto (modo simulado)', () => {
     await expect(page.getByText('Se agregó a Exportadora del Norte.')).toBeVisible();
     await expect(page.getByRole('region', { name: 'Exportadoras' })).toContainText('Exportadora del Norte');
 
-    page.once('dialog', (d) => void d.accept());
+    await aceptarAviso(page);
     await page.getByRole('button', { name: 'Quitar a Exportadora del Norte' }).click();
     await expect(page.getByText('Se quitó a Exportadora del Norte.')).toBeVisible();
     await expect(page.getByRole('region', { name: 'Exportadoras' })).toContainText('Ninguna.');
@@ -101,7 +102,7 @@ test.describe('partes del producto (modo simulado)', () => {
     await edicion.getByRole('button', { name: 'Guardar' }).click();
     await expect(page.getByRole('listitem', { name: 'Café molido 500 g' })).toContainText('Sin etiquetas');
 
-    page.once('dialog', (d) => void d.accept());
+    await aceptarAviso(page);
     await page.getByRole('button', { name: 'Borrar Café molido 500 g' }).click();
     await expect(page.getByText('Se borró «Café molido 500 g».')).toBeVisible();
     await expect(page.getByRole('listitem', { name: 'Café molido 500 g' })).toHaveCount(0);
@@ -165,7 +166,7 @@ test.describe('partes del producto (modo simulado)', () => {
     await edicion.getByRole('button', { name: 'Guardar' }).click();
     await expect(page.getByRole('listitem', { name: 'La finca El Mirador, Todos Santos' })).toContainText('Origen');
 
-    page.once('dialog', (d) => void d.accept());
+    await aceptarAviso(page);
     await page.getByRole('button', { name: 'Borrar «La finca El Mirador, Todos Santos»' }).click();
     await expect(page.getByText('Se borró «La finca El Mirador, Todos Santos».')).toBeVisible();
     await expect(page.getByText('3 entradas')).toBeVisible();
@@ -173,12 +174,14 @@ test.describe('partes del producto (modo simulado)', () => {
 
   test('borrar un producto con productos finales explica por qué no se puede', async ({ page }) => {
     await ingresar(page, 'productos/1');
-    // Un solo manejador para la confirmación y el aviso: registrar el segundo después del clic llegaba
-    // a veces tarde y el aviso se cerraba solo.
-    const mensajes: string[] = [];
-    page.on('dialog', (d) => { mensajes.push(d.message()); void d.accept(); });
+    // Los avisos son propios: se confirma en el primero y el segundo explica el motivo.
     await page.getByRole('button', { name: 'Borrar producto' }).click();
-    await expect.poll(() => mensajes.join('\n')).toContain('tiene productos finales');
+    const aviso = page.getByRole('alertdialog');
+    await expect(aviso).toContainText('Café Flor de la Sierra');
+    await aviso.getByRole('button', { name: 'Eliminar' }).click();
+    await expect(aviso).toContainText('tiene productos finales');
+    await aviso.getByRole('button', { name: 'Entendido' }).click();
+    await expect(aviso).toBeHidden();
     await expect(page.getByRole('heading', { level: 1, name: 'Café Flor de la Sierra' })).toBeVisible();
   });
 });

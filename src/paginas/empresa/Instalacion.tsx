@@ -17,6 +17,7 @@ import { NumeroConUnidad } from '../stock/procesamiento/piezas';
 import { Casilla, Tarjeta } from '../productos/piezas';
 import { useEmpresaVista } from './Marco';
 import { Fichas, SiNo } from './piezas';
+import { confirmar, confirmarSalida } from '@/componentes/ui/Confirmar';
 
 const SelectorPuntos = lazy(() => import('@/componentes/mapa/SelectorPuntos'));
 const ruta = getRouteApi('/portal/empresa/instalaciones/$instalacion');
@@ -61,7 +62,7 @@ function Formulario({ original, inicial, titulo }: { original: ApiFacility | nul
   const msg = (k?: string) => (k ? t(`empresa.errores.${k}`, { defaultValue: t(`productos.errores.${k}`, { defaultValue: t(`stock.errores.${k}`) }) }) : undefined);
   const ruanda = esRuanda(f.codigoPais);
 
-  useBlocker({ shouldBlockFn: () => tocado && !guardar.isPending && !window.confirm(t('stock.entrega.salir_sin_guardar')), enableBeforeUnload: () => tocado });
+  useBlocker({ shouldBlockFn: async () => tocado && !guardar.isPending && !(await confirmarSalida(t('stock.entrega.salir_sin_guardar'))), enableBeforeUnload: () => tocado });
 
   async function alGuardar() {
     setAviso(null);
@@ -81,9 +82,9 @@ function Formulario({ original, inicial, titulo }: { original: ApiFacility | nul
     }
   }
 
-  function quitarCadena(id: number) {
+  async function quitarCadena(id: number) {
     const nombre = f.cadenas.find((c) => c.id === id)?.name ?? '';
-    if (!window.confirm(t('empresa.instalaciones.quitar_cadena_pregunta', { cadena: nombre }))) return;
+    if (!(await confirmar(t('empresa.instalaciones.quitar_cadena_pregunta', { cadena: nombre }), { accion: 'quitar' }))) return;
     // Como la versión actual: los semiproductos se vacían (no dicen de qué cadena son) y se vuelven a elegir.
     cambiar({ cadenas: f.cadenas.filter((c) => c.id !== id), semis: [] });
   }
@@ -195,14 +196,14 @@ function Formulario({ original, inicial, titulo }: { original: ApiFacility | nul
             elegidos={f.semis.map((s) => ({ id: s.id!, nombre: s.name ?? `#${s.id}` }))}
             opciones={(semis.data ?? []).map((s) => ({ id: s.id!, nombre: s.name ?? `#${s.id}` }))}
             alAgregar={(id) => cambiar({ semis: [...f.semis, (semis.data ?? []).find((s) => s.id === id)!] })}
-            alQuitar={(id) => window.confirm(t('empresa.instalaciones.quitar_producto_pregunta')) && cambiar({ semis: f.semis.filter((s) => s.id !== id) })}
+            alQuitar={async (id) => (await confirmar(t('empresa.instalaciones.quitar_producto_pregunta'), { accion: 'quitar' })) && cambiar({ semis: f.semis.filter((s) => s.id !== id) })}
           />
           <Fichas
             etiqueta={t('empresa.instalaciones.finales')}
             elegidos={f.finales.map((x) => ({ id: x.id!, nombre: [x.name, x.product?.name].filter(Boolean).join(' · ') || `#${x.id}` }))}
             opciones={(finalesEmpresa.data ?? []).map((x) => ({ id: x.id!, nombre: [x.name, x.product?.name].filter(Boolean).join(' · ') || `#${x.id}` }))}
             alAgregar={(id) => cambiar({ finales: [...f.finales, (finalesEmpresa.data ?? []).find((x) => x.id === id)!] })}
-            alQuitar={(id) => window.confirm(t('empresa.instalaciones.quitar_producto_pregunta')) && cambiar({ finales: f.finales.filter((x) => x.id !== id) })}
+            alQuitar={async (id) => (await confirmar(t('empresa.instalaciones.quitar_producto_pregunta'), { accion: 'quitar' })) && cambiar({ finales: f.finales.filter((x) => x.id !== id) })}
           />
         </div>
       </Tarjeta>

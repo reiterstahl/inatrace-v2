@@ -11,6 +11,7 @@ import { Campo, Selector } from '@/componentes/ui/Campo';
 import { Aviso, Cargando, EstadoError } from '@/componentes/ui/Estados';
 import { Icono } from '@/componentes/ui/Icono';
 import { ESTADOS_USUARIO, ROLES_USUARIO, accionesUsuario, type AccionUsuario, type EstadoUsuario, type RolUsuario } from '@/util/administracion';
+import { confirmar } from '@/componentes/ui/Confirmar';
 
 export const TONO_ESTADO_USUARIO: Record<EstadoUsuario, string> = {
   ACTIVE: 'bg-ok-suave text-ok',
@@ -29,7 +30,7 @@ export function AccionesPersona({ usuario, alTerminar }: { usuario: ApiUserBase;
   const nombre = nombrePersona(usuario);
 
   async function ejecutar(a: AccionUsuario) {
-    if (!window.confirm(t(`administracion.usuarios.acciones.${a}_pregunta`, { nombre }))) return;
+    if (!(await confirmar(t(`administracion.usuarios.acciones.${a}_pregunta`, { nombre }), { accion: a === 'DEACTIVATE_USER' ? 'desactivar' : 'confirmar' }))) return;
     try {
       await accion.mutateAsync({ accion: a, usuario: usuario.id! });
       alTerminar({ tono: 'ok', texto: t(`administracion.usuarios.acciones.${a}_hecho`, { nombre }) });

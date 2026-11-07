@@ -1,4 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
+import { aceptarAviso } from '../e2e/avisos';
 
 const { INATRACE_USUARIO: usuario = '', INATRACE_CLAVE: clave = '' } = process.env;
 
@@ -56,7 +57,7 @@ test.describe('productores contra el backend real', () => {
     await expect(page).toHaveURL(/\/v2\/productores\/\d+$/);
     await expect(page.getByRole('heading', { level: 1, name: `Automática ${apellido}` })).toBeVisible();
 
-    page.once('dialog', (d) => d.accept());
+    await aceptarAviso(page);
     await page.getByRole('button', { name: 'Eliminar' }).click();
     await expect(page).toHaveURL(/\/v2\/productores$/);
     await page.getByPlaceholder('Buscar productores…').fill('Automática');
@@ -106,7 +107,7 @@ test.describe('productores contra el backend real', () => {
     await expect(page.getByText(/^Polígono de [\d.,]+ ha/)).toHaveCount(nParcelas + 1);
 
     // Se quita y se guarda: la ficha queda como estaba.
-    page.once('dialog', (d) => d.accept());
+    await aceptarAviso(page);
     await page.getByRole('button', { name: `Quitar parcela ${lote}` }).click();
     await page.getByRole('button', { name: 'Guardar' }).click();
     await expect(page.getByText('Cambios guardados.')).toBeVisible();

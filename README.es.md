@@ -66,7 +66,7 @@ interfaz actual y cada enlace viejo (incluidos los QR ya impresos) lleva a su eq
 
 Es una iniciativa propia de Rolando QR, separada de los contratos con la GIZ. El plan completo
 está en [docs/PLAN.es.md](docs/PLAN.es.md) y el estado detallado, fase por fase, en
-[docs/AVANCE.md](docs/AVANCE.md). Versión actual: **2.0.7**.
+[docs/AVANCE.md](docs/AVANCE.md). Versión actual: **2.0.8**.
 
 ## Vistas previas
 

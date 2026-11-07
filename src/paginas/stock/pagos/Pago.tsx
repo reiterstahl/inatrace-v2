@@ -18,6 +18,7 @@ import { PROPOSITOS, armarPago, armarPagoAEmpresa, pagaDeMas, pagoAEmpresaNuevo,
 import { CONTROL } from '../entregas/campos';
 import { MensajeError, NumeroConUnidad } from '../procesamiento/piezas';
 import { EstadoPagoChip } from './Lista';
+import { confirmar as preguntar, confirmarSalida } from '@/componentes/ui/Confirmar';
 
 const rutaNuevo = getRouteApi('/portal/stock/pagos/nuevo');
 const rutaVer = getRouteApi('/portal/stock/pagos/$id');
@@ -117,7 +118,7 @@ function Formulario({ empresa, entrega, aEmpresa = false }: { empresa: number; e
   const err = (k: keyof FormPago) => (errores[k] ? t(`stock.pagos.errores.${errores[k]}`, { defaultValue: t(`stock.errores.${errores[k]}`) }) : undefined);
   const ids = { fecha: useId(), proposito: useId(), tipo: useId(), moneda: useId(), recibo: useId(), comprobante: useId() };
 
-  useBlocker({ shouldBlockFn: () => tocado && !guardar.isPending && !window.confirm(t('stock.entrega.salir_sin_guardar')), enableBeforeUnload: () => tocado });
+  useBlocker({ shouldBlockFn: async () => tocado && !guardar.isPending && !(await confirmarSalida(t('stock.entrega.salir_sin_guardar'))), enableBeforeUnload: () => tocado });
   useEffect(() => {
     document.title = `${t('stock.pagos.nuevo')} · INATrace v2`;
   }, [t]);
@@ -266,7 +267,7 @@ export function PagoVer() {
   const pendiente = p.paymentStatus === 'UNCONFIRMED';
 
   async function alConfirmar() {
-    if (!window.confirm(t('stock.pagos.confirmar_pregunta', { count: 1 }))) return;
+    if (!(await preguntar(t('stock.pagos.confirmar_pregunta', { count: 1 })))) return;
     try {
       await confirmar.mutateAsync(p);
     } catch (e) {
@@ -274,7 +275,7 @@ export function PagoVer() {
     }
   }
   async function alBorrar() {
-    if (!window.confirm(t('stock.pagos.borrar_pregunta', { monto: dinero(p.amount, p.currency, i18n.language) }))) return;
+    if (!(await preguntar(t('stock.pagos.borrar_pregunta', { monto: dinero(p.amount, p.currency, i18n.language) }), { accion: 'eliminar' }))) return;
     try {
       await borrar.mutateAsync(p.id!);
       await navegar({ to: '/stock/pagos' });

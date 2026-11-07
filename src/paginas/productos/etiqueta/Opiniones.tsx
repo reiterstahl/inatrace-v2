@@ -10,6 +10,7 @@ import { Icono } from '@/componentes/ui/Icono';
 import { csvCorreos } from '@/util/lote';
 import { useProducto } from '../Marco';
 import { Tarjeta } from '../piezas';
+import { confirmar } from '@/componentes/ui/Confirmar';
 
 const ruta = getRouteApi('/portal/productos/$id/etiquetas/$etiqueta');
 const TIPOS: TipoOpinion[] = ['PRAISE', 'PROPOSAL', 'COMPLAINT'];
@@ -31,7 +32,7 @@ export function OpinionesEtiqueta() {
   const [exportando, setExportando] = useState(false);
 
   async function eliminar(id: number) {
-    if (!window.confirm(t('productos.opiniones.borrar_pregunta'))) return;
+    if (!(await confirmar(t('productos.opiniones.borrar_pregunta'), { accion: 'eliminar' }))) return;
     setAviso(null);
     try {
       await borrar.mutateAsync(id);

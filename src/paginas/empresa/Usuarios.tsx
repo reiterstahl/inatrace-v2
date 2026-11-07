@@ -12,6 +12,7 @@ import { Icono } from '@/componentes/ui/Icono';
 import { ROLES_EMPRESA, dejaSinAdministracion, type RolEmpresa } from '@/util/fichaEmpresa';
 import { Tarjeta } from '../productos/piezas';
 import { useEmpresaVista } from './Marco';
+import { confirmar } from '@/componentes/ui/Confirmar';
 
 const nombreDe = (u: ApiCompanyUser | ApiUserBase) => [u.name, u.surname].filter(Boolean).join(' ') || u.email || `#${u.id}`;
 
@@ -46,12 +47,12 @@ export function UsuariosEmpresa() {
     void ejecutar({ accion: 'SET_USER_COMPANY_ROLE', usuario: u.id!, rol }, t('empresa.usuarios.rol_cambiado', { nombre: nombreDe(u), rol: t(`empresa.roles.${rol}`) }));
   }
 
-  function quitar(u: ApiCompanyUser) {
+  async function quitar(u: ApiCompanyUser) {
     if (dejaSinAdministracion(usuarios, u.id!)) {
       setAviso({ tono: 'mal', texto: t('empresa.usuarios.ultima_admin') });
       return;
     }
-    if (!window.confirm(t(u.id === yo ? 'empresa.usuarios.quitarme_pregunta' : 'empresa.usuarios.quitar_pregunta', { nombre: nombreDe(u) }))) return;
+    if (!(await confirmar(t(u.id === yo ? 'empresa.usuarios.quitarme_pregunta' : 'empresa.usuarios.quitar_pregunta', { nombre: nombreDe(u) }), { accion: 'quitar' }))) return;
     void ejecutar({ accion: 'REMOVE_USER_FROM_COMPANY', usuario: u.id! }, t('empresa.usuarios.quitada', { nombre: nombreDe(u) }));
   }
 

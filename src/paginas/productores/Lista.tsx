@@ -11,6 +11,7 @@ import { Icono } from '@/componentes/ui/Icono';
 import { useEmpresaActual } from '@/util/empresa';
 import { coordenadasDe, nombreCompleto, ubicacionCorta } from '@/util/productor';
 import type { ParcelaEnMapa } from '@/componentes/mapa/MapaParcelas';
+import { confirmar } from '@/componentes/ui/Confirmar';
 
 const MapaParcelas = lazy(() => import('@/componentes/mapa/MapaParcelas'));
 const ruta = getRouteApi('/portal/productores/');
@@ -168,7 +169,7 @@ function Tabla({ items, empresa, orden, sentido, alOrdenar }: { items: ApiUserCu
     );
   };
   async function confirmarBorrado(p: ApiUserCustomer) {
-    if (!window.confirm(t('productores.borrar_confirmar', { nombre: nombreCompleto(p) }))) return;
+    if (!(await confirmar(t('productores.borrar_confirmar', { nombre: nombreCompleto(p) }), { accion: 'eliminar' }))) return;
     await borrar.mutateAsync(p.id!).catch(() => undefined);
   }
   return (

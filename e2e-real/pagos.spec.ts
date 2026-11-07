@@ -1,4 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
+import { aceptarAviso } from '../e2e/avisos';
 
 const { INATRACE_USUARIO: usuario = '', INATRACE_CLAVE: clave = '' } = process.env;
 
@@ -31,7 +32,7 @@ async function crearEntrega(page: Page, bruto: string) {
 async function borrarEntrega(page: Page, bruto: string) {
   await page.goto('/v2/stock/todo');
   await page.getByRole('combobox', { name: 'Instalación' }).selectOption({ index: 1 });
-  page.once('dialog', (d) => void d.accept());
+  await aceptarAviso(page);
   await filaCon(page, bruto).first().getByRole('button', { name: 'Borrar entrega' }).click();
   await expect(filaCon(page, bruto)).toHaveCount(0);
 }
@@ -70,13 +71,13 @@ test.describe('pagos contra el backend real', () => {
     const descarga = await page.request.get(recibo!);
     expect(descarga.status()).toBe(200);
     expect(await descarga.text()).toBe('recibo de prueba');
-    page.once('dialog', (d) => void d.accept());
+    await aceptarAviso(page);
     await page.getByRole('button', { name: 'Confirmar' }).click();
     await expect(page.getByText('Confirmado', { exact: true }).first()).toBeVisible();
     await expect(page.getByRole('button', { name: 'Confirmar' })).toHaveCount(0);
 
     // Borrar el pago: el saldo vuelve al pago base completo.
-    page.once('dialog', (d) => void d.accept());
+    await aceptarAviso(page);
     await page.getByRole('button', { name: 'Borrar pago' }).click();
     await expect(page.getByRole('heading', { name: 'Pagos', exact: true })).toBeVisible();
 
@@ -116,7 +117,7 @@ test.describe('pagos contra el backend real', () => {
     // Limpieza: borrar los pagos del masivo y las entregas. (El pago masivo en sí no tiene borrado en el backend.)
     await page.goto('/v2/stock/pagos?prod=1');
     for (let i = 0; i < 2; i++) {
-      page.once('dialog', (d) => void d.accept());
+      await aceptarAviso(page);
       await page.locator('tbody tr').filter({ hasText: /E2E-MASIVO|PT-Rodríguez/ }).first().getByRole('button', { name: /^Borrar el pago/ }).click();
       await page.waitForTimeout(500);
     }

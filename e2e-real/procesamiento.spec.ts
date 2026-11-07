@@ -1,4 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
+import { aceptarAviso } from '../e2e/avisos';
 
 const { INATRACE_USUARIO: usuario = '', INATRACE_CLAVE: clave = '' } = process.env;
 
@@ -75,14 +76,14 @@ test.describe('procesamiento contra el backend real', () => {
     // 6. Borrar el procesamiento: sus lotes de salida desaparecen.
     // (Que la entrega vuelva a quedar disponible depende del backend: el de inatrace-enhanced todavía no
     // devuelve la cantidad al borrar, ver H19 en sus hallazgos; el original de AgStack sí, desde 1a8cc83.)
-    page.once('dialog', (d) => void d.accept());
+    await aceptarAviso(page);
     await page.locator('tbody tr').filter({ hasText: lote }).first().getByRole('button', { name: 'Borrar el procesamiento' }).click();
     await expect(page.locator('tbody tr').filter({ hasText: lote })).toHaveCount(0);
 
     // 7. Limpieza: borrar la entrega.
     await page.goto('/v2/stock/todo');
     await page.getByRole('combobox', { name: 'Instalación' }).selectOption({ index: 1 });
-    page.once('dialog', (d) => void d.accept());
+    await aceptarAviso(page);
     await filaCon(page, bruto).first().getByRole('button', { name: 'Borrar entrega' }).click();
     await expect(filaCon(page, bruto)).toHaveCount(0);
   });
@@ -129,10 +130,10 @@ test.describe('procesamiento contra el backend real', () => {
 
     // Limpieza: borrar el procesamiento y la entrega.
     await page.goBack();
-    page.once('dialog', (d) => void d.accept());
+    await aceptarAviso(page);
     await page.locator('tbody tr').filter({ hasText: lote }).first().getByRole('button', { name: 'Borrar el procesamiento' }).click();
     await expect(page.locator('tbody tr').filter({ hasText: lote })).toHaveCount(0);
-    page.once('dialog', (d) => void d.accept());
+    await aceptarAviso(page);
     await filaCon(page, bruto).first().getByRole('button', { name: 'Borrar entrega' }).click();
     await expect(filaCon(page, bruto)).toHaveCount(0);
   });

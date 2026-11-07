@@ -23,6 +23,7 @@ import { pagos } from '@/api/pagos';
 import { EstadoPagoChip } from '../pagos/Lista';
 import { puedePagarse } from '@/util/pago';
 import { fechaCorta } from '@/util/fecha';
+import { confirmar, confirmarSalida } from '@/componentes/ui/Confirmar';
 
 const rutaNueva = getRouteApi('/portal/stock/entregas/nueva');
 const rutaFicha = getRouteApi('/portal/stock/entregas/$id');
@@ -128,7 +129,7 @@ function Formulario({
   const ficha = useQuery({ ...productores.ficha(v.productor?.id ?? 0), enabled: !!v.productor?.id });
   const parcelas = ficha.data?.plots ?? [];
 
-  useBlocker({ shouldBlockFn: () => formState.isDirty && !guardar.isPending && !window.confirm(t('stock.entrega.salir_sin_guardar')), enableBeforeUnload: () => formState.isDirty });
+  useBlocker({ shouldBlockFn: async () => formState.isDirty && !guardar.isPending && !(await confirmarSalida(t('stock.entrega.salir_sin_guardar'))), enableBeforeUnload: () => formState.isDirty });
 
   const datos = { bruto: num(v.bruto), tara: num(v.tara), descuentoPeso: num(v.descuentoPeso), precio: num(v.precio), descuentoPrecio: num(v.descuentoPrecio), precioDespues: !!v.precioDespues };
   const neto = pesoNeto(datos);
@@ -169,7 +170,7 @@ function Formulario({
   }
 
   async function eliminar() {
-    if (!original?.id || !window.confirm(t('stock.entregas.borrar_confirmar', { productor: nombreCompleto(original.producerUserCustomer ?? {}), fecha: fechaLarga(fechaEntrega(original), i18n.language) }))) return;
+    if (!original?.id || !(await confirmar(t('stock.entregas.borrar_confirmar', { productor: nombreCompleto(original.producerUserCustomer ?? {}), fecha: fechaLarga(fechaEntrega(original), i18n.language) }), { accion: 'eliminar' }))) return;
     try {
       await borrar.mutateAsync(original.id);
       reset(getValues());

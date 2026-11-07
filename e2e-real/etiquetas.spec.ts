@@ -1,4 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
+import { aceptarAviso } from '../e2e/avisos';
 
 const { INATRACE_USUARIO: usuario = '', INATRACE_CLAVE: clave = '' } = process.env;
 const PNG = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==', 'base64');
@@ -90,7 +91,7 @@ test('etiqueta: crear, elegir campos, vista previa, publicar en la vitrina, reti
     await page.getByRole('button', { name: 'Retirar de la vitrina' }).click();
     await expect(page.getByText('La etiqueta ya no se muestra en la vitrina.')).toBeVisible();
     expect((await json(page.request.get(`/api/public/product/label/${etiqueta.uuid}`))).status).not.toBe('OK');
-    page.once('dialog', (d) => void d.accept());
+    await aceptarAviso(page);
     await page.getByRole('button', { name: 'Borrar etiqueta' }).click();
     await expect(page).toHaveURL(/etiquetas$/);
     expect((await json(page.request.get(`/api/product/${producto}/labels`))).data).toEqual([]);

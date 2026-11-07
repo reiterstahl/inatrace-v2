@@ -12,6 +12,7 @@ import { Aviso, Cargando, EstadoError } from '@/componentes/ui/Estados';
 import { Icono } from '@/componentes/ui/Icono';
 import { ESTADOS_EMPRESA, accionesEmpresa, destinosFusion, validarNombreEmpresa, type AccionEmpresa, type EstadoEmpresa } from '@/util/administracion';
 import { elegirEmpresa } from '@/util/empresa';
+import { confirmar } from '@/componentes/ui/Confirmar';
 
 const TONO_ESTADO: Record<EstadoEmpresa, string> = {
   ACTIVE: 'bg-ok-suave text-ok',
@@ -53,7 +54,7 @@ export function EmpresasAdministracion() {
   }
 
   async function ejecutar(e: ApiCompanyListResponse, a: Exclude<AccionEmpresa, 'MERGE_TO_COMPANY'>) {
-    if (!window.confirm(t(`administracion.empresas.${a}_pregunta`, { nombre: e.name }))) return;
+    if (!(await confirmar(t(`administracion.empresas.${a}_pregunta`, { nombre: e.name }), { accion: a === 'DEACTIVATE_COMPANY' ? 'desactivar' : 'confirmar' }))) return;
     setAviso(null);
     try {
       await accion.mutateAsync({ accion: a, empresa: e.id! });
@@ -186,7 +187,7 @@ function Fusion({ origen, cerrar }: { origen: ApiCompanyListResponse; cerrar: (t
   const elegida = opciones.find((o) => String(o.id) === destino);
 
   async function fusionar() {
-    if (!elegida || !window.confirm(t('administracion.empresas.fusionar_pregunta', { origen: origen.name, destino: elegida.name }))) return;
+    if (!elegida || !(await confirmar(t('administracion.empresas.fusionar_pregunta', { origen: origen.name, destino: elegida.name }), { accion: 'continuar' }))) return;
     setFalla('');
     try {
       await accion.mutateAsync({ accion: 'MERGE_TO_COMPANY', empresa: origen.id!, destino: elegida.id });

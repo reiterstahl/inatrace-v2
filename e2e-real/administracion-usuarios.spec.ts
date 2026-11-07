@@ -1,4 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
+import { aceptarAvisos } from '../e2e/avisos';
 
 const { INATRACE_USUARIO: usuario = '', INATRACE_CLAVE: clave = '' } = process.env;
 
@@ -28,7 +29,7 @@ test('administración de usuarios: confirmar, activar, roles, datos y desactivar
   const fila = page.getByRole('listitem', { name: nombre });
   await expect(fila).toContainText('Sin confirmar');
 
-  page.on('dialog', (d) => void d.accept());
+  await aceptarAvisos(page);
   await page.getByRole('button', { name: `Confirmar el correo de ${nombre}` }).click();
   await expect(fila).toContainText('Correo confirmado');
   await page.getByRole('button', { name: `Activar a ${nombre}`, exact: true }).click();

@@ -25,6 +25,7 @@ import {
 } from '@/util/pedidoCliente';
 import { Bloque, CONTROL } from '../entregas/campos';
 import { Etiqueta, MensajeError, NumeroConUnidad } from '../procesamiento/piezas';
+import { confirmarSalida } from '@/componentes/ui/Confirmar';
 
 const hoy = () => {
   const d = new Date();
@@ -98,7 +99,7 @@ function Formulario({ empresa, instalaciones, acciones, clientes }: Datos) {
   const conProductos = instalaciones.filter((i) => accionesParaInstalacion(acciones, i).length > 0);
   const posibles = accionesParaInstalacion(acciones, f.instalacion);
 
-  useBlocker({ shouldBlockFn: () => tocado && !crear.isPending && !window.confirm(t('stock.entrega.salir_sin_guardar')), enableBeforeUnload: () => tocado });
+  useBlocker({ shouldBlockFn: async () => tocado && !crear.isPending && !(await confirmarSalida(t('stock.entrega.salir_sin_guardar'))), enableBeforeUnload: () => tocado });
   useEffect(() => {
     document.title = `${t('stock.ord.cli.titulo')} · INATrace v2`;
   }, [t]);

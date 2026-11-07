@@ -28,7 +28,7 @@
   --marca-fuerte: #174535;
   --marca-suave: #e5efe9;
   --sobre-marca: #ffffff;
-  --acento: #a9662a;
+  --acento: #8f5523;
   --acento-suave: #f6eadc;
 
   --ok: #15734a;
@@ -92,6 +92,7 @@
   --color-marca-fuerte: var(--marca-fuerte);
   --color-marca-suave: var(--marca-suave);
   --color-sobre-marca: var(--sobre-marca);
+  --color-foco: var(--foco);
   --color-acento: var(--acento);
   --color-acento-suave: var(--acento-suave);
   --color-ok: var(--ok);
@@ -154,6 +155,39 @@
       transition-duration: 0.01ms !important;
       scroll-behavior: auto !important;
     }
+  }
+}
+
+/* Avisos y confirmaciones (Confirmar.tsx): el fondo se atenúa y difumina, y un halo suave del color
+   de la marca separa el aviso del fondo, sea claro u oscuro. */
+.aviso-modal {
+  margin: auto;
+  width: min(28rem, calc(100vw - 2rem));
+  max-height: calc(100dvh - 2rem);
+  padding: 0;
+  border: 1px solid var(--linea-fuerte);
+  border-radius: var(--radius-caja);
+  background: var(--superficie);
+  color: var(--tinta);
+  box-shadow:
+    0 0 0 6px color-mix(in srgb, var(--marca) 10%, transparent),
+    0 0 48px 6px color-mix(in srgb, var(--marca) 24%, transparent),
+    0 24px 60px -16px rgb(0 0 0 / 0.45);
+}
+.aviso-modal[open] {
+  animation: aviso-entra 160ms ease-out;
+}
+.aviso-modal::backdrop {
+  background: rgb(12 16 14 / 0.38);
+  backdrop-filter: blur(4px);
+}
+.dark .aviso-modal::backdrop {
+  background: rgb(0 0 0 / 0.58);
+}
+@keyframes aviso-entra {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.98);
   }
 }
 

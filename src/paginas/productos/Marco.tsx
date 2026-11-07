@@ -10,6 +10,7 @@ import { Aviso, Cargando, EstadoError } from '@/componentes/ui/Estados';
 import { Icono, type NombreIcono } from '@/componentes/ui/Icono';
 import { useEmpresaActual } from '@/util/empresa';
 import { esDuena } from '@/util/producto';
+import { avisar, confirmar } from '@/componentes/ui/Confirmar';
 
 const ruta = getRouteApi('/portal/productos/$id');
 
@@ -60,7 +61,7 @@ export function MarcoProducto() {
   const duena = producto.associatedCompanies?.find((a) => a.type === 'OWNER')?.company?.name ?? producto.company?.name;
 
   async function eliminar() {
-    if (!window.confirm(t('productos.borrar_pregunta', { nombre }))) return;
+    if (!(await confirmar(t('productos.borrar_pregunta', { nombre }), { accion: 'eliminar' }))) return;
     try {
       await borrar.mutateAsync(producto.id!);
       await navegar({ to: '/productos' });
@@ -69,7 +70,7 @@ export function MarcoProducto() {
       // clientes, productores): se explica en el idioma de la interfaz.
       const m = (x as Error).message;
       const motivo = /final products/.test(m) ? 'finales' : /company customers/.test(m) ? 'clientes' : /user customers/.test(m) ? 'productores' : null;
-      window.alert(motivo ? t(`productos.no_se_borra.${motivo}`) : m);
+      await avisar(motivo ? t(`productos.no_se_borra.${motivo}`) : m);
     }
   }
 

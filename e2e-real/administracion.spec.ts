@@ -1,4 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
+import { aceptarAvisos } from '../e2e/avisos';
 
 const { INATRACE_USUARIO: usuario = '', INATRACE_CLAVE: clave = '' } = process.env;
 
@@ -34,7 +35,7 @@ test('administración: crear una empresa, abrirla, buscarla, desactivarla y fusi
   await expect(page.getByRole('listitem')).toHaveCount(1);
 
   // La recién creada solo puede fusionarse hacia una activa (nunca a sí misma).
-  page.on('dialog', (d) => void d.accept());
+  await aceptarAvisos(page);
   await page.getByRole('button', { name: `Activar ${nombre}`, exact: true }).click();
   await expect(fila).toContainText('Activa');
   await page.getByRole('button', { name: `Fusionar ${nombre} con otra empresa` }).click();

@@ -1,4 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
+import { aceptarAvisos } from '../e2e/avisos';
 
 const { INATRACE_USUARIO: usuario = '', INATRACE_CLAVE: clave = '' } = process.env;
 
@@ -14,7 +15,7 @@ async function ingresar(page: Page) {
 test('cadenas de valor: crear, editar, desactivar, activar y borrar', async ({ page }) => {
   test.setTimeout(90_000);
   await ingresar(page);
-  page.on('dialog', (d) => void d.accept());
+  await aceptarAvisos(page);
   const nombre = 'E2E Cadena ' + Date.now().toString().slice(-6);
 
   await page.goto('/v2/administracion/cadenas/nueva');
@@ -57,7 +58,7 @@ test('cadenas de valor: crear, editar, desactivar, activar y borrar', async ({ p
 
 test('cadenas de valor: una en uso no se borra y se explica', async ({ page }) => {
   await ingresar(page);
-  page.on('dialog', (d) => void d.accept());
+  await aceptarAvisos(page);
   await page.goto('/v2/administracion/cadenas');
   const [usada] = (await (await page.request.get('/api/company/1/value-chains?limit=1')).json()).data.items;
   await page.getByRole('searchbox', { name: 'Buscar' }).fill(usada.name);

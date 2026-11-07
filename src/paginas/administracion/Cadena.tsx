@@ -12,6 +12,7 @@ import { Icono } from '@/componentes/ui/Icono';
 import { LISTAS_CADENA, armarCadena, formDesdeCadena, permisosCadena, validarCadena, type ErroresCadena, type FormCadena } from '@/util/cadena';
 import { Fichas } from '../empresa/piezas';
 import { Tarjeta } from '../productos/piezas';
+import { confirmarSalida } from '@/componentes/ui/Confirmar';
 
 const ruta = getRouteApi('/portal/administracion/cadenas/$id');
 const idioma = (l: string) => l.slice(0, 2).toUpperCase() as 'ES' | 'EN' | 'DE' | 'RW';
@@ -49,7 +50,7 @@ function FormularioCadena({ original }: { original?: ApiValueChain }) {
     if (errores) setErrores(validarCadena(f));
   }, [f]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  useBlocker({ shouldBlockFn: () => tocado && !guardar.isPending && !window.confirm(t('stock.entrega.salir_sin_guardar')), enableBeforeUnload: () => tocado });
+  useBlocker({ shouldBlockFn: async () => tocado && !guardar.isPending && !(await confirmarSalida(t('stock.entrega.salir_sin_guardar'))), enableBeforeUnload: () => tocado });
 
   async function alGuardar() {
     setAviso(null);

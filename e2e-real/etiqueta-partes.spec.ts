@@ -1,4 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
+import { aceptarAviso } from '../e2e/avisos';
 
 const { INATRACE_USUARIO: usuario = '', INATRACE_CLAVE: clave = '' } = process.env;
 
@@ -61,7 +62,7 @@ test('etiqueta: lotes con verificación pública, opiniones con datos privados y
     await expect(opinion).toContainText('consumidora.e2e@example.com');
     await expect(opinion).toContainText('Con consentimiento');
     await expect(opinion).toContainText('40 años · Femenino');
-    page.once('dialog', (d) => void d.accept());
+    await aceptarAviso(page);
     await opinion.getByRole('button', { name: 'Borrar la opinión' }).click();
     await expect(page.getByText('Se borró la opinión.')).toBeVisible();
 
@@ -72,7 +73,7 @@ test('etiqueta: lotes con verificación pública, opiniones con datos privados y
 
     // 4. Borrar el lote.
     await page.getByRole('link', { name: 'Lotes' }).click();
-    page.once('dialog', (d) => void d.accept());
+    await aceptarAviso(page);
     await page.getByRole('button', { name: 'Borrar el lote E2E01' }).click();
     await expect(page.getByText('Se borró el lote E2E01.')).toBeVisible();
     expect((await json(page.request.get(`/api/product/label/${etiqueta}/batches`))).data.items).toEqual([]);

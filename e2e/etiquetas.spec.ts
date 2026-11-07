@@ -1,5 +1,6 @@
 import { test, expect } from './ayudas';
 import type { Page } from '@playwright/test';
+import { aceptarAviso } from './avisos';
 
 async function ingresar(page: Page, destino: string) {
   await page.goto('ingreso?volver=' + encodeURIComponent('/' + destino));
@@ -85,7 +86,7 @@ test.describe('etiquetas (modo simulado)', () => {
     await page.getByRole('link', { name: 'Tienda en línea' }).click();
     await page.getByRole('button', { name: 'Retirar de la vitrina' }).click();
     await expect(page.getByText('La etiqueta ya no se muestra en la vitrina.')).toBeVisible();
-    page.once('dialog', (d) => void d.accept());
+    await aceptarAviso(page);
     await page.getByRole('button', { name: 'Borrar etiqueta' }).click();
     await expect(page).toHaveURL(/productos\/1\/etiquetas$/);
     await expect(page.getByText('Todavía no hay etiquetas.')).toBeVisible();

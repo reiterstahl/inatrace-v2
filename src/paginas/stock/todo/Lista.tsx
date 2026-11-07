@@ -15,6 +15,7 @@ import { useEmpresaActual } from '@/util/empresa';
 import { fechaCorta } from '@/util/fecha';
 import { cantidad, fechaEntrega, nombreInstalacion } from '@/util/formato';
 import { nombreCompleto } from '@/util/productor';
+import { confirmar } from '@/componentes/ui/Confirmar';
 
 const ruta = getRouteApi('/portal/stock/todo');
 
@@ -77,7 +78,7 @@ function Contenido({ empresa }: { empresa: number }) {
   async function eliminar(o: ApiStockOrder) {
     const lote = o.identifier || o.internalLotNumber || `#${o.id}`;
     const esCompra = o.orderType === 'PURCHASE_ORDER';
-    if (!window.confirm(t(esCompra ? 'stock.todo.borrar_confirmar' : 'stock.todo.borrar_proceso_confirmar', { lote }))) return;
+    if (!(await confirmar(t(esCompra ? 'stock.todo.borrar_confirmar' : 'stock.todo.borrar_proceso_confirmar', { lote }), { accion: 'eliminar' }))) return;
     setError(null);
     try {
       if (esCompra) {

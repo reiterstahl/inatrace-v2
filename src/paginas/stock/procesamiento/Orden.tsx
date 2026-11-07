@@ -29,6 +29,7 @@ import {
 } from '@/util/procesamiento';
 import { Bloque } from '../entregas/campos';
 import { Documentos, Entrada, SalidaTarjeta } from './piezas';
+import { confirmar, confirmarSalida } from '@/componentes/ui/Confirmar';
 
 const rutaNueva = getRouteApi('/portal/stock/procesamiento/nueva');
 const rutaEditar = getRouteApi('/portal/stock/procesamiento/$lote');
@@ -116,7 +117,7 @@ function Formulario({ empresa, accion, original, instalacionInicial, destinoInic
     setF((x) => ({ ...x, salidas: x.salidas.map((s) => ({ ...s, cantidad: entra || null })) }));
   }, [qr, entra]);
 
-  useBlocker({ shouldBlockFn: () => tocado && !guardar.isPending && !window.confirm(t('stock.entrega.salir_sin_guardar')), enableBeforeUnload: () => tocado });
+  useBlocker({ shouldBlockFn: async () => tocado && !guardar.isPending && !(await confirmarSalida(t('stock.entrega.salir_sin_guardar'))), enableBeforeUnload: () => tocado });
 
   const titulo = editando ? t('stock.proc.titulo_editar', { accion: accion.name }) : accion.name ?? '';
   useEffect(() => {
@@ -142,7 +143,7 @@ function Formulario({ empresa, accion, original, instalacionInicial, destinoInic
   }
 
   async function alBorrar() {
-    if (!original?.id || !window.confirm(t('stock.proc.borrar_confirmar'))) return;
+    if (!original?.id || !(await confirmar(t('stock.proc.borrar_confirmar'), { accion: 'eliminar' }))) return;
     try {
       await borrar.mutateAsync(original.id);
       setTocado(false);

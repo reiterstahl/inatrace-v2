@@ -10,6 +10,7 @@ import { Aviso } from '@/componentes/ui/Estados';
 import { Icono } from '@/componentes/ui/Icono';
 import { useAdministraEmpresas, useProducto } from './Marco';
 import { BarraGuardar, CampoArchivo, Tarjeta } from './piezas';
+import { confirmar } from '@/componentes/ui/Confirmar';
 
 type Rol = NonNullable<ApiProductCompany['type']>;
 /** Orden de los grupos, como en la versión actual (ROASTER existe en el backend pero no allí). */
@@ -45,7 +46,7 @@ export function EmpresasProducto() {
       setAviso({ tono: 'mal', texto: t('productos.empresas.ultima_duena') });
       return;
     }
-    if (!window.confirm(t('productos.empresas.quitar_pregunta', { nombre }))) return;
+    if (!(await confirmar(t('productos.empresas.quitar_pregunta', { nombre }), { accion: 'quitar' }))) return;
     await guardarEmpresas(asociadas.filter((x) => x !== a), t('productos.empresas.quitada', { nombre }));
   }
 

@@ -12,6 +12,7 @@ import { Icono } from '@/componentes/ui/Icono';
 import { nombreAccion } from '@/util/accion';
 import { Tarjeta } from '../productos/piezas';
 import { useEmpresaVista } from './Marco';
+import { confirmar } from '@/componentes/ui/Confirmar';
 
 const ruta = getRouteApi('/portal/empresa/acciones/');
 
@@ -40,7 +41,7 @@ export function AccionesEmpresa() {
 
   async function eliminar(a: ApiProcessingAction) {
     const nombre = nombreAccion(a);
-    if (!window.confirm(t('empresa.acciones.borrar_pregunta', { nombre }))) return;
+    if (!(await confirmar(t('empresa.acciones.borrar_pregunta', { nombre }), { accion: 'eliminar' }))) return;
     setAviso(null);
     try {
       await borrar.mutateAsync(a.id!);

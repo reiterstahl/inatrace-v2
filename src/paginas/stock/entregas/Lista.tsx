@@ -13,6 +13,7 @@ import { cantidad, dinero, fechaEntrega, nombreInstalacion } from '@/util/format
 import { nombreCompleto } from '@/util/productor';
 import { productores } from '@/api/productores';
 import { puedePagarse } from '@/util/pago';
+import { confirmar } from '@/componentes/ui/Confirmar';
 
 const ruta = getRouteApi('/portal/stock/entregas/');
 
@@ -75,7 +76,7 @@ function Contenido({ empresa }: { empresa: number }) {
   }
 
   async function confirmarBorrado(e: ApiStockOrder) {
-    if (!window.confirm(t('stock.entregas.borrar_confirmar', { productor: nombreCompleto(e.producerUserCustomer ?? {}), fecha: fechaLarga(fechaEntrega(e), i18n.language) }))) return;
+    if (!(await confirmar(t('stock.entregas.borrar_confirmar', { productor: nombreCompleto(e.producerUserCustomer ?? {}), fecha: fechaLarga(fechaEntrega(e), i18n.language) }), { accion: 'eliminar' }))) return;
     try {
       await borrar.mutateAsync(e.id!);
     } catch (err) {

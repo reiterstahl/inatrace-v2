@@ -1,4 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
+import { aceptarAviso } from '../e2e/avisos';
 
 const { INATRACE_USUARIO: usuario = '', INATRACE_CLAVE: clave = '' } = process.env;
 
@@ -55,7 +56,7 @@ test('producto: vitrina y recorrido, empresas, acuerdos y productos finales cont
     await page.getByRole('list', { name: 'Empresas encontradas' }).getByRole('button', { name: 'Agregar' }).first().click();
     await expect(page.getByRole('region', { name: 'Compradoras' })).toContainText('Exportadora Demo (v2)');
     expect((await producto()).associatedCompanies.some((a: { type: string; company: { name: string } }) => a.type === 'BUYER' && a.company.name === 'Exportadora Demo (v2)')).toBe(true);
-    page.once('dialog', (d) => void d.accept());
+    await aceptarAviso(page);
     await page.getByRole('button', { name: 'Quitar a Exportadora Demo (v2)' }).click();
     await expect(page.getByRole('region', { name: 'Compradoras' })).toContainText('Ninguna.');
 
@@ -83,7 +84,7 @@ test('producto: vitrina y recorrido, empresas, acuerdos y productos finales cont
     await expect(page.getByRole('listitem', { name: 'Final E2E' })).toBeVisible();
     const finales = (await api(page, 'get', `/api/product/${id}/finalProduct/list`)).data.items;
     expect(finales.map((f: { name: string }) => f.name)).toEqual(['Final E2E']);
-    page.once('dialog', (d) => void d.accept());
+    await aceptarAviso(page);
     await page.getByRole('button', { name: 'Borrar Final E2E' }).click();
     await expect(page.getByRole('listitem', { name: 'Final E2E' })).toHaveCount(0);
   } finally {
@@ -142,7 +143,7 @@ test('producto: base de conocimiento contra el backend', async ({ page }) => {
     await page.getByRole('group', { name: 'Filtrar por tema' }).getByRole('button', { name: 'Todas' }).click();
 
     // Borrar una entrada (ruta de H25).
-    page.once('dialog', (d) => void d.accept());
+    await aceptarAviso(page);
     await page.getByRole('button', { name: 'Borrar «Catación E2E 2026»' }).click();
     await expect(page.getByText('Se borró «Catación E2E 2026».')).toBeVisible();
     expect(await entradas()).toEqual([]);

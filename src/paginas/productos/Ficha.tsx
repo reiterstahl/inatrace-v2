@@ -19,6 +19,7 @@ import {
 } from '@/util/producto';
 import { NumeroConUnidad } from '../stock/procesamiento/piezas';
 import { useProducto } from './Marco';
+import { confirmarSalida } from '@/componentes/ui/Confirmar';
 
 const SelectorPuntos = lazy(() => import('@/componentes/mapa/SelectorPuntos'));
 
@@ -64,7 +65,7 @@ function Formulario({ empresa, original, cadenas }: { empresa: number; original:
   const conError = seccionesConError(errores);
   const nombre = f.nombre.trim() || (original ? `#${original.id}` : t('productos.nuevo'));
 
-  useBlocker({ shouldBlockFn: () => tocado && !guardar.isPending && !window.confirm(t('stock.entrega.salir_sin_guardar')), enableBeforeUnload: () => tocado });
+  useBlocker({ shouldBlockFn: async () => tocado && !guardar.isPending && !(await confirmarSalida(t('stock.entrega.salir_sin_guardar'))), enableBeforeUnload: () => tocado });
   useEffect(() => {
     if (!original) document.title = `${nombre} · INATrace v2`;
   }, [nombre, original]);

@@ -13,6 +13,7 @@ import { CAMPOS_DIRECCION, armarCliente, formDesdeCliente, lugarCliente, validar
 import { formatoDireccion } from '@/util/productor';
 import { Tarjeta } from '../productos/piezas';
 import { useEmpresaVista } from './Marco';
+import { confirmar } from '@/componentes/ui/Confirmar';
 
 /**
  * Clientes de la empresa: las empresas que le compran y a las que se asignan los pedidos de
@@ -34,7 +35,7 @@ export function ClientesEmpresa() {
   };
 
   async function eliminar(c: ApiCompanyCustomer) {
-    if (!window.confirm(t('empresa.clientes.borrar_pregunta', { nombre: c.name }))) return;
+    if (!(await confirmar(t('empresa.clientes.borrar_pregunta', { nombre: c.name }), { accion: 'eliminar' }))) return;
     setAviso(null);
     try {
       await borrar.mutateAsync(c.id!);

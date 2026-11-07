@@ -1,5 +1,6 @@
 import { test, expect } from './ayudas';
 import type { Page } from '@playwright/test';
+import { aceptarAviso } from './avisos';
 
 async function ingresar(page: Page, destino = 'stock/procesamiento') {
   await page.goto('ingreso?volver=' + encodeURIComponent('/' + destino));
@@ -67,7 +68,7 @@ test.describe('procesamiento (modo simulado)', () => {
     await expect(page.getByRole('row', { name: /DS-01/ })).toContainText('110 kg');
 
     // Borrar: el lote desaparece y la entrega vuelve a estar disponible.
-    page.once('dialog', (d) => void d.accept());
+    await aceptarAviso(page);
     await page.getByRole('row', { name: /DS-01/ }).getByRole('button', { name: 'Borrar el procesamiento' }).click();
     await expect(page.getByRole('row', { name: /DS-01/ })).toHaveCount(0);
     await page.goto('stock/procesamiento/nueva?accion=21&inst=11');

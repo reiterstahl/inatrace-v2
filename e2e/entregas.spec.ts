@@ -1,5 +1,6 @@
 import { test, expect } from './ayudas';
 import type { Page } from '@playwright/test';
+import { aceptarAviso } from './avisos';
 
 async function ingresar(page: Page, destino = 'stock/entregas') {
   await page.goto('ingreso?volver=' + encodeURIComponent('/' + destino));
@@ -103,7 +104,7 @@ test.describe('entregas (modo simulado)', () => {
     await expect(page.getByText('Debe 708,50 US$')).toBeVisible();
 
     await page.goto('stock/entregas/303');
-    page.once('dialog', (d) => void d.accept());
+    await aceptarAviso(page);
     await page.getByRole('button', { name: 'Borrar entrega' }).click();
     // Vuelve a la lista de la instalación de esa entrega, que era la única.
     await expect(page).toHaveURL(/inst=12/);

@@ -9,6 +9,7 @@ import './i18n';
 import { queryClient, router } from './rutas';
 import { alTerminarSesion } from './api/sesion';
 import { aplicarTema } from './util/tema';
+import { Confirmaciones } from './componentes/ui/Confirmar';
 
 aplicarTema();
 
@@ -28,6 +29,7 @@ async function arrancar() {
     <StrictMode>
       <QueryClientProvider client={queryClient}>
         <RouterProvider router={router} />
+        <Confirmaciones />
       </QueryClientProvider>
     </StrictMode>,
   );

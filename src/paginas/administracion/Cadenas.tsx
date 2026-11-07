@@ -11,6 +11,7 @@ import { Campo, Selector } from '@/componentes/ui/Campo';
 import { Aviso, Cargando, EstadoError } from '@/componentes/ui/Estados';
 import { Icono } from '@/componentes/ui/Icono';
 import { permisosCadena } from '@/util/cadena';
+import { confirmar } from '@/componentes/ui/Confirmar';
 
 const ruta = getRouteApi('/portal/administracion/cadenas/');
 
@@ -37,7 +38,7 @@ export function CadenasAdministracion() {
 
   async function estadoDe(c: ApiValueChain, activar: boolean) {
     const clave = activar ? 'activar' : 'desactivar';
-    if (!window.confirm(t(`administracion.cadenas.${clave}_pregunta`, { nombre: c.name }))) return;
+    if (!(await confirmar(t(`administracion.cadenas.${clave}_pregunta`, { nombre: c.name }), { accion: activar ? 'confirmar' : 'desactivar' }))) return;
     setAviso(null);
     try {
       await cambiarEstado.mutateAsync({ id: c.id!, activar });
@@ -48,7 +49,7 @@ export function CadenasAdministracion() {
   }
 
   async function eliminar(c: ApiValueChain) {
-    if (!window.confirm(t('administracion.cadenas.borrar_pregunta', { nombre: c.name }))) return;
+    if (!(await confirmar(t('administracion.cadenas.borrar_pregunta', { nombre: c.name }), { accion: 'eliminar' }))) return;
     setAviso(null);
     try {
       await borrar.mutateAsync(c.id!);
