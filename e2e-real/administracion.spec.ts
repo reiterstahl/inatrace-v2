@@ -27,7 +27,9 @@ test('administración: crear una empresa, abrirla, buscarla, desactivarla y fusi
   await page.getByRole('textbox', { name: 'Nombre' }).fill(nombre);
   await page.getByRole('button', { name: 'Crear y abrir' }).click();
   await expect(page.getByRole('heading', { level: 1, name: nombre })).toBeVisible();
+  await page.getByRole('button', { name: 'Menú de la cuenta' }).click();
   await expect(page.getByRole('combobox', { name: 'Empresa' }).locator('option:checked')).toHaveText(nombre);
+  await page.keyboard.press('Escape');
 
   await page.goto('/v2/administracion/empresas');
   await page.getByRole('searchbox', { name: 'Buscar' }).fill(nombre);

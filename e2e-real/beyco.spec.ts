@@ -1,6 +1,7 @@
 import { test, expect, type Page } from '@playwright/test';
 import { completarNombres, ofertaDesdeCampos } from '../src/util/beyco';
 import { aceptarAviso } from '../e2e/avisos';
+import { elegirEmpresa } from '../e2e/cuenta';
 
 const { INATRACE_USUARIO: usuario = '', INATRACE_CLAVE: clave = '' } = process.env;
 
@@ -18,7 +19,7 @@ async function ingresar(page: Page) {
   await page.getByLabel('Contraseña').fill(clave);
   await page.getByRole('button', { name: 'Ingresar' }).click();
   await expect(page.getByRole('heading', { name: /^Hola/ })).toBeVisible();
-  await page.getByRole('combobox', { name: 'Empresa' }).selectOption({ label: 'Empresa Demo GIZ' });
+  await elegirEmpresa(page, 'Empresa Demo GIZ');
 }
 
 const filaCon = (page: Page, cantidad: string) => page.locator('tbody tr').filter({ has: page.getByRole('cell', { name: new RegExp(`^${cantidad} `) }) });

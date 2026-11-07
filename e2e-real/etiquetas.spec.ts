@@ -1,5 +1,6 @@
 import { test, expect, type Page } from '@playwright/test';
 import { aceptarAviso } from '../e2e/avisos';
+import { elegirEmpresa } from '../e2e/cuenta';
 
 const { INATRACE_USUARIO: usuario = '', INATRACE_CLAVE: clave = '' } = process.env;
 const PNG = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==', 'base64');
@@ -10,7 +11,7 @@ async function ingresar(page: Page) {
   await page.getByLabel('Contraseña').fill(clave);
   await page.getByRole('button', { name: 'Ingresar' }).click();
   await expect(page.getByRole('heading', { name: /^Hola/ })).toBeVisible({ timeout: 15_000 });
-  await page.getByRole('combobox', { name: 'Empresa' }).selectOption({ label: 'Empresa Demo GIZ' });
+  await elegirEmpresa(page, 'Empresa Demo GIZ');
 }
 
 const json = async (r: Promise<{ json: () => Promise<unknown> }>) => (await (await r).json()) as { status: string; data: any }; // eslint-disable-line @typescript-eslint/no-explicit-any

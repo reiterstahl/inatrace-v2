@@ -1,5 +1,6 @@
 import { test, expect, type Page } from '@playwright/test';
 import { aceptarAviso } from '../e2e/avisos';
+import { elegirEmpresa } from '../e2e/cuenta';
 
 const { INATRACE_USUARIO: usuario = '', INATRACE_CLAVE: clave = '' } = process.env;
 
@@ -20,8 +21,7 @@ async function ingresar(page: Page) {
 }
 
 async function comoEmpresa(page: Page, nombre: string) {
-  await page.getByRole('combobox', { name: 'Empresa' }).selectOption({ label: nombre });
-  await expect(page.getByRole('combobox', { name: 'Empresa' })).toHaveValue(/\d+/);
+  await elegirEmpresa(page, nombre);
 }
 
 const filaCon = (page: Page, cantidad: string) => page.locator('tbody tr').filter({ has: page.getByRole('cell', { name: new RegExp(`^${cantidad} `) }) });
