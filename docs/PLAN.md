@@ -1,170 +1,173 @@
-# INATrace v2 — plan del frontend nuevo
+# INATrace v2 — plan for the new frontend
 
-> Iniciativa propia de Rolando QR. **No es parte de los contratos con la GIZ**:
-> no se trabaja con días de esos contratos ni vive en el repo de entrega (`dapdevs/inatrace-enhanced`).
-> Es una mejora que se le ofrece al cliente, que puede tomarla o no.
+**English** · [Español](PLAN.es.md)
+
+> An independent initiative by Rolando QR. **It is not part of the GIZ contracts**: no days from
+> those contracts are spent on it, and it does not live in the delivery repository (`dapdevs/inatrace-enhanced`).
+> It is an improvement offered to the client, who can take it or leave it.
 >
-> Estado: borrador v0.1 · 17.10.2026
+> Status: draft v0.1 · 17 October 2026. This is the original plan; the current status is in the [README](../README.md).
 
 ---
 
-## 1. Qué es y qué no es
+## 1. What it is and what it is not
 
-**Es** una interfaz nueva para INATrace: estética, navegación y experiencia completas desde cero,
-sobre **el mismo backend** (Java 17 / Spring Boot 3.3 / MySQL) y la misma base de datos.
+**It is** a new interface for INATrace: look, navigation and experience built from scratch, on
+**the same backend** (Java 17 / Spring Boot 3.3 / MySQL) and the same database.
 
-**No es** una reescritura de la plataforma. Las reglas de negocio —órdenes de stock, procesamiento,
-transacciones, cadenas de trazabilidad, pagos, EUDR— se quedan en el backend, que ya está
-probado. La v2 las consume por la API existente.
+**It is not** a rewrite of the platform. The business rules (stock orders, processing,
+transactions, traceability chains, payments, EUDR) stay in the backend, which is already
+proven. v2 uses them through the existing API.
 
-Por qué así:
+Why this way:
 
-| | Backend | Frontend actual |
+| | Backend | Current frontend |
 |---|---|---|
-| Tecnología | Java 17 · Spring Boot 3.3 · MySQL 8.4 | Angular 10 · TypeScript 3.9 · Node 14 · Bootstrap 4 |
-| Tamaño | ~50.000 líneas · 92 entidades · 218 endpoints | ~139.000 líneas TS · 223 componentes · ~21.000 HTML |
-| Estado | Moderno; actualizarlo es poco trabajo | 8 versiones mayores atrás; Node 14 sin parches de seguridad |
-| Dónde está el valor | Años de reglas de dominio | — |
-| Dónde está la deuda | — | Estética, versiones, mapa atado a token de Mapbox |
+| Technology | Java 17 · Spring Boot 3.3 · MySQL 8.4 | Angular 10 · TypeScript 3.9 · Node 14 · Bootstrap 4 |
+| Size | ~50,000 lines · 92 entities · 218 endpoints | ~139,000 lines of TS · 223 components · ~21,000 of HTML |
+| State | Modern; keeping it up to date is little work | 8 major versions behind; Node 14 gets no security patches |
+| Where the value is | Years of domain rules | — |
+| Where the debt is | — | Look, versions, a map tied to a Mapbox token |
 
-Reescribir el backend costaría meses solo para volver al punto actual, con riesgo sobre la
-trazabilidad. El frontend es donde está la deuda y donde se nota una v2.
+Rewriting the backend would take months just to get back to where it is today, with risk to
+traceability. The frontend is where the debt is, and where a v2 shows.
 
-## 2. Principios
+## 2. Principles
 
-1. **El backend no cambia por la v2.** Si alguna pantalla nueva necesita algo que la API no da,
-   se agrega al backend como cambio aparte (y queda bajo MPL 2.0, en el repo del backend).
-2. **Convivencia, no corte.** La v2 y la interfaz actual corren a la vez sobre el mismo backend y
-   la misma sesión. Se migra módulo por módulo; lo no migrado sigue en la versión actual.
-3. **Paridad funcional antes que funciones nuevas.** Cada módulo migrado hace al menos todo lo que
-   hacía. Las mejoras de UX van dentro de esa paridad; las funciones nuevas, después.
-4. **Menos pantallas, no las mismas 96 rutas repintadas.** El rediseño junta flujos (ver §6).
-5. **Sin token obligatorio para el mapa.** MapLibre en lugar de Mapbox GL.
-6. **Accesible y usable en campo**: celular, conexión lenta, letra legible, contraste AA.
+1. **The backend does not change for v2.** If a new screen needs something the API does not
+   provide, it is added to the backend as a separate change (under MPL 2.0, in the backend repository).
+2. **Side by side, not a cutover.** v2 and the current interface run at the same time on the same
+   backend and the same session. Migration goes module by module; anything not migrated stays in the
+   current version.
+3. **Feature parity before new features.** Each migrated module does at least everything it did
+   before. UX improvements fit within that parity; new features come later.
+4. **Fewer screens, not the same 96 routes repainted.** The redesign merges flows (see §6).
+5. **No token required for the map.** MapLibre instead of Mapbox GL.
+6. **Accessible and usable in the field**: phones, slow connections, readable text, AA contrast.
 
-## 3. Arquitectura
+## 3. Architecture
 
 ```
-                      mismo dominio (cookie de sesión compartida)
-navegador ──► proxy (nginx) ──┬── /v2/*      → app nueva (estática)
-                              ├── /api/*     → backend Spring (sin cambios)
-                              └── /*         → app Angular actual (lo no migrado)
+                      same domain (shared session cookie)
+browser ──► proxy (nginx) ──┬── /v2/*      → new app (static)
+                            ├── /api/*     → Spring backend (unchanged)
+                            └── /*         → current Angular app (whatever is not migrated)
 ```
 
-| Pieza | Elección | Motivo |
+| Piece | Choice | Reason |
 |---|---|---|
-| Lenguaje | TypeScript estricto | — |
-| UI | React 19 + Vite (SPA estática) | No hace falta servidor propio: el backend ya existe. Se sirve como archivos estáticos detrás del mismo nginx. |
-| Cliente de API | Generado desde el OpenAPI del backend (springdoc) | Tipos exactos de las 218 rutas; se regenera cuando cambia el backend. |
-| Datos del servidor | TanStack Query | Caché, reintentos, estados de carga uniformes. |
-| Formularios | React Hook Form + Zod | Validación tipada; los formularios de stock y procesamiento son grandes. |
-| Rutas | TanStack Router | Rutas tipadas, parámetros validados. |
-| Estilos | Tailwind + componentes propios sobre Radix (estilo shadcn) | Sistema de diseño propio, accesible por base. |
-| Mapa | MapLibre GL | Sin token; consume las mismas capas del catálogo (D1–D4). |
-| Idiomas | Las 4 actuales (en, es, de, rw); se reutilizan las ~3.200 claves existentes donde sirvan | — |
-| Pruebas | Vitest (unidad) + Playwright (flujos completos contra el backend real) | Cada módulo migrado se valida contra la misma base que la versión actual. |
-| Entrega | Imagen propia en GHCR; el proxy decide qué rutas van a cada app | Igual que el resto de los proyectos. |
+| Language | Strict TypeScript | — |
+| UI | React 19 + Vite (static SPA) | No server of its own is needed: the backend already exists. It is served as static files behind the same nginx. |
+| API client | Generated from the backend's OpenAPI spec (springdoc) | Exact types for the 218 routes; regenerated when the backend changes. |
+| Server data | TanStack Query | Caching, retries, consistent loading states. |
+| Forms | React Hook Form + Zod | Typed validation; the stock and processing forms are large. |
+| Routing | TanStack Router | Typed routes, validated parameters. |
+| Styles | Tailwind + own components on Radix (shadcn style) | Own design system, accessible from the ground up. |
+| Map | MapLibre GL | No token; uses the same catalog layers (D1–D4). |
+| Languages | The current 4 (en, es, de, rw); the ~3,200 existing keys are reused where they fit | — |
+| Tests | Vitest (unit) + Playwright (full flows against the real backend) | Each migrated module is validated against the same database as the current version. |
+| Delivery | Own image on GHCR; the proxy decides which routes go to each app | Same as the other projects. |
 
-**Sesión:** el backend autentica con cookie. Servida bajo el mismo dominio, la v2 la comparte sin
-cambios en el backend: quien ingresa en una interfaz está adentro en la otra.
+**Session:** the backend authenticates with a cookie. Served under the same domain, v2 shares it
+with no backend changes: whoever signs in to one interface is signed in to the other.
 
-**Ir y volver entre versiones:** la v2 enlaza a la interfaz actual para lo no migrado, y la actual
-recibe un enlace "Probar la nueva versión" en los módulos ya migrados.
+**Moving between versions:** v2 links to the current interface for whatever is not migrated, and the
+current one gets a "Try the new version" link in the modules already migrated.
 
-## 4. Sistema de diseño (antes que cualquier pantalla)
+## 4. Design system (before any screen)
 
-- Tokens: color, tipografía, espaciado, radios, sombras; tema claro y oscuro.
-- Componentes base: botón, campo, selector, tabla con filtros, tarjeta, modal, panel lateral,
-  pestañas, avisos, estados vacíos, carga, error.
-- Componentes de dominio: ficha de productor, parcela en mapa, lote con su trazabilidad, línea de
-  tiempo de una orden de stock, selector de instalación.
-- Reglas: estado activo con relleno, **nunca con bordes laterales de color**; estados (vencido,
-  pendiente, aprobado) siempre con el mismo color en todo el sistema.
-- Se documenta en un catálogo navegable (Storybook o página propia) para mostrarlo al cliente.
+- Tokens: color, typography, spacing, radii, shadows; light and dark theme.
+- Base components: button, field, select, table with filters, card, modal, side panel, tabs,
+  notices, empty, loading and error states.
+- Domain components: farmer profile, plot on a map, batch with its traceability, timeline of a
+  stock order, facility selector.
+- Rules: active state with a fill, **never with colored side borders**; statuses (overdue,
+  pending, approved) always in the same color across the whole system.
+- Documented in a browsable catalog (Storybook or a page of its own) to show the client.
 
-## 5. Inventario actual (rutas del frontend Angular)
+## 5. Current inventory (Angular frontend routes)
 
-| Módulo | Rutas | Notas |
+| Module | Routes | Notes |
 |---|---|---|
-| Cuenta y acceso | 7 | Ingreso, registro, confirmación, activación, restablecer contraseña, perfil |
-| Inicio y tableros | 2 | `home`, `company-dashboard` |
-| Productores | 4 | Lista, alta, edición (incluye parcelas y mapa), importación |
-| Recolectores | 3 | Lista, alta, edición |
-| Clientes | 3 | Lista, alta, edición |
-| Stock: entregas | 5 | Por instalación, alta individual y masiva, edición |
-| Stock: procesamiento | 4 | Acciones de procesamiento sobre instalaciones |
-| Stock: pagos | 7 | Individuales, masivos, a entregas y a órdenes de cliente |
-| Stock: todo el stock / órdenes | 5 | Vista de órdenes de stock y su trazabilidad |
-| Integración Beyco | 2 | Ofertas |
-| Órdenes | 4 | Recibidas, emitidas, nueva orden de cliente |
-| Empresas | 10 | Ficha, usuarios, instalaciones, acciones de procesamiento |
-| Cadenas de valor | 4 | — |
-| Catálogos del sistema | 7 | Ajustes, tipos, capas de mapa, certificaciones, factores de conversión, monedas |
-| Usuarios del sistema | 2 | — |
-| Productos, etiquetas y lotes | ~19 | Producto, interesados, productos finales, etiquetas, lotes, comentarios, estadísticas, blog |
-| Públicas (consumidor, QR) | ~15 | Recorrido del producto, precios justos, productores, calidad, comentarios, textos legales |
-| **Total** | **~96** | 223 componentes |
+| Account and access | 7 | Sign-in, sign-up, confirmation, activation, password reset, profile |
+| Home and dashboards | 2 | `home`, `company-dashboard` |
+| Farmers | 4 | List, create, edit (including plots and map), import |
+| Collectors | 3 | List, create, edit |
+| Customers | 3 | List, create, edit |
+| Stock: deliveries | 5 | By facility, single and bulk creation, edit |
+| Stock: processing | 4 | Processing actions on facilities |
+| Stock: payments | 7 | Single, bulk, for deliveries and for customer orders |
+| Stock: all stock / orders | 5 | Stock order view and its traceability |
+| Beyco integration | 2 | Offers |
+| Orders | 4 | Received, issued, new customer order |
+| Companies | 10 | Profile, users, facilities, processing actions |
+| Value chains | 4 | — |
+| System codebooks | 7 | Settings, types, map layers, certifications, conversion factors, currencies |
+| System users | 2 | — |
+| Products, labels and batches | ~19 | Product, stakeholders, final products, labels, batches, comments, statistics, blog |
+| Public (consumer, QR) | ~15 | Product journey, fair prices, farmers, quality, comments, legal texts |
+| **Total** | **~96** | 223 components |
 
-Roles a respetar: sistema (`SYSTEM_ADMIN`, `REGIONAL_ADMIN`, `USER`) y empresa
+Roles to respect: system (`SYSTEM_ADMIN`, `REGIONAL_ADMIN`, `USER`) and company
 (`COMPANY_ADMIN`, `MANAGER`, `ACCOUNTANT`, `COMPANY_USER`).
 
-## 6. Fases
+## 6. Phases
 
-Cada fase termina con algo usable en producción, conviviendo con la versión actual.
-El tamaño es relativo (S / M / L / XL); el calendario se fija al cerrar la fase 0.
+Each phase ends with something usable in production, running alongside the current version.
+Size is relative (S / M / L / XL); the schedule is set when phase 0 closes.
 
-| Fase | Contenido | Tamaño | Sale cuando |
+| Phase | Content | Size | Done when |
 |---|---|---|---|
-| **0. Cimientos** | Repo, Vite, cliente generado, proxy de convivencia, sesión compartida, sistema de diseño base, i18n, CI a GHCR, Playwright contra un backend de prueba | M | Ingresar en la v2, ver tu perfil y volver a la versión actual sin perder la sesión |
-| **1. Vitrina pública** | Páginas del consumidor (QR, recorrido del producto, productores, calidad, comentarios) | M | Un QR real abre la página nueva, en celular, en los 4 idiomas |
-| **1b. Activar la vitrina** | Poner la vitrina v2 en una instalación real: imagen publicada, token de registro, proxy de convivencia delante, redirección de los QR impresos y plan de vuelta atrás | S | Un QR impreso de la instalación abre la v2 y su visita suma en las estadísticas |
-| **2. Productores y parcelas** | Lista, ficha, alta, importación, parcelas con mapa MapLibre y capas del catálogo | L | Paridad con la versión actual + mapa sin token |
-| **3. Stock** | Entregas, procesamiento, pagos, todo el stock, trazabilidad de una orden | XL | Un ciclo completo entrega → procesamiento → pago hecho solo en la v2 |
-| **4. Empresa y administración** | Empresas, instalaciones, usuarios, cadenas de valor, catálogos | L | Administrar una instancia sin abrir la versión actual |
-| **5. Productos y etiquetas** | Productos, etiquetas, lotes, estadísticas, blog, recolectores, clientes, órdenes, Beyco | L | Paridad completa |
-| **6. Retiro de Angular** | Quitar la app actual del proxy; redirecciones de rutas viejas | S | Ninguna ruta llega a Angular |
+| **0. Foundations** | Repo, Vite, generated client, side-by-side proxy, shared session, base design system, i18n, CI to GHCR, Playwright against a test backend | M | You can sign in to v2, see your profile and go back to the current version without losing the session |
+| **1. Public product page** | Consumer pages (QR, product journey, farmers, quality, comments) | M | A real QR code opens the new page, on a phone, in all 4 languages |
+| **1b. Switch on the public page** | Put the v2 public page on a real installation: published image, logging token, side-by-side proxy in front, redirect for printed QR codes and a rollback plan | S | A printed QR code from the installation opens v2 and its visit counts in the statistics |
+| **2. Farmers and plots** | List, profile, create, import, plots with a MapLibre map and catalog layers | L | Parity with the current version + a map with no token |
+| **3. Stock** | Deliveries, processing, payments, all stock, traceability of an order | XL | A full delivery → processing → payment cycle done only in v2 |
+| **4. Company and administration** | Companies, facilities, users, value chains, codebooks | L | Running an instance without opening the current version |
+| **5. Products and labels** | Products, labels, batches, statistics, blog, collectors, customers, orders, Beyco | L | Full parity |
+| **6. Retiring Angular** | Remove the current app from the proxy; redirect old routes | S | No route reaches Angular |
 
-**Por qué la vitrina va primero:** son pocas pantallas, no tocan datos sensibles, las ve el
-consumidor final y es donde el cambio de estética se nota más. Sirve como demostración para el
-cliente antes de entrar a lo operativo.
+**Why the public page goes first:** it is a few screens, touches no sensitive data, is seen by the
+end consumer and is where the new look shows the most. It works as a demonstration for the
+client before getting into the operational side.
 
-**Por qué stock va antes que administración:** es el día a día de las cooperativas y donde la
-interfaz actual más cuesta; la administración se usa poco y puede esperar en la versión vieja.
+**Why stock goes before administration:** it is the cooperatives' day-to-day work and where the
+current interface is hardest to use; administration is used rarely and can wait in the old version.
 
-## 7. Calidad
+## 7. Quality
 
-- Cada flujo migrado tiene su prueba Playwright, corrida contra el mismo backend y los mismos datos
-  que la versión actual: si los resultados difieren, la v2 está mal.
-- Presupuesto de rendimiento: primera carga < 200 KB de JS comprimido en las páginas públicas.
-- Accesibilidad: contraste AA, navegación por teclado, etiquetas en todos los campos.
-- Nada de lógica de negocio duplicada en el frontend: cálculos y validaciones de dominio vienen
-  del backend.
+- Every migrated flow has its Playwright test, run against the same backend and the same data as
+  the current version: if the results differ, v2 is wrong.
+- Performance budget: first load < 200 KB of compressed JS on the public pages.
+- Accessibility: AA contrast, keyboard navigation, labels on every field.
+- No business logic duplicated in the frontend: domain calculations and validations come from
+  the backend.
 
-## 8. Riesgos
+## 8. Risks
 
-| Riesgo | Mitigación |
+| Risk | Mitigation |
 |---|---|
-| La API no expone algo que la UI actual arma "a mano" | Detectarlo por módulo en la fase 0 revisando el uso real del cliente generado; agregar al backend como cambio aparte |
-| Divergencia con el INATrace original | El backend no cambia por la v2; la v2 se puede ofrecer también al upstream |
-| Dos interfaces a mantener durante la transición | Fases cortas; congelar mejoras en Angular para lo ya migrado |
-| Trabajo sin contrato | Fase 0 + 1 como inversión propia y demostración; el resto, solo con acuerdo |
-| Confusión de propiedad intelectual con los contratos actuales | Repo propio, horas propias, separado de `inatrace-enhanced` |
+| The API does not expose something the current UI builds "by hand" | Find it per module in phase 0 by reviewing the real use of the generated client; add it to the backend as a separate change |
+| Drifting away from the original INATrace | The backend does not change for v2; v2 can also be offered upstream |
+| Two interfaces to maintain during the transition | Short phases; freeze Angular improvements for whatever is already migrated |
+| Work without a contract | Phases 0 + 1 as own investment and demonstration; the rest only with an agreement |
+| Intellectual property confusion with the current contracts | Own repo, own hours, separate from `inatrace-enhanced` |
 
-## 9. Decisiones
+## 9. Decisions
 
-Tomadas el 19.10.2026:
+Made on 19 October 2026:
 
-1. **Licencia: MPL 2.0**, la misma de INATrace. Facilita que GIZ o el proyecto original la adopten.
-2. **Nombre: INATrace v2.** Claro: es una reinterpretación de INATrace, no otro producto.
-3. **Repo:** `reiterstahl/inatrace-v2`, privado hasta decidir otra cosa.
+1. **License: MPL 2.0**, the same as INATrace. It makes adoption by GIZ or the original project easier.
+2. **Name: INATrace v2.** Clear: it is a reinterpretation of INATrace, not a different product.
+3. **Repo:** `reiterstahl/inatrace-v2`, private until decided otherwise.
 
-Abiertas:
+Open:
 
-4. **Instancia de demostración pública:** más adelante. Hoy hay una copia aislada solo local.
-5. **Upstream:** si y cuándo se conversa con GIZ y con quienes mantienen INATrace.
+4. **Public demo instance:** later. Today there is only an isolated local copy.
+5. **Upstream:** whether and when to talk with GIZ and with the INATrace maintainers.
 
-## 10. Próximo paso sugerido
+## 10. Suggested next step
 
-Fase 0 acotada como prueba de concepto: ingreso + perfil + una página pública de producto, con la
-estética nueva, conviviendo con la versión actual en la instancia de referencia. Con eso hay algo
-concreto que mostrar al cliente antes de comprometer más tiempo.
+A scoped phase 0 as a proof of concept: sign-in + profile + one public product page, with the new
+look, running alongside the current version on the reference instance. That gives something
+concrete to show the client before committing more time.

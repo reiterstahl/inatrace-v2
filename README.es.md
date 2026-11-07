@@ -65,7 +65,7 @@ las dos interfaces **conviven** el tiempo que haga falta. Cuando se decide, el p
 interfaz actual y cada enlace viejo (incluidos los QR ya impresos) lleva a su equivalente en la v2.
 
 Es una iniciativa propia de Rolando QR, separada de los contratos con la GIZ. El plan completo
-está en [docs/PLAN.md](docs/PLAN.md) y el estado detallado, fase por fase, en
+está en [docs/PLAN.es.md](docs/PLAN.es.md) y el estado detallado, fase por fase, en
 [docs/AVANCE.md](docs/AVANCE.md). Versión actual: **2.0.4**.
 
 ## Vistas previas
@@ -287,7 +287,7 @@ inatrace-v2/
 │   ├── estilos/        # tokens de diseño y estilos base
 │   └── rutas.tsx       # árbol de rutas
 ├── e2e/                # pruebas de punta a punta con datos simulados (escritorio y celular)
-├── e2e-real/           # pruebas contra una instalación real (ver e2e-real/README.md)
+├── e2e-real/           # pruebas contra una instalación real (ver e2e-real/README.es.md)
 ├── deploy/
 │   ├── nginx/          # configuración del contenedor (CSP, config en tiempo de ejecución)
 │   └── convivencia/    # proxy + compose para correr junto a la interfaz actual
@@ -363,7 +363,7 @@ Tres niveles, del más rápido al más cercano a producción (cifras al 07.11.20
 ```bash
 pnpm lint && pnpm test && pnpm e2e
 
-# Contra una instalación real (ver e2e-real/README.md para las variables)
+# Contra una instalación real (ver e2e-real/README.es.md para las variables)
 INATRACE_URL=http://localhost:5181 INATRACE_USUARIO=… INATRACE_CLAVE=… \
   pnpm exec playwright test -c playwright.real.config.ts
 ```
@@ -429,13 +429,13 @@ cada uno con prueba de regresión:
 
 ## Documentación
 
-- [docs/PLAN.md](docs/PLAN.md): qué es y qué no es, principios, arquitectura, inventario de la
+- [docs/PLAN.es.md](docs/PLAN.es.md): qué es y qué no es, principios, arquitectura, inventario de la
   interfaz actual, fases y riesgos.
 - [docs/AVANCE.md](docs/AVANCE.md): qué se hizo en cada fase, con sus pruebas, hallazgos y pendientes.
 - [docs/ANTES-Y-DESPUES.md](docs/ANTES-Y-DESPUES.md): la interfaz actual y la v2, pantalla por pantalla y
   con los mismos datos.
 - [deploy/convivencia/](deploy/convivencia/): el proxy, sus variables y las reglas de redirección.
-- [e2e-real/README.md](e2e-real/README.md): cómo correr las pruebas contra una instalación real.
+- [e2e-real/README.es.md](e2e-real/README.es.md): cómo correr las pruebas contra una instalación real.
 
 ## Licencia y créditos
 

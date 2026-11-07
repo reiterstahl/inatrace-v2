@@ -67,7 +67,7 @@ v2 equivalent.
 
 It is an independent initiative by Rolando QR, separate from the GIZ contracts. The full plan is
 in [docs/PLAN.md](docs/PLAN.md) and the detailed status of each phase is in
-[docs/AVANCE.md](docs/AVANCE.md) (both in Spanish). Current version: **2.0.4**.
+[docs/AVANCE.md](docs/AVANCE.md) (in Spanish). Current version: **2.0.4**.
 
 ## Previews
 
@@ -384,7 +384,7 @@ every version tag and on every pull request. From `main` and the tags it also pu
 - **Demo data** (test instances only):
   - `scripts/sembrar-demo.mjs`: a "generate QR" action, a batch with a QR code and a published label.
   - `scripts/sembrar-medios.mjs`: openly licensed photos and a video; credits are in
-    [docs/CREDITOS-DEMO.md](docs/CREDITOS-DEMO.md).
+    [docs/DEMO-CREDITS.md](docs/DEMO-CREDITS.md).
   - Other `scripts/sembrar-*.mjs` seed processing, orders, currencies and products.
 
 ## Security
@@ -430,13 +430,10 @@ a regression test:
 
 - [docs/BEFORE-AND-AFTER.md](docs/BEFORE-AND-AFTER.md): the current interface and v2, screen by screen,
   with the same data.
-
-These documents are in Spanish:
-
-- [docs/PLAN.md](docs/PLAN.md): what v2 is and is not, principles, architecture, inventory of the
-  current interface, phases and risks.
-- [docs/AVANCE.md](docs/AVANCE.md): what was done in each phase, with its tests, findings and open items.
+- [docs/PLAN.md](docs/PLAN.md): the original plan: what v2 is and is not, principles, architecture,
+  inventory of the current interface, phases and risks.
 - [e2e-real/README.md](e2e-real/README.md): how to run the tests against a real installation.
+- [docs/AVANCE.md](docs/AVANCE.md) (in Spanish): what was done in each phase, with its tests, findings and open items.
 - [deploy/convivencia/](deploy/convivencia/): the proxy, its variables and the redirect rules (comments in Spanish).
 
 ## License and credits
@@ -447,4 +444,4 @@ calculation and the German and Kinyarwanda translations, imported from its langu
 distributed under the same terms. INATrace is a project of GIZ and its contributors, now maintained
 at [AgStack](https://github.com/agstack).
 
-The demo photos have their own licenses: see [docs/CREDITOS-DEMO.md](docs/CREDITOS-DEMO.md).
+The demo photos have their own licenses: see [docs/DEMO-CREDITS.md](docs/DEMO-CREDITS.md).

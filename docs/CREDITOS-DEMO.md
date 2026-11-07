@@ -1,5 +1,7 @@
 # Créditos de los medios de demostración
 
+[English](DEMO-CREDITS.md) · **Español**
+
 Fotos con licencia libre, tomadas de Wikimedia Commons, usadas **solo para la demostración**
 (`scripts/sembrar-medios.mjs`). Se reemplazan por las fotos propias de cada productor. Las leyendas
 describen lo que se ve; no identifican a las personas que aparecen.
