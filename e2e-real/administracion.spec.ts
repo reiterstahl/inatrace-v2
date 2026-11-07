@@ -20,7 +20,10 @@ test('administración: crear una empresa, abrirla, buscarla, desactivarla y fusi
   await ingresar(page);
   await page.getByRole('navigation', { name: 'Principal' }).getByRole('link', { name: 'Administración' }).click();
   await expect(page.getByRole('heading', { level: 1, name: 'Administración' })).toBeVisible();
+  // Cada corrida suma empresas de prueba: se busca para no depender de la primera página.
+  await page.getByRole('searchbox', { name: 'Buscar' }).fill('Empresa Demo GIZ');
   await expect(page.getByRole('listitem', { name: 'Empresa Demo GIZ' })).toContainText('Activa');
+  await page.getByRole('searchbox', { name: 'Buscar' }).fill('');
 
   const nombre = 'E2E Admin ' + Date.now().toString().slice(-6);
   await page.getByRole('button', { name: 'Nueva empresa' }).click();

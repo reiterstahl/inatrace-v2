@@ -18,6 +18,7 @@ test.describe('entregas contra el backend real', () => {
     await page.goto('/v2/stock/entregas/nueva');
     await expect(page.getByRole('heading', { name: 'Nueva entrega' })).toBeVisible();
     await expect(page.getByText('Hay cambios sin guardar.')).toHaveCount(0); // recién abierta
+    await page.getByRole('combobox', { name: /^Instalación/ }).selectOption({ label: 'Centro de acopio — Bodega Demo' }); // hay más de un centro de acopio
 
     // Productor: buscador accesible (flechas + Enter).
     const buscador = page.getByRole('combobox', { name: /^Productor/ });
@@ -81,6 +82,7 @@ test.describe('entregas contra el backend real', () => {
   test('entrega masiva: dos productores de una vez', async ({ page }) => {
     await page.goto('/v2/stock/entregas/masiva');
     await expect(page.getByRole('heading', { name: 'Entrega masiva' })).toBeVisible();
+    await page.getByRole('combobox', { name: /^Instalación/ }).selectOption({ label: 'Centro de acopio — Bodega Demo' }); // hay más de un centro de acopio
     await page.getByRole('combobox', { name: /^Moneda/ }).fill('USD');
     await page.getByRole('combobox', { name: /^Forma de pago/ }).selectOption({ label: 'Efectivo' });
 
@@ -119,6 +121,7 @@ test.describe('todo el stock y trazabilidad contra el backend real', () => {
   test('una entrega aparece en el stock (suelta y agrupada), su trazabilidad y se borra desde ahí', async ({ page }) => {
     // Crear una entrega en la instalación de acopio.
     await page.goto('/v2/stock/entregas/nueva');
+    await page.getByRole('combobox', { name: /^Instalación/ }).selectOption({ label: 'Centro de acopio — Bodega Demo' }); // hay más de un centro de acopio
     const buscador = page.getByRole('combobox', { name: /^Productor/ });
     await buscador.fill('a');
     const op = page.getByRole('listbox').getByRole('option').first();
@@ -134,7 +137,7 @@ test.describe('todo el stock y trazabilidad contra el backend real', () => {
 
     // Verla en Todo el stock.
     await page.goto('/v2/stock/todo');
-    await page.getByRole('combobox', { name: 'Instalación' }).selectOption({ index: 1 });
+    await page.getByRole('combobox', { name: 'Instalación' }).selectOption({ label: 'Centro de acopio — Bodega Demo' });
     const fila = page.locator('tbody tr').filter({ hasText: '333' }).first();
     await expect(fila).toBeVisible();
     await expect(fila).toContainText('Compra');
@@ -151,7 +154,7 @@ test.describe('todo el stock y trazabilidad contra el backend real', () => {
 
     // Borrarla desde el stock.
     await page.goto('/v2/stock/todo');
-    await page.getByRole('combobox', { name: 'Instalación' }).selectOption({ index: 1 });
+    await page.getByRole('combobox', { name: 'Instalación' }).selectOption({ label: 'Centro de acopio — Bodega Demo' });
     await aceptarAviso(page);
     await page.locator('tbody tr').filter({ hasText: '333' }).first().getByRole('button', { name: 'Borrar entrega' }).click();
     await expect(page.locator('tbody tr').filter({ hasText: '333' })).toHaveCount(0);

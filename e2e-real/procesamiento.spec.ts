@@ -27,6 +27,7 @@ test.describe('procesamiento contra el backend real', () => {
 
     // 1. Entrega de café pergamino.
     await page.goto('/v2/stock/entregas/nueva');
+    await page.getByRole('combobox', { name: /^Instalación/ }).selectOption({ label: 'Centro de acopio — Bodega Demo' }); // hay más de un centro de acopio
     const buscador = page.getByRole('combobox', { name: /^Productor/ });
     await buscador.fill('a');
     await expect(page.getByRole('listbox').getByRole('option').first()).toBeVisible();
@@ -82,7 +83,7 @@ test.describe('procesamiento contra el backend real', () => {
 
     // 7. Limpieza: borrar la entrega.
     await page.goto('/v2/stock/todo');
-    await page.getByRole('combobox', { name: 'Instalación' }).selectOption({ index: 1 });
+    await page.getByRole('combobox', { name: 'Instalación' }).selectOption({ label: 'Centro de acopio — Bodega Demo' });
     await aceptarAviso(page);
     await filaCon(page, bruto).first().getByRole('button', { name: 'Borrar entrega' }).click();
     await expect(filaCon(page, bruto)).toHaveCount(0);
@@ -94,6 +95,7 @@ test.describe('procesamiento contra el backend real', () => {
 
     // Entrega de café oro/verde, que es lo que toma "Generar QR (demo)".
     await page.goto('/v2/stock/entregas/nueva');
+    await page.getByRole('combobox', { name: /^Instalación/ }).selectOption({ label: 'Centro de acopio — Bodega Demo' }); // hay más de un centro de acopio
     const buscador = page.getByRole('combobox', { name: /^Productor/ });
     await buscador.fill('a');
     await expect(page.getByRole('listbox').getByRole('option').first()).toBeVisible();

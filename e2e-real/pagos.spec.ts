@@ -17,6 +17,7 @@ const filaCon = (page: Page, cantidad: string) => page.locator('tbody tr').filte
 /** Entrega de María Rodríguez (se busca por apellido) con un peso único para reconocerla. */
 async function crearEntrega(page: Page, bruto: string) {
   await page.goto('/v2/stock/entregas/nueva');
+  await page.getByRole('combobox', { name: /^Instalación/ }).selectOption({ label: 'Centro de acopio — Bodega Demo' }); // hay más de un centro de acopio
   const buscador = page.getByRole('combobox', { name: /^Productor/ });
   await buscador.fill('Rodr');
   await expect(page.getByRole('listbox').getByRole('option', { name: /María Rodríguez/ })).toBeVisible();
@@ -31,7 +32,7 @@ async function crearEntrega(page: Page, bruto: string) {
 
 async function borrarEntrega(page: Page, bruto: string) {
   await page.goto('/v2/stock/todo');
-  await page.getByRole('combobox', { name: 'Instalación' }).selectOption({ index: 1 });
+  await page.getByRole('combobox', { name: 'Instalación' }).selectOption({ label: 'Centro de acopio — Bodega Demo' });
   await aceptarAviso(page);
   await filaCon(page, bruto).first().getByRole('button', { name: 'Borrar entrega' }).click();
   await expect(filaCon(page, bruto)).toHaveCount(0);

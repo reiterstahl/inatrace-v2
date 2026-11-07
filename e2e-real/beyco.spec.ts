@@ -42,6 +42,7 @@ test('Beyco: salida y vuelta con state, error limpio sin Beyco, y precarga de la
 
   // 1. Un lote de café oro en la instalación pública.
   await page.goto('/v2/stock/entregas/nueva');
+  await page.getByRole('combobox', { name: /^Instalación/ }).selectOption({ label: 'Centro de acopio — Bodega Demo' }); // hay más de un centro de acopio
   const buscador = page.getByRole('combobox', { name: /^Productor/ });
   await buscador.fill('Rodr');
   await expect(page.getByRole('listbox').getByRole('option', { name: /María Rodríguez/ })).toBeVisible();

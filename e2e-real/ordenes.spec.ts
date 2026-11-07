@@ -35,6 +35,7 @@ test('pedido entre empresas: pedir, completar con stock del proveedor, aprobar, 
   // 1. La productora tiene café oro en su instalación pública.
   await comoEmpresa(page, PRODUCTORA);
   await page.goto('/v2/stock/entregas/nueva');
+  await page.getByRole('combobox', { name: /^Instalación/ }).selectOption({ label: 'Centro de acopio — Bodega Demo' }); // hay más de un centro de acopio
   const buscador = page.getByRole('combobox', { name: /^Productor/ });
   await buscador.fill('Rodr');
   await expect(page.getByRole('listbox').getByRole('option', { name: /María Rodríguez/ })).toBeVisible();
@@ -127,7 +128,8 @@ test('pedido de cliente: la exportadora lo crea, la productora lo recibe y se bo
   await page.getByLabel(/^Fecha límite de entrega/).fill('2026-12-20');
   const item = page.getByRole('group', { name: 'Producto 1' });
   await item.getByRole('combobox', { name: /^Producto final/ }).selectOption({ index: 1 });
-  await expect(item.getByRole('combobox', { name: /^Pedir a/ })).toHaveValue(/\d+/); // la única vendedora, elegida sola
+  // Con más de una vendedora no se elige sola: se pide a la bodega de la productora.
+  await item.getByRole('combobox', { name: /^Pedir a/ }).selectOption({ label: 'Empresa Demo GIZ — Centro de acopio — Bodega Demo' });
   await item.getByRole('textbox', { name: /^Cantidad pedida/ }).fill('10');
   await item.getByRole('textbox', { name: /^Precio por unidad al cliente/ }).fill('250');
   await item.getByRole('textbox', { name: /^Moneda/ }).fill('USD');
