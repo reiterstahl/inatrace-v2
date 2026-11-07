@@ -5,6 +5,7 @@ import { consultas, useGuardarPerfil } from '@/api/consultas';
 import { Boton } from '@/componentes/ui/Boton';
 import { Campo, Selector } from '@/componentes/ui/Campo';
 import { Aviso } from '@/componentes/ui/Estados';
+import { InterruptorTema } from '@/componentes/ui/Preferencias';
 import { IDIOMAS, aApi, cambiarIdioma, deApi, type Idioma } from '@/i18n';
 
 export function Perfil() {
@@ -24,7 +25,13 @@ export function Perfil() {
 
   return (
     <div className="max-w-2xl">
-      <h1 className="font-titulo text-3xl font-semibold tracking-tight">{t('perfil.titulo')}</h1>
+      <div className="flex items-center justify-between gap-3">
+        <h1 className="font-titulo text-3xl font-semibold tracking-tight">{t('perfil.titulo')}</h1>
+        {/* En el celular la barra no tiene lugar para el tema: queda acá. */}
+        <div className="sm:hidden">
+          <InterruptorTema />
+        </div>
+      </div>
 
       <form onSubmit={enviar} className="mt-8 grid gap-6 rounded-caja border border-linea bg-superficie p-6 shadow-suave">
         <h2 className="font-semibold">{t('perfil.datos')}</h2>

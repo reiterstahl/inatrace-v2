@@ -34,18 +34,19 @@ export function Marco() {
   return (
     <div className="min-h-dvh">
       <header className="sticky top-0 z-20 border-b border-linea bg-superficie/90 backdrop-blur">
-        <div className="mx-auto flex h-16 max-w-6xl items-center gap-2 px-3 sm:gap-4 sm:px-6">
+        <div className="mx-auto flex h-16 max-w-6xl items-center gap-1.5 px-3 sm:gap-4 sm:px-6">
           <Link to="/" aria-label="INATrace">
             <Logo compacto />
           </Link>
-          <nav className="flex items-center gap-1" aria-label="Principal">
+          {/* En un celular angosto la navegación se desliza en vez de ensanchar la página. */}
+          <nav className="flex min-w-0 items-center gap-0.5 overflow-x-auto [scrollbar-width:none] sm:gap-1" aria-label="Principal">
             {NAV.filter((n) => !n.admin || admin).map((n) => (
               <Link
                 key={n.to}
                 to={n.to}
                 aria-label={t(n.clave)}
                 title={admin ? t(n.clave) : undefined}
-                className="inline-flex h-9 items-center gap-2 rounded-lg px-2.5 text-sm font-medium text-tinta-2 hover:bg-superficie-2 hover:text-tinta sm:px-3"
+                className="inline-flex h-9 shrink-0 items-center gap-2 rounded-lg px-2 text-sm font-medium text-tinta-2 hover:bg-superficie-2 hover:text-tinta sm:px-3"
                 activeProps={{ className: 'bg-marca-suave !text-marca' }}
                 activeOptions={{ exact: !!n.exacto }}
               >
@@ -64,13 +65,16 @@ export function Marco() {
               </>
             )}
           </nav>
-          <div className="ml-auto flex items-center gap-1">
+          <div className="ml-auto flex shrink-0 items-center gap-1">
             <SelectorEmpresa />
             {/* Envuelto: el propio selector es inline-flex y le ganaría a un "hidden". */}
             <div className="hidden sm:block">
               <SelectorIdioma />
             </div>
-            <InterruptorTema />
+            {/* En el celular el tema se cambia desde el perfil. */}
+            <div className="hidden sm:block">
+              <InterruptorTema />
+            </div>
             {/* El avatar lleva al perfil (en el celular no hay lugar para otra entrada en la barra). */}
             <Link
               to="/perfil"
