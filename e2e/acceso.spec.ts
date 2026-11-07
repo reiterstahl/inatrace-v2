@@ -19,9 +19,16 @@ test.describe('portal y sesión', () => {
     await page.getByLabel('Contraseña').fill('demo1234');
     await page.getByRole('button', { name: 'Ingresar' }).click();
     await expect(page.getByRole('heading', { name: 'Hola, Ana' })).toBeVisible();
-    // Los módulos, cada uno con su entrada (la administración solo aparece a quien administra).
-    await expect(page.getByRole('link', { name: 'Abrir' })).toHaveCount(4);
+    // Los módulos: cada tarjeta entera es la entrada (la administración solo aparece a quien administra).
+    const modulos = page.locator('main section').filter({ has: page.getByRole('heading', { name: 'Módulos' }) }).getByRole('link');
+    await expect(modulos).toHaveCount(5);
     await expect(page.getByText('Administración', { exact: true })).toHaveCount(0);
+    // La vitrina abre, en otra pestaña, la primera etiqueta publicada.
+    const vitrina = page.getByRole('link', { name: /Vitrina pública del producto/ });
+    await expect(vitrina).toHaveAttribute('href', /\/p-cd\/etiqueta-tienda\/EMPTY$/);
+    await expect(vitrina).toHaveAttribute('target', '_blank');
+    await page.getByRole('link', { name: /Productores y parcelas/ }).click();
+    await expect(page).toHaveURL(/\/productores$/);
 
     await page.getByRole('link', { name: 'Mi perfil' }).click();
     await page.getByLabel('Apellido').fill('Prueba');

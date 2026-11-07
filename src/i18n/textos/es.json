@@ -42,6 +42,7 @@
     "bienvenida": "Esta es la nueva interfaz de INATrace: productores, stock, productos y etiquetas, la empresa y la administración, todo acá.",
     "modulos": "Módulos",
     "abrir": "Abrir",
+    "pestana_nueva": "se abre en otra pestaña",
     "modulo": {
       "vitrina": "Vitrina pública del producto",
       "vitrina_desc": "Lo que ve el consumidor al escanear el QR.",

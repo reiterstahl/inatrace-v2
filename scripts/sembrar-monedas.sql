@@ -3,6 +3,8 @@
 -- llave la tabla queda vacía y ninguna empresa puede elegir su moneda base (la ficha la exige).
 -- Idempotente. Uso:
 --   docker exec -i v2demo-db-1 sh -c 'mysql -uroot -p"$MYSQL_ROOT_PASSWORD" $MYSQL_DATABASE' < scripts/sembrar-monedas.sql
+-- El cliente mysql usa latin1 por defecto: sin esto, «Colón» se guarda doblemente codificado («ColÃ³n»).
+SET NAMES utf8mb4;
 INSERT INTO CurrencyType (code, label, enabled)
 SELECT v.code, v.label, TRUE
 FROM (

@@ -1,7 +1,7 @@
 {
   "name": "inatrace-v2",
   "private": true,
-  "version": "2.0.6",
+  "version": "2.0.7",
   "type": "module",
   "packageManager": "pnpm@9.15.4",
   "scripts": {

@@ -42,6 +42,7 @@
     "bienvenida": "This is the new INATrace interface: farmers, stock, products and labels, the company and administration, all here.",
     "modulos": "Modules",
     "abrir": "Open",
+    "pestana_nueva": "opens in a new tab",
     "modulo": {
       "vitrina": "Public product page",
       "vitrina_desc": "What consumers see when they scan the QR code.",
