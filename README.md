@@ -65,7 +65,7 @@ session and they can **run side by side** for as long as needed. When the time c
 retires the current interface and every old link (including QR codes already printed) leads to its
 v2 equivalent.
 
-It is an independent initiative by Rolando Quirós, separate from the GIZ contracts. The full plan is
+It is an independent initiative by Rolando QR, separate from the GIZ contracts. The full plan is
 in [docs/PLAN.md](docs/PLAN.md) and the detailed status of each phase is in
 [docs/AVANCE.md](docs/AVANCE.md) (both in Spanish). Current version: **2.0.4**.
 

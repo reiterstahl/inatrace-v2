@@ -1,6 +1,6 @@
 # INATrace v2 — plan del frontend nuevo
 
-> Iniciativa propia de Rolando Quirós. **No es parte de los contratos GIZ 4500039135 ni 4500042348**:
+> Iniciativa propia de Rolando QR. **No es parte de los contratos GIZ 4500039135 ni 4500042348**:
 > no se trabaja con días de esos contratos ni vive en el repo de entrega (`dapdevs/inatrace-enhanced`).
 > Es una mejora que se le ofrece al cliente, que puede tomarla o no.
 >

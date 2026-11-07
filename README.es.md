@@ -64,7 +64,7 @@ El cambio puede ser gradual: un proxy reparte las rutas en un mismo dominio, la 
 las dos interfaces **conviven** el tiempo que haga falta. Cuando se decide, el proxy retira la
 interfaz actual y cada enlace viejo (incluidos los QR ya impresos) lleva a su equivalente en la v2.
 
-Es una iniciativa propia de Rolando Quirós, separada de los contratos con la GIZ. El plan completo
+Es una iniciativa propia de Rolando QR, separada de los contratos con la GIZ. El plan completo
 está en [docs/PLAN.md](docs/PLAN.md) y el estado detallado, fase por fase, en
 [docs/AVANCE.md](docs/AVANCE.md). Versión actual: **2.0.4**.
 
