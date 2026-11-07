@@ -5,8 +5,8 @@ import { consultas, useGuardarPerfil } from '@/api/consultas';
 import { Boton } from '@/componentes/ui/Boton';
 import { Campo, Selector } from '@/componentes/ui/Campo';
 import { Aviso } from '@/componentes/ui/Estados';
-import { InterruptorTema } from '@/componentes/ui/Preferencias';
 import { SelectorTema } from '@/componentes/ui/SelectorTema';
+import { SelectorAvatar } from '@/componentes/ui/SelectorAvatar';
 import { IDIOMAS, aApi, cambiarIdioma, deApi, type Idioma } from '@/i18n';
 
 export function Perfil() {
@@ -26,13 +26,7 @@ export function Perfil() {
 
   return (
     <div className="max-w-2xl">
-      <div className="flex items-center justify-between gap-3">
-        <h1 className="font-titulo text-3xl font-semibold tracking-tight">{t('perfil.titulo')}</h1>
-        {/* En el celular la barra no tiene lugar para el tema: queda acá. */}
-        <div className="sm:hidden">
-          <InterruptorTema />
-        </div>
-      </div>
+      <h1 className="font-titulo text-3xl font-semibold tracking-tight">{t('perfil.titulo')}</h1>
 
       <form onSubmit={enviar} className="mt-8 grid gap-6 rounded-caja border border-linea bg-superficie p-6 shadow-suave">
         <h2 className="font-semibold">{t('perfil.datos')}</h2>
@@ -63,6 +57,14 @@ export function Perfil() {
           </Boton>
         </div>
       </form>
+
+      <section aria-labelledby="perfil-avatar" className="mt-6 grid gap-5 rounded-caja border border-linea bg-superficie p-6 shadow-suave">
+        <div>
+          <h2 id="perfil-avatar" className="font-semibold">{t('perfil.avatar.titulo')}</h2>
+          <p className="mt-1 text-sm text-tinta-2">{t('perfil.avatar.ayuda')}</p>
+        </div>
+        <SelectorAvatar cuenta={String(yo.id ?? yo.email ?? '')} />
+      </section>
 
       <section aria-labelledby="perfil-apariencia" className="mt-6 grid gap-5 rounded-caja border border-linea bg-superficie p-6 shadow-suave">
         <div>

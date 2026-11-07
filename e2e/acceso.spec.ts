@@ -30,7 +30,9 @@ test.describe('portal y sesión', () => {
     await page.getByRole('link', { name: /Productores y parcelas/ }).click();
     await expect(page).toHaveURL(/\/productores$/);
 
-    await page.getByRole('link', { name: 'Mi perfil' }).click();
+    // Empresa, idioma, tema y perfil están en el menú del avatar.
+    await page.getByRole('button', { name: 'Menú de la cuenta' }).click();
+    await page.getByRole('link', { name: 'Configurar perfil' }).click();
     await page.getByLabel('Apellido').fill('Prueba');
     await page.getByRole('button', { name: 'Guardar' }).click();
     await expect(page.getByText('Cambios guardados')).toBeVisible();

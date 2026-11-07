@@ -5,7 +5,7 @@ import { Icono } from './Icono';
 
 /**
  * Avisos y confirmaciones propios, en lugar de window.confirm/alert: usan los colores y el idioma
- * de la plataforma, y se destacan del fondo (claro u oscuro) con un halo difuminado.
+ * de la plataforma, sobre un fondo atenuado y desenfocado.
  * Se llaman como funciones: `if (!(await confirmar(texto, { accion: 'eliminar' }))) return;`
  */
 export type Accion = 'confirmar' | 'eliminar' | 'quitar' | 'desactivar' | 'continuar' | 'salir';

@@ -63,7 +63,8 @@ test.describe('administración (modo simulado)', () => {
     await page.getByRole('button', { name: 'Crear y abrir' }).click();
     await expect(page).toHaveURL(/\/empresa$/);
     await expect(page.getByRole('heading', { level: 1, name: 'Beneficio Las Nubes' })).toBeVisible();
-    // Queda elegida arriba, junto a las empresas de la persona.
+    // Queda elegida en el menú de la cuenta, junto a las empresas de la persona.
+    await page.getByRole('button', { name: 'Menú de la cuenta' }).click();
     await expect(page.getByRole('combobox', { name: 'Empresa' })).toHaveValue(/\d+/);
     await expect(page.getByRole('combobox', { name: 'Empresa' }).locator('option:checked')).toHaveText('Beneficio Las Nubes');
 

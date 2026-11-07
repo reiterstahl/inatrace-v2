@@ -158,8 +158,8 @@
   }
 }
 
-/* Avisos y confirmaciones (Confirmar.tsx): el fondo se atenúa y difumina, y un halo suave del color
-   de la marca separa el aviso del fondo, sea claro u oscuro. */
+/* Avisos y confirmaciones (Confirmar.tsx): el fondo se atenúa y se desenfoca para que el aviso
+   destaque, sea el tema claro u oscuro. */
 .aviso-modal {
   margin: auto;
   width: min(28rem, calc(100vw - 2rem));
@@ -169,10 +169,7 @@
   border-radius: var(--radius-caja);
   background: var(--superficie);
   color: var(--tinta);
-  box-shadow:
-    0 0 0 6px color-mix(in srgb, var(--marca) 10%, transparent),
-    0 0 48px 6px color-mix(in srgb, var(--marca) 24%, transparent),
-    0 24px 60px -16px rgb(0 0 0 / 0.45);
+  box-shadow: 0 24px 60px -16px rgb(0 0 0 / 0.45);
 }
 .aviso-modal[open] {
   animation: aviso-entra 160ms ease-out;

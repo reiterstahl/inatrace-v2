@@ -71,7 +71,13 @@
     "empresa": "Company",
     "stock": "Stock",
     "productos": "Products",
-    "administracion": "Administration"
+    "administracion": "Administration",
+    "menu_usuario": "Account menu",
+    "configurar_perfil": "Profile settings",
+    "tema": "Theme",
+    "colores": "Colors",
+    "modo_claro": "Light",
+    "modo_oscuro": "Dark"
   },
   "perfil": {
     "titulo": "My profile",
@@ -112,6 +118,31 @@
         "ciruela": "Plum",
         "brasa": "Ember",
         "cacao": "Cacao"
+      }
+    },
+    "avatar": {
+      "titulo": "Profile picture",
+      "ayuda": "A seed in a color. Every account has a default one; you can choose another. It is saved in this browser.",
+      "semilla": "Seed",
+      "color": "Color",
+      "azar": "Random",
+      "semillas": {
+        "cafe": "Coffee",
+        "cacao": "Cacao",
+        "maiz": "Corn",
+        "frijol": "Bean",
+        "girasol": "Sunflower",
+        "brote": "Sprout"
+      },
+      "colores": {
+        "tierra": "Earth",
+        "hoja": "Leaf",
+        "mar": "Sea",
+        "teja": "Clay",
+        "uva": "Grape",
+        "laguna": "Lagoon",
+        "vino": "Wine",
+        "olivo": "Olive"
       }
     }
   },

@@ -71,7 +71,13 @@
     "empresa": "Empresa",
     "stock": "Stock",
     "productos": "Productos",
-    "administracion": "Administración"
+    "administracion": "Administración",
+    "menu_usuario": "Menú de la cuenta",
+    "configurar_perfil": "Configurar perfil",
+    "tema": "Tema",
+    "colores": "Colores",
+    "modo_claro": "Claro",
+    "modo_oscuro": "Oscuro"
   },
   "perfil": {
     "titulo": "Mi perfil",
@@ -112,6 +118,31 @@
         "ciruela": "Ciruela",
         "brasa": "Brasa",
         "cacao": "Cacao"
+      }
+    },
+    "avatar": {
+      "titulo": "Imagen de perfil",
+      "ayuda": "Una semilla en un color. Cada cuenta tiene una por defecto; puedes elegir otra. Se guarda en este navegador.",
+      "semilla": "Semilla",
+      "color": "Color",
+      "azar": "Otra al azar",
+      "semillas": {
+        "cafe": "Café",
+        "cacao": "Cacao",
+        "maiz": "Maíz",
+        "frijol": "Frijol",
+        "girasol": "Girasol",
+        "brote": "Brote"
+      },
+      "colores": {
+        "tierra": "Tierra",
+        "hoja": "Hoja",
+        "mar": "Mar",
+        "teja": "Teja",
+        "uva": "Uva",
+        "laguna": "Laguna",
+        "vino": "Vino",
+        "olivo": "Olivo"
       }
     }
   },

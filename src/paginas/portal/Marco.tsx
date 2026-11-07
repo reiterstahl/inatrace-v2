@@ -3,9 +3,9 @@ import { useSuspenseQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { consultas, useSalir } from '@/api/consultas';
 import { Icono, type NombreIcono } from '@/componentes/ui/Icono';
-import { InterruptorTema, Logo, SelectorIdioma } from '@/componentes/ui/Preferencias';
+import { Logo } from '@/componentes/ui/Preferencias';
 import { enAnterior, hayAnterior } from '@/util/entorno';
-import { SelectorEmpresa } from '@/componentes/SelectorEmpresa';
+import { MenuUsuario } from '@/componentes/MenuUsuario';
 import { esAdministracion } from '@/util/administracion';
 
 const NAV: { to: '/' | '/productores' | '/stock' | '/productos' | '/empresa' | '/administracion'; clave: string; icono: NombreIcono; exacto?: boolean; admin?: true }[] = [
@@ -24,7 +24,6 @@ export function Marco() {
   const navegar = useNavigate();
   const admin = esAdministracion(yo.role);
   const nombre = [yo.name, yo.surname].filter(Boolean).join(' ') || yo.email || '';
-  const iniciales = nombre.split(/\s+/).map((p) => p[0]).slice(0, 2).join('').toUpperCase();
 
   async function cerrar() {
     await salir.mutateAsync().catch(() => undefined);
@@ -66,25 +65,8 @@ export function Marco() {
             )}
           </nav>
           <div className="ml-auto flex min-w-0 items-center gap-1">
-            <SelectorEmpresa />
-            {/* Envuelto: el propio selector es inline-flex y le ganaría a un "hidden". */}
-            <div className="hidden md:block">
-              <SelectorIdioma />
-            </div>
-            {/* En el celular el tema se cambia desde el perfil. */}
-            <div className="hidden sm:block">
-              <InterruptorTema />
-            </div>
-            {/* El avatar lleva al perfil (en el celular no hay lugar para otra entrada en la barra). */}
-            <Link
-              to="/perfil"
-              className="grid size-9 shrink-0 place-items-center rounded-full bg-acento-suave text-sm font-bold text-acento ring-marca hover:ring-2 sm:ml-2"
-              activeProps={{ className: 'ring-2' }}
-              title={`${t('portal.perfil')} · ${nombre}`}
-              aria-label={t('portal.perfil')}
-            >
-              {iniciales || '·'}
-            </Link>
+            {/* Empresa, idioma, tema y perfil viven en el menú del avatar. */}
+            <MenuUsuario cuenta={String(yo.id ?? yo.email ?? '')} nombre={nombre} correo={yo.email} alSalir={cerrar} />
             <button type="button" onClick={cerrar} className="grid size-9 place-items-center rounded-lg text-tinta-2 hover:bg-superficie-2" title={t('portal.salir')} aria-label={t('portal.salir')}>
               <Icono nombre="salir" className="size-[1.1rem]" />
             </button>
