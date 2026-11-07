@@ -30,6 +30,18 @@ export function etiquetaPeriodo(unidad: string | undefined, anio: number | undef
   return u || String(anio ?? '');
 }
 
+/** El backend no devuelve los períodos en orden: se ordenan por año y luego por mes, semana o día. */
+export function ordenarPeriodos<T extends { unit?: string; year?: number }>(lista: T[]): T[] {
+  const num = (u?: string) => (u !== undefined && u !== '' && Number.isFinite(Number(u)) ? Number(u) : null);
+  return [...lista].sort((a, b) => {
+    const anio = (a.year ?? 0) - (b.year ?? 0);
+    if (anio) return anio;
+    const x = num(a.unit);
+    const y = num(b.unit);
+    return x !== null && y !== null ? x - y : String(a.unit ?? '').localeCompare(String(b.unit ?? ''));
+  });
+}
+
 /** Hoy y la misma fecha dos años antes (el rango inicial de la versión actual), como AAAA-MM-DD. */
 export function rangoInicial(hoy = new Date()): { desde: string; hasta: string } {
   const f = (d: Date) => d.toISOString().slice(0, 10);

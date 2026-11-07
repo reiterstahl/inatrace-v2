@@ -14,7 +14,7 @@ import { Icono } from '@/componentes/ui/Icono';
 import { useEmpresaActual } from '@/util/empresa';
 import { nombreInstalacion } from '@/util/instalacion';
 import { nombreAccion } from '@/util/accion';
-import { MAX_PERIODOS, agrupacionPara, etiquetaPeriodo, rangoInicial } from '@/util/tablero';
+import { MAX_PERIODOS, agrupacionPara, etiquetaPeriodo, ordenarPeriodos, rangoInicial } from '@/util/tablero';
 import { Casilla, Tarjeta } from '../productos/piezas';
 
 const FORMATOS: Formato[] = ['EXCEL', 'CSV', 'PDF'];
@@ -116,7 +116,7 @@ function Entregas({ empresa }: { empresa: number }) {
     aggregationType: agrupacion,
   };
   const datos = useQuery({ ...tablero.entregas(filtro), enabled: lugares.length > 0 });
-  const totales = datos.data?.totals ?? [];
+  const totales = ordenarPeriodos(datos.data?.totals ?? []);
   const periodos = totales.map((x) => etiquetaPeriodo(x.unit, x.year, agrupacion, idioma, t('tablero.semana')));
 
   return (
@@ -199,7 +199,7 @@ function Rendimiento({ empresa }: { empresa: number }) {
     evidenceFields: (accion?.requiredEvidenceFields ?? []).filter((c) => campos[c.fieldName ?? '']?.trim()).map((c) => filtroCampo(c, campos[c.fieldName!]!.trim())),
   };
   const datos = useQuery(tablero.rendimiento(pedido));
-  const totales = datos.data?.totals ?? [];
+  const totales = ordenarPeriodos(datos.data?.totals ?? []);
   const unidad = datos.data?.measureUnitType?.label ?? '';
   const periodos = totales.map((x) => etiquetaPeriodo(x.unit, x.year, agrupacion, idioma, t('tablero.semana'))).slice(0, MAX_PERIODOS);
   const recorte = totales.slice(0, MAX_PERIODOS);
