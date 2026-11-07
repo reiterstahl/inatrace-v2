@@ -35,7 +35,7 @@
 
 - [What it is](#what-it-is)
 - [Previews](#previews)
-- [What changes from the current interface](#what-changes-from-the-current-interface)
+- [What changes from the current interface](#what-changes-from-the-current-interface) · [before and after, with screenshots](docs/BEFORE-AND-AFTER.md)
 - [Status by module](#status-by-module)
 - [Features](#features)
 - [Architecture](#architecture)
@@ -103,6 +103,10 @@ in [docs/PLAN.md](docs/PLAN.md) and the detailed status of each phase is in
 </table>
 
 ## What changes from the current interface
+
+> 📸 **[Before and after](docs/BEFORE-AND-AFTER.md):** the same screens, with the same data, in the current
+> interface and in v2. On a phone, the public product page downloads **82% less** (1,089 KB vs 5,975 KB) and
+> **87% less JavaScript**.
 
 | | Current interface (v1) | INATrace v2 |
 |---|---|---|

@@ -1,0 +1,14 @@
+{
+  "vitrina-celular-antes": {
+    "pedidos": 20,
+    "kb": 5975,
+    "kbJs": 5114,
+    "cargaMs": 1020
+  },
+  "vitrina-celular-despues": {
+    "pedidos": 14,
+    "kb": 1089,
+    "kbJs": 686,
+    "cargaMs": 87
+  }
+}

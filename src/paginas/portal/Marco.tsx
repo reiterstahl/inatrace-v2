@@ -34,7 +34,7 @@ export function Marco() {
   return (
     <div className="min-h-dvh">
       <header className="sticky top-0 z-20 border-b border-linea bg-superficie/90 backdrop-blur">
-        <div className="mx-auto flex h-16 max-w-6xl items-center gap-2 px-3 sm:gap-6 sm:px-6">
+        <div className="mx-auto flex h-16 max-w-6xl items-center gap-2 px-3 sm:gap-4 sm:px-6">
           <Link to="/" aria-label="INATrace">
             <Logo compacto />
           </Link>

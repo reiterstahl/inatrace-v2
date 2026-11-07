@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [main, 'fase-*']
+    branches: [main]
     # Una etiqueta de versión (v2.0.0, v2.0.0-rc.1…) publica esa versión de la imagen.
     tags: ['v*']
   pull_request:

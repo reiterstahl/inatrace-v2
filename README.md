@@ -35,7 +35,7 @@
 
 - [Qué es](#qué-es)
 - [Vistas previas](#vistas-previas)
-- [Qué cambia respecto a la interfaz actual](#qué-cambia-respecto-a-la-interfaz-actual)
+- [Qué cambia respecto a la interfaz actual](#qué-cambia-respecto-a-la-interfaz-actual) · [antes y después, con capturas](docs/ANTES-Y-DESPUES.md)
 - [Estado por módulo](#estado-por-módulo)
 - [Funcionalidades](#funcionalidades)
 - [Arquitectura](#arquitectura)
@@ -102,6 +102,10 @@ está en [docs/PLAN.md](docs/PLAN.md) y el estado detallado, fase por fase, en
 </table>
 
 ## Qué cambia respecto a la interfaz actual
+
+> 📸 **[Antes y después](docs/ANTES-Y-DESPUES.md):** las mismas pantallas, con los mismos datos, en la interfaz
+> actual y en la v2. En el celular, la vitrina pública baja **un 82 % menos** (1 089 KB contra 5 975 KB) y
+> **un 87 % menos de JavaScript**.
 
 | | Interfaz actual (v1) | INATrace v2 |
 |---|---|---|

@@ -11,7 +11,7 @@ export function SelectorEmpresa() {
   const qc = useQueryClient();
   if (!actual) return null;
   if (empresas.length < 2) {
-    return <span className="mr-2 hidden max-w-48 truncate text-sm font-semibold text-tinta-2 lg:inline" title={actual.nombre}>{actual.nombre}</span>;
+    return <span className="mr-2 hidden max-w-44 truncate text-sm font-semibold text-tinta-2 lg:inline" title={actual.nombre}>{actual.nombre}</span>;
   }
   return (
     <label className="mr-1 inline-flex max-w-56 items-center gap-1.5 rounded-lg px-2 text-sm text-tinta-2 hover:bg-superficie-2">

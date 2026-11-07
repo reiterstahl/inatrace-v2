@@ -44,7 +44,10 @@ export function Logo({ className = '', compacto }: { className?: string; compact
         <path d="M9 23l6-6" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" className="text-sobre-marca" />
       </svg>
       <span className={compacto ? 'max-sm:hidden' : 'max-[380px]:hidden'}>
-        INATrace <span className="ml-0.5 rounded-md bg-marca-suave px-1.5 py-0.5 align-middle font-sans text-[0.7rem] font-bold text-marca">v2</span>
+        {/* «v2» como superíndice, pegado al nombre: nunca baja a otra línea. */}
+        <span className="whitespace-nowrap">
+          INATrace<sup className="ml-0.5 rounded bg-marca-suave px-1 py-px font-sans text-[0.6rem] leading-none font-bold text-marca">v2</sup>
+        </span>
       </span>
     </span>
   );
