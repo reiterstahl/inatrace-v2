@@ -25,7 +25,7 @@
 ![Docker](https://img.shields.io/badge/Docker-nginx%20sin%20privilegios-2496ED?logo=docker&logoColor=white)
 ![pnpm](https://img.shields.io/badge/pnpm-9-F69220?logo=pnpm&logoColor=white)
 
-<img src="docs/capturas/inicio.png" alt="Inicio de INATrace v2: saludo y estado de cada módulo" width="860">
+<img src="docs/capturas/inicio.png" alt="Inicio de INATrace v2: saludo y módulos" width="860">
 
 </div>
 
@@ -56,15 +56,17 @@
 
 ## Qué es
 
-INATrace v2 reemplaza, módulo por módulo, la interfaz web de INATrace (Angular 10) por una nueva en
-React. Habla con el **mismo backend Java/Spring sin modificarlo** y **convive** con la interfaz
-actual: un proxy reparte las rutas en un mismo dominio, así que la sesión es una sola y se puede
-pasar de una versión a otra sin volver a ingresar. Lo que todavía no está en la v2 se abre en la
-versión actual.
+INATrace v2 es una interfaz web nueva para INATrace, en React, que reemplaza a la actual (Angular 10)
+**en todas sus pantallas**. Habla con el **mismo backend Java/Spring sin modificarlo**, así que se
+instala delante de una instancia existente sin migrar datos.
+
+El cambio puede ser gradual: un proxy reparte las rutas en un mismo dominio, la sesión es una sola y
+las dos interfaces **conviven** el tiempo que haga falta. Cuando se decide, el proxy retira la
+interfaz actual y cada enlace viejo (incluidos los QR ya impresos) lleva a su equivalente en la v2.
 
 Es una iniciativa propia de Rolando Quirós, separada de los contratos con la GIZ. El plan completo
 está en [docs/PLAN.md](docs/PLAN.md) y el estado detallado, fase por fase, en
-[docs/AVANCE.md](docs/AVANCE.md).
+[docs/AVANCE.md](docs/AVANCE.md). Versión actual: **2.0.4**.
 
 ## Vistas previas
 
@@ -115,7 +117,7 @@ está en [docs/PLAN.md](docs/PLAN.md) y el estado detallado, fase por fase, en
 | **Mapas** | Mapbox (requiere token) | MapLibre, con capas del catálogo, dibujo de parcelas y superficie calculada, sin token |
 | **Errores** | Mensajes genéricos en varios casos | Se explica la causa en el idioma de la interfaz (por ejemplo, por qué algo no se puede borrar) |
 | **Vitrina pública (QR)** | Parte de la aplicación completa | Se carga sola, sin formularios ni mapas de edición, con las mismas URL y el mismo registro de visitas |
-| **Permisos** | Algunas reglas solo se aplican en la pantalla (H29) | Respeta cada rol en la interfaz, y la corrección del backend se propuso al original ([#129](https://github.com/agstack/inatrace-backend/pull/129)) |
+| **Permisos** | Algunas reglas solo se aplican en la pantalla (H29) | Respeta cada rol en la interfaz, y la corrección del backend ya está en el original ([#129](https://github.com/agstack/inatrace-backend/pull/129)) |
 
 ## Estado por módulo
 
@@ -232,13 +234,14 @@ flowchart LR
   U["Navegador<br/>(escritorio o celular)"] --> P["Proxy nginx<br/>(un solo dominio)"]
   P -- "/v2/" --> V2["INATrace v2<br/>React + Vite<br/>(nginx sin privilegios)"]
   P -- "/api/" --> B["Backend INATrace<br/>Java · Spring Boot · MySQL<br/>(sin cambios)"]
-  P -- "resto" --> A["Interfaz actual<br/>Angular"]
+  P -. "resto, mientras conviven" .-> A["Interfaz actual<br/>Angular (opcional)"]
   V2 -. "cliente generado<br/>desde OpenAPI" .-> B
   A --> B
 ```
 
 - **Convivencia:** el proxy (`deploy/convivencia/`) manda `/v2/` a esta interfaz, `/api/` al
-  backend y el resto a la interfaz actual. La cookie de sesión es la misma para las dos.
+  backend y el resto a la interfaz actual. La cookie de sesión es la misma para las dos. Mientras
+  conviven, `URL_ANTERIOR` muestra enlaces a la interfaz actual; sin ella, la v2 no los muestra.
 - **QR ya impresos:** con `QR_A_V2=si` el proxy redirige `/{idioma}/q-cd/…` a la vitrina de la v2;
   con `no` siguen en la interfaz actual. Activar o volver atrás es cambiar la variable y reiniciar el proxy.
 - **Retiro de Angular:** con `ANGULAR=no` el proxy deja de enviar tráfico a la interfaz actual y cada ruta
@@ -288,8 +291,8 @@ inatrace-v2/
 ├── deploy/
 │   ├── nginx/          # configuración del contenedor (CSP, config en tiempo de ejecución)
 │   └── convivencia/    # proxy + compose para correr junto a la interfaz actual
-├── scripts/            # actualizar el cliente, importar traducciones, sembrar demos, capturas
-├── docs/               # PLAN.md, AVANCE.md, créditos y capturas
+├── scripts/            # actualizar el cliente, importar traducciones, sembrar demos, capturas, comparación
+├── docs/               # PLAN.md, AVANCE.md, antes y después, créditos y capturas
 └── public/config.js    # configuración leída en tiempo de ejecución (no en el build)
 ```
 
@@ -349,12 +352,12 @@ instalación):
 
 ## Pruebas
 
-Tres niveles, del más rápido al más cercano a producción (cifras al 06.11.2026):
+Tres niveles, del más rápido al más cercano a producción (cifras al 07.11.2026):
 
 | Nivel | Herramienta | Cantidad | Qué cubre |
 |---|---|---|---|
 | Unitarias | Vitest | 163 | Lógica pura: armado de fichas sobre el original, validaciones, permisos por rol, agrupaciones |
-| De punta a punta, simuladas | Playwright + MSW | 192 | Cada flujo en **escritorio y celular**, más una prueba que recorre todas las pantallas buscando desbordes |
+| De punta a punta, simuladas | Playwright + MSW | 196 | Cada flujo en **escritorio y celular**, más pruebas que recorren todas las pantallas y la barra en diez anchos buscando desbordes |
 | Contra un backend real | Playwright | 42 | Los mismos flujos contra una copia aislada de INATrace, verificando lo guardado por la API |
 
 ```bash
@@ -365,17 +368,18 @@ INATRACE_URL=http://localhost:5181 INATRACE_USUARIO=… INATRACE_CLAVE=… \
   pnpm exec playwright test -c playwright.real.config.ts
 ```
 
-La CI (GitHub Actions) corre tipos, pruebas unitarias y de punta a punta en cada push a `main` y a
-las ramas `fase-*`, y en cada pull request. Desde `main` publica además la imagen.
+La CI (GitHub Actions) corre tipos, pruebas unitarias y de punta a punta en cada push a `main`, en
+cada etiqueta de versión y en cada pull request. Desde `main` y las etiquetas publica además la imagen.
 
 ## Despliegue
 
 - **Imagen:** `ghcr.io/reiterstahl/inatrace-v2`, publicada por la CI si pasan todas las pruebas: una
-  etiqueta `vX.Y.Z` publica la versión `X.Y.Z` (la primera es `2.0.0-rc.1`), `main` publica `latest`, y
-  las dos, el SHA del commit. Es nginx sin privilegios en el puerto **8080**,
-  con cabeceras de seguridad y CSP estricta.
-- **Convivencia:** `deploy/convivencia/` trae el proxy y un `docker-compose.yml` para poner la v2
-  delante de una instalación existente sin tocarla.
+  etiqueta `vX.Y.Z` publica la versión `X.Y.Z` (y `latest`, si es estable), `main` publica `latest`, y
+  las dos, el SHA del commit. Es nginx sin privilegios en el puerto **8080**, con cabeceras de
+  seguridad y CSP estricta.
+- **Convivencia y retiro:** `deploy/convivencia/` trae el proxy y un `docker-compose.yml` para poner la
+  v2 delante de una instalación existente sin tocarla. `QR_A_V2` y `ANGULAR` deciden, cada una con un
+  reinicio del proxy, si los QR impresos abren la v2 y si la interfaz actual sigue en uso.
 - **Datos de demostración** (solo para instancias de prueba):
   - `scripts/sembrar-demo.mjs`: una acción «generar QR», un lote con QR y una etiqueta publicada.
   - `scripts/sembrar-medios.mjs`: fotos con licencia libre y un video; los créditos están en
@@ -404,10 +408,10 @@ cada uno con prueba de regresión:
 | [#116](https://github.com/agstack/inatrace-backend/pull/116) | La copia del producto a la etiqueta perdía políticas laborales y lugares de origen | ✅ mergeado |
 | [#117](https://github.com/agstack/inatrace-backend/pull/117) | Un producto con base de conocimiento no se podía borrar | ✅ mergeado |
 | [#118](https://github.com/agstack/inatrace-backend/pull/118) | La «gerencia» de la empresa nunca se guardaba | ✅ mergeado |
-| [#119](https://github.com/agstack/inatrace-backend/pull/119) + [frontend #33](https://github.com/agstack/inatrace-frontend/pull/33) | La lista pública de opiniones exponía datos de los consumidores | ✅ mergeado / aprobado |
+| [#119](https://github.com/agstack/inatrace-backend/pull/119) + [frontend #33](https://github.com/agstack/inatrace-frontend/pull/33) | La lista pública de opiniones exponía datos de los consumidores | ✅ mergeados |
 | [#122](https://github.com/agstack/inatrace-backend/pull/122), [#123](https://github.com/agstack/inatrace-backend/pull/123) | Errores 500 al borrar acciones de procesamiento o clientes en uso | ✅ mergeados |
-| [#129](https://github.com/agstack/inatrace-backend/pull/129) | La administración regional podía dar el rol de administración del sistema | 🕓 en revisión |
-| [#132](https://github.com/agstack/inatrace-backend/pull/132) | Error 500 al borrar una cadena de valor en uso | 🕓 en revisión |
+| [#129](https://github.com/agstack/inatrace-backend/pull/129) | La administración regional podía dar el rol de administración del sistema | ✅ mergeado |
+| [#132](https://github.com/agstack/inatrace-backend/pull/132) | Error 500 al borrar una cadena de valor en uso | ✅ mergeado |
 | [#137](https://github.com/agstack/inatrace-backend/pull/137) | Error 500 al borrar elementos de catálogo en uso | 🕓 en revisión |
 
 ## Decisiones técnicas
@@ -428,6 +432,9 @@ cada uno con prueba de regresión:
 - [docs/PLAN.md](docs/PLAN.md): qué es y qué no es, principios, arquitectura, inventario de la
   interfaz actual, fases y riesgos.
 - [docs/AVANCE.md](docs/AVANCE.md): qué se hizo en cada fase, con sus pruebas, hallazgos y pendientes.
+- [docs/ANTES-Y-DESPUES.md](docs/ANTES-Y-DESPUES.md): la interfaz actual y la v2, pantalla por pantalla y
+  con los mismos datos.
+- [deploy/convivencia/](deploy/convivencia/): el proxy, sus variables y las reglas de redirección.
 - [e2e-real/README.md](e2e-real/README.md): cómo correr las pruebas contra una instalación real.
 
 ## Licencia y créditos

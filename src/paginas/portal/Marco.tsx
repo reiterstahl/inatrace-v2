@@ -39,7 +39,7 @@ export function Marco() {
             <Logo compacto />
           </Link>
           {/* En un celular angosto la navegación se desliza en vez de ensanchar la página. */}
-          <nav className="flex min-w-0 items-center gap-0.5 overflow-x-auto [scrollbar-width:none] sm:gap-1" aria-label="Principal">
+          <nav className="flex items-center gap-0.5 max-sm:min-w-0 max-sm:overflow-x-auto max-sm:[scrollbar-width:none] sm:shrink-0 sm:gap-1" aria-label="Principal">
             {NAV.filter((n) => !n.admin || admin).map((n) => (
               <Link
                 key={n.to}
@@ -52,7 +52,7 @@ export function Marco() {
               >
                 <Icono nombre={n.icono} className="size-4" />
                 {/* Con la entrada de la administración no entran los textos de las seis: solo si sobra lugar. */}
-                <span className={'hidden whitespace-nowrap ' + (admin ? '2xl:inline' : 'md:inline')}>{t(n.clave)}</span>
+                <span className={'hidden whitespace-nowrap ' + (admin ? '2xl:inline' : 'lg:inline')}>{t(n.clave)}</span>
               </Link>
             ))}
             {hayAnterior && (
@@ -65,10 +65,10 @@ export function Marco() {
               </>
             )}
           </nav>
-          <div className="ml-auto flex shrink-0 items-center gap-1">
+          <div className="ml-auto flex min-w-0 items-center gap-1">
             <SelectorEmpresa />
             {/* Envuelto: el propio selector es inline-flex y le ganaría a un "hidden". */}
-            <div className="hidden sm:block">
+            <div className="hidden md:block">
               <SelectorIdioma />
             </div>
             {/* En el celular el tema se cambia desde el perfil. */}

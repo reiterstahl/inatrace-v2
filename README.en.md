@@ -25,7 +25,7 @@
 ![Docker](https://img.shields.io/badge/Docker-unprivileged%20nginx-2496ED?logo=docker&logoColor=white)
 ![pnpm](https://img.shields.io/badge/pnpm-9-F69220?logo=pnpm&logoColor=white)
 
-<img src="docs/capturas/en/inicio.png" alt="INATrace v2 home: greeting and status of each module" width="860">
+<img src="docs/capturas/en/inicio.png" alt="INATrace v2 home: greeting and modules" width="860">
 
 </div>
 
@@ -56,15 +56,18 @@
 
 ## What it is
 
-INATrace v2 replaces the INATrace web interface (Angular 10) with a new one in React, one module at a
-time. It talks to the **same Java/Spring backend without modifying it** and **runs alongside** the
-current interface. A proxy splits the routes on a single domain, so both versions share one session
-and users can move between them without signing in again. Anything not yet in v2 opens in the
-current version.
+INATrace v2 is a new web interface for INATrace, built in React, that replaces the current one
+(Angular 10) **on every screen**. It talks to the **same Java/Spring backend without modifying it**, so
+it goes in front of an existing instance with no data migration.
+
+The switch can be gradual: a proxy splits the routes on a single domain, both interfaces share one
+session and they can **run side by side** for as long as needed. When the time comes, the proxy
+retires the current interface and every old link (including QR codes already printed) leads to its
+v2 equivalent.
 
 It is an independent initiative by Rolando Quirós, separate from the GIZ contracts. The full plan is
 in [docs/PLAN.md](docs/PLAN.md) and the detailed status of each phase is in
-[docs/AVANCE.md](docs/AVANCE.md) (both in Spanish).
+[docs/AVANCE.md](docs/AVANCE.md) (both in Spanish). Current version: **2.0.4**.
 
 ## Previews
 
@@ -116,7 +119,7 @@ in [docs/PLAN.md](docs/PLAN.md) and the detailed status of each phase is in
 | **Maps** | Mapbox (needs a token) | MapLibre, with catalog layers, plot drawing and computed area, no token |
 | **Errors** | Generic messages in several cases | The cause is explained in the interface language (for example, why something cannot be deleted) |
 | **Public product page (QR)** | Part of the full application | Loads on its own, without forms or editing maps, with the same URLs and the same visit tracking |
-| **Permissions** | Some rules are only enforced on screen (H29) | Each role is respected in the interface, and the backend fix was proposed upstream ([#129](https://github.com/agstack/inatrace-backend/pull/129)) |
+| **Permissions** | Some rules are only enforced on screen (H29) | Each role is respected in the interface, and the backend fix is now upstream ([#129](https://github.com/agstack/inatrace-backend/pull/129)) |
 
 ## Status by module
 
@@ -231,13 +234,14 @@ flowchart LR
   U["Browser<br/>(desktop or phone)"] --> P["nginx proxy<br/>(one domain)"]
   P -- "/v2/" --> V2["INATrace v2<br/>React + Vite<br/>(unprivileged nginx)"]
   P -- "/api/" --> B["INATrace backend<br/>Java · Spring Boot · MySQL<br/>(unchanged)"]
-  P -- "everything else" --> A["Current interface<br/>Angular"]
+  P -. "everything else, while both run" .-> A["Current interface<br/>Angular (optional)"]
   V2 -. "client generated<br/>from OpenAPI" .-> B
   A --> B
 ```
 
 - **Side by side:** the proxy (`deploy/convivencia/`) sends `/v2/` to this interface, `/api/` to the
-  backend and everything else to the current interface. Both share the same session cookie.
+  backend and everything else to the current interface. Both share the same session cookie. While
+  both run, `URL_ANTERIOR` shows links to the current interface; without it, v2 shows none.
 - **QR codes already printed:** with `QR_A_V2=si` the proxy redirects `/{language}/q-cd/…` to the v2 public
   page; with `no` they stay on the current interface. Switching is changing the variable and restarting the proxy.
 - **Retiring Angular:** with `ANGULAR=no` the proxy stops sending traffic to the current interface and every
@@ -289,8 +293,8 @@ inatrace-v2/
 ├── deploy/
 │   ├── nginx/          # container configuration (CSP, runtime config)
 │   └── convivencia/    # proxy + compose to run next to the current interface
-├── scripts/            # update the API client, import translations, seed demos, screenshots
-├── docs/               # PLAN.md, AVANCE.md, credits and screenshots
+├── scripts/            # update the API client, import translations, seed demos, screenshots, comparison
+├── docs/               # PLAN.md, AVANCE.md, before and after, credits and screenshots
 └── public/config.js    # configuration read at runtime (not at build time)
 ```
 
@@ -349,12 +353,12 @@ In mock mode you can try the interface with another role by setting `simulado.ro
 
 ## Tests
 
-Three levels, from fastest to closest to production (figures as of 6 November 2026):
+Three levels, from fastest to closest to production (figures as of 7 November 2026):
 
 | Level | Tool | Count | What it covers |
 |---|---|---|---|
 | Unit | Vitest | 163 | Pure logic: building records on top of the original, validation, role permissions, grouping |
-| End-to-end, mocked | Playwright + MSW | 192 | Every flow on **desktop and phone**, plus a test that visits every screen looking for overflow |
+| End-to-end, mocked | Playwright + MSW | 196 | Every flow on **desktop and phone**, plus tests that visit every screen, and the top bar at ten widths, looking for overflow |
 | Against a real backend | Playwright | 42 | The same flows against an isolated copy of INATrace, checking what was saved through the API |
 
 ```bash
@@ -365,17 +369,18 @@ INATRACE_URL=http://localhost:5181 INATRACE_USUARIO=… INATRACE_CLAVE=… \
   pnpm exec playwright test -c playwright.real.config.ts
 ```
 
-CI (GitHub Actions) runs the type check, unit tests and end-to-end tests on every push to `main` and
-to the `fase-*` branches, and on every pull request. From `main` it also publishes the image.
+CI (GitHub Actions) runs the type check, unit tests and end-to-end tests on every push to `main`, on
+every version tag and on every pull request. From `main` and the tags it also publishes the image.
 
 ## Deployment
 
 - **Image:** `ghcr.io/reiterstahl/inatrace-v2`, published by CI when every test passes: a `vX.Y.Z` tag
-  publishes version `X.Y.Z` (the first is `2.0.0-rc.1`), `main` publishes `latest`, and both publish the
-  commit SHA. It is unprivileged nginx on port **8080**, with security headers
-  and a strict CSP.
-- **Side by side:** `deploy/convivencia/` provides the proxy and a `docker-compose.yml` to put v2 in
-  front of an existing installation without touching it.
+  publishes version `X.Y.Z` (and `latest`, if it is a stable release), `main` publishes `latest`, and
+  both publish the commit SHA. It is unprivileged nginx on port **8080**, with security headers and a
+  strict CSP.
+- **Side by side and retirement:** `deploy/convivencia/` provides the proxy and a `docker-compose.yml`
+  to put v2 in front of an existing installation without touching it. `QR_A_V2` and `ANGULAR` decide,
+  each with a proxy restart, whether printed QR codes open v2 and whether the current interface stays.
 - **Demo data** (test instances only):
   - `scripts/sembrar-demo.mjs`: a "generate QR" action, a batch with a QR code and a published label.
   - `scripts/sembrar-medios.mjs`: openly licensed photos and a video; credits are in
@@ -404,10 +409,10 @@ a regression test:
 | [#116](https://github.com/agstack/inatrace-backend/pull/116) | Copying a product to a label lost labor policies and origin locations | ✅ merged |
 | [#117](https://github.com/agstack/inatrace-backend/pull/117) | A product with a knowledge base could not be deleted | ✅ merged |
 | [#118](https://github.com/agstack/inatrace-backend/pull/118) | The company manager was never saved | ✅ merged |
-| [#119](https://github.com/agstack/inatrace-backend/pull/119) + [frontend #33](https://github.com/agstack/inatrace-frontend/pull/33) | The public feedback list exposed consumers' personal data | ✅ merged / approved |
+| [#119](https://github.com/agstack/inatrace-backend/pull/119) + [frontend #33](https://github.com/agstack/inatrace-frontend/pull/33) | The public feedback list exposed consumers' personal data | ✅ merged |
 | [#122](https://github.com/agstack/inatrace-backend/pull/122), [#123](https://github.com/agstack/inatrace-backend/pull/123) | 500 errors when deleting processing actions or customers in use | ✅ merged |
-| [#129](https://github.com/agstack/inatrace-backend/pull/129) | Regional administrators could grant the system administrator role | 🕓 in review |
-| [#132](https://github.com/agstack/inatrace-backend/pull/132) | 500 error when deleting a value chain in use | 🕓 in review |
+| [#129](https://github.com/agstack/inatrace-backend/pull/129) | Regional administrators could grant the system administrator role | ✅ merged |
+| [#132](https://github.com/agstack/inatrace-backend/pull/132) | 500 error when deleting a value chain in use | ✅ merged |
 | [#137](https://github.com/agstack/inatrace-backend/pull/137) | 500 error when deleting codebook entries in use | 🕓 in review |
 
 ## Technical decisions
@@ -423,12 +428,16 @@ a regression test:
 
 ## Documentation
 
-These documents are in Spanish.
+- [docs/BEFORE-AND-AFTER.md](docs/BEFORE-AND-AFTER.md): the current interface and v2, screen by screen,
+  with the same data.
+
+These documents are in Spanish:
 
 - [docs/PLAN.md](docs/PLAN.md): what v2 is and is not, principles, architecture, inventory of the
   current interface, phases and risks.
 - [docs/AVANCE.md](docs/AVANCE.md): what was done in each phase, with its tests, findings and open items.
 - [e2e-real/README.md](e2e-real/README.md): how to run the tests against a real installation.
+- [deploy/convivencia/](deploy/convivencia/): the proxy, its variables and the redirect rules (comments in Spanish).
 
 ## License and credits
 

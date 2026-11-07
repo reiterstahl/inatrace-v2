@@ -173,11 +173,12 @@ test.describe('partes del producto (modo simulado)', () => {
 
   test('borrar un producto con productos finales explica por qué no se puede', async ({ page }) => {
     await ingresar(page, 'productos/1');
-    let mensaje = '';
-    page.once('dialog', (d) => void d.accept());
+    // Un solo manejador para la confirmación y el aviso: registrar el segundo después del clic llegaba
+    // a veces tarde y el aviso se cerraba solo.
+    const mensajes: string[] = [];
+    page.on('dialog', (d) => { mensajes.push(d.message()); void d.accept(); });
     await page.getByRole('button', { name: 'Borrar producto' }).click();
-    page.once('dialog', (d) => { mensaje = d.message(); void d.accept(); });
-    await expect.poll(() => mensaje).toContain('tiene productos finales');
+    await expect.poll(() => mensajes.join('\n')).toContain('tiene productos finales');
     await expect(page.getByRole('heading', { level: 1, name: 'Café Flor de la Sierra' })).toBeVisible();
   });
 });

@@ -52,3 +52,25 @@ test('las pantallas de cuenta tampoco', async ({ page }) => {
     expect(medidas.documento, `ancho del documento en /${ruta}`).toBeLessThanOrEqual(medidas.ventana);
   }
 });
+
+// La barra de arriba cambia según el ancho (textos, idioma, selector de empresa): ningún ancho intermedio
+// puede ensancharla. Pasó entre 640 y 900 px, donde no mira ni el escritorio ni el celular.
+for (const rol of ['', 'SYSTEM_ADMIN']) {
+  test(`la barra entra en todos los anchos${rol ? ' (administración)' : ''}`, async ({ page }) => {
+    if (rol) await page.addInitScript((r) => sessionStorage.setItem('simulado.rol', r), rol);
+    await page.goto('ingreso');
+    await page.getByLabel('Correo electrónico').fill('demo@inatrace.local');
+    await page.getByLabel('Contraseña').fill('demo1234');
+    await page.getByRole('button', { name: 'Ingresar' }).click();
+    await expect(page.getByRole('heading', { name: /^Hola/ })).toBeVisible();
+    for (const ancho of [1440, 1280, 1024, 900, 768, 700, 640, 600, 390, 360]) {
+      await page.setViewportSize({ width: ancho, height: 800 });
+      await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth), { message: `ancho del documento a ${ancho} px` }).toBeLessThanOrEqual(ancho);
+      // Solo en el celular el menú puede deslizarse; desde 640 px tiene que verse entero.
+      if (ancho >= 640) {
+        const menu = await page.getByRole('navigation', { name: 'Principal' }).evaluate((n) => n.scrollWidth - n.clientWidth);
+        expect(menu, `menú recortado a ${ancho} px`).toBeLessThanOrEqual(0);
+      }
+    }
+  });
+}
