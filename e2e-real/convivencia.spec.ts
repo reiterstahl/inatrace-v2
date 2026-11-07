@@ -3,10 +3,10 @@ import { test, expect, type Page } from '@playwright/test';
 const { INATRACE_USUARIO: usuario = '', INATRACE_CLAVE: clave = '', DEMO_ETIQUETA: etiqueta = '', DEMO_QR: qr = '' } = process.env;
 const VITRINA = `/v2/p-cd/${etiqueta}/${qr}`;
 
-/** Junta las violaciones de la política de seguridad (CSP) y los errores de la página. */
+/** Junta las violaciones de la política de seguridad (CSP), los errores de la página y el worker del mapa que no carga. */
 function vigilar(page: Page) {
   const problemas: string[] = [];
-  page.on('console', (m) => { if (m.type() === 'error' && /Content Security Policy|Refused to/i.test(m.text())) problemas.push(m.text()); });
+  page.on('console', (m) => { if (m.type() === 'error' && /Content Security Policy|Refused to|Worker failed/i.test(m.text())) problemas.push(m.text()); });
   page.on('pageerror', (e) => problemas.push(e.message));
   return problemas;
 }

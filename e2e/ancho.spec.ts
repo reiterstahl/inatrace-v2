@@ -74,3 +74,34 @@ for (const rol of ['', 'SYSTEM_ADMIN']) {
     }
   });
 }
+
+// Pantallas 2K/4K sin escalar: todo está en rem y crece en proporción, hasta el doble en 3840 px.
+test('en pantallas muy anchas el contenido crece en proporción', async ({ page }) => {
+  await page.goto('ingreso');
+  const base = async (ancho: number) => {
+    await page.setViewportSize({ width: ancho, height: Math.round((ancho * 9) / 16) });
+    return page.evaluate(() => parseFloat(getComputedStyle(document.documentElement).fontSize));
+  };
+  expect(await base(1440)).toBe(16);
+  expect(await base(1920)).toBe(16);
+  expect(await base(2560)).toBeCloseTo(21.33, 1);
+  expect(await base(3840)).toBe(32);
+  expect(await base(5120)).toBe(32); // tope: el doble
+});
+
+// La lista de un <select> la pinta el sistema: en el tema oscuro necesita colores propios.
+test('las opciones de las listas se leen en el tema oscuro', async ({ page }) => {
+  await page.emulateMedia({ colorScheme: 'dark' });
+  await page.addInitScript(() => localStorage.setItem('inatrace.tema', 'oscuro'));
+  await page.goto('ingreso');
+  const colores = await page.evaluate(() => {
+    const s = document.createElement('select');
+    s.innerHTML = '<option>a</option>';
+    document.body.append(s);
+    const o = getComputedStyle(s.options[0]);
+    return { fondo: o.backgroundColor, texto: o.color, oscuro: document.documentElement.classList.contains('dark') };
+  });
+  expect(colores.oscuro).toBe(true);
+  expect(colores.fondo).toBe('rgb(26, 30, 27)'); // --superficie del tema oscuro
+  expect(colores.texto).toBe('rgb(236, 239, 233)'); // --tinta del tema oscuro
+});

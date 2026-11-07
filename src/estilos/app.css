@@ -118,6 +118,17 @@
   html {
     -webkit-text-size-adjust: 100%;
     text-rendering: optimizeLegibility;
+    /* Pantallas muy anchas (2K, 4K sin escalar): todo está en rem, así que crece en proporción y se
+       ve como en 1920 px. Hasta 1920 px manda el tamaño del navegador; tope al doble. Los puntos de
+       quiebre no cambian: en las media queries, rem siempre vale el tamaño inicial. */
+    font-size: clamp(100%, 100vw / 120, 200%);
+  }
+  /* La lista de un <select> la pinta el sistema: sin esto, en el tema oscuro sale fondo blanco con
+     el texto claro heredado. */
+  option,
+  optgroup {
+    background-color: var(--superficie);
+    color: var(--tinta);
   }
   body {
     @apply bg-papel text-tinta font-sans antialiased;
