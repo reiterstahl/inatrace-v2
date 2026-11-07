@@ -37,7 +37,7 @@ test('Beyco: salida y vuelta con state, error limpio sin Beyco, y precarga de la
     return r.fulfill({ status: 302, headers: { Location: `${baseURL}/v2/stock/beyco?code=codigo-de-prueba&scope=Offer%3ACreate&state=${salida.searchParams.get('state')}` } });
   });
 
-  const bruto = String(700 + (Date.now() % 89));
+  const bruto = String(3700 + (Date.now() % 89)); // sobre 3000 kg: no choca con la copia llena
   await ingresar(page);
 
   // 1. Un lote de café oro en la instalación pública.

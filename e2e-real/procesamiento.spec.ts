@@ -22,7 +22,7 @@ test.describe('procesamiento contra el backend real', () => {
   test.beforeEach(async ({ page }) => ingresar(page));
 
   test('entrega → trillado → trazabilidad → editar → borrar', async ({ page }) => {
-    const bruto = String(400 + (Date.now() % 97)); // cantidad única para reconocer el lote en las listas
+    const bruto = String(3400 + (Date.now() % 97)); // cantidad única para reconocer el lote en las listas (sobre 3000 kg: no choca con la copia llena)
     const lote = 'E2E-' + Date.now().toString().slice(-6);
 
     // 1. Entrega de café pergamino.
@@ -90,7 +90,7 @@ test.describe('procesamiento contra el backend real', () => {
   });
 
   test('generar QR: el lote muestra el QR de la versión actual y abre la vitrina', async ({ page, context }) => {
-    const bruto = String(200 + (Date.now() % 89));
+    const bruto = String(3200 + (Date.now() % 89)); // sobre 3000 kg: no choca con la copia llena
     const lote = 'QR-E2E-' + Date.now().toString().slice(-6);
 
     // Entrega de café oro/verde, que es lo que toma "Generar QR (demo)".

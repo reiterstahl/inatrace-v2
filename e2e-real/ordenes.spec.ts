@@ -28,7 +28,7 @@ const filaCon = (page: Page, cantidad: string) => page.locator('tbody tr').filte
 
 test('pedido entre empresas: pedir, completar con stock del proveedor, aprobar, pagar y borrar', async ({ page }) => {
   test.setTimeout(120_000);
-  const bruto = String(600 + (Date.now() % 97));
+  const bruto = String(3600 + (Date.now() % 97)); // sobre 3000 kg: no choca con la copia llena
   const orden = 'OC-E2E-' + Date.now().toString().slice(-6);
   await ingresar(page);
 

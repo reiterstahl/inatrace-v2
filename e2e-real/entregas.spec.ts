@@ -128,7 +128,8 @@ test.describe('todo el stock y trazabilidad contra el backend real', () => {
     await expect(op).toBeVisible();
     const nombre = (await op.locator('span span').first().textContent())!.trim();
     await buscador.press('Enter');
-    await page.getByRole('textbox', { name: /^Peso bruto/ }).fill('333');
+    const unico = String(3333 + (Date.now() % 97)); // sobre 3000 kg: no choca con la copia llena
+    await page.getByRole('textbox', { name: /^Peso bruto/ }).fill(unico);
     await page.getByRole('textbox', { name: /^Precio por unidad/ }).fill('1');
     await page.getByRole('combobox', { name: /^Moneda/ }).fill('USD');
     await page.getByRole('combobox', { name: /^Forma de pago/ }).selectOption({ label: 'Efectivo' });
@@ -138,7 +139,7 @@ test.describe('todo el stock y trazabilidad contra el backend real', () => {
     // Verla en Todo el stock.
     await page.goto('/v2/stock/todo');
     await page.getByRole('combobox', { name: 'Instalación' }).selectOption({ label: 'Centro de acopio — Bodega Demo' });
-    const fila = page.locator('tbody tr').filter({ hasText: '333' }).first();
+    const fila = page.locator('tbody tr').filter({ hasText: unico }).first();
     await expect(fila).toBeVisible();
     await expect(fila).toContainText('Compra');
 
@@ -148,7 +149,7 @@ test.describe('todo el stock y trazabilidad contra el backend real', () => {
 
     // Trazabilidad de la entrega.
     await page.getByRole('button', { name: 'Por orden' }).click();
-    await page.locator('tbody tr').filter({ hasText: '333' }).first().getByRole('link', { name: 'Ver trazabilidad' }).click();
+    await page.locator('tbody tr').filter({ hasText: unico }).first().getByRole('link', { name: 'Ver trazabilidad' }).click();
     await expect(page.getByRole('heading', { level: 1, name: 'Trazabilidad' })).toBeVisible();
     await expect(page.getByText(nombre).first()).toBeVisible();
 
@@ -156,7 +157,7 @@ test.describe('todo el stock y trazabilidad contra el backend real', () => {
     await page.goto('/v2/stock/todo');
     await page.getByRole('combobox', { name: 'Instalación' }).selectOption({ label: 'Centro de acopio — Bodega Demo' });
     await aceptarAviso(page);
-    await page.locator('tbody tr').filter({ hasText: '333' }).first().getByRole('button', { name: 'Borrar entrega' }).click();
-    await expect(page.locator('tbody tr').filter({ hasText: '333' })).toHaveCount(0);
+    await page.locator('tbody tr').filter({ hasText: unico }).first().getByRole('button', { name: 'Borrar entrega' }).click();
+    await expect(page.locator('tbody tr').filter({ hasText: unico })).toHaveCount(0);
   });
 });

@@ -42,7 +42,7 @@ test.describe('pagos contra el backend real', () => {
   test.beforeEach(async ({ page }) => ingresar(page));
 
   test('pagar una entrega: documento obligatorio, saldo, confirmar y borrar', async ({ page }) => {
-    const bruto = String(300 + (Date.now() % 97)); // pago base = bruto × 2
+    const bruto = String(3300 + (Date.now() % 97)); // pago base = bruto × 2 (sobre 3000 kg: no choca con la copia llena)
     await crearEntrega(page, bruto);
 
     // Desde la lista de entregas, "Pagar".
@@ -86,7 +86,7 @@ test.describe('pagos contra el backend real', () => {
   });
 
   test('pago masivo: sin cuenta no deja registrar; con cuenta, transfiere el saldo de cada entrega', async ({ page }) => {
-    const brutos = [String(500 + (Date.now() % 89)), String(600 + (Date.now() % 83))];
+    const brutos = [String(3500 + (Date.now() % 89)), String(3600 + (Date.now() % 83))]; // sobre 3000 kg: no choca con la copia llena
     for (const b of brutos) await crearEntrega(page, b);
 
     // Elegir las dos entregas y abrir el pago masivo.
