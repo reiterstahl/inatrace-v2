@@ -7,8 +7,9 @@
 //   COMPARACION_ETIQUETA=<uuid> COMPARACION_QR=<código> node scripts/comparacion.mjs
 //
 // Guarda las imágenes en docs/comparacion/ y las mediciones en docs/comparacion/mediciones.json.
+// COMPARACION_SOLO=despues regenera solo el lado de la v2 (no hace falta la interfaz actual).
 import { chromium } from '@playwright/test';
-import { mkdir, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
 
 const BASE = process.env.COMPARACION_URL ?? 'http://127.0.0.1:8390';
 const { INATRACE_USUARIO: usuario, INATRACE_CLAVE: clave, COMPARACION_ETIQUETA: etiqueta, COMPARACION_QR: qr } = process.env;
@@ -32,10 +33,11 @@ const PARES = [
 ];
 
 const navegador = await chromium.launch({ args: ['--enable-unsafe-swiftshader', '--use-angle=swiftshader'] });
-const mediciones = {};
+const SOLO = process.env.COMPARACION_SOLO;
+const mediciones = SOLO ? JSON.parse(await readFile(new URL('mediciones.json', SALIDA), 'utf8').catch(() => '{}')) : {};
 
 for (const [nombre, antes, despues, o] of PARES) {
-  for (const [lado, ruta] of [['antes', antes], ['despues', despues]]) {
+  for (const [lado, ruta] of [['antes', antes], ['despues', despues]].filter(([l]) => !SOLO || l === SOLO)) {
     const contexto = await navegador.newContext({ ...(o.celular ? CELULAR : ESCRITORIO), locale: 'es-ES', baseURL: BASE });
     // La sesión es la misma para las dos interfaces: se abre una vez por la API.
     if (!o.sinSesion) await contexto.request.post('/api/user/login', { data: { username: usuario, password: clave } });
