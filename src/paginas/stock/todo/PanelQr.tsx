@@ -7,7 +7,7 @@ import type { ApiStockOrder } from '@/api/gen/types.gen';
 import { Boton } from '@/componentes/ui/Boton';
 import { CodigoQr, svgQr } from '@/componentes/ui/CodigoQr';
 import { Icono } from '@/componentes/ui/Icono';
-import { enAnterior, urlQr } from '@/util/entorno';
+import { urlQr } from '@/util/entorno';
 
 /**
  * QR de un lote que pasó por "generar código QR": el mismo que imprime la versión actual. Apunta a
@@ -67,7 +67,11 @@ export function PanelQr({ orden }: { orden: ApiStockOrder }) {
       ) : lista.length === 0 ? (
         <p className="mt-4 rounded-lg bg-aviso-suave p-3 text-sm text-aviso">
           {t('stock.qr.sin_etiquetas')}{' '}
-          {final?.product?.id && <a href={enAnterior(`/product-labels/${final.product.id}/final-products`)} className="font-semibold underline">{t('portal.version_actual')}</a>}
+          {final?.product?.id && (
+            <Link to="/productos/$id/finales" params={{ id: String(final.product.id) }} className="font-semibold underline">
+              {t('stock.qr.productos_finales')}
+            </Link>
+          )}
         </p>
       ) : (
         <div className="mt-4 flex flex-wrap items-start gap-6">

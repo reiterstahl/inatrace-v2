@@ -16,6 +16,9 @@ services:
       QR_CODE_BASE_PATH: ${QR_CODE_BASE_PATH:-q-cd}
       BEYCO_AUTH_URL: ${BEYCO_AUTH_URL:-}
       BEYCO_CLIENT_ID: ${BEYCO_CLIENT_ID:-}
+      # Raíz de la interfaz actual para los enlaces «Versión actual» («/» detrás de este proxy).
+      # Vacía con ANGULAR=no: la v2 deja de mostrar esos enlaces.
+      URL_ANTERIOR: ${URL_ANTERIOR-/}
     networks: [inatrace]
 
   proxy:

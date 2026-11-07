@@ -1,7 +1,3 @@
-/** Raíz de la interfaz actual (Angular). Detrás del proxy de convivencia es el mismo origen. */
-export const URL_ANTERIOR = (import.meta.env.VITE_URL_ANTERIOR ?? '').replace(/\/$/, '');
-export const enAnterior = (ruta: string) => URL_ANTERIOR + ruta;
-
 /** Configuración de la instalación (public/config.js, reemplazado al arrancar el contenedor). */
 type Config = {
   tokenRegistro?: string;
@@ -13,8 +9,19 @@ type Config = {
   beycoUrl?: string;
   /** Cliente de INATrace en Beyco (BEYCO_CLIENT_ID de la versión actual). */
   beycoClientId?: string;
+  /**
+   * Raíz de la interfaz anterior (Angular) mientras conviven: «/» detrás del proxy de convivencia (mismo
+   * origen) o su URL. Vacía: se retiró (fase 6) y la v2 no muestra enlaces a ella.
+   */
+  urlAnterior?: string;
 };
 export const CONFIG: Config = (window as unknown as { __INATRACE__?: Config }).__INATRACE__ ?? {};
+
+// En desarrollo, sin la configuración del contenedor, vale VITE_URL_ANTERIOR (ver .env.ejemplo).
+const raizAnterior = CONFIG.urlAnterior ?? import.meta.env.VITE_URL_ANTERIOR ?? '';
+/** ¿Sigue en uso la interfaz anterior? Si no, no se muestran enlaces a ella. */
+export const hayAnterior = raizAnterior !== '';
+export const enAnterior = (ruta: string) => raizAnterior.replace(/\/$/, '') + ruta;
 
 /**
  * URL que lleva el QR de un lote, igual que la arma la versión actual:

@@ -6,7 +6,7 @@ import { Boton } from '@/componentes/ui/Boton';
 import { Campo } from '@/componentes/ui/Campo';
 import { Aviso } from '@/componentes/ui/Estados';
 import { Icono } from '@/componentes/ui/Icono';
-import { enAnterior } from '@/util/entorno';
+import { enAnterior, hayAnterior } from '@/util/entorno';
 import { MarcoAcceso } from './MarcoAcceso';
 
 export function Ingreso() {
@@ -45,9 +45,11 @@ export function Ingreso() {
           <Link to="/olvide-clave" className="text-marca hover:underline">{t('acceso.olvido')}</Link>
           <Link to="/registro" className="font-semibold text-marca hover:underline">{t('acceso.crear_cuenta')}</Link>
         </div>
-        <a href={enAnterior('/login')} className="inline-flex items-center gap-1 text-tinta-3 hover:text-tinta">
-          {t('acceso.version_actual')} <Icono nombre="externo" className="size-3.5" />
-        </a>
+        {hayAnterior && (
+          <a href={enAnterior('/login')} className="inline-flex items-center gap-1 text-tinta-3 hover:text-tinta">
+            {t('acceso.version_actual')} <Icono nombre="externo" className="size-3.5" />
+          </a>
+        )}
       </div>
     </MarcoAcceso>
   );

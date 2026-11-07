@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { consultas, useSalir } from '@/api/consultas';
 import { Icono, type NombreIcono } from '@/componentes/ui/Icono';
 import { InterruptorTema, Logo, SelectorIdioma } from '@/componentes/ui/Preferencias';
-import { enAnterior } from '@/util/entorno';
+import { enAnterior, hayAnterior } from '@/util/entorno';
 import { SelectorEmpresa } from '@/componentes/SelectorEmpresa';
 import { esAdministracion } from '@/util/administracion';
 
@@ -54,11 +54,15 @@ export function Marco() {
                 <span className={'hidden whitespace-nowrap ' + (admin ? '2xl:inline' : 'md:inline')}>{t(n.clave)}</span>
               </Link>
             ))}
-            {/* Con la entrada de la administración no entra en el celular: queda en las tarjetas del inicio. */}
-            <a href={enAnterior('/home')} aria-label={t('portal.version_actual')} className={(admin ? 'hidden sm:inline-flex' : 'inline-flex') + ' h-9 items-center gap-2 rounded-lg px-2.5 text-sm font-medium text-tinta-3 hover:bg-superficie-2 hover:text-tinta sm:px-3'}>
-              <Icono nombre="externo" className="size-4" />
-              <span className="hidden whitespace-nowrap 2xl:inline">{t('portal.version_actual')}</span>
-            </a>
+            {hayAnterior && (
+              <>
+              {/* Con la entrada de la administración no entra en el celular: queda en las tarjetas del inicio. */}
+              <a href={enAnterior('/home')} aria-label={t('portal.version_actual')} className={(admin ? 'hidden sm:inline-flex' : 'inline-flex') + ' h-9 items-center gap-2 rounded-lg px-2.5 text-sm font-medium text-tinta-3 hover:bg-superficie-2 hover:text-tinta sm:px-3'}>
+                <Icono nombre="externo" className="size-4" />
+                <span className="hidden whitespace-nowrap 2xl:inline">{t('portal.version_actual')}</span>
+              </a>
+              </>
+            )}
           </nav>
           <div className="ml-auto flex items-center gap-1">
             <SelectorEmpresa />

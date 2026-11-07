@@ -9,7 +9,8 @@ window.__INATRACE__ = {
   urlPublica: "$(escapar "${APP_BASE_URL:-}")",
   rutaQr: "$(escapar "${QR_CODE_BASE_PATH:-q-cd}")",
   beycoUrl: "$(escapar "${BEYCO_AUTH_URL:-}")",
-  beycoClientId: "$(escapar "${BEYCO_CLIENT_ID:-}")"
+  beycoClientId: "$(escapar "${BEYCO_CLIENT_ID:-}")",
+  urlAnterior: "$(escapar "${URL_ANTERIOR:-}")"
 };
 JS
 echo "config-v2: configuración escrita"

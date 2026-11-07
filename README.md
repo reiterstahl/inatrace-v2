@@ -320,7 +320,7 @@ En modo simulado se puede probar la interfaz con otro rol guardando el rol en `s
 | Variable | Para qué |
 |---|---|
 | `INATRACE_API` | Backend al que Vite redirige `/api` (por defecto `http://localhost:8081`) |
-| `VITE_URL_ANTERIOR` | URL de la interfaz actual, para los enlaces «Abrir en la versión actual» |
+| `VITE_URL_ANTERIOR` | URL de la interfaz actual, para los enlaces «Versión actual» (vacío: no se muestran) |
 
 **Contenedor** (variables de entorno, leídas **al arrancar**: la misma imagen sirve para cualquier
 instalación):
@@ -330,6 +330,7 @@ instalación):
 | `TOKEN_REGISTRO_PUBLICO` | Igual al `INATrace.requestLog.token` del backend; registra las visitas de los QR |
 | `APP_BASE_URL` | Raíz pública de los QR (vacío: el origen de la página) |
 | `QR_CODE_BASE_PATH` | Ruta de los QR impresos (por defecto `q-cd`) |
+| `URL_ANTERIOR` | Raíz de la interfaz actual mientras conviven; vacío (por defecto) oculta los enlaces a ella |
 | `BEYCO_AUTH_URL`, `BEYCO_CLIENT_ID` | Integración con Beyco (vacías: sin Beyco) |
 
 ## Scripts

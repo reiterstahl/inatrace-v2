@@ -39,10 +39,8 @@
     "salir": "Salir",
     "version_actual": "Versión actual",
     "hola": "Hola, {{nombre}}",
-    "bienvenida": "Esta es la nueva interfaz de INATrace. Se va habilitando por módulos: lo que todavía no está acá se abre en la versión actual, con la misma sesión.",
+    "bienvenida": "Esta es la nueva interfaz de INATrace: productores, stock, productos y etiquetas, la empresa y la administración, todo acá.",
     "modulos": "Módulos",
-    "en_v2": "En la nueva versión",
-    "en_actual": "En la versión actual",
     "abrir": "Abrir",
     "modulo": {
       "vitrina": "Vitrina pública del producto",
@@ -61,8 +59,6 @@
     "productores": "Productores",
     "empresa": "Empresa",
     "stock": "Stock",
-    "en_parte": "En parte en la nueva versión",
-    "resto_actual": "Lo demás, en la versión actual",
     "productos": "Productos",
     "administracion": "Administración"
   },
@@ -668,7 +664,7 @@
     "qr": {
       "titulo": "Código QR del lote",
       "descripcion": "Lo que imprime la versión actual para {{producto}}: al escanearlo se registra la visita y se abre la vitrina del producto.",
-      "sin_etiquetas": "El producto final no tiene etiquetas publicadas, así que el QR no tiene a qué vitrina apuntar. Se asocian en la",
+      "sin_etiquetas": "El producto final no tiene etiquetas publicadas, así que el QR no tiene a qué vitrina apuntar. Se asocian en los",
       "alt": "Código QR del lote {{lote}}",
       "etiqueta": "Etiqueta",
       "copiar": "Copiar",
@@ -677,7 +673,8 @@
       "descargar": "Descargar SVG",
       "imprimir": "Imprimir",
       "nota": "Para ver cómo queda sin contar una visita, usa \"Ver la vitrina\": abre la vitrina sin pasar por el registro de escaneos.",
-      "ver": "Ver el código QR"
+      "ver": "Ver el código QR",
+      "productos_finales": "productos finales del producto"
     },
     "pagos": {
       "titulo": "Pagos",

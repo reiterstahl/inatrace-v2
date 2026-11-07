@@ -85,7 +85,7 @@ function Contenido({ empresa, nombreEmpresa }: { empresa: number; nombreEmpresa:
       {error && <Aviso tono="mal">{error}</Aviso>}
 
       <div className="flex flex-wrap items-center gap-3">
-        <label className="flex h-11 min-w-0 flex-1 items-center gap-2 rounded-lg border border-linea-fuerte bg-superficie px-3 focus-within:border-marca focus-within:ring-3 focus-within:ring-marca/15 sm:max-w-md">
+        <label className="flex h-11 min-w-0 flex-1 basis-72 items-center gap-2 rounded-lg border border-linea-fuerte bg-superficie px-3 focus-within:border-marca focus-within:ring-3 focus-within:ring-marca/15 sm:max-w-md">
           <Icono nombre="buscar" className="size-4 shrink-0 text-tinta-3" />
           <span className="sr-only">{t('productores.buscar')}</span>
           <input

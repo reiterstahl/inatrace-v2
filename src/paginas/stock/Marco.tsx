@@ -1,7 +1,6 @@
 import { Link, Outlet } from '@tanstack/react-router';
 import { useTranslation } from 'react-i18next';
 import { Icono, type NombreIcono } from '@/componentes/ui/Icono';
-import { enAnterior } from '@/util/entorno';
 
 /**
  * Pestañas del módulo de stock. Las que ya están en la v2 son enlaces internos; las que no,
@@ -15,8 +14,6 @@ const EN_V2: { to: '/stock/entregas' | '/stock/todo' | '/stock/procesamiento' | 
   { to: '/stock/ordenes', clave: 'stock.pestanas.ordenes', icono: 'barco' },
   { to: '/stock/tablero', clave: 'stock.pestanas.tablero', icono: 'grafico' },
 ];
-const PENDIENTES: { clave: string; anterior: string }[] = [];
-
 const PESTANA = 'inline-flex h-11 shrink-0 items-center gap-2 rounded-t-lg border-b-2 border-transparent px-4 text-sm font-semibold text-tinta-2 hover:text-tinta';
 
 export function MarcoStock() {
@@ -28,11 +25,6 @@ export function MarcoStock() {
           <Link key={p.to} to={p.to} className={PESTANA} activeProps={{ className: '!border-marca !text-marca' }}>
             <Icono nombre={p.icono} className="size-4" /> {t(p.clave)}
           </Link>
-        ))}
-        {PENDIENTES.map((p) => (
-          <a key={p.clave} href={enAnterior(p.anterior)} className={PESTANA + ' font-medium text-tinta-3'} title={t('portal.en_actual')}>
-            {t(p.clave)} <Icono nombre="externo" className="size-3.5" />
-          </a>
         ))}
       </nav>
       <Outlet />

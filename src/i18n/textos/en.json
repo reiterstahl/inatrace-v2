@@ -39,10 +39,8 @@
     "salir": "Sign out",
     "version_actual": "Current version",
     "hola": "Hello, {{nombre}}",
-    "bienvenida": "This is the new INATrace interface. It is being rolled out module by module: anything not here yet opens in the current version, with the same session.",
+    "bienvenida": "This is the new INATrace interface: farmers, stock, products and labels, the company and administration, all here.",
     "modulos": "Modules",
-    "en_v2": "In the new version",
-    "en_actual": "In the current version",
     "abrir": "Open",
     "modulo": {
       "vitrina": "Public product page",
@@ -61,8 +59,6 @@
     "productores": "Farmers",
     "empresa": "Company",
     "stock": "Stock",
-    "en_parte": "Partly in the new version",
-    "resto_actual": "The rest, in the current version",
     "productos": "Products",
     "administracion": "Administration"
   },
@@ -677,7 +673,8 @@
       "descargar": "Download SVG",
       "imprimir": "Print",
       "nota": "To preview it without counting a visit, use \"View public page\": it opens the page without going through scan logging.",
-      "ver": "View the QR code"
+      "ver": "View the QR code",
+      "productos_finales": "final products of the product"
     },
     "pagos": {
       "titulo": "Payments",

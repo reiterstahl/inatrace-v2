@@ -321,7 +321,7 @@ In mock mode you can try the interface with another role by setting `simulado.ro
 | Variable | Purpose |
 |---|---|
 | `INATRACE_API` | Backend that Vite proxies `/api` to (default `http://localhost:8081`) |
-| `VITE_URL_ANTERIOR` | URL of the current interface, for the "Open in the current version" links |
+| `VITE_URL_ANTERIOR` | URL of the current interface, for the "Current version" links (empty: hidden) |
 
 **Container** (environment variables read **at startup**, so one image serves any installation):
 
@@ -330,6 +330,7 @@ In mock mode you can try the interface with another role by setting `simulado.ro
 | `TOKEN_REGISTRO_PUBLICO` | Must match the backend's `INATrace.requestLog.token`; records QR visits |
 | `APP_BASE_URL` | Public root of the QR codes (empty: the page's origin) |
 | `QR_CODE_BASE_PATH` | Path of the printed QR codes (default `q-cd`) |
+| `URL_ANTERIOR` | Root of the current interface while both run side by side; empty (the default) hides the links to it |
 | `BEYCO_AUTH_URL`, `BEYCO_CLIENT_ID` | Beyco integration (empty: no Beyco) |
 
 ## Scripts
