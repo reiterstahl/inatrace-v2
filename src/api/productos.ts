@@ -1,6 +1,6 @@
 import { keepPreviousData, queryOptions, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
-  createOrUpdateFinalProduct, createProduct, deleteFinalProduct, deleteProduct, getFinalProductList, getMeasureUnitTypeList, getProduct,
+  createOrUpdateFinalProduct, createProduct, deleteFinalProduct, deleteProduct, getFinalProductLabels, getFinalProductList, getMeasureUnitTypeList, getProduct,
   listCompanies, listCompaniesAdmin, listProducts, listProductsAdmin, updateProduct, uploadImage,
 } from './gen/sdk.gen';
 import type { ApiFinalProduct, ApiProduct } from './gen/types.gen';
@@ -35,7 +35,17 @@ export const productos = {
   finales: (producto: number) =>
     queryOptions({
       queryKey: ['productos', producto, 'finales'],
-      queryFn: () => desenvolver(getFinalProductList({ path: { productId: producto }, query: { limit: 500, sortBy: 'name', sort: 'ASC' } })),
+      queryFn: async () => {
+        const r = await desenvolver(getFinalProductList({ path: { productId: producto }, query: { limit: 500, sortBy: 'name', sort: 'ASC' } }));
+        // La lista del backend llega sin etiquetas (el detalle sí las trae): se completan, para mostrarlas
+        // y para que editar un producto final no las borre al guardar.
+        const items = await Promise.all(
+          (r.items ?? []).map(async (f) =>
+            f.labels?.length || !f.id ? f : { ...f, labels: await desenvolver(getFinalProductLabels({ path: { productId: producto, finalProductId: f.id } })).catch(() => f.labels ?? []) },
+          ),
+        );
+        return { ...r, items };
+      },
     }),
 
   unidades: () =>
