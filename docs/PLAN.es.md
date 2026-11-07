@@ -4,7 +4,7 @@
 
 > Iniciativa propia de Rolando QR. **No es parte de los contratos con la GIZ**:
 > no se trabaja con días de esos contratos ni vive en el repo de entrega (`dapdevs/inatrace-enhanced`).
-> Es una mejora que se le ofrece al cliente, que puede tomarla o no.
+> Es una iniciativa independiente, en tiempo propio, que se ofrece abierta a quienes usan INATrace.
 >
 > Estado: borrador v0.1 · 17.10.2026. Es el plan original; el estado actual está en el [README](../README.es.md).
 
@@ -82,7 +82,7 @@ recibe un enlace "Probar la nueva versión" en los módulos ya migrados.
   tiempo de una orden de stock, selector de instalación.
 - Reglas: estado activo con relleno, **nunca con bordes laterales de color**; estados (vencido,
   pendiente, aprobado) siempre con el mismo color en todo el sistema.
-- Se documenta en un catálogo navegable (Storybook o página propia) para mostrarlo al cliente.
+- Se documenta en un catálogo navegable (Storybook o página propia) para mostrarlo a quienes usan INATrace.
 
 ## 5. Inventario actual (rutas del frontend Angular)
 
@@ -127,8 +127,8 @@ El tamaño es relativo (S / M / L / XL); el calendario se fija al cerrar la fase
 | **6. Retiro de Angular** | Quitar la app actual del proxy; redirecciones de rutas viejas | S | Ninguna ruta llega a Angular |
 
 **Por qué la vitrina va primero:** son pocas pantallas, no tocan datos sensibles, las ve el
-consumidor final y es donde el cambio de estética se nota más. Sirve como demostración para el
-cliente antes de entrar a lo operativo.
+consumidor final y es donde el cambio de estética se nota más. Sirve como demostración para quienes
+usan INATrace antes de entrar a lo operativo.
 
 **Por qué stock va antes que administración:** es el día a día de las cooperativas y donde la
 interfaz actual más cuesta; la administración se usa poco y puede esperar en la versión vieja.
@@ -149,7 +149,7 @@ interfaz actual más cuesta; la administración se usa poco y puede esperar en l
 | La API no expone algo que la UI actual arma "a mano" | Detectarlo por módulo en la fase 0 revisando el uso real del cliente generado; agregar al backend como cambio aparte |
 | Divergencia con el INATrace original | El backend no cambia por la v2; la v2 se puede ofrecer también al upstream |
 | Dos interfaces a mantener durante la transición | Fases cortas; congelar mejoras en Angular para lo ya migrado |
-| Trabajo sin contrato | Fase 0 + 1 como inversión propia y demostración; el resto, solo con acuerdo |
+| Trabajo sin financiamiento | Inversión propia, por fases cortas y en abierto (MPL 2.0), para que cualquiera pueda adoptarla |
 | Confusión de propiedad intelectual con los contratos actuales | Repo propio, horas propias, separado de `inatrace-enhanced` |
 
 ## 9. Decisiones
@@ -169,4 +169,4 @@ Abiertas:
 
 Fase 0 acotada como prueba de concepto: ingreso + perfil + una página pública de producto, con la
 estética nueva, conviviendo con la versión actual en la instancia de referencia. Con eso hay algo
-concreto que mostrar al cliente antes de comprometer más tiempo.
+concreto que mostrar a quienes usan INATrace antes de comprometer más tiempo.

@@ -4,7 +4,7 @@
 
 > An independent initiative by Rolando QR. **It is not part of the GIZ contracts**: no days from
 > those contracts are spent on it, and it does not live in the delivery repository (`dapdevs/inatrace-enhanced`).
-> It is an improvement offered to the client, who can take it or leave it.
+> It is an independent initiative, built on my own time and offered openly to anyone using INATrace.
 >
 > Status: draft v0.1 · 17 October 2026. This is the original plan; the current status is in the [README](../README.md).
 
@@ -83,7 +83,7 @@ current one gets a "Try the new version" link in the modules already migrated.
   stock order, facility selector.
 - Rules: active state with a fill, **never with colored side borders**; statuses (overdue,
   pending, approved) always in the same color across the whole system.
-- Documented in a browsable catalog (Storybook or a page of its own) to show the client.
+- Documented in a browsable catalog (Storybook or a page of its own) to show to people using INATrace.
 
 ## 5. Current inventory (Angular frontend routes)
 
@@ -128,8 +128,8 @@ Size is relative (S / M / L / XL); the schedule is set when phase 0 closes.
 | **6. Retiring Angular** | Remove the current app from the proxy; redirect old routes | S | No route reaches Angular |
 
 **Why the public page goes first:** it is a few screens, touches no sensitive data, is seen by the
-end consumer and is where the new look shows the most. It works as a demonstration for the
-client before getting into the operational side.
+end consumer and is where the new look shows the most. It works as a demonstration for people
+using INATrace before getting into the operational side.
 
 **Why stock goes before administration:** it is the cooperatives' day-to-day work and where the
 current interface is hardest to use; administration is used rarely and can wait in the old version.
@@ -150,7 +150,7 @@ current interface is hardest to use; administration is used rarely and can wait 
 | The API does not expose something the current UI builds "by hand" | Find it per module in phase 0 by reviewing the real use of the generated client; add it to the backend as a separate change |
 | Drifting away from the original INATrace | The backend does not change for v2; v2 can also be offered upstream |
 | Two interfaces to maintain during the transition | Short phases; freeze Angular improvements for whatever is already migrated |
-| Work without a contract | Phases 0 + 1 as own investment and demonstration; the rest only with an agreement |
+| Work without funding | Own investment, in short phases and in the open (MPL 2.0), so anyone can adopt it |
 | Intellectual property confusion with the current contracts | Own repo, own hours, separate from `inatrace-enhanced` |
 
 ## 9. Decisions
@@ -170,4 +170,4 @@ Open:
 
 A scoped phase 0 as a proof of concept: sign-in + profile + one public product page, with the new
 look, running alongside the current version on the reference instance. That gives something
-concrete to show the client before committing more time.
+concrete to show to people using INATrace before committing more time.
