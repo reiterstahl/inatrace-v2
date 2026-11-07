@@ -398,7 +398,8 @@
       "aceptar": "Import anyway",
       "rechazar": "Discard",
       "aceptado": "Imported",
-      "rechazado": "Discarded"
+      "rechazado": "Discarded",
+      "archivo_invalido": "The file is not a valid Excel spreadsheet. Check it (or download the template again) and try again."
     },
     "tarjeta": {
       "titulo": "Farmer card",
@@ -937,7 +938,8 @@
         "zaranda": "Between 8 and 20.",
         "zaranda_orden": "Cannot be lower than the minimum.",
         "taza": "Between 60 and 100.",
-        "coordenada": "Out of range (latitude between −90 and 90; longitude between −180 and 180)."
+        "coordenada": "Out of range (latitude between −90 and 90; longitude between −180 and 180).",
+        "no_responde": "Beyco did not respond, or responded with an error. The offer was not sent: try again in a few minutes."
       },
       "op": {
         "Other": "Other",

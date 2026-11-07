@@ -398,7 +398,8 @@
       "aceptar": "Importar igual",
       "rechazar": "Descartar",
       "aceptado": "Importado",
-      "rechazado": "Descartado"
+      "rechazado": "Descartado",
+      "archivo_invalido": "El archivo no es una planilla de Excel válida. Revísalo (o descarga la plantilla de nuevo) y vuelve a intentarlo."
     },
     "tarjeta": {
       "titulo": "Tarjeta del productor",
@@ -937,7 +938,8 @@
         "zaranda": "Entre 8 y 20.",
         "zaranda_orden": "No puede ser menor que la mínima.",
         "taza": "Entre 60 y 100.",
-        "coordenada": "Fuera de rango (latitud entre −90 y 90; longitud entre −180 y 180)."
+        "coordenada": "Fuera de rango (latitud entre −90 y 90; longitud entre −180 y 180).",
+        "no_responde": "Beyco no respondió o respondió con un error. La oferta no se envió: inténtalo de nuevo en unos minutos."
       },
       "op": {
         "Other": "Otro",

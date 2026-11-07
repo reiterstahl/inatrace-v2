@@ -67,7 +67,7 @@ v2 equivalent.
 
 It is an independent initiative by Rolando QR, separate from the GIZ contracts. The full plan is
 in [docs/PLAN.md](docs/PLAN.md) and the detailed status of each phase is in
-[docs/AVANCE.md](docs/AVANCE.md) (in Spanish). Current version: **2.0.4**.
+[docs/AVANCE.md](docs/AVANCE.md) (in Spanish). Current version: **2.0.5**.
 
 ## Previews
 

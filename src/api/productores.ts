@@ -196,7 +196,11 @@ export async function subirDocumento(archivo: File) {
 export async function importarPlanilla(empresa: number, archivo: File) {
   const doc = await subirDocumento(archivo);
   const r = await importFarmersSpreadsheet({ path: { companyId: empresa, documentId: doc.id! } });
-  if (!r.response?.ok || !r.data) throw new ErrorApi('No se pudo importar la planilla.', 'ERROR', r.response?.status ?? 0);
+  if (!r.response?.ok || !r.data) {
+    // Se conserva el motivo del backend (por ejemplo, 400 INVALID_REQUEST si el archivo no es una planilla).
+    const cuerpo = r.error as { status?: string; errorMessage?: string } | undefined;
+    throw new ErrorApi(cuerpo?.errorMessage || 'No se pudo importar la planilla.', cuerpo?.status ?? 'ERROR', r.response?.status ?? 0);
+  }
   return r.data;
 }
 

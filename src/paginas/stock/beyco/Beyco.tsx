@@ -4,6 +4,7 @@ import { useQueries, useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { stock } from '@/api/stock';
 import { beyco, conectadoABeyco, conectarBeyco, irAAutorizar, olvidarBeyco, tomarPendiente, useEnviarABeyco } from '@/api/beyco';
+import { ErrorApi } from '@/api/respuesta';
 import { Boton } from '@/componentes/ui/Boton';
 import { Aviso, Cargando, EstadoError } from '@/componentes/ui/Estados';
 import { Icono } from '@/componentes/ui/Icono';
@@ -125,7 +126,9 @@ function Formulario({ empresa, inicial }: { empresa: number; inicial: OfertaBeyc
       setTocado(false);
     } catch (x) {
       const m = (x as Error).message;
-      setAviso(m === 'sin_sesion_beyco' ? t('stock.beyco.errores.sin_sesion_beyco') : m);
+      // Beyco caído o con una respuesta inválida: el backend responde 503 (UPSTREAM_HTTP_ERROR).
+      const caido = x instanceof ErrorApi && (x.http === 503 || x.estado === 'UPSTREAM_HTTP_ERROR');
+      setAviso(m === 'sin_sesion_beyco' ? t('stock.beyco.errores.sin_sesion_beyco') : caido ? t('stock.beyco.errores.no_responde') : m);
     }
   }
 

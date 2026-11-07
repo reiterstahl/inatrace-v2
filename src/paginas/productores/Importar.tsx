@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { addUserCustomer } from '@/api/gen/sdk.gen';
 import type { ApiUserCustomer, ApiUserCustomerImportResponse } from '@/api/gen/types.gen';
 import { importarPlanilla, productores } from '@/api/productores';
-import { desenvolver } from '@/api/respuesta';
+import { ErrorApi, desenvolver } from '@/api/respuesta';
 import { Boton, clasesBoton } from '@/componentes/ui/Boton';
 import { Aviso } from '@/componentes/ui/Estados';
 import { Icono } from '@/componentes/ui/Icono';
@@ -43,7 +43,9 @@ export function ImportarProductores() {
       setResultado(await importarPlanilla(empresa.id, archivo));
       void qc.invalidateQueries({ queryKey: ['productores', empresa.id] });
     } catch (e) {
-      setError((e as Error).message);
+      // El backend rechaza con 400 un archivo que no es una planilla válida (antes respondía 500).
+      const invalido = e instanceof ErrorApi && e.estado === 'INVALID_REQUEST' && /xlsx|spreadsheet/i.test(e.message);
+      setError(invalido ? t('productores.importacion.archivo_invalido') : (e as Error).message);
     } finally {
       setImportando(false);
     }
